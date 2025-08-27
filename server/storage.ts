@@ -8,6 +8,8 @@ import {
   photoUploads,
   planUploads,
   referrals,
+  courseContent,
+  privateCodeBooks,
   type User, 
   type InsertUser,
   type Course,
@@ -20,7 +22,11 @@ import {
   type MentorConversation,
   type PhotoUpload,
   type PlanUpload,
-  type Referral
+  type Referral,
+  type CourseContent,
+  type InsertCourseContent,
+  type PrivateCodeBook,
+  type InsertPrivateCodeBook
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, and, or, ilike, count } from "drizzle-orm";
@@ -70,6 +76,17 @@ export interface IStorage {
   // Referral methods
   createReferral(referrerId: string, referredId: string, commissionAmount: number): Promise<Referral>;
   getUserReferrals(userId: string): Promise<Referral[]>;
+  
+  // Course content methods
+  getCourseContent(courseId: string): Promise<CourseContent[]>;
+  createCourseContent(content: InsertCourseContent): Promise<CourseContent>;
+  updateCourseContent(id: string, updates: Partial<CourseContent>): Promise<CourseContent>;
+  deleteCourseContent(id: string): Promise<void>;
+  
+  // Private code book methods
+  getPrivateCodeBooks(): Promise<PrivateCodeBook[]>;
+  createPrivateCodeBook(codeBook: InsertPrivateCodeBook): Promise<PrivateCodeBook>;
+  deletePrivateCodeBook(id: string): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -301,6 +318,63 @@ export class DatabaseStorage implements IStorage {
       .from(referrals)
       .where(eq(referrals.referrerId, userId))
       .orderBy(desc(referrals.createdAt));
+  }
+
+  // Course content methods
+  async getCourseContent(courseId: string): Promise<CourseContent[]> {
+    const results = await db
+      .select()
+      .from(courseContent)
+      .where(eq(courseContent.courseId, courseId))
+      .orderBy(courseContent.chapter, courseContent.section, courseContent.sortOrder);
+    
+    return results;
+  }
+
+  async createCourseContent(content: InsertCourseContent): Promise<CourseContent> {
+    const [result] = await db
+      .insert(courseContent)
+      .values(content)
+      .returning();
+    
+    return result;
+  }
+
+  async updateCourseContent(id: string, updates: Partial<CourseContent>): Promise<CourseContent> {
+    const [result] = await db
+      .update(courseContent)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(courseContent.id, id))
+      .returning();
+    
+    return result;
+  }
+
+  async deleteCourseContent(id: string): Promise<void> {
+    await db.delete(courseContent).where(eq(courseContent.id, id));
+  }
+
+  // Private code book methods
+  async getPrivateCodeBooks(): Promise<PrivateCodeBook[]> {
+    const results = await db
+      .select()
+      .from(privateCodeBooks)
+      .orderBy(desc(privateCodeBooks.createdAt));
+    
+    return results;
+  }
+
+  async createPrivateCodeBook(codeBook: InsertPrivateCodeBook): Promise<PrivateCodeBook> {
+    const [result] = await db
+      .insert(privateCodeBooks)
+      .values(codeBook)
+      .returning();
+    
+    return result;
+  }
+
+  async deletePrivateCodeBook(id: string): Promise<void> {
+    await db.delete(privateCodeBooks).where(eq(privateCodeBooks.id, id));
   }
 }
 

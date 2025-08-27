@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertUserSchema, insertJobSchema, insertJobApplicationSchema } from "@shared/schema";
+import { insertUserSchema, insertJobSchema, insertJobApplicationSchema, insertCourseContentSchema, insertPrivateCodeBookSchema } from "@shared/schema";
 import { analyzePhoto, analyzePlans, getMentorResponse, calculatePipeSize } from "./openai";
 import Stripe from "stripe";
 import bcrypt from "bcrypt";
@@ -507,6 +507,140 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error listing code books:", error);
       res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  // QuizGecko import route
+  app.post("/api/admin/import-quizgecko", async (req, res) => {
+    try {
+      const { content } = req.body;
+      
+      if (!Array.isArray(content)) {
+        return res.status(400).json({ message: "Invalid content format" });
+      }
+
+      // For now, we'll use the first course ID (journeyman course)
+      // In a real app, you'd select the appropriate course
+      const courses = await storage.getCourses();
+      const journeymanCourse = courses.find(c => c.type === "journeyman") || courses[0];
+      
+      if (!journeymanCourse) {
+        return res.status(400).json({ message: "No course found to import content into" });
+      }
+
+      const imported = [];
+      for (const item of content) {
+        const courseContentData = insertCourseContentSchema.parse({
+          courseId: journeymanCourse.id,
+          title: item.title,
+          type: item.type,
+          chapter: item.chapter,
+          section: item.section,
+          quizgeckoUrl: item.url,
+          content: { description: `${item.type} content for ${item.title}`, url: item.url },
+          isActive: true,
+          sortOrder: 0
+        });
+
+        const createdContent = await storage.createCourseContent(courseContentData);
+        imported.push(createdContent);
+      }
+
+      res.json({ 
+        message: "Content imported successfully", 
+        count: imported.length,
+        content: imported 
+      });
+    } catch (error: any) {
+      console.error('QuizGecko import error:', error);
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  // Get private code books
+  app.get("/api/admin/code-books", async (req, res) => {
+    try {
+      const codeBooks = await storage.getPrivateCodeBooks();
+      
+      const formattedBooks = codeBooks.map(book => ({
+        id: book.id,
+        name: book.originalName,
+        size: `${(book.fileSize / 1024 / 1024).toFixed(1)} MB`,
+        uploadedAt: book.createdAt,
+        filePath: book.filePath
+      }));
+
+      res.json(formattedBooks);
+    } catch (error: any) {
+      console.error('Get private code books error:', error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Upload private code book
+  app.post("/api/admin/code-books/upload", upload.single('codebook'), async (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ message: "No file uploaded" });
+      }
+
+      // For now, we'll use a simple user ID (in a real app, get from session)
+      const uploadedBy = "admin"; // In real app: req.user?.id || "admin"
+
+      const codeBookData = insertPrivateCodeBookSchema.parse({
+        filename: req.file.filename,
+        originalName: req.file.originalname,
+        filePath: req.file.path,
+        fileSize: req.file.size,
+        contentType: req.file.mimetype,
+        uploadedBy: uploadedBy
+      });
+
+      const codeBook = await storage.createPrivateCodeBook(codeBookData);
+
+      res.json({ 
+        message: "Code book uploaded successfully",
+        codeBook: {
+          id: codeBook.id,
+          name: codeBook.originalName,
+          size: `${(codeBook.fileSize / 1024 / 1024).toFixed(1)} MB`,
+          uploadedAt: codeBook.createdAt
+        }
+      });
+    } catch (error: any) {
+      console.error('Code book upload error:', error);
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  // Content generation route (placeholder for future AI integration)
+  app.post("/api/admin/generate-content", async (req, res) => {
+    try {
+      const { contentType, topic } = req.body;
+      
+      // This is a placeholder - you would integrate with AI service here
+      const generatedContent = {
+        content: `<h1>${topic}</h1><p>Generated ${contentType} content for ${topic}. This is a placeholder that would be replaced with actual AI-generated content based on your uploaded code books.</p>`,
+        html: `<div class="generated-content"><h2>${topic}</h2><p>This ${contentType} was generated based on your private code book reference materials.</p><ul><li>Learning objectives would be listed here</li><li>Key concepts and definitions</li><li>Code references and requirements</li></ul></div>`
+      };
+
+      res.json(generatedContent);
+    } catch (error: any) {
+      console.error('Content generation error:', error);
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  // Get course content for display
+  app.get("/api/courses/:courseId/content", async (req, res) => {
+    try {
+      const { courseId } = req.params;
+      const content = await storage.getCourseContent(courseId);
+      
+      res.json(content);
+    } catch (error: any) {
+      console.error('Get course content error:', error);
+      res.status(400).json({ message: error.message });
     }
   });
 

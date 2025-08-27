@@ -138,6 +138,35 @@ export const referrals = pgTable("referrals", {
   paidAt: timestamp("paid_at"),
 });
 
+// Course content (lessons, quizzes, etc.)
+export const courseContent = pgTable("course_content", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  courseId: text("course_id").notNull(),
+  title: text("title").notNull(),
+  type: text("type").notNull(), // 'lesson', 'quiz', 'review', 'video'
+  chapter: integer("chapter"),
+  section: integer("section"),
+  content: jsonb("content"), // Main content (HTML, quiz questions, etc.)
+  quizgeckoUrl: text("quizgecko_url"), // Original QuizGecko URL if imported
+  duration: integer("duration"), // in minutes
+  isActive: boolean("is_active").default(true),
+  sortOrder: integer("sort_order").default(0),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Private code books (admin reference only)
+export const privateCodeBooks = pgTable("private_code_books", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  filename: text("filename").notNull(),
+  originalName: text("original_name").notNull(),
+  filePath: text("file_path").notNull(),
+  fileSize: integer("file_size").notNull(),
+  contentType: text("content_type").notNull(),
+  uploadedBy: text("uploaded_by").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 // Relations
 export const usersRelations = relations(users, ({ many }) => ({
   enrollments: many(courseEnrollments),
@@ -149,6 +178,14 @@ export const usersRelations = relations(users, ({ many }) => ({
 
 export const coursesRelations = relations(courses, ({ many }) => ({
   enrollments: many(courseEnrollments),
+  content: many(courseContent),
+}));
+
+export const courseContentRelations = relations(courseContent, ({ one }) => ({
+  course: one(courses, {
+    fields: [courseContent.courseId],
+    references: [courses.id],
+  }),
 }));
 
 export const courseEnrollmentsRelations = relations(courseEnrollments, ({ one }) => ({
@@ -204,6 +241,17 @@ export const insertJobApplicationSchema = createInsertSchema(jobApplications).om
   appliedAt: true,
 });
 
+export const insertCourseContentSchema = createInsertSchema(courseContent).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertPrivateCodeBookSchema = createInsertSchema(privateCodeBooks).omit({
+  id: true,
+  createdAt: true,
+});
+
 // Types
 export type User = typeof users.$inferSelect;
 export type InsertUser = z.infer<typeof insertUserSchema>;
@@ -218,3 +266,7 @@ export type MentorConversation = typeof mentorConversations.$inferSelect;
 export type PhotoUpload = typeof photoUploads.$inferSelect;
 export type PlanUpload = typeof planUploads.$inferSelect;
 export type Referral = typeof referrals.$inferSelect;
+export type CourseContent = typeof courseContent.$inferSelect;
+export type InsertCourseContent = z.infer<typeof insertCourseContentSchema>;
+export type PrivateCodeBook = typeof privateCodeBooks.$inferSelect;
+export type InsertPrivateCodeBook = z.infer<typeof insertPrivateCodeBookSchema>;
