@@ -442,14 +442,38 @@ export default function Tools() {
 // QuizGecko content importer
 function QuizGeckoImporter() {
   const [urls, setUrls] = useState([
-    { type: 'lesson', chapter: 1, section: 1, title: '', url: '' },
+    { 
+      chapter: 1, 
+      section: 1, 
+      title: '', 
+      url: '',
+      components: {
+        introduction: true,
+        podcast: true,
+        quiz: true,
+        flashcards: true,
+        studyNotes: true
+      }
+    },
   ]);
   const [importing, setImporting] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
   const addUrl = () => {
-    setUrls([...urls, { type: 'lesson', chapter: 1, section: 1, title: '', url: '' }]);
+    setUrls([...urls, { 
+      chapter: 1, 
+      section: 1, 
+      title: '', 
+      url: '',
+      components: {
+        introduction: true,
+        podcast: true,
+        quiz: true,
+        flashcards: true,
+        studyNotes: true
+      }
+    }]);
   };
 
   const removeUrl = (index: number) => {
@@ -477,7 +501,19 @@ function QuizGeckoImporter() {
       });
       queryClient.invalidateQueries({ queryKey: ["/api/courses"] });
       // Reset form
-      setUrls([{ type: 'lesson', chapter: 1, section: 1, title: '', url: '' }]);
+      setUrls([{ 
+        chapter: 1, 
+        section: 1, 
+        title: '', 
+        url: '',
+        components: {
+          introduction: true,
+          podcast: true,
+          quiz: true,
+          flashcards: true,
+          studyNotes: true
+        }
+      }]);
     },
     onError: () => {
       toast({
@@ -501,14 +537,32 @@ function QuizGeckoImporter() {
       });
       return;
     }
-    importMutation.mutate(validUrls);
+    
+    // Create individual content entries for each selected component
+    const contentToImport = [];
+    for (const urlItem of validUrls) {
+      componentTypes.forEach(component => {
+        if (urlItem.components[component.key as keyof typeof urlItem.components]) {
+          contentToImport.push({
+            title: `${urlItem.title} - ${component.label}`,
+            type: component.type,
+            chapter: urlItem.chapter,
+            section: urlItem.section,
+            url: urlItem.url
+          });
+        }
+      });
+    }
+    
+    importMutation.mutate(contentToImport);
   };
 
-  const contentTypes = [
-    { value: 'lesson', label: 'Lesson' },
-    { value: 'quiz', label: 'Quiz' },
-    { value: 'review', label: 'Chapter Review' },
-    { value: 'video', label: 'Video' },
+  const componentTypes = [
+    { key: 'introduction', label: 'Introduction', type: 'lesson' },
+    { key: 'podcast', label: 'Podcast', type: 'podcast' },
+    { key: 'quiz', label: 'Questions & Answers', type: 'quiz' },
+    { key: 'flashcards', label: 'Flashcards', type: 'flashcards' },
+    { key: 'studyNotes', label: 'Study Notes', type: 'study-notes' },
   ];
 
   return (
@@ -547,84 +601,101 @@ function QuizGeckoImporter() {
             <div className="space-y-4 max-h-96 overflow-y-auto">
               {urls.map((item, index) => (
                 <div key={index} className="p-4 border rounded-lg bg-muted/30" data-testid={`content-item-${index}`}>
-                  <div className="grid grid-cols-1 md:grid-cols-12 gap-3">
-                    {/* Type */}
-                    <div className="md:col-span-2">
-                      <Label className="text-xs">Type</Label>
-                      <select
-                        value={item.type}
-                        onChange={(e) => updateUrl(index, 'type', e.target.value)}
-                        className="w-full px-3 py-1.5 text-sm border border-border rounded bg-background"
-                        data-testid={`content-type-${index}`}
-                      >
-                        {contentTypes.map((type) => (
-                          <option key={type.value} value={type.value}>{type.label}</option>
-                        ))}
-                      </select>
-                    </div>
+                  <div className="space-y-4">
+                    {/* Basic Info Row */}
+                    <div className="grid grid-cols-1 md:grid-cols-8 gap-3">
+                      {/* Chapter */}
+                      <div className="md:col-span-1">
+                        <Label className="text-xs">Chapter</Label>
+                        <Input
+                          type="number"
+                          value={item.chapter}
+                          onChange={(e) => updateUrl(index, 'chapter', parseInt(e.target.value) || 1)}
+                          className="text-sm h-8"
+                          min="1"
+                          data-testid={`chapter-${index}`}
+                        />
+                      </div>
 
-                    {/* Chapter */}
-                    <div className="md:col-span-1">
-                      <Label className="text-xs">Ch</Label>
-                      <Input
-                        type="number"
-                        value={item.chapter}
-                        onChange={(e) => updateUrl(index, 'chapter', parseInt(e.target.value) || 1)}
-                        className="text-sm h-8"
-                        min="1"
-                        data-testid={`chapter-${index}`}
-                      />
-                    </div>
+                      {/* Section */}
+                      <div className="md:col-span-1">
+                        <Label className="text-xs">Section</Label>
+                        <Input
+                          type="number"
+                          value={item.section}
+                          onChange={(e) => updateUrl(index, 'section', parseInt(e.target.value) || 1)}
+                          className="text-sm h-8"
+                          min="1"
+                          data-testid={`section-${index}`}
+                        />
+                      </div>
 
-                    {/* Section */}
-                    <div className="md:col-span-1">
-                      <Label className="text-xs">Sec</Label>
-                      <Input
-                        type="number"
-                        value={item.section}
-                        onChange={(e) => updateUrl(index, 'section', parseInt(e.target.value) || 1)}
-                        className="text-sm h-8"
-                        min="1"
-                        data-testid={`section-${index}`}
-                      />
-                    </div>
+                      {/* Title */}
+                      <div className="md:col-span-5">
+                        <Label className="text-xs">Title</Label>
+                        <Input
+                          value={item.title}
+                          onChange={(e) => updateUrl(index, 'title', e.target.value)}
+                          placeholder="e.g., Louisiana State Plumbing Code §101 Administration"
+                          className="text-sm h-8"
+                          data-testid={`title-${index}`}
+                        />
+                      </div>
 
-                    {/* Title */}
-                    <div className="md:col-span-4">
-                      <Label className="text-xs">Title</Label>
-                      <Input
-                        value={item.title}
-                        onChange={(e) => updateUrl(index, 'title', e.target.value)}
-                        placeholder="e.g., Water Supply Systems"
-                        className="text-sm h-8"
-                        data-testid={`title-${index}`}
-                      />
+                      {/* Remove */}
+                      <div className="md:col-span-1 flex items-end">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => removeUrl(index)}
+                          disabled={urls.length === 1}
+                          className="h-8 w-8 p-0 text-red-600 hover:text-red-800 hover:bg-red-50"
+                          data-testid={`remove-${index}`}
+                        >
+                          ×
+                        </Button>
+                      </div>
                     </div>
 
                     {/* URL */}
-                    <div className="md:col-span-3">
+                    <div>
                       <Label className="text-xs">QuizGecko URL</Label>
                       <Input
                         value={item.url}
                         onChange={(e) => updateUrl(index, 'url', e.target.value)}
-                        placeholder="https://quizgecko.com/..."
-                        className="text-sm h-8"
+                        placeholder="https://quizgecko.com/join?code=..."
+                        className="text-sm"
                         data-testid={`url-${index}`}
                       />
                     </div>
 
-                    {/* Remove */}
-                    <div className="md:col-span-1 flex items-end">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => removeUrl(index)}
-                        disabled={urls.length === 1}
-                        className="h-8 w-8 p-0 text-red-600 hover:text-red-800 hover:bg-red-50"
-                        data-testid={`remove-${index}`}
-                      >
-                        ×
-                      </Button>
+                    {/* Components Selection */}
+                    <div>
+                      <Label className="text-xs mb-2 block">Components to Import</Label>
+                      <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+                        {componentTypes.map((component) => (
+                          <label
+                            key={component.key}
+                            className="flex items-center space-x-2 text-sm cursor-pointer"
+                            data-testid={`component-${component.key}-${index}`}
+                          >
+                            <input
+                              type="checkbox"
+                              checked={item.components[component.key as keyof typeof item.components]}
+                              onChange={(e) => {
+                                const updated = [...urls];
+                                updated[index].components = {
+                                  ...updated[index].components,
+                                  [component.key]: e.target.checked
+                                };
+                                setUrls(updated);
+                              }}
+                              className="rounded"
+                            />
+                            <span className="text-xs">{component.label}</span>
+                          </label>
+                        ))}
+                      </div>
                     </div>
                   </div>
                 </div>
