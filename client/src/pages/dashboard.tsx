@@ -1,0 +1,368 @@
+import { useQuery } from "@tanstack/react-query";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
+import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { 
+  BookOpen, 
+  Trophy, 
+  Clock, 
+  Target, 
+  TrendingUp, 
+  Calendar, 
+  MessageCircle, 
+  FileText,
+  Download,
+  Star
+} from "lucide-react";
+import AIMentorChat from "@/components/ai-mentor-chat";
+import { Link } from "wouter";
+
+export default function Dashboard() {
+  const { data: user } = useQuery({
+    queryKey: ["/api/auth/me"],
+  });
+
+  const { data: enrollments } = useQuery({
+    queryKey: ["/api/enrollments"],
+  });
+
+  const { data: courses } = useQuery({
+    queryKey: ["/api/courses"],
+  });
+
+  const { data: conversations } = useQuery({
+    queryKey: ["/api/mentor/conversations"],
+  });
+
+  const { data: applications } = useQuery({
+    queryKey: ["/api/job-applications"],
+  });
+
+  const getCompletedCourses = () => {
+    return enrollments?.filter((e: any) => e.isCompleted).length || 0;
+  };
+
+  const getAverageProgress = () => {
+    if (!enrollments?.length) return 0;
+    const total = enrollments.reduce((sum: number, e: any) => sum + parseFloat(e.progress), 0);
+    return Math.round(total / enrollments.length);
+  };
+
+  const getOverallGrade = () => {
+    // Calculate based on test scores and progress
+    return "A-"; // Placeholder
+  };
+
+  const getRecentActivity = () => {
+    return [
+      { type: "course", action: "Completed lesson", item: "Pipe Sizing Fundamentals", time: "2 hours ago" },
+      { type: "test", action: "Passed practice test", item: "Backflow Prevention", time: "1 day ago" },
+      { type: "mentor", action: "Asked AI mentor", item: "Pressure testing procedures", time: "2 days ago" },
+      { type: "job", action: "Applied to job", item: "Journeyman Plumber at Gulf South", time: "3 days ago" },
+    ];
+  };
+
+  return (
+    <div className="min-h-screen bg-background">
+      {/* Header */}
+      <section className="bg-gradient-to-r from-primary/10 to-accent/10 py-8" data-testid="dashboard-header">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold text-foreground" data-testid="welcome-message">
+                Welcome back, {user?.firstName || user?.username}!
+              </h1>
+              <p className="text-muted-foreground mt-1">
+                Continue your plumbing education journey
+              </p>
+            </div>
+            <div className="text-right">
+              <Badge variant="secondary" className="mb-2" data-testid="subscription-tier">
+                {user?.subscriptionTier || 'Basic'} Plan
+              </Badge>
+              <p className="text-sm text-muted-foreground">
+                Member since {user?.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'N/A'}
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <Tabs defaultValue="overview" className="space-y-8">
+          <TabsList className="grid w-full grid-cols-5">
+            <TabsTrigger value="overview" data-testid="tab-overview">Overview</TabsTrigger>
+            <TabsTrigger value="courses" data-testid="tab-courses">My Courses</TabsTrigger>
+            <TabsTrigger value="progress" data-testid="tab-progress">Progress</TabsTrigger>
+            <TabsTrigger value="mentor" data-testid="tab-mentor">AI Mentor</TabsTrigger>
+            <TabsTrigger value="jobs" data-testid="tab-jobs">Job Applications</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="overview" className="space-y-8">
+            {/* Quick Stats */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6" data-testid="quick-stats">
+              <Card>
+                <CardContent className="p-6">
+                  <div className="flex items-center space-x-2">
+                    <BookOpen className="w-8 h-8 text-primary" />
+                    <div>
+                      <p className="text-2xl font-bold" data-testid="stat-courses">{enrollments?.length || 0}</p>
+                      <p className="text-sm text-muted-foreground">Enrolled Courses</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardContent className="p-6">
+                  <div className="flex items-center space-x-2">
+                    <Trophy className="w-8 h-8 text-accent" />
+                    <div>
+                      <p className="text-2xl font-bold" data-testid="stat-completed">{getCompletedCourses()}</p>
+                      <p className="text-sm text-muted-foreground">Completed</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardContent className="p-6">
+                  <div className="flex items-center space-x-2">
+                    <Target className="w-8 h-8 text-green-600" />
+                    <div>
+                      <p className="text-2xl font-bold" data-testid="stat-progress">{getAverageProgress()}%</p>
+                      <p className="text-sm text-muted-foreground">Avg Progress</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardContent className="p-6">
+                  <div className="flex items-center space-x-2">
+                    <Star className="w-8 h-8 text-yellow-500" />
+                    <div>
+                      <p className="text-2xl font-bold" data-testid="stat-grade">{getOverallGrade()}</p>
+                      <p className="text-sm text-muted-foreground">Overall Grade</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+              {/* Recent Activity */}
+              <Card className="lg:col-span-2" data-testid="recent-activity">
+                <CardHeader>
+                  <CardTitle>Recent Activity</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    {getRecentActivity().map((activity, index) => (
+                      <div key={index} className="flex items-center space-x-3 p-3 rounded-lg bg-muted/50">
+                        <div className="w-2 h-2 bg-primary rounded-full"></div>
+                        <div className="flex-1">
+                          <p className="text-sm">
+                            <span className="font-medium">{activity.action}</span> {activity.item}
+                          </p>
+                          <p className="text-xs text-muted-foreground">{activity.time}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Quick Actions */}
+              <Card data-testid="quick-actions">
+                <CardHeader>
+                  <CardTitle>Quick Actions</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <Link href="/courses">
+                    <Button className="w-full justify-start" variant="outline" data-testid="action-browse-courses">
+                      <BookOpen className="w-4 h-4 mr-2" />
+                      Browse Courses
+                    </Button>
+                  </Link>
+                  <Link href="/tools">
+                    <Button className="w-full justify-start" variant="outline" data-testid="action-calculators">
+                      <Target className="w-4 h-4 mr-2" />
+                      Use Calculators
+                    </Button>
+                  </Link>
+                  <Link href="/jobs">
+                    <Button className="w-full justify-start" variant="outline" data-testid="action-find-jobs">
+                      <TrendingUp className="w-4 h-4 mr-2" />
+                      Find Jobs
+                    </Button>
+                  </Link>
+                  <Button className="w-full justify-start" variant="outline" data-testid="action-download-certificate">
+                    <Download className="w-4 h-4 mr-2" />
+                    Download Certificate
+                  </Button>
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="courses" className="space-y-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" data-testid="enrolled-courses">
+              {enrollments?.length > 0 ? enrollments.map((enrollment: any) => {
+                const course = courses?.find((c: any) => c.id === enrollment.courseId);
+                if (!course) return null;
+
+                return (
+                  <Card key={enrollment.id} className="hover:shadow-lg transition-shadow">
+                    <CardContent className="p-6">
+                      <div className="space-y-4">
+                        <div>
+                          <h3 className="font-semibold text-lg" data-testid={`course-title-${course.id}`}>
+                            {course.title}
+                          </h3>
+                          <p className="text-sm text-muted-foreground">{course.description}</p>
+                        </div>
+                        
+                        <div className="space-y-2">
+                          <div className="flex justify-between text-sm">
+                            <span>Progress</span>
+                            <span>{enrollment.progress}%</span>
+                          </div>
+                          <Progress value={parseFloat(enrollment.progress)} className="h-2" />
+                        </div>
+
+                        <div className="flex items-center justify-between text-sm text-muted-foreground">
+                          <span>{enrollment.completedLessons} / {course.lessons} lessons</span>
+                          {enrollment.isCompleted && (
+                            <Badge className="bg-green-100 text-green-800">Completed</Badge>
+                          )}
+                        </div>
+
+                        <Button className="w-full" data-testid={`continue-course-${course.id}`}>
+                          {enrollment.isCompleted ? 'Review' : 'Continue'}
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              }) : (
+                <div className="col-span-full text-center py-12" data-testid="no-enrolled-courses">
+                  <BookOpen className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
+                  <h3 className="text-lg font-semibold mb-2">No enrolled courses</h3>
+                  <p className="text-muted-foreground mb-4">Start learning by enrolling in a course</p>
+                  <Link href="/courses">
+                    <Button data-testid="browse-all-courses">Browse Courses</Button>
+                  </Link>
+                </div>
+              )}
+            </div>
+          </TabsContent>
+
+          <TabsContent value="progress" className="space-y-8">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              {/* Progress Chart */}
+              <Card data-testid="progress-chart">
+                <CardHeader>
+                  <CardTitle>Learning Progress</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-6">
+                    {enrollments?.map((enrollment: any) => {
+                      const course = courses?.find((c: any) => c.id === enrollment.courseId);
+                      if (!course) return null;
+
+                      return (
+                        <div key={enrollment.id} className="space-y-2">
+                          <div className="flex justify-between">
+                            <span className="text-sm font-medium">{course.title}</span>
+                            <span className="text-sm text-muted-foreground">{enrollment.progress}%</span>
+                          </div>
+                          <Progress value={parseFloat(enrollment.progress)} className="h-3" />
+                        </div>
+                      );
+                    })}
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Test Scores */}
+              <Card data-testid="test-scores">
+                <CardHeader>
+                  <CardTitle>Recent Test Scores</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    {enrollments?.filter((e: any) => e.testScores?.length > 0).map((enrollment: any) => {
+                      const course = courses?.find((c: any) => c.id === enrollment.courseId);
+                      const latestScore = enrollment.testScores?.[enrollment.testScores.length - 1];
+                      
+                      return (
+                        <div key={enrollment.id} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+                          <div>
+                            <p className="font-medium">{course?.title}</p>
+                            <p className="text-sm text-muted-foreground">Practice Test</p>
+                          </div>
+                          <div className="text-right">
+                            <p className="text-lg font-bold">{latestScore?.score}%</p>
+                            <p className="text-xs text-muted-foreground">
+                              {new Date(latestScore?.date).toLocaleDateString()}
+                            </p>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="mentor" className="space-y-8">
+            <AIMentorChat />
+          </TabsContent>
+
+          <TabsContent value="jobs" className="space-y-8">
+            <Card data-testid="job-applications">
+              <CardHeader>
+                <CardTitle>My Job Applications</CardTitle>
+              </CardHeader>
+              <CardContent>
+                {applications?.length > 0 ? (
+                  <div className="space-y-4">
+                    {applications.map((application: any) => (
+                      <div key={application.id} className="p-4 border rounded-lg">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <h3 className="font-semibold">{application.job?.title}</h3>
+                            <p className="text-sm text-muted-foreground">{application.job?.company}</p>
+                          </div>
+                          <Badge variant={application.status === 'pending' ? 'secondary' : 'default'}>
+                            {application.status}
+                          </Badge>
+                        </div>
+                        <p className="text-sm text-muted-foreground mt-2">
+                          Applied {new Date(application.appliedAt).toLocaleDateString()}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-12">
+                    <FileText className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
+                    <h3 className="text-lg font-semibold mb-2">No job applications</h3>
+                    <p className="text-muted-foreground mb-4">Start applying to jobs to track your applications here</p>
+                    <Link href="/jobs">
+                      <Button>Browse Jobs</Button>
+                    </Link>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
+      </div>
+    </div>
+  );
+}

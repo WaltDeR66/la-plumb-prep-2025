@@ -1,0 +1,447 @@
+import type { Express } from "express";
+import { createServer, type Server } from "http";
+import { storage } from "./storage";
+import { insertUserSchema, insertJobSchema, insertJobApplicationSchema } from "@shared/schema";
+import { analyzePhoto, analyzePlans, getMentorResponse, calculatePipeSize } from "./openai";
+import Stripe from "stripe";
+import bcrypt from "bcrypt";
+import session from "express-session";
+import passport from "passport";
+import { Strategy as LocalStrategy } from "passport-local";
+import multer from "multer";
+import path from "path";
+import fs from "fs";
+
+if (!process.env.STRIPE_SECRET_KEY) {
+  throw new Error('Missing required Stripe secret: STRIPE_SECRET_KEY');
+}
+
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+  apiVersion: "2023-10-16",
+});
+
+// Configure multer for file uploads
+const upload = multer({
+  dest: 'uploads/',
+  limits: {
+    fileSize: 10 * 1024 * 1024, // 10MB limit
+  },
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype.startsWith('image/') || file.mimetype === 'application/pdf') {
+      cb(null, true);
+    } else {
+      cb(new Error('Only images and PDF files are allowed'));
+    }
+  }
+});
+
+export async function registerRoutes(app: Express): Promise<Server> {
+  // Session configuration
+  app.use(session({
+    secret: process.env.SESSION_SECRET || 'your-secret-key',
+    resave: false,
+    saveUninitialized: false,
+    cookie: { secure: false, maxAge: 24 * 60 * 60 * 1000 } // 24 hours
+  }));
+
+  app.use(passport.initialize());
+  app.use(passport.session());
+
+  // Passport configuration
+  passport.use(new LocalStrategy(
+    { usernameField: 'email' },
+    async (email, password, done) => {
+      try {
+        const user = await storage.getUserByEmail(email);
+        if (!user) {
+          return done(null, false, { message: 'Invalid email or password' });
+        }
+
+        const isValid = await bcrypt.compare(password, user.password);
+        if (!isValid) {
+          return done(null, false, { message: 'Invalid email or password' });
+        }
+
+        return done(null, user);
+      } catch (error) {
+        return done(error);
+      }
+    }
+  ));
+
+  passport.serializeUser((user: any, done) => {
+    done(null, user.id);
+  });
+
+  passport.deserializeUser(async (id: string, done) => {
+    try {
+      const user = await storage.getUser(id);
+      done(null, user);
+    } catch (error) {
+      done(error);
+    }
+  });
+
+  // Auth routes
+  app.post("/api/auth/register", async (req, res) => {
+    try {
+      const userData = insertUserSchema.parse(req.body);
+      
+      // Check if user already exists
+      const existingUser = await storage.getUserByEmail(userData.email);
+      if (existingUser) {
+        return res.status(400).json({ message: "User already exists" });
+      }
+
+      // Hash password
+      const hashedPassword = await bcrypt.hash(userData.password, 10);
+      
+      // Create user
+      const user = await storage.createUser({
+        ...userData,
+        password: hashedPassword
+      });
+
+      // Handle referral if provided
+      if (userData.referredBy) {
+        try {
+          const referrer = await storage.getUserByUsername(userData.referredBy);
+          if (referrer) {
+            await storage.createReferral(referrer.id, user.id, 10); // 10% commission
+          }
+        } catch (error) {
+          console.error('Referral creation failed:', error);
+        }
+      }
+
+      res.json({ message: "User created successfully", userId: user.id });
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.post("/api/auth/login", passport.authenticate('local'), (req, res) => {
+    res.json({ message: "Login successful", user: req.user });
+  });
+
+  app.post("/api/auth/logout", (req, res) => {
+    req.logout(() => {
+      res.json({ message: "Logout successful" });
+    });
+  });
+
+  app.get("/api/auth/me", (req, res) => {
+    if (req.isAuthenticated()) {
+      res.json(req.user);
+    } else {
+      res.status(401).json({ message: "Not authenticated" });
+    }
+  });
+
+  // Stripe subscription routes
+  app.post('/api/create-subscription', async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+
+    let user = req.user as any;
+    const { priceId, tier } = req.body;
+
+    if (user.stripeSubscriptionId) {
+      const subscription = await stripe.subscriptions.retrieve(user.stripeSubscriptionId);
+      
+      if (subscription.status === 'active') {
+        return res.json({
+          subscriptionId: subscription.id,
+          clientSecret: subscription.latest_invoice?.payment_intent?.client_secret,
+        });
+      }
+    }
+
+    try {
+      let customerId = user.stripeCustomerId;
+      
+      if (!customerId) {
+        const customer = await stripe.customers.create({
+          email: user.email,
+          name: `${user.firstName} ${user.lastName}`,
+        });
+        customerId = customer.id;
+        user = await storage.updateUser(user.id, { stripeCustomerId: customerId });
+      }
+
+      const subscription = await stripe.subscriptions.create({
+        customer: customerId,
+        items: [{ price: priceId }],
+        payment_behavior: 'default_incomplete',
+        expand: ['latest_invoice.payment_intent'],
+        trial_period_days: 7, // 7-day free trial
+      });
+
+      await storage.updateUserStripeInfo(user.id, customerId, subscription.id);
+      await storage.updateUser(user.id, { subscriptionTier: tier });
+
+      res.json({
+        subscriptionId: subscription.id,
+        clientSecret: subscription.latest_invoice?.payment_intent?.client_secret,
+      });
+    } catch (error: any) {
+      res.status(400).json({ error: { message: error.message } });
+    }
+  });
+
+  // Course routes
+  app.get("/api/courses", async (req, res) => {
+    try {
+      const courses = await storage.getCourses();
+      res.json(courses);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.post("/api/courses/:courseId/enroll", async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+
+    try {
+      const { courseId } = req.params;
+      const userId = (req.user as any).id;
+      
+      const enrollment = await storage.enrollUser(userId, courseId);
+      res.json(enrollment);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/enrollments", async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+
+    try {
+      const userId = (req.user as any).id;
+      const enrollments = await storage.getUserEnrollments(userId);
+      res.json(enrollments);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Job routes
+  app.get("/api/jobs", async (req, res) => {
+    try {
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 10;
+      const search = req.query.search as string;
+      
+      const result = await storage.getJobs(page, limit, search);
+      res.json(result);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.post("/api/jobs", async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+
+    try {
+      const jobData = insertJobSchema.parse(req.body);
+      const job = await storage.createJob(jobData);
+      res.json(job);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.post("/api/jobs/:jobId/apply", async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+
+    try {
+      const { jobId } = req.params;
+      const userId = (req.user as any).id;
+      const applicationData = insertJobApplicationSchema.parse({
+        ...req.body,
+        jobId,
+        userId
+      });
+      
+      const application = await storage.createJobApplication(applicationData);
+      res.json(application);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  // AI Mentor routes
+  app.post("/api/mentor/chat", async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+
+    try {
+      const { message, conversationId } = req.body;
+      const userId = (req.user as any).id;
+
+      const response = await getMentorResponse(message);
+      
+      let conversation;
+      if (conversationId) {
+        const conversations = await storage.getUserMentorConversations(userId);
+        const existingConversation = conversations.find(c => c.id === conversationId);
+        if (existingConversation) {
+          const messages = [
+            ...(existingConversation.messages as any[]),
+            { role: 'user', content: message, timestamp: new Date() },
+            { role: 'assistant', content: response, timestamp: new Date() }
+          ];
+          conversation = await storage.updateMentorConversation(conversationId, messages);
+        }
+      } else {
+        const messages = [
+          { role: 'user', content: message, timestamp: new Date() },
+          { role: 'assistant', content: response, timestamp: new Date() }
+        ];
+        conversation = await storage.createMentorConversation(userId, messages);
+      }
+
+      res.json({ response, conversationId: conversation?.id });
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/mentor/conversations", async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+
+    try {
+      const userId = (req.user as any).id;
+      const conversations = await storage.getUserMentorConversations(userId);
+      res.json(conversations);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Photo upload and analysis
+  app.post("/api/photos/upload", upload.single('photo'), async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+
+    try {
+      if (!req.file) {
+        return res.status(400).json({ message: "No file uploaded" });
+      }
+
+      const userId = (req.user as any).id;
+      const filename = req.file.filename;
+      const filePath = req.file.path;
+      
+      // Convert to base64 for AI analysis
+      const imageBuffer = fs.readFileSync(filePath);
+      const base64Image = imageBuffer.toString('base64');
+      
+      // Analyze photo with AI
+      const analysis = await analyzePhoto(base64Image);
+      
+      // Save to database
+      const upload = await storage.createPhotoUpload(
+        userId,
+        filename,
+        `/uploads/${filename}`,
+        analysis
+      );
+
+      res.json(upload);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Plan upload and analysis
+  app.post("/api/plans/upload", upload.single('plan'), async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+
+    try {
+      if (!req.file) {
+        return res.status(400).json({ message: "No file uploaded" });
+      }
+
+      const userId = (req.user as any).id;
+      const filename = req.file.filename;
+      const filePath = req.file.path;
+      
+      // Convert to base64 for AI analysis
+      const fileBuffer = fs.readFileSync(filePath);
+      const base64File = fileBuffer.toString('base64');
+      
+      // Analyze plans with AI
+      const analysis = await analyzePlans(base64File);
+      
+      // Save to database
+      const upload = await storage.createPlanUpload(
+        userId,
+        filename,
+        `/uploads/${filename}`,
+        analysis.materialList,
+        analysis.codeCompliance
+      );
+
+      res.json({
+        ...upload,
+        materialList: analysis.materialList,
+        codeCompliance: analysis.codeCompliance,
+        totalEstimatedCost: analysis.totalEstimatedCost
+      });
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Calculator routes
+  app.post("/api/calculator/pipe-size", async (req, res) => {
+    try {
+      const { fixtureUnits, pipeLength, material } = req.body;
+      
+      if (!fixtureUnits || !pipeLength || !material) {
+        return res.status(400).json({ message: "Missing required parameters" });
+      }
+
+      const result = await calculatePipeSize(
+        parseInt(fixtureUnits),
+        parseInt(pipeLength),
+        material
+      );
+      
+      res.json(result);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Serve uploaded files
+  app.get('/uploads/:filename', (req, res) => {
+    const filename = req.params.filename;
+    const filePath = path.join(process.cwd(), 'uploads', filename);
+    
+    if (fs.existsSync(filePath)) {
+      res.sendFile(filePath);
+    } else {
+      res.status(404).json({ message: 'File not found' });
+    }
+  });
+
+  const httpServer = createServer(app);
+  return httpServer;
+}
