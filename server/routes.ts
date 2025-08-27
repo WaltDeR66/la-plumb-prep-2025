@@ -526,7 +526,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // If no course exists, create the default Louisiana Plumbing course
       if (!journeymanCourse) {
         const defaultCourse = insertCourseSchema.parse({
-          title: "Louisiana Plumbing Certification",
+          title: "Louisiana Journeyman Prep",
           description: "Comprehensive Louisiana plumbing code certification preparation course covering all aspects of state plumbing regulations and best practices.",
           type: "journeyman",
           price: "149.99",
