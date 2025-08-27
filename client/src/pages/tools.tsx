@@ -3,7 +3,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { Calculator, Camera, FileText, Upload, Download, AlertTriangle, CheckCircle } from "lucide-react";
+import { Calculator, Camera, FileText, Upload, Download, AlertTriangle, CheckCircle, BookOpen, ExternalLink } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
 import PipeSizingCalculator from "@/components/calculator/pipe-sizing";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
@@ -384,20 +385,11 @@ export default function Tools() {
             </TabsContent>
 
             <TabsContent value="resources" className="space-y-8">
+              <div className="grid grid-cols-1 gap-6">
+                <CodeBooksSection />
+              </div>
+              
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <Card data-testid="resource-code-book">
-                  <CardHeader>
-                    <CardTitle>Louisiana Plumbing Code</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-muted-foreground text-sm mb-4">
-                      Complete Louisiana plumbing code reference with searchable sections.
-                    </p>
-                    <Button variant="outline" className="w-full">
-                      View Code Book
-                    </Button>
-                  </CardContent>
-                </Card>
 
                 <Card data-testid="resource-conversion">
                   <CardHeader>
@@ -432,5 +424,97 @@ export default function Tools() {
         </div>
       </section>
     </div>
+  );
+}
+
+function CodeBooksSection() {
+  const { data: codeBooks, isLoading } = useQuery({
+    queryKey: ["/api/code-books"],
+    queryFn: async () => {
+      const response = await fetch("/api/code-books");
+      return response.json();
+    },
+  });
+
+  if (isLoading) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center space-x-2">
+            <BookOpen className="w-5 h-5" />
+            <span>Code Books & Resources</span>
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-muted-foreground">Loading available code books...</p>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  return (
+    <Card data-testid="code-books-section">
+      <CardHeader>
+        <CardTitle className="flex items-center space-x-2">
+          <BookOpen className="w-5 h-5" />
+          <span>Code Books & Resources</span>
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="space-y-4">
+          <p className="text-muted-foreground text-sm">
+            Download official Louisiana plumbing codes and reference materials. 
+            All documents are in PDF format for offline access.
+          </p>
+          
+          {(!codeBooks || codeBooks.length === 0) ? (
+            <div className="text-center py-8">
+              <FileText className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-foreground mb-2">No Code Books Available</h3>
+              <p className="text-muted-foreground text-sm">
+                Upload PDF code books to the object storage to make them available for download.
+              </p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {codeBooks.map((book: any, index: number) => (
+                <Card key={index} className="hover:shadow-md transition-shadow" data-testid={`code-book-${index}`}>
+                  <CardContent className="p-4">
+                    <div className="flex items-start space-x-3">
+                      <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                        <FileText className="w-5 h-5 text-primary" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h4 className="font-medium text-foreground mb-1 truncate" data-testid={`book-title-${index}`}>
+                          {book.name}
+                        </h4>
+                        <p className="text-sm text-muted-foreground mb-2 line-clamp-2">
+                          {book.description}
+                        </p>
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs text-muted-foreground">{book.size}</span>
+                          <Button 
+                            size="sm" 
+                            variant="outline"
+                            asChild
+                            data-testid={`download-book-${index}`}
+                          >
+                            <a href={book.url} target="_blank" rel="noopener noreferrer" className="flex items-center space-x-1">
+                              <Download className="w-3 h-3" />
+                              <span>Download</span>
+                              <ExternalLink className="w-3 h-3" />
+                            </a>
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
+        </div>
+      </CardContent>
+    </Card>
   );
 }

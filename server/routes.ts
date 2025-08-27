@@ -442,6 +442,74 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Object storage routes for public assets (PDFs, code books, etc.)
+  app.get("/public-objects/:filePath(*)", async (req, res) => {
+    const filePath = req.params.filePath;
+    const { ObjectStorageService } = await import('./objectStorage');
+    const objectStorageService = new ObjectStorageService();
+    try {
+      const file = await objectStorageService.searchPublicObject(filePath);
+      if (!file) {
+        return res.status(404).json({ error: "File not found" });
+      }
+      objectStorageService.downloadObject(file, res);
+    } catch (error) {
+      console.error("Error searching for public object:", error);
+      return res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  // API endpoint to list available code books
+  app.get("/api/code-books", async (req, res) => {
+    try {
+      const { ObjectStorageService } = await import('./objectStorage');
+      const objectStorageService = new ObjectStorageService();
+      
+      // List common code book file names
+      const codeBooks = [
+        {
+          name: "Louisiana Plumbing Code 2024",
+          filename: "louisiana-plumbing-code-2024.pdf",
+          size: "12.5 MB",
+          description: "Complete Louisiana State Plumbing Code"
+        },
+        {
+          name: "Louisiana Backflow Prevention",
+          filename: "louisiana-backflow-prevention.pdf", 
+          size: "3.2 MB",
+          description: "Backflow prevention regulations and requirements"
+        },
+        {
+          name: "Natural Gas Installation Code",
+          filename: "natural-gas-installation-code.pdf",
+          size: "8.1 MB", 
+          description: "Natural gas piping installation standards"
+        }
+      ];
+
+      // Check which files actually exist
+      const availableBooks = [];
+      for (const book of codeBooks) {
+        try {
+          const file = await objectStorageService.searchPublicObject(book.filename);
+          if (file) {
+            availableBooks.push({
+              ...book,
+              url: `/public-objects/${book.filename}`
+            });
+          }
+        } catch (error) {
+          // File doesn't exist, skip it
+        }
+      }
+      
+      res.json(availableBooks);
+    } catch (error) {
+      console.error("Error listing code books:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
