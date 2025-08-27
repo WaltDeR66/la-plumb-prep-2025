@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertUserSchema, insertJobSchema, insertJobApplicationSchema, insertCourseContentSchema, insertPrivateCodeBookSchema } from "@shared/schema";
+import { insertUserSchema, insertJobSchema, insertJobApplicationSchema, insertCourseContentSchema, insertPrivateCodeBookSchema, insertCourseSchema } from "@shared/schema";
 import { analyzePhoto, analyzePlans, getMentorResponse, calculatePipeSize } from "./openai";
 import Stripe from "stripe";
 import bcrypt from "bcrypt";
@@ -519,13 +519,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Invalid content format" });
       }
 
-      // For now, we'll use the first course ID (journeyman course)
-      // In a real app, you'd select the appropriate course
-      const courses = await storage.getCourses();
-      const journeymanCourse = courses.find(c => c.type === "journeyman") || courses[0];
+      // Get or create the Louisiana Plumbing course
+      let courses = await storage.getCourses();
+      let journeymanCourse = courses.find(c => c.type === "journeyman") || courses[0];
       
+      // If no course exists, create the default Louisiana Plumbing course
       if (!journeymanCourse) {
-        return res.status(400).json({ message: "No course found to import content into" });
+        const defaultCourse = insertCourseSchema.parse({
+          title: "Louisiana Plumbing Certification",
+          description: "Comprehensive Louisiana plumbing code certification preparation course covering all aspects of state plumbing regulations and best practices.",
+          type: "journeyman",
+          price: "149.99",
+          duration: 40,
+          lessons: 50,
+          practiceQuestions: 500,
+          isActive: true
+        });
+        
+        journeymanCourse = await storage.createCourse(defaultCourse);
       }
 
       const imported = [];
