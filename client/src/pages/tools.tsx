@@ -3,8 +3,11 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { Calculator, Camera, FileText, Upload, Download, AlertTriangle, CheckCircle, BookOpen, ExternalLink } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { Calculator, Camera, FileText, Upload, Download, AlertTriangle, CheckCircle, BookOpen, ExternalLink, Lock, Wand2, FileEdit, Users, BookOpenCheck } from "lucide-react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import PipeSizingCalculator from "@/components/calculator/pipe-sizing";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
@@ -134,9 +137,10 @@ export default function Tools() {
       <section className="py-16" data-testid="tools-section">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <Tabs defaultValue="calculators" className="w-full">
-            <TabsList className="grid w-full grid-cols-3 mb-8">
+            <TabsList className="grid w-full grid-cols-4 mb-8">
               <TabsTrigger value="calculators" data-testid="tab-calculators">Calculators</TabsTrigger>
               <TabsTrigger value="ai-tools" data-testid="tab-ai-tools">AI Tools</TabsTrigger>
+              <TabsTrigger value="content-generator" data-testid="tab-content-generator">Content Generator</TabsTrigger>
               <TabsTrigger value="resources" data-testid="tab-resources">Resources</TabsTrigger>
             </TabsList>
 
@@ -384,6 +388,13 @@ export default function Tools() {
               </div>
             </TabsContent>
 
+            <TabsContent value="content-generator" className="space-y-8">
+              <div className="grid grid-cols-1 gap-8">
+                <AdminCodeBooksSection />
+                <LessonContentGenerator />
+              </div>
+            </TabsContent>
+
             <TabsContent value="resources" className="space-y-8">
               <div className="grid grid-cols-1 gap-6">
                 <CodeBooksSection />
@@ -427,6 +438,336 @@ export default function Tools() {
   );
 }
 
+// Admin section for privately uploading code books
+function AdminCodeBooksSection() {
+  const [uploading, setUploading] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  const { data: privateCodeBooks, isLoading } = useQuery({
+    queryKey: ["/api/admin/code-books"],
+    queryFn: async () => {
+      const response = await fetch("/api/admin/code-books");
+      if (!response.ok) throw new Error("Failed to fetch private code books");
+      return response.json();
+    },
+  });
+
+  const uploadMutation = useMutation({
+    mutationFn: async (file: File) => {
+      setUploading(true);
+      const formData = new FormData();
+      formData.append('codebook', file);
+      
+      const response = await apiRequest("POST", "/api/admin/code-books/upload", formData);
+      return response.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: "Code Book Uploaded",
+        description: "The code book has been uploaded privately and is ready for lesson content generation.",
+      });
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/code-books"] });
+      setSelectedFile(null);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    },
+    onError: () => {
+      toast({
+        title: "Upload Failed", 
+        description: "Failed to upload code book. Please try again.",
+        variant: "destructive",
+      });
+    },
+    onSettled: () => {
+      setUploading(false);
+    }
+  });
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file && file.type === "application/pdf") {
+      setSelectedFile(file);
+    } else {
+      toast({
+        title: "Invalid File",
+        description: "Please select a PDF file only.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleUpload = () => {
+    if (selectedFile) {
+      uploadMutation.mutate(selectedFile);
+    }
+  };
+
+  return (
+    <Card data-testid="admin-code-books">
+      <CardHeader>
+        <CardTitle className="flex items-center space-x-2">
+          <Lock className="w-5 h-5" />
+          <span>Private Code Books Management</span>
+          <Badge variant="secondary">Admin Only</Badge>
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="space-y-6">
+          <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-800">
+            <div className="flex items-start space-x-3">
+              <Lock className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
+              <div>
+                <h4 className="font-medium text-blue-900 dark:text-blue-100 mb-1">Private Reference Library</h4>
+                <p className="text-sm text-blue-700 dark:text-blue-300">
+                  Upload code books privately for your reference only. These won't be distributed but will be used to generate original lesson content, study materials, and quizzes.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Upload Section */}
+          <div className="space-y-4">
+            <h4 className="font-medium">Upload New Code Book</h4>
+            
+            <input
+              type="file"
+              ref={fileInputRef}
+              className="hidden"
+              accept=".pdf"
+              onChange={handleFileSelect}
+              data-testid="codebook-file-input"
+            />
+            
+            <div className="flex items-center space-x-3">
+              <Button
+                variant="outline"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={uploading}
+                data-testid="select-codebook-button"
+              >
+                <FileText className="w-4 h-4 mr-2" />
+                Select PDF
+              </Button>
+              
+              {selectedFile && (
+                <div className="flex items-center space-x-2 text-sm text-muted-foreground">
+                  <span>{selectedFile.name}</span>
+                  <span>({(selectedFile.size / 1024 / 1024).toFixed(1)} MB)</span>
+                </div>
+              )}
+            </div>
+            
+            {selectedFile && (
+              <Button
+                onClick={handleUpload}
+                disabled={uploading}
+                className="w-full"
+                data-testid="upload-codebook-button"
+              >
+                <Upload className="w-4 h-4 mr-2" />
+                {uploading ? "Uploading..." : "Upload Code Book"}
+              </Button>
+            )}
+          </div>
+
+          {/* Private Library List */}
+          <div className="space-y-4">
+            <h4 className="font-medium">Private Code Book Library</h4>
+            
+            {isLoading ? (
+              <p className="text-muted-foreground text-sm">Loading private library...</p>
+            ) : (!privateCodeBooks || privateCodeBooks.length === 0) ? (
+              <div className="text-center py-8 bg-muted/50 rounded-lg">
+                <BookOpen className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                <h3 className="text-lg font-medium mb-2">No Private Code Books</h3>
+                <p className="text-muted-foreground text-sm">
+                  Upload PDF code books to start generating lesson content.
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {privateCodeBooks.map((book: any, index: number) => (
+                  <div key={index} className="flex items-center justify-between p-3 border rounded-lg bg-muted/30" data-testid={`private-book-${index}`}>
+                    <div className="flex items-center space-x-3">
+                      <div className="w-8 h-8 bg-primary/10 rounded flex items-center justify-center">
+                        <FileText className="w-4 h-4 text-primary" />
+                      </div>
+                      <div>
+                        <h5 className="font-medium text-sm">{book.name}</h5>
+                        <p className="text-xs text-muted-foreground">
+                          Uploaded {new Date(book.uploadedAt).toLocaleDateString()} • {book.size}
+                        </p>
+                      </div>
+                    </div>
+                    <Badge variant="secondary" className="text-xs">
+                      <Lock className="w-3 h-3 mr-1" />
+                      Private
+                    </Badge>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+// AI-powered lesson content generator
+function LessonContentGenerator() {
+  const [contentType, setContentType] = useState<'lesson' | 'quiz' | 'study-guide'>('lesson');
+  const [topic, setTopic] = useState('');
+  const [generating, setGenerating] = useState(false);
+  const [generatedContent, setGeneratedContent] = useState<any>(null);
+  const { toast } = useToast();
+
+  const generateContentMutation = useMutation({
+    mutationFn: async (params: { type: string; topic: string }) => {
+      setGenerating(true);
+      const response = await apiRequest("POST", "/api/admin/generate-content", {
+        contentType: params.type,
+        topic: params.topic
+      });
+      return response.json();
+    },
+    onSuccess: (data) => {
+      setGeneratedContent(data);
+      toast({
+        title: "Content Generated",
+        description: `Your ${contentType} content has been generated successfully.`,
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Generation Failed",
+        description: "Failed to generate content. Please try again.",
+        variant: "destructive",
+      });
+    },
+    onSettled: () => {
+      setGenerating(false);
+    }
+  });
+
+  const handleGenerate = () => {
+    if (!topic.trim()) {
+      toast({
+        title: "Missing Topic",
+        description: "Please enter a topic for content generation.",
+        variant: "destructive",
+      });
+      return;
+    }
+    generateContentMutation.mutate({ type: contentType, topic: topic.trim() });
+  };
+
+  const contentTypes = [
+    { value: 'lesson', label: 'Lesson Plan', icon: FileEdit, description: 'Complete lesson with objectives and activities' },
+    { value: 'quiz', label: 'Quiz & Test', icon: BookOpenCheck, description: 'Multiple choice and practical questions' },
+    { value: 'study-guide', label: 'Study Guide', icon: BookOpen, description: 'Comprehensive study materials and summaries' }
+  ];
+
+  return (
+    <Card data-testid="lesson-content-generator">
+      <CardHeader>
+        <CardTitle className="flex items-center space-x-2">
+          <Wand2 className="w-5 h-5" />
+          <span>AI Lesson Content Generator</span>
+          <Badge variant="secondary">AI Powered</Badge>
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="space-y-6">
+          <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg border border-green-200 dark:border-green-800">
+            <div className="flex items-start space-x-3">
+              <Wand2 className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
+              <div>
+                <h4 className="font-medium text-green-900 dark:text-green-100 mb-1">AI Content Creation</h4>
+                <p className="text-sm text-green-700 dark:text-green-300">
+                  Generate original educational content based on your private code book library. All content created is yours to use and distribute.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Content Type Selection */}
+          <div className="space-y-3">
+            <Label htmlFor="content-type">Content Type</Label>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              {contentTypes.map((type) => (
+                <div
+                  key={type.value}
+                  className={`p-3 border rounded-lg cursor-pointer transition-colors ${
+                    contentType === type.value 
+                      ? 'border-primary bg-primary/5' 
+                      : 'border-muted hover:border-primary/50'
+                  }`}
+                  onClick={() => setContentType(type.value as any)}
+                  data-testid={`content-type-${type.value}`}
+                >
+                  <div className="flex items-center space-x-2 mb-1">
+                    <type.icon className="w-4 h-4" />
+                    <span className="font-medium text-sm">{type.label}</span>
+                  </div>
+                  <p className="text-xs text-muted-foreground">{type.description}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Topic Input */}
+          <div className="space-y-2">
+            <Label htmlFor="topic">Topic</Label>
+            <Input
+              id="topic"
+              value={topic}
+              onChange={(e) => setTopic(e.target.value)}
+              placeholder="e.g., Water Pressure Systems, Backflow Prevention, Gas Line Installation"
+              data-testid="topic-input"
+            />
+            <p className="text-xs text-muted-foreground">
+              Enter the specific plumbing topic you want to create content for
+            </p>
+          </div>
+
+          {/* Generate Button */}
+          <Button
+            onClick={handleGenerate}
+            disabled={generating || !topic.trim()}
+            className="w-full"
+            data-testid="generate-content-button"
+          >
+            <Wand2 className="w-4 h-4 mr-2" />
+            {generating ? "Generating Content..." : `Generate ${contentTypes.find(t => t.value === contentType)?.label}`}
+          </Button>
+
+          {/* Generated Content Display */}
+          {generatedContent && (
+            <div className="space-y-4 mt-6 p-4 border rounded-lg bg-muted/30">
+              <div className="flex items-center justify-between">
+                <h4 className="font-medium">Generated Content</h4>
+                <Button size="sm" variant="outline" data-testid="download-generated-content">
+                  <Download className="w-4 h-4 mr-2" />
+                  Download
+                </Button>
+              </div>
+              
+              <div className="max-h-96 overflow-y-auto">
+                <div className="prose prose-sm max-w-none dark:prose-invert">
+                  <div dangerouslySetInnerHTML={{ __html: generatedContent.content || generatedContent.html }} />
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
 function CodeBooksSection() {
   const { data: codeBooks, isLoading } = useQuery({
     queryKey: ["/api/code-books"],
@@ -457,22 +798,21 @@ function CodeBooksSection() {
       <CardHeader>
         <CardTitle className="flex items-center space-x-2">
           <BookOpen className="w-5 h-5" />
-          <span>Code Books & Resources</span>
+          <span>Study Materials & Resources</span>
         </CardTitle>
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
           <p className="text-muted-foreground text-sm">
-            Download official Louisiana plumbing codes and reference materials. 
-            All documents are in PDF format for offline access.
+            Download original study materials, lesson plans, and educational resources created specifically for Louisiana plumbing certification.
           </p>
           
           {(!codeBooks || codeBooks.length === 0) ? (
             <div className="text-center py-8">
               <FileText className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-foreground mb-2">No Code Books Available</h3>
+              <h3 className="text-lg font-medium text-foreground mb-2">No Study Materials Available</h3>
               <p className="text-muted-foreground text-sm">
-                Upload PDF code books to the object storage to make them available for download.
+                Original educational content will appear here once created.
               </p>
             </div>
           ) : (
