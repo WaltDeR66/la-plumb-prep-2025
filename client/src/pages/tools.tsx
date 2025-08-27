@@ -452,7 +452,8 @@ function QuizGeckoImporter() {
         podcast: true,
         quiz: true,
         flashcards: true,
-        studyNotes: true
+        studyNotes: true,
+        teachMe: true
       }
     },
   ]);
@@ -471,7 +472,8 @@ function QuizGeckoImporter() {
         podcast: true,
         quiz: true,
         flashcards: true,
-        studyNotes: true
+        studyNotes: true,
+        teachMe: true
       }
     }]);
   };
@@ -511,7 +513,8 @@ function QuizGeckoImporter() {
           podcast: true,
           quiz: true,
           flashcards: true,
-          studyNotes: true
+          studyNotes: true,
+          teachMe: true
         }
       }]);
     },
@@ -563,6 +566,7 @@ function QuizGeckoImporter() {
     { key: 'quiz', label: 'Questions & Answers', type: 'quiz' },
     { key: 'flashcards', label: 'Flashcards', type: 'flashcards' },
     { key: 'studyNotes', label: 'Study Notes', type: 'study-notes' },
+    { key: 'teachMe', label: 'Teach Me (Chat)', type: 'chat' },
   ];
 
   return (
