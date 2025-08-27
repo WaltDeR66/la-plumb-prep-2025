@@ -29,7 +29,7 @@ import {
   type InsertPrivateCodeBook
 } from "@shared/schema";
 import { db } from "./db";
-import { eq, desc, and, or, ilike, count } from "drizzle-orm";
+import { eq, desc, and, or, ilike, count, sql } from "drizzle-orm";
 
 export interface IStorage {
   // User methods
@@ -44,6 +44,8 @@ export interface IStorage {
   getCourses(): Promise<Course[]>;
   getCourse(id: string): Promise<Course | undefined>;
   createCourse(course: InsertCourse): Promise<Course>;
+  updateCourse(id: string, updates: Partial<Course>): Promise<Course>;
+  getCourseContentStats(courseId: string): Promise<{ lessons: number; quizzes: number }>;
   
   // Enrollment methods
   getUserEnrollments(userId: string): Promise<CourseEnrollment[]>;
@@ -153,6 +155,30 @@ export class DatabaseStorage implements IStorage {
       .values(course)
       .returning();
     return newCourse;
+  }
+
+  async updateCourse(id: string, updates: Partial<Course>): Promise<Course> {
+    const [updatedCourse] = await db
+      .update(courses)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(courses.id, id))
+      .returning();
+    return updatedCourse;
+  }
+
+  async getCourseContentStats(courseId: string): Promise<{ lessons: number; quizzes: number }> {
+    const stats = await db
+      .select({
+        lessons: sql<number>`COUNT(CASE WHEN type = 'lesson' THEN 1 END)`,
+        quizzes: sql<number>`COUNT(CASE WHEN type = 'quiz' THEN 1 END)`
+      })
+      .from(courseContent)
+      .where(eq(courseContent.courseId, courseId));
+    
+    return {
+      lessons: Number(stats[0]?.lessons || 0),
+      quizzes: Number(stats[0]?.quizzes || 0)
+    };
   }
 
   async getUserEnrollments(userId: string): Promise<CourseEnrollment[]> {

@@ -529,10 +529,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
           title: "Louisiana Journeyman Prep",
           description: "Comprehensive Louisiana plumbing code certification preparation course covering all aspects of state plumbing regulations and best practices.",
           type: "journeyman",
-          price: "149.99",
+          price: "39.99",
           duration: 40,
-          lessons: 50,
-          practiceQuestions: 500,
+          lessons: 0,
+          practiceQuestions: 0,
           isActive: true
         });
         
@@ -556,6 +556,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const createdContent = await storage.createCourseContent(courseContentData);
         imported.push(createdContent);
       }
+
+      // Update course statistics after import
+      const courseStats = await storage.getCourseContentStats(journeymanCourse.id);
+      await storage.updateCourse(journeymanCourse.id, {
+        lessons: courseStats.lessons,
+        practiceQuestions: courseStats.quizzes
+      });
 
       res.json({ 
         message: "Content imported successfully", 
