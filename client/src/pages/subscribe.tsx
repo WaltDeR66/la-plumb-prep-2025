@@ -44,7 +44,7 @@ const SubscribeForm = ({ planName, price }: { planName: string; price: string })
     } else {
       toast({
         title: "Subscription Successful",
-        description: "Welcome to Louisiana Plumbing Academy!",
+        description: "Welcome to LA Plumb Prep!",
       });
     }
 

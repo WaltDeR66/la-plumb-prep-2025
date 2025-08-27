@@ -54,7 +54,7 @@ export default function Login() {
                 <Building2 className="w-7 h-7 text-primary-foreground" />
               </div>
               <div className="text-left">
-                <h1 className="text-xl font-bold text-primary">Louisiana Plumbing Academy</h1>
+                <h1 className="text-xl font-bold text-primary">LA Plumb Prep</h1>
                 <p className="text-xs text-muted-foreground">Official State Prep Course</p>
               </div>
             </div>

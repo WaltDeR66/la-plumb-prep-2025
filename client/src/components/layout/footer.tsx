@@ -34,7 +34,7 @@ export default function Footer() {
                 <Building2 className="w-5 h-5 text-primary-foreground" />
               </div>
               <div>
-                <h3 className="text-xl font-bold" data-testid="footer-brand-name">Louisiana Plumbing Academy</h3>
+                <h3 className="text-xl font-bold" data-testid="footer-brand-name">LA Plumb Prep</h3>
                 <p className="text-sm text-background/70" data-testid="footer-brand-tagline">Official State Prep Course</p>
               </div>
             </div>
@@ -87,7 +87,7 @@ export default function Footer() {
         <div className="border-t border-background/20 mt-12 pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <p className="text-background/70 text-sm" data-testid="footer-copyright">
-              © 2024 Louisiana Plumbing Academy. All rights reserved.
+              © 2024 LA Plumb Prep. All rights reserved.
             </p>
             <div className="flex items-center space-x-6 mt-4 md:mt-0">
               {legalLinks.map((link, index) => (

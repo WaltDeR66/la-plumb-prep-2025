@@ -33,7 +33,7 @@ export default function Header() {
                 </div>
                 <div>
                   <h1 className="text-xl font-bold text-primary" data-testid="brand-name">
-                    Louisiana Plumbing Academy
+                    LA Plumb Prep
                   </h1>
                   <p className="text-xs text-muted-foreground" data-testid="brand-tagline">
                     Official State Prep Course

@@ -1,4 +1,4 @@
-# Louisiana Plumbing Academy
+# LA Plumb Prep
 
 ## Overview
 

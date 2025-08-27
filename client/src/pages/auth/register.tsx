@@ -94,7 +94,7 @@ export default function Register() {
                 <Building2 className="w-7 h-7 text-primary-foreground" />
               </div>
               <div className="text-left">
-                <h1 className="text-xl font-bold text-primary">Louisiana Plumbing Academy</h1>
+                <h1 className="text-xl font-bold text-primary">LA Plumb Prep</h1>
                 <p className="text-xs text-muted-foreground">Official State Prep Course</p>
               </div>
             </div>
@@ -110,7 +110,7 @@ export default function Register() {
         {/* Registration Form */}
         <Card data-testid="register-form">
           <CardHeader>
-            <CardTitle>Join Louisiana Plumbing Academy</CardTitle>
+            <CardTitle>Join LA Plumb Prep</CardTitle>
           </CardHeader>
           <CardContent>
             {error && (
