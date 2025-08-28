@@ -18,7 +18,8 @@ import {
   ExternalLink,
   RefreshCw,
   Loader2,
-  Settings
+  Settings,
+  Clock
 } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -782,6 +783,52 @@ export default function ContentViewer({ contentId, contentType, title, courseId,
     );
   };
 
+  const renderStudyPlanContent = () => {
+    if (!hasExtractedContent) return renderNoContent();
+
+    const text = content.content?.extracted?.text || content.content?.extracted?.content;
+    
+    const parseMarkdownToHtml = (markdownText: string) => {
+      return markdownText
+        .replace(/### (.*$)/gm, '<h3 class="text-lg font-semibold mt-6 mb-3 text-blue-700">$1</h3>')
+        .replace(/## (.*$)/gm, '<h2 class="text-xl font-bold mt-8 mb-4 text-blue-800">$1</h2>')
+        .replace(/# (.*$)/gm, '<h1 class="text-2xl font-bold mt-8 mb-6 text-blue-900">$1</h1>')
+        .replace(/\*\*(.*?)\*\*/g, '<strong class="font-semibold text-gray-800">$1</strong>')
+        .replace(/\*(.*?)\*/g, '<em class="italic text-gray-700">$1</em>')
+        .replace(/- (.*$)/gm, '<li class="ml-6 my-1 text-gray-700">• $1</li>')
+        .replace(/🕐|🕕/g, '<span class="text-2xl mr-2">⏰</span>')
+        .replace(/✅/g, '<span class="text-green-500 font-bold">✓</span>')
+        .replace(/🎯/g, '<span class="text-yellow-600">🎯</span>')
+        .replace(/\n\n/g, '<br/><br/>')
+        .replace(/\n/g, '<br/>');
+    };
+
+    return (
+      <div className="space-y-6">
+        <div className="text-center">
+          <Clock className="w-16 h-16 mx-auto text-primary mb-4" />
+          <h3 className="text-xl font-semibold mb-2">Time-Based Study Plans</h3>
+          <p className="text-muted-foreground">Choose your available study time for a customized learning path</p>
+        </div>
+
+        <Card>
+          <CardContent className="p-6">
+            <div 
+              className="prose prose-sm max-w-none study-plans-content"
+              dangerouslySetInnerHTML={{ 
+                __html: parseMarkdownToHtml(text || 'No study plan available.') 
+              }}
+            />
+          </CardContent>
+        </Card>
+
+        <Button onClick={handleComplete} className="w-full">
+          Complete Study Planning Session
+        </Button>
+      </div>
+    );
+  };
+
   // Initialize chat with welcome message
   useEffect(() => {
     if (contentType === 'chat' && chatMessages.length === 0 && content?.content) {
@@ -1195,6 +1242,7 @@ export default function ContentViewer({ contentId, contentType, title, courseId,
           {contentType === 'podcast' && renderPodcastContent()}
           {contentType === 'flashcards' && renderFlashcardsContent()}
           {contentType === 'study-notes' && renderStudyNotesContent()}
+          {contentType === 'study-plan' && renderStudyPlanContent()}
           {contentType === 'chat' && renderChatContent()}
         </CardContent>
       </Card>
