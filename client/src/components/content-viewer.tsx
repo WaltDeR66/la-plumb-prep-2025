@@ -61,9 +61,11 @@ export default function ContentViewer({ contentId, contentType, title, courseId,
   const queryClient = useQueryClient();
   
   // Chat state
-  const [chatMessages, setChatMessages] = useState<Array<{role: 'user' | 'assistant', content: string}>>([]);
+  const [chatMessages, setChatMessages] = useState<Array<{role: 'user' | 'assistant', content: string, id?: string}>>([]);
   const [chatInputMessage, setChatInputMessage] = useState('');
   const [isChatLoading, setIsChatLoading] = useState(false);
+  const [playingMessageId, setPlayingMessageId] = useState<string | null>(null);
+  const [ttsLoading, setTtsLoading] = useState<string | null>(null);
 
   const { data: content, isLoading, error } = useQuery<ExtractedContent>({
     queryKey: [`/api/content/${contentId}/display`],
@@ -615,7 +617,8 @@ export default function ContentViewer({ contentId, contentType, title, courseId,
       
       const initialMessage = {
         role: 'assistant' as const,
-        content: welcomeMessage
+        content: welcomeMessage,
+        id: 'welcome-' + Date.now()
       };
       setChatMessages([initialMessage]);
     }
@@ -643,11 +646,11 @@ export default function ContentViewer({ contentId, contentType, title, courseId,
       });
       
       const data = await response.json();
-      const assistantMessage = { role: 'assistant' as const, content: data.response };
+      const assistantMessage = { role: 'assistant' as const, content: data.response, id: 'msg-' + Date.now() };
       setChatMessages(prev => [...prev, assistantMessage]);
     } catch (error) {
       console.error('Chat error:', error);
-      const errorMessage = { role: 'assistant' as const, content: 'Sorry, I encountered an error. Please try again or ask a different question about Louisiana Plumbing Code administration.' };
+      const errorMessage = { role: 'assistant' as const, content: 'Sorry, I encountered an error. Please try again or ask a different question about Louisiana Plumbing Code administration.', id: 'error-' + Date.now() };
       setChatMessages(prev => [...prev, errorMessage]);
     } finally {
       setIsChatLoading(false);
@@ -675,6 +678,44 @@ export default function ContentViewer({ contentId, contentType, title, courseId,
     }, 100);
   };
 
+  const playMessageTTS = async (messageId: string, text: string) => {
+    if (!messageId) return;
+    
+    try {
+      setTtsLoading(messageId);
+      
+      // Clean text for TTS (remove markdown formatting and emojis)
+      const cleanText = text
+        .replace(/\*\*(.*?)\*\*/g, '$1') // Remove bold markdown
+        .replace(/•/g, '-') // Replace bullet points
+        .replace(/[🎓📅⚖️🏛️⬇️📋🔍📝👨‍⚖️🤝⚠️]/g, '') // Remove emojis
+        .replace(/\n\n/g, '. ') // Replace double newlines with periods
+        .replace(/\n/g, ' ') // Replace single newlines with spaces
+        .trim();
+      
+      const response = await fetch('/api/mentor/tts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: cleanText, messageId })
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        setPlayingMessageId(messageId);
+        
+        // Create audio element and play
+        const audio = new Audio(data.audioUrl);
+        audio.onended = () => setPlayingMessageId(null);
+        audio.onerror = () => setPlayingMessageId(null);
+        await audio.play();
+      }
+    } catch (error) {
+      console.error('TTS error:', error);
+    } finally {
+      setTtsLoading(null);
+    }
+  };
+
   const renderChatContent = () => {
     return (
       <div className="space-y-6">
@@ -692,14 +733,36 @@ export default function ContentViewer({ contentId, contentType, title, courseId,
                   key={index}
                   className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
                 >
-                  <div
-                    className={`max-w-[80%] p-3 rounded-lg ${
-                      message.role === 'user'
-                        ? 'bg-blue-500 text-white'
-                        : 'bg-gray-100 text-gray-900'
-                    }`}
-                  >
-                    <p className="whitespace-pre-wrap">{message.content}</p>
+                  <div className={`flex items-start space-x-2 max-w-[80%]`}>
+                    <div
+                      className={`p-3 rounded-lg ${
+                        message.role === 'user'
+                          ? 'bg-blue-500 text-white'
+                          : 'bg-gray-100 text-gray-900'
+                      }`}
+                    >
+                      <p className="whitespace-pre-wrap">{message.content}</p>
+                    </div>
+                    
+                    {/* Add TTS button for assistant messages */}
+                    {message.role === 'assistant' && message.id && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => playMessageTTS(message.id!, message.content)}
+                        disabled={ttsLoading === message.id}
+                        className="mt-2 h-8 w-8 p-0"
+                        data-testid={`tts-button-${message.id}`}
+                      >
+                        {ttsLoading === message.id ? (
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                        ) : playingMessageId === message.id ? (
+                          <Pause className="w-4 h-4" />
+                        ) : (
+                          <Volume2 className="w-4 h-4" />
+                        )}
+                      </Button>
+                    )}
                   </div>
                 </div>
               ))}

@@ -354,6 +354,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Generate TTS for chat responses
+  app.post("/api/mentor/tts", async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+
+    try {
+      const { text, messageId } = req.body;
+      
+      if (!text) {
+        return res.status(400).json({ message: "Text is required" });
+      }
+
+      const { generateAudio } = await import("./openai");
+      const audioUrl = await generateAudio(text, `chat-${messageId || Date.now()}`);
+      
+      res.json({ audioUrl });
+    } catch (error: any) {
+      console.error("TTS generation error:", error);
+      res.status(500).json({ message: "Failed to generate audio" });
+    }
+  });
+
   app.get("/api/mentor/conversations", async (req, res) => {
     if (!req.isAuthenticated()) {
       return res.status(401).json({ message: "Not authenticated" });
