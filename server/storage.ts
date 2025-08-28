@@ -405,6 +405,16 @@ export class DatabaseStorage implements IStorage {
     await db.delete(courseContent).where(eq(courseContent.id, id));
   }
 
+  async updateContentAudio(contentId: string, audioUrl: string): Promise<void> {
+    await db
+      .update(courseContent)
+      .set({ 
+        content: sql`jsonb_set(content, '{extracted,audioUrl}', ${JSON.stringify(audioUrl)})`,
+        updatedAt: new Date()
+      })
+      .where(eq(courseContent.id, contentId));
+  }
+
   // Private code book methods
   async getPrivateCodeBooks(): Promise<PrivateCodeBook[]> {
     const results = await db

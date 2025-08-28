@@ -1,4 +1,6 @@
 import OpenAI from "openai";
+import fs from "fs";
+import path from "path";
 
 if (!process.env.OPENAI_API_KEY) {
   throw new Error("OPENAI_API_KEY environment variable is required");
@@ -6,6 +8,12 @@ if (!process.env.OPENAI_API_KEY) {
 
 // the newest OpenAI model is "gpt-5" which was released August 7, 2025. do not change this unless explicitly requested by the user
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+
+// Ensure audio directory exists
+const audioDir = path.join(process.cwd(), 'public', 'audio');
+if (!fs.existsSync(audioDir)) {
+  fs.mkdirSync(audioDir, { recursive: true });
+}
 
 export async function analyzePhoto(base64Image: string): Promise<{
   isCompliant: boolean;
@@ -167,5 +175,29 @@ export async function calculatePipeSize(fixtureUnits: number, pipeLength: number
     return JSON.parse(response.choices[0].message.content || "{}");
   } catch (error) {
     throw new Error("Failed to calculate pipe size: " + (error as Error).message);
+  }
+}
+
+export async function generateAudio(text: string, contentId: string): Promise<string> {
+  try {
+    // Generate speech using OpenAI TTS
+    const mp3 = await openai.audio.speech.create({
+      model: "tts-1-hd", // High quality model
+      voice: "alloy", // Professional, clear voice
+      input: text,
+      speed: 0.9, // Slightly slower for educational content
+    });
+
+    // Save audio file
+    const fileName = `${contentId}.mp3`;
+    const filePath = path.join(audioDir, fileName);
+    
+    const buffer = Buffer.from(await mp3.arrayBuffer());
+    fs.writeFileSync(filePath, buffer);
+
+    // Return the public URL path
+    return `/audio/${fileName}`;
+  } catch (error) {
+    throw new Error("Failed to generate audio: " + (error as Error).message);
   }
 }

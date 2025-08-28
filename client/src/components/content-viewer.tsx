@@ -80,6 +80,18 @@ export default function ContentViewer({ contentId, contentType, title, courseId,
     }
   });
 
+  const generateAudioMutation = useMutation({
+    mutationFn: () => fetch(`/api/generate-audio/${contentId}`, { 
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    }).then(res => res.json()),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [`/api/content/${contentId}/display`] });
+    }
+  });
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center p-8">
@@ -285,62 +297,109 @@ export default function ContentViewer({ contentId, contentType, title, courseId,
           {extracted?.transcript || extracted?.audioUrl ? (
             <div className="space-y-4">
               {extracted.audioUrl ? (
-                <audio 
-                  controls 
-                  className="w-full"
-                  onPlay={() => setAudioPlaying(true)}
-                  onPause={() => setAudioPlaying(false)}
-                >
-                  <source src={extracted.audioUrl} type="audio/mpeg" />
-                  Your browser does not support the audio element.
-                </audio>
-              ) : extracted.transcript && (
+                <div className="space-y-4">
+                  <Card className="bg-gradient-to-r from-green-50 to-emerald-50">
+                    <CardContent className="p-6">
+                      <div className="text-center mb-4">
+                        <div className="inline-flex items-center space-x-2 text-green-600 mb-2">
+                          <div className="w-3 h-3 bg-green-600 rounded-full"></div>
+                          <span className="text-sm font-medium">🎧 AI-Generated Audio Ready</span>
+                        </div>
+                      </div>
+                      <audio 
+                        controls 
+                        className="w-full"
+                        onPlay={() => setAudioPlaying(true)}
+                        onPause={() => setAudioPlaying(false)}
+                      >
+                        <source src={extracted.audioUrl} type="audio/mpeg" />
+                        Your browser does not support the audio element.
+                      </audio>
+                    </CardContent>
+                  </Card>
+                </div>
+              ) : extracted.transcript ? (
                 <div className="space-y-4">
                   <Card className="bg-gradient-to-r from-blue-50 to-indigo-50">
                     <CardContent className="p-6">
-                      <div className="flex items-center justify-center space-x-4 mb-4">
+                      <div className="text-center space-y-4">
+                        <div>
+                          <h4 className="font-medium text-gray-800 mb-2">🎤 Generate High-Quality AI Audio</h4>
+                          <p className="text-sm text-gray-600 mb-4">
+                            Create professional-quality spoken audio from the transcript using OpenAI's advanced text-to-speech
+                          </p>
+                        </div>
+                        
                         <Button
-                          onClick={isPlaying ? pauseAudio : handlePlayAudio}
+                          onClick={() => generateAudioMutation.mutate()}
+                          disabled={generateAudioMutation.isPending}
                           size="lg"
-                          className="flex items-center space-x-2"
+                          className="bg-blue-600 hover:bg-blue-700"
                         >
-                          {isPlaying ? (
+                          {generateAudioMutation.isPending ? (
                             <>
-                              <Pause className="w-5 h-5" />
-                              <span>Pause</span>
+                              <Loader2 className="w-5 h-5 animate-spin mr-2" />
+                              <span>Generating Audio...</span>
                             </>
                           ) : (
                             <>
-                              <Play className="w-5 h-5" />
-                              <span>{isPaused ? 'Resume' : 'Play Audio'}</span>
+                              <Play className="w-5 h-5 mr-2" />
+                              <span>Generate AI Audio</span>
                             </>
                           )}
                         </Button>
                         
-                        {(isPlaying || isPaused) && (
+                        <div className="text-xs text-gray-500">
+                          This will create a natural-sounding voice recording
+                        </div>
+                      </div>
+
+                      <div className="mt-6 pt-4 border-t">
+                        <h5 className="font-medium text-gray-700 mb-3">Or use text-to-speech:</h5>
+                        <div className="flex items-center justify-center space-x-4">
                           <Button
-                            onClick={stopAudio}
+                            onClick={isPlaying ? pauseAudio : handlePlayAudio}
                             variant="outline"
-                            size="lg"
+                            className="flex items-center space-x-2"
                           >
-                            <Square className="w-5 h-5 mr-2" />
-                            Stop
+                            {isPlaying ? (
+                              <>
+                                <Pause className="w-4 h-4" />
+                                <span>Pause</span>
+                              </>
+                            ) : (
+                              <>
+                                <Play className="w-4 h-4" />
+                                <span>{isPaused ? 'Resume' : 'Play Browser TTS'}</span>
+                              </>
+                            )}
                           </Button>
+                          
+                          {(isPlaying || isPaused) && (
+                            <Button
+                              onClick={stopAudio}
+                              variant="outline"
+                              size="sm"
+                            >
+                              <Square className="w-4 h-4 mr-1" />
+                              Stop
+                            </Button>
+                          )}
+                        </div>
+                        
+                        {isPlaying && (
+                          <div className="text-center mt-2">
+                            <div className="inline-flex items-center space-x-2 text-blue-600">
+                              <div className="w-2 h-2 bg-blue-600 rounded-full animate-pulse"></div>
+                              <span className="text-xs">Playing Browser TTS...</span>
+                            </div>
+                          </div>
                         )}
                       </div>
-                      
-                      {isPlaying && (
-                        <div className="text-center">
-                          <div className="inline-flex items-center space-x-2 text-blue-600">
-                            <div className="w-2 h-2 bg-blue-600 rounded-full animate-pulse"></div>
-                            <span className="text-sm font-medium">Playing Audio...</span>
-                          </div>
-                        </div>
-                      )}
                     </CardContent>
                   </Card>
                 </div>
-              )}
+              ) : null}
               
               {extracted.transcript && (
                 <Card>

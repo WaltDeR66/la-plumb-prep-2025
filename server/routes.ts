@@ -781,6 +781,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Generate AI audio for podcast content
+  app.post("/api/generate-audio/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const content = await storage.getCourseContentById(id);
+      
+      if (!content) {
+        return res.status(404).json({ error: 'Content not found' });
+      }
+
+      if (!content.content?.extracted?.transcript) {
+        return res.status(400).json({ error: 'No transcript available for audio generation' });
+      }
+
+      const { generateAudio } = await import('./openai');
+      const audioUrl = await generateAudio(content.content.extracted.transcript, id);
+      
+      // Update content with audio URL
+      await storage.updateContentAudio(id, audioUrl);
+      
+      res.json({ audioUrl });
+    } catch (error: any) {
+      console.error('Generate audio error:', error);
+      res.status(500).json({ error: 'Failed to generate audio' });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
