@@ -234,21 +234,13 @@ export default function Lesson() {
                     <Button 
                       variant={isCurrent ? "default" : isCompleted ? "outline" : "ghost"}
                       disabled={!isCurrent && !isCompleted && index > completed}
-                      asChild={!!item.quizgeckoUrl}
+                      asChild
                       data-testid={`button-study-${item.type}-${index}`}
                     >
-                      {item.quizgeckoUrl ? (
-                        <a href={item.quizgeckoUrl} target="_blank" rel="noopener noreferrer">
-                          <Play className="w-4 h-4 mr-2" />
-                          {isCompleted ? "Review" : isCurrent ? "Continue" : "Start"}
-                          <ExternalLink className="w-3 h-3 ml-1" />
-                        </a>
-                      ) : (
-                        <>
-                          <Play className="w-4 h-4 mr-2" />
-                          {isCompleted ? "Review" : isCurrent ? "Continue" : "Start"}
-                        </>
-                      )}
+                      <Link href={`/course/${courseId}/content/${item.id}`}>
+                        <Play className="w-4 h-4 mr-2" />
+                        {isCompleted ? "Review" : isCurrent ? "Continue" : "Start"}
+                      </Link>
                     </Button>
                   </div>
                 </div>

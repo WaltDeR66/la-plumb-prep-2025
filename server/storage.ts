@@ -368,6 +368,30 @@ export class DatabaseStorage implements IStorage {
     return results;
   }
 
+  async getCourseContentById(id: string): Promise<CourseContent | null> {
+    const [result] = await db
+      .select()
+      .from(courseContent)
+      .where(eq(courseContent.id, id))
+      .limit(1);
+    
+    return result || null;
+  }
+
+  async updateCourseContent(id: string, data: Partial<InsertCourseContent>): Promise<CourseContent> {
+    const [result] = await db
+      .update(courseContent)
+      .set({ ...data, updatedAt: new Date() })
+      .where(eq(courseContent.id, id))
+      .returning();
+    
+    if (!result) {
+      throw new Error("Course content not found");
+    }
+    
+    return result;
+  }
+
   async createCourseContent(content: InsertCourseContent): Promise<CourseContent> {
     const [result] = await db
       .insert(courseContent)

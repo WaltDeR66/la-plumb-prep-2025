@@ -3,6 +3,7 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { insertUserSchema, insertJobSchema, insertJobApplicationSchema, insertCourseContentSchema, insertPrivateCodeBookSchema, insertCourseSchema } from "@shared/schema";
 import { analyzePhoto, analyzePlans, getMentorResponse, calculatePipeSize } from "./openai";
+import { contentExtractor } from "./content-extractor";
 import Stripe from "stripe";
 import bcrypt from "bcrypt";
 import session from "express-session";
@@ -687,6 +688,83 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error: any) {
       console.error('Content generation error:', error);
       res.status(400).json({ message: error.message });
+    }
+  });
+
+  // Content extraction route
+  app.post("/api/extract-content/:contentId", async (req, res) => {
+    try {
+      const { contentId } = req.params;
+      
+      // Get the content record
+      const content = await storage.getCourseContentById(contentId);
+      if (!content || !content.quizgeckoUrl) {
+        return res.status(404).json({ message: "Content not found or no QuizGecko URL" });
+      }
+
+      // Extract content from QuizGecko URL
+      const extractedContent = await contentExtractor.extractFromQuizGecko(
+        content.quizgeckoUrl, 
+        content.type
+      );
+
+      if (!extractedContent) {
+        return res.status(500).json({ message: "Failed to extract content" });
+      }
+
+      // Update the content record with extracted data
+      const updatedContent = await storage.updateCourseContent(contentId, {
+        content: {
+          ...content.content,
+          extracted: extractedContent.content,
+          extractedAt: new Date().toISOString()
+        }
+      });
+
+      res.json({
+        message: "Content extracted successfully",
+        content: updatedContent
+      });
+    } catch (error: any) {
+      console.error('Content extraction error:', error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Get extracted content for display
+  app.get("/api/content/:contentId/display", async (req, res) => {
+    try {
+      const { contentId } = req.params;
+      
+      const content = await storage.getCourseContentById(contentId);
+      if (!content) {
+        return res.status(404).json({ message: "Content not found" });
+      }
+
+      // If content hasn't been extracted yet, extract it now
+      if (!content.content?.extracted && content.quizgeckoUrl) {
+        const extractedContent = await contentExtractor.extractFromQuizGecko(
+          content.quizgeckoUrl, 
+          content.type
+        );
+
+        if (extractedContent) {
+          const updatedContent = await storage.updateCourseContent(contentId, {
+            content: {
+              ...content.content,
+              extracted: extractedContent.content,
+              extractedAt: new Date().toISOString()
+            }
+          });
+          
+          return res.json(updatedContent);
+        }
+      }
+
+      res.json(content);
+    } catch (error: any) {
+      console.error('Get content error:', error);
+      res.status(500).json({ message: error.message });
     }
   });
 
