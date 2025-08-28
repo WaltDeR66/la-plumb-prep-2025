@@ -240,8 +240,10 @@ export default function Dashboard() {
                           )}
                         </div>
 
-                        <Button className="w-full" data-testid={`continue-course-${course.id}`}>
-                          {enrollment.isCompleted ? 'Review' : 'Continue'}
+                        <Button className="w-full" asChild data-testid={`continue-course-${course.id}`}>
+                          <Link href={`/course/${course.id}`}>
+                            {enrollment.isCompleted ? 'Review' : 'Continue'}
+                          </Link>
                         </Button>
                       </div>
                     </CardContent>

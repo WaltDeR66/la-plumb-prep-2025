@@ -11,6 +11,7 @@ import Jobs from "@/pages/jobs";
 import Pricing from "@/pages/pricing";
 import Subscribe from "@/pages/subscribe";
 import Dashboard from "@/pages/dashboard";
+import CourseContent from "@/pages/course-content";
 import Login from "@/pages/auth/login";
 import Register from "@/pages/auth/register";
 import Header from "@/components/layout/header";
@@ -29,6 +30,7 @@ function Router() {
           <Route path="/pricing" component={Pricing} />
           <Route path="/subscribe" component={Subscribe} />
           <Route path="/dashboard" component={Dashboard} />
+          <Route path="/course/:courseId" component={CourseContent} />
           <Route path="/login" component={Login} />
           <Route path="/register" component={Register} />
           <Route component={NotFound} />

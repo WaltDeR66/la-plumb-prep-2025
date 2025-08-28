@@ -189,10 +189,13 @@ export default function CourseCard({ course, isEnrolled = false, progress = 0, i
                 </div>
                 <Button 
                   variant={isCompleted ? "outline" : "default"}
+                  asChild
                   data-testid={`button-continue-${course.id}`}
                 >
-                  <Play className="w-4 h-4 mr-2" />
-                  {isCompleted ? "Review" : "Continue"}
+                  <Link href={`/course/${course.id}`}>
+                    <Play className="w-4 h-4 mr-2" />
+                    {isCompleted ? "Review" : "Continue"}
+                  </Link>
                 </Button>
               </>
             )}
