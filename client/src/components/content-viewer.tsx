@@ -58,7 +58,12 @@ export default function ContentViewer({ contentId, contentType, title, courseId,
   });
 
   const extractMutation = useMutation({
-    mutationFn: () => apiRequest(`/api/extract-content/${contentId}`, { method: 'POST' }),
+    mutationFn: () => fetch(`/api/extract-content/${contentId}`, { 
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    }).then(res => res.json()),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [`/api/content/${contentId}/display`] });
     }
