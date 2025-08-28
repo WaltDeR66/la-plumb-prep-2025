@@ -232,8 +232,8 @@ export class DatabaseStorage implements IStorage {
         ilike(jobs.company, `%${search}%`),
         ilike(jobs.location, `%${search}%`)
       );
-      query = query.where(and(eq(jobs.isActive, true), searchCondition));
-      countQuery = countQuery.where(and(eq(jobs.isActive, true), searchCondition));
+      query = query.where(searchCondition);
+      countQuery = countQuery.where(searchCondition);
     }
     
     const jobsResult = await query
@@ -378,6 +378,15 @@ export class DatabaseStorage implements IStorage {
     return result || null;
   }
 
+  async createCourseContent(content: InsertCourseContent): Promise<CourseContent> {
+    const [result] = await db
+      .insert(courseContent)
+      .values(content)
+      .returning();
+    
+    return result;
+  }
+
   async updateCourseContent(id: string, data: Partial<InsertCourseContent>): Promise<CourseContent> {
     const [result] = await db
       .update(courseContent)
@@ -388,25 +397,6 @@ export class DatabaseStorage implements IStorage {
     if (!result) {
       throw new Error("Course content not found");
     }
-    
-    return result;
-  }
-
-  async createCourseContent(content: InsertCourseContent): Promise<CourseContent> {
-    const [result] = await db
-      .insert(courseContent)
-      .values(content)
-      .returning();
-    
-    return result;
-  }
-
-  async updateCourseContent(id: string, updates: Partial<CourseContent>): Promise<CourseContent> {
-    const [result] = await db
-      .update(courseContent)
-      .set({ ...updates, updatedAt: new Date() })
-      .where(eq(courseContent.id, id))
-      .returning();
     
     return result;
   }
