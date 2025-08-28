@@ -208,26 +208,21 @@ export default function ContentViewer({ contentId, contentType, title, courseId,
   const renderLessonContent = () => {
     const extracted = content.content?.extracted;
     
-    if (!extracted?.html && !extracted?.text) {
+    const lessonContent = getContentText();
+    if (!lessonContent) {
       return (
         <div className="text-center p-6">
-          <p className="mb-4">Content needs to be extracted from the source.</p>
-          <Button onClick={() => extractMutation.mutate()} disabled={extractMutation.isPending}>
-            {extractMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <RefreshCw className="w-4 h-4 mr-2" />}
-            Extract Content
-          </Button>
+          <p className="mb-4">No content available.</p>
         </div>
       );
     }
 
     return (
       <div className="space-y-6">
-        {extracted.html && (
-          <div 
-            className="prose max-w-none"
-            dangerouslySetInnerHTML={{ __html: extracted.html }}
-          />
-        )}
+        <div 
+          className="prose max-w-none"
+          dangerouslySetInnerHTML={{ __html: lessonContent }}
+        />
         {extracted.text && !extracted.html && (
           <div className="whitespace-pre-wrap text-foreground">
             {extracted.text}
@@ -257,7 +252,7 @@ export default function ContentViewer({ contentId, contentType, title, courseId,
     if (questions.length === 0) {
       return (
         <div className="text-center p-6">
-          <p className="mb-4">Quiz content needs to be extracted.</p>
+          <p className="mb-4">No quiz content available.</p>
           <Button onClick={() => extractMutation.mutate()} disabled={extractMutation.isPending}>
             {extractMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <RefreshCw className="w-4 h-4 mr-2" />}
             Extract Quiz
@@ -662,7 +657,7 @@ export default function ContentViewer({ contentId, contentType, title, courseId,
             </div>
           ) : (
             <div className="text-center p-6">
-              <p className="mb-4">Audio content needs to be extracted.</p>
+              <p className="mb-4">No audio content available.</p>
               <Button onClick={() => extractMutation.mutate()} disabled={extractMutation.isPending}>
                 {extractMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <RefreshCw className="w-4 h-4 mr-2" />}
                 Extract Audio
@@ -686,7 +681,7 @@ export default function ContentViewer({ contentId, contentType, title, courseId,
     if (cards.length === 0) {
       return (
         <div className="text-center p-6">
-          <p className="mb-4">Flashcards need to be extracted.</p>
+          <p className="mb-4">No flashcards available.</p>
           <Button onClick={() => extractMutation.mutate()} disabled={extractMutation.isPending}>
             {extractMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <RefreshCw className="w-4 h-4 mr-2" />}
             Extract Flashcards
@@ -747,7 +742,7 @@ export default function ContentViewer({ contentId, contentType, title, courseId,
     if (!extracted?.keyPoints && !extracted?.html) {
       return (
         <div className="text-center p-6">
-          <p className="mb-4">Study notes need to be extracted.</p>
+          <p className="mb-4">No study notes available.</p>
           <Button onClick={() => extractMutation.mutate()} disabled={extractMutation.isPending}>
             {extractMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <RefreshCw className="w-4 h-4 mr-2" />}
             Extract Notes
@@ -778,12 +773,10 @@ export default function ContentViewer({ contentId, contentType, title, courseId,
           </Card>
         )}
         
-        {extracted.html && (
-          <div 
-            className="prose max-w-none"
-            dangerouslySetInnerHTML={{ __html: extracted.html }}
-          />
-        )}
+        <div 
+          className="prose max-w-none"
+          dangerouslySetInnerHTML={{ __html: lessonContent }}
+        />
         
         <Button onClick={handleComplete} className="w-full">
           Complete Study Session
@@ -796,7 +789,7 @@ export default function ContentViewer({ contentId, contentType, title, courseId,
     if (!content?.content?.extracted) {
       return (
         <div className="text-center p-6">
-          <p className="mb-4">Study plan content needs to be extracted.</p>
+          <p className="mb-4">No study plan available.</p>
           <Button onClick={() => extractMutation.mutate()} disabled={extractMutation.isPending}>
             {extractMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <RefreshCw className="w-4 h-4 mr-2" />}
             Extract Study Plan
