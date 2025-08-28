@@ -106,6 +106,16 @@ export const mentorConversations = pgTable("mentor_conversations", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
+// Chat answers for course content
+export const chatAnswers = pgTable("chat_answers", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  question: text("question").notNull(),
+  answer: text("answer").notNull(),
+  contentId: text("content_id"),
+  keywords: text("keywords").array(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 // Photo uploads for code checking
 export const photoUploads = pgTable("photo_uploads", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
@@ -251,6 +261,11 @@ export const insertPrivateCodeBookSchema = createInsertSchema(privateCodeBooks).
   createdAt: true,
 });
 
+export const insertChatAnswerSchema = createInsertSchema(chatAnswers).omit({
+  id: true,
+  createdAt: true,
+});
+
 // Types
 export type User = typeof users.$inferSelect;
 export type InsertUser = z.infer<typeof insertUserSchema>;
@@ -269,3 +284,5 @@ export type CourseContent = typeof courseContent.$inferSelect;
 export type InsertCourseContent = z.infer<typeof insertCourseContentSchema>;
 export type PrivateCodeBook = typeof privateCodeBooks.$inferSelect;
 export type InsertPrivateCodeBook = z.infer<typeof insertPrivateCodeBookSchema>;
+export type ChatAnswer = typeof chatAnswers.$inferSelect;
+export type InsertChatAnswer = z.infer<typeof insertChatAnswerSchema>;

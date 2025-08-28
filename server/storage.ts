@@ -10,6 +10,7 @@ import {
   referrals,
   courseContent,
   privateCodeBooks,
+  chatAnswers,
   type User, 
   type InsertUser,
   type Course,
@@ -26,7 +27,9 @@ import {
   type CourseContent,
   type InsertCourseContent,
   type PrivateCodeBook,
-  type InsertPrivateCodeBook
+  type InsertPrivateCodeBook,
+  type ChatAnswer,
+  type InsertChatAnswer
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, and, or, ilike, count, sql } from "drizzle-orm";
@@ -89,6 +92,11 @@ export interface IStorage {
   getPrivateCodeBooks(): Promise<PrivateCodeBook[]>;
   createPrivateCodeBook(codeBook: InsertPrivateCodeBook): Promise<PrivateCodeBook>;
   deletePrivateCodeBook(id: string): Promise<void>;
+  
+  // Chat answer methods
+  getChatAnswer(question: string, contentId?: string): Promise<ChatAnswer | undefined>;
+  createChatAnswer(answer: InsertChatAnswer): Promise<ChatAnswer>;
+  getAllChatAnswers(): Promise<ChatAnswer[]>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -436,6 +444,29 @@ export class DatabaseStorage implements IStorage {
 
   async deletePrivateCodeBook(id: string): Promise<void> {
     await db.delete(privateCodeBooks).where(eq(privateCodeBooks.id, id));
+  }
+
+  async getChatAnswer(question: string, contentId?: string): Promise<ChatAnswer | undefined> {
+    const lowerQuestion = question.toLowerCase();
+    
+    // Search for answers that match keywords
+    const answers = await db.select().from(chatAnswers);
+    
+    return answers.find(answer => {
+      if (answer.keywords) {
+        return answer.keywords.some(keyword => lowerQuestion.includes(keyword.toLowerCase()));
+      }
+      return false;
+    });
+  }
+
+  async createChatAnswer(answer: InsertChatAnswer): Promise<ChatAnswer> {
+    const [result] = await db.insert(chatAnswers).values(answer).returning();
+    return result;
+  }
+
+  async getAllChatAnswers(): Promise<ChatAnswer[]> {
+    return await db.select().from(chatAnswers);
   }
 }
 
