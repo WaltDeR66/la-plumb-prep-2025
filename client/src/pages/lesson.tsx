@@ -57,14 +57,9 @@ export default function Lesson() {
   });
 
   // Filter content for this specific section and sort by the desired order
-  console.log('All content:', allContent);
-  console.log('Section param:', section, typeof section);
-  console.log('Sections in content:', allContent?.map(item => ({ section: item.section, type: typeof item.section })));
-  
   const sectionContent = allContent?.filter(item => {
     const itemSection = item.section?.toString();
     const urlSection = section?.toString();
-    console.log('Comparing:', itemSection, 'vs', urlSection, 'match:', itemSection === urlSection);
     return itemSection === urlSection;
   });
   
@@ -94,10 +89,6 @@ export default function Lesson() {
     );
   }
 
-  console.log('Sorted content:', sortedContent);
-  console.log('Course:', course);
-  console.log('Content length:', sortedContent?.length);
-  
   if (!course || !sortedContent || sortedContent.length === 0) {
     return <div>Lesson not found</div>;
   }
