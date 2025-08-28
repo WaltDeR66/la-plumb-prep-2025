@@ -102,15 +102,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
         password: hashedPassword
       });
 
-      // Handle referral if provided
+      // Store referral code for later use when they subscribe
       if (userData.referredBy) {
         try {
           const referrer = await storage.getUserByUsername(userData.referredBy);
           if (referrer) {
-            await storage.createReferral(referrer.id, user.id, 10); // 10% commission
+            // Store the referrer ID for when they actually subscribe
+            await storage.updateUser(user.id, { referredBy: referrer.id });
           }
         } catch (error) {
-          console.error('Referral creation failed:', error);
+          console.error('Referral tracking failed:', error);
         }
       }
 
@@ -188,6 +189,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       await storage.updateUserStripeInfo(user.id, customerId, subscription.id);
       await storage.updateUser(user.id, { subscriptionTier: tier });
+
+      // Process referral commission now that they've subscribed
+      if (user.referredBy) {
+        try {
+          // Calculate commission based on subscription price (10% of first month)
+          const planPrices = {
+            'price_basic_monthly': 39.99,
+            'price_professional_monthly': 79.99,
+            'price_master_monthly': 99.99
+          };
+          const subscriptionPrice = planPrices[priceId as keyof typeof planPrices] || 39.99;
+          const commissionAmount = subscriptionPrice * 0.10; // 10% commission
+          
+          await storage.createReferral(user.referredBy, user.id, commissionAmount);
+        } catch (error) {
+          console.error('Referral commission creation failed:', error);
+        }
+      }
 
       res.json({
         subscriptionId: subscription.id,
