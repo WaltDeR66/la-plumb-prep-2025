@@ -50,6 +50,8 @@ export default function ContentView() {
             contentId={contentId}
             contentType={content.type}
             title={content.title}
+            courseId={courseId}
+            sectionId={content.section?.toString()}
             onComplete={() => {
               // Handle completion - could update progress tracking here
               console.log('Content completed');

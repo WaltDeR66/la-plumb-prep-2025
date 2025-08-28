@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -22,6 +23,8 @@ interface ContentViewerProps {
   contentId: string;
   contentType: string;
   title: string;
+  courseId: string;
+  sectionId?: string;
   onComplete?: () => void;
 }
 
@@ -44,9 +47,10 @@ interface ExtractedContent {
   quizgeckoUrl?: string;
 }
 
-export default function ContentViewer({ contentId, contentType, title, onComplete }: ContentViewerProps) {
+export default function ContentViewer({ contentId, contentType, title, courseId, sectionId, onComplete }: ContentViewerProps) {
   const [isCompleted, setIsCompleted] = useState(false);
   const [audioPlaying, setAudioPlaying] = useState(false);
+  const [, setLocation] = useLocation();
   const queryClient = useQueryClient();
 
   const { data: content, isLoading, error } = useQuery<ExtractedContent>({
@@ -85,6 +89,12 @@ export default function ContentViewer({ contentId, contentType, title, onComplet
   const handleComplete = () => {
     setIsCompleted(true);
     onComplete?.();
+    
+    // Navigate back to lesson page
+    const lessonPath = sectionId 
+      ? `/course/${courseId}/lesson/${sectionId}`
+      : `/course/${courseId}/lesson`;
+    setLocation(lessonPath);
   };
 
   const renderLessonContent = () => {
