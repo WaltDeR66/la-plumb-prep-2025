@@ -58,15 +58,30 @@ export default function ContentViewer({ contentId, contentType, title, courseId,
   const [, setLocation] = useLocation();
   const queryClient = useQueryClient();
 
+  const { data: content, isLoading, error } = useQuery<ExtractedContent>({
+    queryKey: [`/api/content/${contentId}/display`],
+  });
+
   useEffect(() => {
     if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
       setSpeechSynthesis(window.speechSynthesis);
     }
   }, []);
 
-  const { data: content, isLoading, error } = useQuery<ExtractedContent>({
-    queryKey: [`/api/content/${contentId}/display`],
-  });
+  // Auto-play audio when it becomes available for podcast content
+  useEffect(() => {
+    if (contentType === 'podcast' && content?.content?.extracted?.audioUrl) {
+      // Small delay to ensure audio element is rendered
+      setTimeout(() => {
+        const audioElement = document.querySelector('audio') as HTMLAudioElement;
+        if (audioElement) {
+          audioElement.play().catch(error => {
+            console.log('Auto-play prevented by browser:', error);
+          });
+        }
+      }, 100);
+    }
+  }, [contentType, content?.content?.extracted?.audioUrl]);
 
   const extractMutation = useMutation({
     mutationFn: () => fetch(`/api/extract-content/${contentId}`, { 
@@ -309,8 +324,16 @@ export default function ContentViewer({ contentId, contentType, title, courseId,
                       <audio 
                         controls 
                         className="w-full"
+                        autoPlay
                         onPlay={() => setAudioPlaying(true)}
                         onPause={() => setAudioPlaying(false)}
+                        onLoadedData={(e) => {
+                          // Ensure auto-play starts when audio loads
+                          const audio = e.target as HTMLAudioElement;
+                          audio.play().catch(error => {
+                            console.log('Auto-play prevented by browser:', error);
+                          });
+                        }}
                       >
                         <source src={extracted.audioUrl} type="audio/mpeg" />
                         Your browser does not support the audio element.
