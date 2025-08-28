@@ -337,7 +337,7 @@ export default function Tools() {
                       />
                       
                       <Button
-                        onClick={() => document.querySelector('input[data-testid="plan-input"]')?.click()}
+                        onClick={() => (document.querySelector('input[data-testid="plan-input"]') as HTMLInputElement)?.click()}
                         disabled={isAnalyzing}
                         className="w-full"
                         data-testid="upload-plan-button"
@@ -542,7 +542,13 @@ function QuizGeckoImporter() {
     }
     
     // Create individual content entries for each selected component
-    const contentToImport = [];
+    const contentToImport: Array<{
+      title: string;
+      type: string;
+      chapter: number;
+      section: number;
+      url: string;
+    }> = [];
     for (const urlItem of validUrls) {
       componentTypes.forEach(component => {
         if (urlItem.components[component.key as keyof typeof urlItem.components]) {

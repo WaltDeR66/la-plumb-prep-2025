@@ -185,7 +185,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         items: [{ price: priceId }],
         payment_behavior: 'default_incomplete',
         expand: ['latest_invoice.payment_intent'],
-        coupon: coupon.id, // Apply 50% off first month
+        discounts: [{ coupon: coupon.id }], // Apply 50% off first month
       });
 
       await storage.updateUserStripeInfo(user.id, customerId, subscription.id);
@@ -734,7 +734,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Update the content record with extracted data
       const updatedContent = await storage.updateCourseContent(contentId, {
         content: {
-          ...content.content,
+          ...(content.content as object || {}),
           extracted: extractedContent.content,
           extractedAt: new Date().toISOString()
         }
@@ -761,7 +761,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // If content hasn't been extracted yet, extract it now
-      if (!content.content?.extracted) {
+      if (!(content.content as any)?.extracted) {
         const extractedContent = await contentExtractor.extractFromQuizGecko(
           content.quizgeckoUrl || "", // Use the stored QuizGecko URL
           content.type
@@ -770,7 +770,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         if (extractedContent) {
           const updatedContent = await storage.updateCourseContent(contentId, {
             content: {
-              ...content.content,
+              ...(content.content as object || {}),
               extracted: extractedContent.content,
               extractedAt: new Date().toISOString()
             }
@@ -810,12 +810,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ error: 'Content not found' });
       }
 
-      if (!content.content?.extracted?.transcript) {
+      const contentData = content.content as any;
+      if (!contentData?.extracted?.transcript) {
         return res.status(400).json({ error: 'No transcript available for audio generation' });
       }
 
       const { generateAudio } = await import('./openai');
-      const audioUrl = await generateAudio(content.content.extracted.transcript, id);
+      const audioUrl = await generateAudio(contentData.extracted.transcript, id);
       
       // Update content with audio URL
       await storage.updateContentAudio(id, audioUrl);
