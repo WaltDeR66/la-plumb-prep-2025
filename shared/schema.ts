@@ -147,7 +147,6 @@ export const courseContent = pgTable("course_content", {
   chapter: integer("chapter"),
   section: integer("section"),
   content: jsonb("content"), // Main content (HTML, quiz questions, etc.)
-  quizgeckoUrl: text("quizgecko_url"), // Original QuizGecko URL if imported
   duration: integer("duration"), // in minutes
   isActive: boolean("is_active").default(true),
   sortOrder: integer("sort_order").default(0),

@@ -698,13 +698,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Get the content record
       const content = await storage.getCourseContentById(contentId);
-      if (!content || !content.quizgeckoUrl) {
-        return res.status(404).json({ message: "Content not found or no QuizGecko URL" });
+      if (!content) {
+        return res.status(404).json({ message: "Content not found" });
       }
 
-      // Extract content from QuizGecko URL
+      // Extract content based on type
       const extractedContent = await contentExtractor.extractFromQuizGecko(
-        content.quizgeckoUrl, 
+        "", // No longer need URL since content is generated
         content.type
       );
 
@@ -742,9 +742,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // If content hasn't been extracted yet, extract it now
-      if (!content.content?.extracted && content.quizgeckoUrl) {
+      if (!content.content?.extracted) {
         const extractedContent = await contentExtractor.extractFromQuizGecko(
-          content.quizgeckoUrl, 
+          "", // No longer need URL
           content.type
         );
 
