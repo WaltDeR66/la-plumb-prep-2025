@@ -170,12 +170,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
         user = await storage.updateUser(user.id, { stripeCustomerId: customerId });
       }
 
+      // Create a 50% discount coupon for first month
+      const coupon = await stripe.coupons.create({
+        percent_off: 50,
+        duration: 'once',
+        name: 'First Month 50% Off',
+        id: `first-month-50-${Date.now()}` // Unique ID to avoid conflicts
+      });
+
       const subscription = await stripe.subscriptions.create({
         customer: customerId,
         items: [{ price: priceId }],
         payment_behavior: 'default_incomplete',
         expand: ['latest_invoice.payment_intent'],
-        trial_period_days: 7, // 7-day free trial
+        coupon: coupon.id, // Apply 50% off first month
       });
 
       await storage.updateUserStripeInfo(user.id, customerId, subscription.id);
