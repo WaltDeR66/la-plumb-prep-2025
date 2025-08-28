@@ -699,42 +699,89 @@ export default function ContentViewer({ contentId, contentType, title, courseId,
     // Stop any currently playing speech
     speechSynthesis.cancel();
     
-    // Clean text for speech synthesis
+    // Enhanced text cleaning for more natural speech
     const cleanText = text
       .replace(/\*\*(.*?)\*\*/g, '$1') // Remove bold markdown
-      .replace(/•/g, '-') // Replace bullet points  
+      .replace(/•/g, '. ') // Replace bullet points with pauses
       .replace(/[🎓📅⚖️🏛️⬇️📋🔍📝👨‍⚖️🤝⚠️]/g, '') // Remove emojis
       .replace(/\n\n/g, '. ') // Replace double newlines with periods
-      .replace(/\n/g, ' ') // Replace single newlines with spaces
+      .replace(/\n/g, ', ') // Replace single newlines with commas for natural pauses
       .replace(/R\.S\./g, 'Revised Statute') // Make abbreviations readable
       .replace(/LSPC/g, 'Louisiana State Plumbing Code')
+      .replace(/:/g, ', ') // Replace colons with commas for better flow
+      .replace(/;/g, ', and ') // Replace semicolons for more natural speech
+      .replace(/\.\s*\./g, '.') // Remove double periods
       .trim();
 
-    const utterance = new SpeechSynthesisUtterance(cleanText);
+    // Split into sentences for more dynamic delivery
+    const sentences = cleanText.split(/[.!?]+/).filter(s => s.trim().length > 0);
     
-    // Use a professional voice if available
-    const voices = speechSynthesis.getVoices();
-    const preferredVoice = voices.find(voice => 
-      voice.name.includes('Google') || 
-      voice.name.includes('Microsoft') ||
-      voice.quality === 'high'
-    ) || voices.find(voice => voice.lang.includes('en')) || voices[0];
+    let currentSentenceIndex = 0;
     
-    if (preferredVoice) {
-      utterance.voice = preferredVoice;
-    }
+    const speakNextSentence = () => {
+      if (currentSentenceIndex >= sentences.length) {
+        setCurrentPlayingId(null);
+        return;
+      }
+      
+      const sentence = sentences[currentSentenceIndex].trim();
+      if (!sentence) {
+        currentSentenceIndex++;
+        speakNextSentence();
+        return;
+      }
+      
+      const utterance = new SpeechSynthesisUtterance(sentence);
+      
+      // Select the best available voice
+      const voices = speechSynthesis.getVoices();
+      const preferredVoice = voices.find(voice => 
+        // Prioritize high-quality voices
+        voice.name.includes('Google') || 
+        voice.name.includes('Microsoft') ||
+        voice.name.includes('Alex') || // macOS high-quality voice
+        voice.name.includes('Samantha') || // macOS female voice
+        voice.name.includes('Daniel') || // macOS male voice
+        voice.quality === 'high' ||
+        voice.localService === true // Prefer local high-quality voices
+      ) || voices.find(voice => 
+        voice.lang.startsWith('en') && !voice.name.includes('eSpeak')
+      ) || voices[0];
+      
+      if (preferredVoice) {
+        utterance.voice = preferredVoice;
+      }
+      
+      // Dynamic speech parameters based on sentence content
+      if (sentence.includes('Key') || sentence.includes('Important') || sentence.includes('Primary')) {
+        utterance.rate = 0.8; // Slower for important points
+        utterance.pitch = 1.1; // Slightly higher pitch for emphasis
+      } else if (sentence.includes('?')) {
+        utterance.rate = 0.9; // Normal speed for questions
+        utterance.pitch = 1.2; // Higher pitch for questions
+      } else {
+        utterance.rate = 0.85; // Good educational pace
+        utterance.pitch = 1.05; // Slightly varied pitch
+      }
+      
+      utterance.volume = 0.85;
+      
+      utterance.onend = () => {
+        currentSentenceIndex++;
+        // Small pause between sentences
+        setTimeout(speakNextSentence, 200);
+      };
+      
+      utterance.onerror = () => {
+        setCurrentPlayingId(null);
+      };
+      
+      speechSynthesis.speak(utterance);
+    };
     
-    // Optimize for educational content
-    utterance.rate = 0.85; // Slightly slower for comprehension
-    utterance.pitch = 1.0;
-    utterance.volume = 0.8;
-    
-    utterance.onstart = () => setCurrentPlayingId(messageId);
-    utterance.onend = () => setCurrentPlayingId(null);
-    utterance.onerror = () => setCurrentPlayingId(null);
-    
-    setCurrentUtterance(utterance);
-    speechSynthesis.speak(utterance);
+    setCurrentPlayingId(messageId);
+    setCurrentUtterance(null); // We'll manage multiple utterances
+    speakNextSentence();
   };
 
   const stopSpeech = () => {
