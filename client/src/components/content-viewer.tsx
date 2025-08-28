@@ -41,12 +41,14 @@ interface ExtractedContent {
     extracted?: {
       html?: string;
       text?: string;
+      content?: string;
       questions?: any[];
       cards?: any[];
       keyPoints?: string[];
       audioUrl?: string;
       transcript?: string;
       chatContent?: string;
+      passingScore?: number;
     };
     chatContent?: string;
     extractedAt?: string;
@@ -540,7 +542,7 @@ export default function ContentViewer({ contentId, contentType, title, courseId,
 
     const handlePlayAudio = () => {
       if (extracted?.transcript) {
-        playAudio(extracted.transcript);
+        playAudio(extracted.transcript || 'No transcript available');
       }
     };
     
@@ -784,7 +786,17 @@ export default function ContentViewer({ contentId, contentType, title, courseId,
   };
 
   const renderStudyPlanContent = () => {
-    if (!content?.content?.extracted) return renderNoContent();
+    if (!content?.content?.extracted) {
+      return (
+        <div className="text-center p-6">
+          <p className="mb-4">Study plan content needs to be extracted.</p>
+          <Button onClick={() => extractMutation.mutate()} disabled={extractMutation.isPending}>
+            {extractMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <RefreshCw className="w-4 h-4 mr-2" />}
+            Extract Study Plan
+          </Button>
+        </div>
+      );
+    }
 
     const text = content.content.extracted.content || content.content.extracted.text;
     
@@ -841,7 +853,7 @@ export default function ContentViewer({ contentId, contentType, title, courseId,
   useEffect(() => {
     if (contentType === 'chat' && chatMessages.length === 0 && content?.content) {
       const extracted = content.content?.extracted || content.content;
-      const chatContent = extracted?.chatContent || extracted?.text || '';
+      const chatContent = extracted?.chatContent || extracted?.content || extracted?.text || '';
       
       let welcomeMessage = `Welcome to the interactive chat for ${title}!\n\nI'm your AI tutor and I can help answer questions about Louisiana Plumbing Code Section 101 - Administration.`;
       
@@ -878,7 +890,7 @@ export default function ContentViewer({ contentId, contentType, title, courseId,
 
     try {
       const extracted = content?.content?.extracted || content?.content;
-      const chatContent = extracted?.chatContent || extracted?.text || '';
+      const chatContent = extracted?.chatContent || extracted?.content || extracted?.text || '';
       
       const response = await fetch('/api/mentor/chat', {
         method: 'POST',
