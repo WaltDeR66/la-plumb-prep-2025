@@ -170,14 +170,18 @@ export class DatabaseStorage implements IStorage {
     const stats = await db
       .select({
         lessons: sql<number>`COUNT(CASE WHEN type = 'lesson' THEN 1 END)`,
-        quizzes: sql<number>`COUNT(CASE WHEN type = 'quiz' THEN 1 END)`
+        quizSections: sql<number>`COUNT(CASE WHEN type = 'quiz' THEN 1 END)`
       })
       .from(courseContent)
       .where(eq(courseContent.courseId, courseId));
     
+    // Each QuizGecko quiz section contains approximately 20 questions
+    const quizSections = Number(stats[0]?.quizSections || 0);
+    const totalQuestions = quizSections * 20;
+    
     return {
       lessons: Number(stats[0]?.lessons || 0),
-      quizzes: Number(stats[0]?.quizzes || 0)
+      quizzes: totalQuestions
     };
   }
 
