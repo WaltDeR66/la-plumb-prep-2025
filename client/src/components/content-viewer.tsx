@@ -598,14 +598,26 @@ export default function ContentViewer({ contentId, contentType, title, courseId,
 
   // Initialize chat with welcome message
   useEffect(() => {
-    if (contentType === 'chat' && chatMessages.length === 0) {
+    if (contentType === 'chat' && chatMessages.length === 0 && content?.content) {
+      const extracted = content.content.extracted || content.content;
+      const chatContent = extracted?.chatContent || extracted?.text;
+      
+      let welcomeMessage = `Welcome to the interactive chat for ${title}!\n\nI'm your AI tutor and I can help answer questions about Louisiana Plumbing Code Section 101 - Administration.`;
+      
+      if (chatContent) {
+        // Extract key topics from the content
+        welcomeMessage += `\n\nBased on the lesson content, here are the key areas we can discuss:\n\n• Who enforces the Louisiana State Plumbing Code (LSPC)\n• Legal basis and statutory authority (R.S. 36:258(B) and Title 40)\n• Historical notes (promulgated June 2002, amended November 2012)\n• Enforcement authority and delegation\n• Code violations and penalties\n\nWhat would you like to learn about?`;
+      } else {
+        welcomeMessage += `\n\nThis covers:\n\n• Code purpose and enforcement authority\n• Permit requirements and processes\n• Louisiana State Uniform Construction Code Council\n• Local jurisdiction requirements\n• Code violations and stop-work orders\n\nWhat would you like to learn about?`;
+      }
+      
       const initialMessage = {
         role: 'assistant' as const,
-        content: `Welcome to the interactive chat for ${title}!\n\nI'm your AI tutor and I can help answer questions about Louisiana Plumbing Code Section 101 - Administration. This covers:\n\n• Code purpose and enforcement authority\n• Permit requirements and processes\n• Louisiana State Uniform Construction Code Council\n• Local jurisdiction requirements\n• Code violations and stop-work orders\n\nWhat would you like to learn about?`
+        content: welcomeMessage
       };
       setChatMessages([initialMessage]);
     }
-  }, [contentType, chatMessages.length, title]);
+  }, [contentType, chatMessages.length, title, content]);
 
   const sendChatMessage = async () => {
     if (!chatInputMessage.trim()) return;
@@ -616,12 +628,15 @@ export default function ContentViewer({ contentId, contentType, title, courseId,
     setIsChatLoading(true);
 
     try {
+      const extracted = content?.content?.extracted || content?.content;
+      const chatContent = extracted?.chatContent || extracted?.text || '';
+      
       const response = await fetch('/api/mentor/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           message: chatInputMessage,
-          context: `Louisiana Plumbing Code lesson context: ${title}. Student is learning about Section 101 Administration including code purpose, permit requirements, enforcement authority, and local jurisdiction requirements. Please provide educational responses focused on Louisiana plumbing code administration.`
+          context: `Louisiana Plumbing Code lesson context: ${title}. Detailed lesson content: ${chatContent.substring(0, 1500)}. Student is learning about Section 101 Administration including enforcement authority (state health officer and delegation), legal basis (R.S. 36:258(B) and Title 40), historical notes (promulgated June 2002, amended November 2012), and code administration. Please provide educational responses focused on Louisiana plumbing code administration using the specific details from the lesson content.`
         })
       });
       

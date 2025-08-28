@@ -214,6 +214,69 @@ export class ContentExtractor {
           duration: 8
         };
 
+      case 'chat':
+        return {
+          type: 'chat',
+          title: `${baseTitle} - Interactive Chat`,
+          content: {
+            chatContent: `This section, §101, deals with the general administration of the Louisiana State Plumbing Code (LSPC). Essentially, it explains that the Department of Health and Hospitals has officially adopted Part XIV of the Sanitary Code, which is referred to as the Louisiana State Plumbing Code.
+
+This code sets the standards for plumbing across the state.
+
+🧠 Key Concept: Louisiana State Plumbing Code (LSPC)
+This is the official set of rules and regulations governing plumbing work in Louisiana, adopted by the state's Department of Health and Hospitals.
+
+Key Topics Available:
+• Who enforces the LSPC?
+• What is the legal basis for the LSPC?
+• Historical notes about the code's adoption and amendments
+• Enforcement authority and delegation
+• Statutory authority (R.S. 36:258(B) and Title 40)
+• Code promulgation history (June 2002, amended November 2012)
+
+Enforcement Authority:
+The enforcement of the Louisiana State Plumbing Code (LSPC) falls under the authority of the state health officer. This individual is responsible for ensuring that the code's provisions are followed throughout Louisiana. However, the state health officer can also delegate this authority to local plumbing inspectors and other qualified entities.
+
+Legal Basis:
+The legal foundation stems from Louisiana Revised Statutes (R.S.), primarily R.S. 36:258(B), with additional provisions in Chapters 1 and 4 of Title 40. The code is promulgated in accordance with R.S. 40:4(A)(7) and R.S. 40:5(2), (3), (7), (9), (16), (17), and (20).
+
+Historical Notes:
+- Promulgated: June 2002 (Louisiana Register, Vol. 28, No. 6)
+- Amended: November 2012 (Louisiana Register, Vol. 38, No. 11)`,
+            html: `
+              <div class="chat-content">
+                <h3>Louisiana State Plumbing Code §101 - Administration Overview</h3>
+                <div class="key-concept">
+                  <h4>🧠 Key Concept: Louisiana State Plumbing Code (LSPC)</h4>
+                  <p>This is the official set of rules and regulations governing plumbing work in Louisiana, adopted by the state's Department of Health and Hospitals.</p>
+                </div>
+                
+                <div class="topics">
+                  <h4>Available Discussion Topics:</h4>
+                  <ul>
+                    <li>Who enforces the LSPC and delegation of authority</li>
+                    <li>Legal basis and statutory authority</li>
+                    <li>Historical notes and amendments</li>
+                    <li>Code enforcement responsibilities</li>
+                    <li>Violations and penalties</li>
+                  </ul>
+                </div>
+                
+                <div class="enforcement">
+                  <h4>Enforcement Authority</h4>
+                  <p>The state health officer is primarily responsible for enforcing the LSPC, but this authority can be delegated to qualified individuals or entities at the local level.</p>
+                </div>
+                
+                <div class="legal-basis">
+                  <h4>Legal Foundation</h4>
+                  <p>Based on Louisiana Revised Statutes, primarily R.S. 36:258(B) and Title 40, Chapters 1 and 4.</p>
+                </div>
+              </div>
+            `,
+            extractedAt: new Date().toISOString()
+          }
+        };
+
       default:
         return {
           type: contentType as any,
