@@ -327,10 +327,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
 
     try {
-      const { message, conversationId } = req.body;
+      const { message, context, conversationId } = req.body;
       const userId = (req.user as any).id;
 
-      const response = await getMentorResponse(message);
+      const response = await getMentorResponse(message, context);
       
       let conversation;
       if (conversationId) {

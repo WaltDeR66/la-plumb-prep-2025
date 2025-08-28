@@ -42,7 +42,9 @@ interface ExtractedContent {
       keyPoints?: string[];
       audioUrl?: string;
       transcript?: string;
+      chatContent?: string;
     };
+    chatContent?: string;
     extractedAt?: string;
   };
   quizgeckoUrl?: string;
@@ -599,8 +601,8 @@ export default function ContentViewer({ contentId, contentType, title, courseId,
   // Initialize chat with welcome message
   useEffect(() => {
     if (contentType === 'chat' && chatMessages.length === 0 && content?.content) {
-      const extracted = content.content.extracted || content.content;
-      const chatContent = extracted?.chatContent || extracted?.text;
+      const extracted = content.content?.extracted || content.content;
+      const chatContent = extracted?.chatContent || extracted?.text || '';
       
       let welcomeMessage = `Welcome to the interactive chat for ${title}!\n\nI'm your AI tutor and I can help answer questions about Louisiana Plumbing Code Section 101 - Administration.`;
       
