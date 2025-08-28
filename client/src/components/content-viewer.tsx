@@ -11,7 +11,8 @@ import {
   Play, 
   Pause,
   Square,
-  Volume2, 
+  Volume2,
+  VolumeX, 
   MessageSquare, 
   CheckCircle, 
   ExternalLink,
@@ -64,8 +65,8 @@ export default function ContentViewer({ contentId, contentType, title, courseId,
   const [chatMessages, setChatMessages] = useState<Array<{role: 'user' | 'assistant', content: string, id?: string}>>([]);
   const [chatInputMessage, setChatInputMessage] = useState('');
   const [isChatLoading, setIsChatLoading] = useState(false);
-  const [playingMessageId, setPlayingMessageId] = useState<string | null>(null);
-  const [ttsLoading, setTtsLoading] = useState<string | null>(null);
+  const [autoPlayEnabled, setAutoPlayEnabled] = useState(true);
+  const [currentPlayingId, setCurrentPlayingId] = useState<string | null>(null);
 
   const { data: content, isLoading, error } = useQuery<ExtractedContent>({
     queryKey: [`/api/content/${contentId}/display`],
@@ -621,6 +622,13 @@ export default function ContentViewer({ contentId, contentType, title, courseId,
         id: 'welcome-' + Date.now()
       };
       setChatMessages([initialMessage]);
+      
+      // Auto-play welcome message after a brief delay
+      setTimeout(() => {
+        if (autoPlayEnabled) {
+          playMessageWithSpeech(welcomeMessage, initialMessage.id!);
+        }
+      }, 1000);
     }
   }, [contentType, chatMessages.length, title, content]);
 
@@ -648,6 +656,13 @@ export default function ContentViewer({ contentId, contentType, title, courseId,
       const data = await response.json();
       const assistantMessage = { role: 'assistant' as const, content: data.response, id: 'msg-' + Date.now() };
       setChatMessages(prev => [...prev, assistantMessage]);
+      
+      // Auto-play the response after a brief delay
+      setTimeout(() => {
+        if (autoPlayEnabled) {
+          playMessageWithSpeech(data.response, assistantMessage.id!);
+        }
+      }, 500);
     } catch (error) {
       console.error('Chat error:', error);
       const errorMessage = { role: 'assistant' as const, content: 'Sorry, I encountered an error. Please try again or ask a different question about Louisiana Plumbing Code administration.', id: 'error-' + Date.now() };
@@ -678,41 +693,54 @@ export default function ContentViewer({ contentId, contentType, title, courseId,
     }, 100);
   };
 
-  const playMessageTTS = async (messageId: string, text: string) => {
-    if (!messageId) return;
+  const playMessageWithSpeech = (text: string, messageId: string) => {
+    if (!speechSynthesis || !autoPlayEnabled) return;
+
+    // Stop any currently playing speech
+    speechSynthesis.cancel();
     
-    try {
-      setTtsLoading(messageId);
-      
-      // Clean text for TTS (remove markdown formatting and emojis)
-      const cleanText = text
-        .replace(/\*\*(.*?)\*\*/g, '$1') // Remove bold markdown
-        .replace(/•/g, '-') // Replace bullet points
-        .replace(/[🎓📅⚖️🏛️⬇️📋🔍📝👨‍⚖️🤝⚠️]/g, '') // Remove emojis
-        .replace(/\n\n/g, '. ') // Replace double newlines with periods
-        .replace(/\n/g, ' ') // Replace single newlines with spaces
-        .trim();
-      
-      const response = await fetch('/api/mentor/tts', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text: cleanText, messageId })
-      });
-      
-      if (response.ok) {
-        const data = await response.json();
-        setPlayingMessageId(messageId);
-        
-        // Create audio element and play
-        const audio = new Audio(data.audioUrl);
-        audio.onended = () => setPlayingMessageId(null);
-        audio.onerror = () => setPlayingMessageId(null);
-        await audio.play();
-      }
-    } catch (error) {
-      console.error('TTS error:', error);
-    } finally {
-      setTtsLoading(null);
+    // Clean text for speech synthesis
+    const cleanText = text
+      .replace(/\*\*(.*?)\*\*/g, '$1') // Remove bold markdown
+      .replace(/•/g, '-') // Replace bullet points  
+      .replace(/[🎓📅⚖️🏛️⬇️📋🔍📝👨‍⚖️🤝⚠️]/g, '') // Remove emojis
+      .replace(/\n\n/g, '. ') // Replace double newlines with periods
+      .replace(/\n/g, ' ') // Replace single newlines with spaces
+      .replace(/R\.S\./g, 'Revised Statute') // Make abbreviations readable
+      .replace(/LSPC/g, 'Louisiana State Plumbing Code')
+      .trim();
+
+    const utterance = new SpeechSynthesisUtterance(cleanText);
+    
+    // Use a professional voice if available
+    const voices = speechSynthesis.getVoices();
+    const preferredVoice = voices.find(voice => 
+      voice.name.includes('Google') || 
+      voice.name.includes('Microsoft') ||
+      voice.quality === 'high'
+    ) || voices.find(voice => voice.lang.includes('en')) || voices[0];
+    
+    if (preferredVoice) {
+      utterance.voice = preferredVoice;
+    }
+    
+    // Optimize for educational content
+    utterance.rate = 0.85; // Slightly slower for comprehension
+    utterance.pitch = 1.0;
+    utterance.volume = 0.8;
+    
+    utterance.onstart = () => setCurrentPlayingId(messageId);
+    utterance.onend = () => setCurrentPlayingId(null);
+    utterance.onerror = () => setCurrentPlayingId(null);
+    
+    setCurrentUtterance(utterance);
+    speechSynthesis.speak(utterance);
+  };
+
+  const stopSpeech = () => {
+    if (speechSynthesis) {
+      speechSynthesis.cancel();
+      setCurrentPlayingId(null);
     }
   };
 
@@ -722,7 +750,26 @@ export default function ContentViewer({ contentId, contentType, title, courseId,
         <div className="text-center">
           <MessageSquare className="w-16 h-16 mx-auto text-primary mb-4" />
           <h3 className="text-xl font-semibold">Interactive Learning Chat</h3>
-          <p className="text-muted-foreground mb-6">Ask questions about {title}</p>
+          <p className="text-muted-foreground mb-4">Ask questions about {title}</p>
+          
+          {/* Audio controls */}
+          <div className="flex items-center justify-center gap-2 mb-6">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setAutoPlayEnabled(!autoPlayEnabled)}
+              className="flex items-center gap-2"
+            >
+              {autoPlayEnabled ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
+              {autoPlayEnabled ? 'Auto-play ON' : 'Auto-play OFF'}
+            </Button>
+            {currentPlayingId && (
+              <Button variant="outline" size="sm" onClick={stopSpeech}>
+                <Pause className="w-4 h-4 mr-1" />
+                Stop
+              </Button>
+            )}
+          </div>
         </div>
         
         <Card className="h-96 flex flex-col">
@@ -744,19 +791,16 @@ export default function ContentViewer({ contentId, contentType, title, courseId,
                       <p className="whitespace-pre-wrap">{message.content}</p>
                     </div>
                     
-                    {/* Add TTS button for assistant messages */}
+                    {/* Audio control for assistant messages */}
                     {message.role === 'assistant' && message.id && (
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => playMessageTTS(message.id!, message.content)}
-                        disabled={ttsLoading === message.id}
+                        onClick={() => currentPlayingId === message.id ? stopSpeech() : playMessageWithSpeech(message.content, message.id!)}
                         className="mt-2 h-8 w-8 p-0"
-                        data-testid={`tts-button-${message.id}`}
+                        data-testid={`audio-button-${message.id}`}
                       >
-                        {ttsLoading === message.id ? (
-                          <Loader2 className="w-4 h-4 animate-spin" />
-                        ) : playingMessageId === message.id ? (
+                        {currentPlayingId === message.id ? (
                           <Pause className="w-4 h-4" />
                         ) : (
                           <Volume2 className="w-4 h-4" />
