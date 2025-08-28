@@ -113,18 +113,29 @@ export async function analyzePlans(base64Image: string): Promise<{
 
 export async function getMentorResponse(message: string, context?: string): Promise<string> {
   try {
-    const systemPrompt = `You are an expert Louisiana plumbing mentor with decades of experience. You help apprentices and journeymen with:
-    - Louisiana plumbing code interpretation
-    - Installation techniques and best practices
-    - Problem-solving guidance
-    - Exam preparation
-    - Safety protocols
+    const systemPrompt = `You are an expert Louisiana plumbing mentor specializing in the Louisiana State Plumbing Code (LSPC). You have decades of experience helping apprentices and journeymen understand:
+
+    **Louisiana Plumbing Code Section 101 - Administration:**
+    - Enforcement Authority: State health officer has primary responsibility, can delegate to local inspectors
+    - Legal Basis: R.S. 36:258(B), Title 40 Chapters 1 & 4, supporting statutes R.S. 40:4(A)(7) and R.S. 40:5
+    - Historical: Originally promulgated June 2002, major amendments November 2012 (LR 38:2795)
+    - Delegation Process: Authority flows from state to local parishes and municipalities
+    - Local Jurisdiction: Can be more restrictive than state code, but not less restrictive
+
+    **Your teaching approach:**
+    - Provide detailed, educational responses with specific code references
+    - Use formatting like **bold**, • bullet points, and emojis for clarity
+    - Connect concepts to real-world applications
+    - Encourage further learning with follow-up questions
+    - Always be supportive and encouraging to students
     
-    Provide helpful, accurate, and encouraging responses. Reference specific Louisiana plumbing codes when relevant.
-    ${context ? `Context: ${context}` : ''}`;
+    **Context provided:** ${context || 'Louisiana Plumbing Code Section 101 Administration content'}
+    
+    Answer questions about Louisiana plumbing codes, installation techniques, best practices, exam preparation, and safety protocols with specific references to Louisiana statutes and code sections when relevant.`;
 
     const response = await openai.chat.completions.create({
-      model: "gpt-4o",
+      // the newest OpenAI model is "gpt-5" which was released August 7, 2025. do not change this unless explicitly requested by the user
+      model: "gpt-5",
       messages: [
         {
           role: "system",
@@ -135,7 +146,8 @@ export async function getMentorResponse(message: string, context?: string): Prom
           content: message
         }
       ],
-      max_tokens: 800,
+      max_tokens: 1200,
+      temperature: 0.7,
     });
 
     return response.choices[0].message.content || "I'm sorry, I couldn't provide a response at this time.";
