@@ -4,12 +4,13 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Menu, Building2 } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { useQuery } from "@tanstack/react-query";
+import type { User } from "@/../../shared/schema";
 
 export default function Header() {
   const [location] = useLocation();
   const [isOpen, setIsOpen] = useState(false);
 
-  const { data: user } = useQuery({
+  const { data: user } = useQuery<User>({
     queryKey: ["/api/auth/me"],
     retry: false,
   });
@@ -47,14 +48,14 @@ export default function Header() {
           <nav className="hidden md:flex items-center space-x-8" data-testid="desktop-nav">
             {navigation.map((item) => (
               <Link key={item.name} href={item.href}>
-                <a 
-                  className={`text-sm font-medium transition-colors hover:text-primary ${
+                <span 
+                  className={`text-sm font-medium transition-colors hover:text-primary cursor-pointer ${
                     location === item.href ? 'text-primary' : 'text-foreground'
                   }`}
                   data-testid={`nav-link-${item.name.toLowerCase()}`}
                 >
                   {item.name}
-                </a>
+                </span>
               </Link>
             ))}
           </nav>
@@ -99,15 +100,15 @@ export default function Header() {
               <nav className="flex flex-col space-y-4 mt-6" data-testid="mobile-nav">
                 {navigation.map((item) => (
                   <Link key={item.name} href={item.href}>
-                    <a 
-                      className={`text-lg font-medium transition-colors hover:text-primary ${
+                    <span 
+                      className={`text-lg font-medium transition-colors hover:text-primary cursor-pointer ${
                         location === item.href ? 'text-primary' : 'text-foreground'
                       }`}
                       onClick={() => setIsOpen(false)}
                       data-testid={`mobile-nav-link-${item.name.toLowerCase()}`}
                     >
                       {item.name}
-                    </a>
+                    </span>
                   </Link>
                 ))}
                 <div className="border-t pt-4 mt-4">
