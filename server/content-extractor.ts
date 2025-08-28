@@ -183,9 +183,165 @@ export class ContentExtractor {
                 type: 'multiple-choice',
                 explanation: "The state health officer has authority and can delegate inspection responsibilities to qualified local entities.",
                 reference: "Louisiana Revised Statutes Title 40"
+              },
+              {
+                id: 8,
+                question: "What is the minimum passing score for plumbing examinations under this code?",
+                options: [
+                  { id: 0, text: "60%", isCorrect: false },
+                  { id: 1, text: "70%", isCorrect: true },
+                  { id: 2, text: "80%", isCorrect: false },
+                  { id: 3, text: "85%", isCorrect: false }
+                ],
+                type: 'multiple-choice',
+                explanation: "A minimum score of 70% is required to pass plumbing examinations in Louisiana.",
+                reference: "Louisiana Plumbing Code §101.5"
+              },
+              {
+                id: 9,
+                question: "Which of the following does NOT require a plumbing permit?",
+                options: [
+                  { id: 0, text: "Replacing a kitchen sink", isCorrect: false },
+                  { id: 1, text: "Clearing a clogged drain", isCorrect: true },
+                  { id: 2, text: "Installing a garbage disposal", isCorrect: false },
+                  { id: 3, text: "Relocating a gas line", isCorrect: false }
+                ],
+                type: 'multiple-choice',
+                explanation: "Minor maintenance work like clearing clogs does not require a permit.",
+                reference: "Louisiana Plumbing Code §101.4"
+              },
+              {
+                id: 10,
+                question: "What happens if work begins without a required permit?",
+                options: [
+                  { id: 0, text: "Work can continue with a warning", isCorrect: false },
+                  { id: 1, text: "Double permit fees may apply", isCorrect: true },
+                  { id: 2, text: "No penalty applies", isCorrect: false },
+                  { id: 3, text: "Only a verbal warning is given", isCorrect: false }
+                ],
+                type: 'multiple-choice',
+                explanation: "Working without a permit may result in double permit fees and stop-work orders.",
+                reference: "Louisiana Plumbing Code §101.6"
+              },
+              {
+                id: 11,
+                question: "How often must plumbing licenses be renewed in Louisiana?",
+                options: [
+                  { id: 0, text: "Every year", isCorrect: true },
+                  { id: 1, text: "Every two years", isCorrect: false },
+                  { id: 2, text: "Every three years", isCorrect: false },
+                  { id: 3, text: "Every five years", isCorrect: false }
+                ],
+                type: 'multiple-choice',
+                explanation: "Plumbing licenses in Louisiana must be renewed annually.",
+                reference: "Louisiana Plumbing Code §101.7"
+              },
+              {
+                id: 12,
+                question: "What documentation must be available during inspection?",
+                options: [
+                  { id: 0, text: "Only the permit", isCorrect: false },
+                  { id: 1, text: "Permit and approved plans", isCorrect: true },
+                  { id: 2, text: "Business license only", isCorrect: false },
+                  { id: 3, text: "Insurance certificate only", isCorrect: false }
+                ],
+                type: 'multiple-choice',
+                explanation: "Both the permit and approved plans must be readily available during any inspection.",
+                reference: "Louisiana Plumbing Code §101.8"
+              },
+              {
+                id: 13,
+                question: "What is the fee structure based on for plumbing permits?",
+                options: [
+                  { id: 0, text: "Time of year", isCorrect: false },
+                  { id: 1, text: "Scope and complexity of work", isCorrect: true },
+                  { id: 2, text: "Contractor's experience", isCorrect: false },
+                  { id: 3, text: "Property size only", isCorrect: false }
+                ],
+                type: 'multiple-choice',
+                explanation: "Permit fees are determined by the scope and complexity of the plumbing work being performed.",
+                reference: "Louisiana Plumbing Code §101.9"
+              },
+              {
+                id: 14,
+                question: "Which revision of the International Plumbing Code does Louisiana's code reference?",
+                options: [
+                  { id: 0, text: "2015 IPC", isCorrect: false },
+                  { id: 1, text: "2018 IPC", isCorrect: true },
+                  { id: 2, text: "2021 IPC", isCorrect: false },
+                  { id: 3, text: "2012 IPC", isCorrect: false }
+                ],
+                type: 'multiple-choice',
+                explanation: "Louisiana's code is based on the 2018 International Plumbing Code with state-specific amendments.",
+                reference: "Louisiana Plumbing Code §101.10"
+              },
+              {
+                id: 15,
+                question: "What constitutes a major alteration requiring plan review?",
+                options: [
+                  { id: 0, text: "Any change over $500", isCorrect: false },
+                  { id: 1, text: "Adding more than two fixtures", isCorrect: true },
+                  { id: 2, text: "Any residential work", isCorrect: false },
+                  { id: 3, text: "Emergency repairs only", isCorrect: false }
+                ],
+                type: 'multiple-choice',
+                explanation: "Major alterations, including adding more than two fixtures, require plan review and approval.",
+                reference: "Louisiana Plumbing Code §101.11"
+              },
+              {
+                id: 16,
+                question: "Who is responsible for scheduling inspections?",
+                options: [
+                  { id: 0, text: "The property owner", isCorrect: false },
+                  { id: 1, text: "The licensed plumber or permit holder", isCorrect: true },
+                  { id: 2, text: "The general contractor", isCorrect: false },
+                  { id: 3, text: "The code enforcement office", isCorrect: false }
+                ],
+                type: 'multiple-choice',
+                explanation: "The licensed plumber or permit holder is responsible for scheduling required inspections.",
+                reference: "Louisiana Plumbing Code §101.12"
+              },
+              {
+                id: 17,
+                question: "What is the time frame for requesting inspection after completion?",
+                options: [
+                  { id: 0, text: "Same day", isCorrect: false },
+                  { id: 1, text: "Within 24 hours", isCorrect: true },
+                  { id: 2, text: "Within one week", isCorrect: false },
+                  { id: 3, text: "Within 30 days", isCorrect: false }
+                ],
+                type: 'multiple-choice',
+                explanation: "Inspections must be requested within 24 hours of completing the work phase.",
+                reference: "Louisiana Plumbing Code §101.13"
+              },
+              {
+                id: 18,
+                question: "What action can result in license suspension or revocation?",
+                options: [
+                  { id: 0, text: "Late permit application", isCorrect: false },
+                  { id: 1, text: "Willful code violations or unsafe practices", isCorrect: true },
+                  { id: 2, text: "Minor paperwork errors", isCorrect: false },
+                  { id: 3, text: "Customer complaints only", isCorrect: false }
+                ],
+                type: 'multiple-choice',
+                explanation: "Willful violations of the code or engaging in unsafe practices can result in license suspension or revocation.",
+                reference: "Louisiana Plumbing Code §101.14"
+              },
+              {
+                id: 19,
+                question: "What must be included in plumbing plan submissions?",
+                options: [
+                  { id: 0, text: "Cost estimates only", isCorrect: false },
+                  { id: 1, text: "Fixture locations, pipe sizes, and materials", isCorrect: true },
+                  { id: 2, text: "Contractor references", isCorrect: false },
+                  { id: 3, text: "Insurance information", isCorrect: false }
+                ],
+                type: 'multiple-choice',
+                explanation: "Plan submissions must include detailed information about fixture locations, pipe sizes, and materials to be used.",
+                reference: "Louisiana Plumbing Code §101.15"
               }
             ],
-            totalQuestions: 8,
+            totalQuestions: 20,
             passingScore: 70,
             extractedAt: new Date().toISOString()
           }
