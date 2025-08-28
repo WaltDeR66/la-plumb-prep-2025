@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
@@ -10,6 +10,7 @@ import {
   BookOpen, 
   Play, 
   Pause,
+  Square,
   Volume2, 
   MessageSquare, 
   CheckCircle, 
@@ -50,8 +51,18 @@ interface ExtractedContent {
 export default function ContentViewer({ contentId, contentType, title, courseId, sectionId, onComplete }: ContentViewerProps) {
   const [isCompleted, setIsCompleted] = useState(false);
   const [audioPlaying, setAudioPlaying] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
+  const [speechSynthesis, setSpeechSynthesis] = useState<SpeechSynthesis | null>(null);
+  const [currentUtterance, setCurrentUtterance] = useState<SpeechSynthesisUtterance | null>(null);
   const [, setLocation] = useLocation();
   const queryClient = useQueryClient();
+
+  useEffect(() => {
+    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+      setSpeechSynthesis(window.speechSynthesis);
+    }
+  }, []);
 
   const { data: content, isLoading, error } = useQuery<ExtractedContent>({
     queryKey: [`/api/content/${contentId}/display`],
@@ -201,17 +212,79 @@ export default function ContentViewer({ contentId, contentType, title, courseId,
     );
   };
 
+  const playAudio = (transcript: string) => {
+    if (!speechSynthesis || !transcript) return;
+    
+    if (isPaused && currentUtterance) {
+      speechSynthesis.resume();
+      setIsPaused(false);
+      setIsPlaying(true);
+      return;
+    }
+
+    // Stop any existing speech
+    speechSynthesis.cancel();
+    
+    const utterance = new SpeechSynthesisUtterance(transcript);
+    utterance.rate = 0.9;
+    utterance.pitch = 1;
+    utterance.volume = 1;
+    
+    utterance.onstart = () => {
+      setIsPlaying(true);
+      setIsPaused(false);
+    };
+    
+    utterance.onend = () => {
+      setIsPlaying(false);
+      setIsPaused(false);
+      setCurrentUtterance(null);
+    };
+    
+    utterance.onerror = () => {
+      setIsPlaying(false);
+      setIsPaused(false);
+      setCurrentUtterance(null);
+    };
+    
+    setCurrentUtterance(utterance);
+    speechSynthesis.speak(utterance);
+  };
+
+  const pauseAudio = () => {
+    if (speechSynthesis && isPlaying) {
+      speechSynthesis.pause();
+      setIsPlaying(false);
+      setIsPaused(true);
+    }
+  };
+
+  const stopAudio = () => {
+    if (speechSynthesis) {
+      speechSynthesis.cancel();
+      setIsPlaying(false);
+      setIsPaused(false);
+      setCurrentUtterance(null);
+    }
+  };
+
   const renderPodcastContent = () => {
     const extracted = content.content?.extracted;
+
+    const handlePlayAudio = () => {
+      if (extracted?.transcript) {
+        playAudio(extracted.transcript);
+      }
+    };
     
     return (
       <div className="space-y-6">
         <div className="text-center">
-          <h3 className="text-xl font-semibold mb-4">Audio Lesson</h3>
+          <h3 className="text-xl font-semibold mb-4">🎧 Audio Lesson</h3>
           
           {extracted?.transcript || extracted?.audioUrl ? (
             <div className="space-y-4">
-              {extracted.audioUrl && (
+              {extracted.audioUrl ? (
                 <audio 
                   controls 
                   className="w-full"
@@ -221,25 +294,63 @@ export default function ContentViewer({ contentId, contentType, title, courseId,
                   <source src={extracted.audioUrl} type="audio/mpeg" />
                   Your browser does not support the audio element.
                 </audio>
+              ) : extracted.transcript && (
+                <div className="space-y-4">
+                  <Card className="bg-gradient-to-r from-blue-50 to-indigo-50">
+                    <CardContent className="p-6">
+                      <div className="flex items-center justify-center space-x-4 mb-4">
+                        <Button
+                          onClick={isPlaying ? pauseAudio : handlePlayAudio}
+                          size="lg"
+                          className="flex items-center space-x-2"
+                        >
+                          {isPlaying ? (
+                            <>
+                              <Pause className="w-5 h-5" />
+                              <span>Pause</span>
+                            </>
+                          ) : (
+                            <>
+                              <Play className="w-5 h-5" />
+                              <span>{isPaused ? 'Resume' : 'Play Audio'}</span>
+                            </>
+                          )}
+                        </Button>
+                        
+                        {(isPlaying || isPaused) && (
+                          <Button
+                            onClick={stopAudio}
+                            variant="outline"
+                            size="lg"
+                          >
+                            <Square className="w-5 h-5 mr-2" />
+                            Stop
+                          </Button>
+                        )}
+                      </div>
+                      
+                      {isPlaying && (
+                        <div className="text-center">
+                          <div className="inline-flex items-center space-x-2 text-blue-600">
+                            <div className="w-2 h-2 bg-blue-600 rounded-full animate-pulse"></div>
+                            <span className="text-sm font-medium">Playing Audio...</span>
+                          </div>
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                </div>
               )}
               
               {extracted.transcript && (
                 <Card>
                   <CardHeader>
-                    <CardTitle>Transcript</CardTitle>
+                    <CardTitle>📄 Transcript</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <p className="whitespace-pre-wrap">{extracted.transcript}</p>
+                    <p className="whitespace-pre-wrap text-left">{extracted.transcript}</p>
                   </CardContent>
                 </Card>
-              )}
-              
-              {!extracted.audioUrl && extracted.transcript && (
-                <div className="text-center p-4 bg-blue-50 rounded-lg">
-                  <p className="text-sm text-blue-600">
-                    📝 This lesson includes a written transcript of the audio content
-                  </p>
-                </div>
               )}
             </div>
           ) : (
