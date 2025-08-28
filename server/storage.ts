@@ -175,13 +175,9 @@ export class DatabaseStorage implements IStorage {
       .from(courseContent)
       .where(eq(courseContent.courseId, courseId));
     
-    // Each QuizGecko quiz section contains approximately 20 questions
-    const quizSections = Number(stats[0]?.quizSections || 0);
-    const totalQuestions = quizSections * 20;
-    
     return {
       lessons: Number(stats[0]?.lessons || 0),
-      quizzes: totalQuestions
+      quizzes: Number(stats[0]?.quizSections || 0)
     };
   }
 

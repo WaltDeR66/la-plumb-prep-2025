@@ -131,7 +131,7 @@ export default function CourseCard({ course, isEnrolled = false, progress = 0, i
             {course.practiceQuestions && (
               <div className="flex items-center space-x-1">
                 <Star className="w-4 h-4" />
-                <span>{course.practiceQuestions} questions</span>
+                <span>{course.practiceQuestions} quizzes</span>
               </div>
             )}
           </div>
