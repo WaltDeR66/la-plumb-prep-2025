@@ -50,9 +50,11 @@ export default function CourseContent() {
     return <div>Course not found</div>;
   }
 
-  const { data: course } = useQuery<Course>({
-    queryKey: ["/api/courses", courseId],
+  const { data: courses } = useQuery<Course[]>({
+    queryKey: ["/api/courses"],
   });
+  
+  const course = courses?.find(c => c.id === courseId);
 
   const { data: content, isLoading } = useQuery<CourseContent[]>({
     queryKey: [`/api/courses/${courseId}/content`],
