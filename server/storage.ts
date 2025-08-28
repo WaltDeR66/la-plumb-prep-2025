@@ -166,18 +166,29 @@ export class DatabaseStorage implements IStorage {
     return updatedCourse;
   }
 
-  async getCourseContentStats(courseId: string): Promise<{ lessons: number; quizzes: number }> {
+  async getCourseContentStats(courseId: string): Promise<{ lessons: number; quizzes: number; duration: number }> {
     const stats = await db
       .select({
         lessons: sql<number>`COUNT(CASE WHEN type = 'lesson' THEN 1 END)`,
-        quizSections: sql<number>`COUNT(CASE WHEN type = 'quiz' THEN 1 END)`
+        quizSections: sql<number>`COUNT(CASE WHEN type = 'quiz' THEN 1 END)`,
+        totalContentDuration: sql<number>`COALESCE(SUM(duration), 0)`
       })
       .from(courseContent)
       .where(eq(courseContent.courseId, courseId));
     
+    const lessons = Number(stats[0]?.lessons || 0);
+    const quizSections = Number(stats[0]?.quizSections || 0);
+    const contentDuration = Number(stats[0]?.totalContentDuration || 0);
+    
+    // Calculate total duration: content duration + estimated time for quizzes
+    // Estimate 30 minutes (0.5 hours) per quiz section
+    const estimatedQuizDuration = quizSections * 0.5;
+    const totalDuration = contentDuration + estimatedQuizDuration;
+    
     return {
-      lessons: Number(stats[0]?.lessons || 0),
-      quizzes: Number(stats[0]?.quizSections || 0)
+      lessons,
+      quizzes: quizSections,
+      duration: Math.ceil(totalDuration) || 1 // At least 1 hour minimum
     };
   }
 

@@ -588,7 +588,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const courseStats = await storage.getCourseContentStats(journeymanCourse.id);
       await storage.updateCourse(journeymanCourse.id, {
         lessons: courseStats.lessons,
-        practiceQuestions: courseStats.quizzes
+        practiceQuestions: courseStats.quizzes,
+        duration: courseStats.duration
       });
 
       res.json({ 
