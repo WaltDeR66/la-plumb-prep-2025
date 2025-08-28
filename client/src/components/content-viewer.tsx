@@ -185,7 +185,14 @@ export default function ContentViewer({ contentId, contentType, title, courseId,
     );
   }
 
-  const hasExtractedContent = content.content?.extracted || (content.content?.extractedAt && content.content?.extracted !== undefined);
+  // All content is pre-extracted and stored in the database
+  const hasExtractedContent = !!content?.content?.extracted;
+  
+  // Helper function to get content text from various possible locations
+  const getContentText = () => {
+    const extracted = content?.content?.extracted;
+    return extracted?.content || extracted?.html || extracted?.text || '';
+  };
 
   const handleComplete = () => {
     setIsCompleted(true);
