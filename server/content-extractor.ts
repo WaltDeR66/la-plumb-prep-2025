@@ -144,9 +144,69 @@ export class ContentExtractor {
                 id: 3,
                 front: "What authority do code enforcement officials have?",
                 back: "Issue permits, conduct inspections, review plans, issue stop-work orders, require corrections"
+              },
+              {
+                id: 4,
+                front: "What is the legal basis for Louisiana Plumbing Code enforcement?",
+                back: "Louisiana Revised Statute 36:258(B) and Title 40, which delegates authority to the state health officer"
+              },
+              {
+                id: 5,
+                front: "When was the current Louisiana Plumbing Code promulgated?",
+                back: "Originally promulgated June 2002, with amendments in November 2012"
+              },
+              {
+                id: 6,
+                front: "What happens when a code violation is found?",
+                back: "Inspector issues a stop-work order, requiring corrections before work can continue"
+              },
+              {
+                id: 7,
+                front: "Who can perform plumbing inspections in Louisiana?",
+                back: "Licensed plumbing inspectors certified by the state health officer or delegated local authorities"
+              },
+              {
+                id: 8,
+                front: "What is required before starting any plumbing work?",
+                back: "Valid permit issued by the local jurisdiction or state authority, with approved plans when required"
+              },
+              {
+                id: 9,
+                front: "How does local jurisdiction authority work with state code?",
+                back: "Local jurisdictions may adopt the state code or create more restrictive requirements, but cannot be less restrictive"
+              },
+              {
+                id: 10,
+                front: "What types of buildings are covered under Section 101?",
+                back: "All buildings and structures within Louisiana jurisdiction, including residential, commercial, and industrial"
+              },
+              {
+                id: 11,
+                front: "What documentation must be maintained during plumbing work?",
+                back: "Valid permits, approved plans, inspection records, and completion certificates"
+              },
+              {
+                id: 12,
+                front: "What is the role of the Department of Health and Hospitals?",
+                back: "Adopts and oversees Part XIV of the Sanitary Code, known as the Louisiana State Plumbing Code"
+              },
+              {
+                id: 13,
+                front: "Can the state health officer delegate enforcement authority?",
+                back: "Yes, authority can be delegated to local plumbing inspectors and other qualified entities"
+              },
+              {
+                id: 14,
+                front: "What Louisiana Register volumes contain the code history?",
+                back: "Vol. 28, No. 6 (June 2002 promulgation) and Vol. 38, No. 11 (November 2012 amendments)"
+              },
+              {
+                id: 15,
+                front: "What statutory sections provide the legal framework?",
+                back: "R.S. 40:4(A)(7) and R.S. 40:5(2), (3), (7), (9), (16), (17), and (20)"
               }
             ],
-            totalCards: 4,
+            totalCards: 16,
             extractedAt: new Date().toISOString()
           }
         };
