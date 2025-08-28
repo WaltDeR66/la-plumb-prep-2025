@@ -191,7 +191,25 @@ export default function ContentViewer({ contentId, contentType, title, courseId,
   // Helper function to get content text from various possible locations
   const getContentText = () => {
     const extracted = content?.content?.extracted;
-    return extracted?.content || extracted?.html || extracted?.text || '';
+    let text = extracted?.content || extracted?.html || extracted?.text || '';
+    
+    // Convert literal \n characters to actual HTML formatting
+    if (text) {
+      text = text
+        .replace(/\\n\\n/g, '</p><p class="mb-4">')
+        .replace(/\\n/g, '<br/>')
+        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+        .replace(/### (.*$)/gm, '<h3 class="text-lg font-semibold mt-6 mb-3">$1</h3>')
+        .replace(/## (.*$)/gm, '<h2 class="text-xl font-bold mt-8 mb-4">$1</h2>')
+        .replace(/# (.*$)/gm, '<h1 class="text-2xl font-bold mt-8 mb-6">$1</h1>');
+      
+      // Wrap in paragraph tags if not already HTML
+      if (!text.includes('<')) {
+        text = '<p class="mb-4">' + text + '</p>';
+      }
+    }
+    
+    return text;
   };
 
   const handleComplete = () => {
