@@ -221,23 +221,230 @@ export class ContentExtractor {
   }
 
   private async extractFlashcardsFromHtml($: cheerio.CheerioAPI, url: string): Promise<ExtractedContent | null> {
-    // Implementation for flashcards extraction
-    return null;
+    try {
+      const title = $('title').text() || 'Extracted Flashcards';
+      const cards: any[] = [];
+      let cardId = 0;
+
+      // Look for flashcard structures
+      const cardElements = $('div[class*="card"], .flashcard, .card, [data-card], .term, .definition');
+      
+      cardElements.each((index, element) => {
+        const front = $(element).find('.front, .term, .question, h3, h4').first().text().trim();
+        const back = $(element).find('.back, .definition, .answer, p').first().text().trim();
+        
+        if (front && back && front.length > 5 && back.length > 5) {
+          cards.push({
+            id: cardId++,
+            front: front,
+            back: back
+          });
+        }
+      });
+
+      // If no structured cards found, try to extract from text content
+      if (cards.length === 0) {
+        const textContent = $('body').text();
+        const extractedCards = this.extractFlashcardsFromText(textContent);
+        cards.push(...extractedCards);
+      }
+
+      if (cards.length === 0) {
+        return null;
+      }
+
+      return {
+        type: 'flashcards',
+        title: title,
+        content: {
+          cards: cards,
+          totalCards: cards.length,
+          extractedAt: new Date().toISOString(),
+          sourceUrl: url
+        }
+      };
+    } catch (error) {
+      console.error('Error extracting flashcards from HTML:', error);
+      return null;
+    }
+  }
+
+  private extractFlashcardsFromText(text: string): any[] {
+    const cards: any[] = [];
+    
+    // Look for term/definition patterns
+    const termPattern = /(.*?)[:]\s*(.*?)(?=\n|$)/gim;
+    const matches = text.match(termPattern);
+    
+    if (matches) {
+      matches.slice(0, 15).forEach((match, index) => {
+        const parts = match.split(':');
+        if (parts.length >= 2) {
+          const front = parts[0].trim();
+          const back = parts.slice(1).join(':').trim();
+          
+          if (front.length > 3 && back.length > 3) {
+            cards.push({
+              id: index,
+              front: front,
+              back: back
+            });
+          }
+        }
+      });
+    }
+    
+    return cards;
   }
 
   private async extractStudyNotesFromHtml($: cheerio.CheerioAPI, url: string): Promise<ExtractedContent | null> {
-    // Implementation for study notes extraction
-    return null;
+    try {
+      const title = $('title').text() || 'Extracted Study Notes';
+      
+      // Extract key points and content
+      const keyPoints: string[] = [];
+      const listItems = $('ul li, ol li, .key-point, .note, .highlight, .important');
+      
+      listItems.each((index, element) => {
+        const text = $(element).text().trim();
+        if (text && text.length > 10) {
+          keyPoints.push(text);
+        }
+      });
+
+      // Extract main content areas
+      const contentAreas = $('main, .content, .notes, article, .study-content, .summary');
+      const html = contentAreas.length > 0 ? contentAreas.html() || '' : $('body').html() || '';
+      
+      // If no structured content, extract from paragraphs
+      if (keyPoints.length === 0) {
+        $('p, h1, h2, h3, h4, h5, h6').each((index, element) => {
+          const text = $(element).text().trim();
+          if (text && text.length > 20) {
+            keyPoints.push(text);
+          }
+        });
+      }
+
+      if (keyPoints.length === 0) {
+        return null;
+      }
+
+      return {
+        type: 'study-notes',
+        title: title,
+        content: {
+          keyPoints: keyPoints.slice(0, 20), // Limit to 20 key points
+          html: html,
+          summary: `Study notes extracted from ${url}`,
+          extractedAt: new Date().toISOString(),
+          sourceUrl: url
+        }
+      };
+    } catch (error) {
+      console.error('Error extracting study notes from HTML:', error);
+      return null;
+    }
   }
 
   private async extractPodcastFromHtml($: cheerio.CheerioAPI, url: string): Promise<ExtractedContent | null> {
-    // Implementation for podcast extraction
-    return null;
+    try {
+      const title = $('title').text() || 'Extracted Podcast';
+      
+      // Look for audio elements or transcript content
+      const audioUrl = $('audio').attr('src') || $('source').attr('src') || null;
+      
+      // Extract transcript or description text
+      const transcriptAreas = $('.transcript, .description, .content, .summary, .text, main, article');
+      let transcript = '';
+      
+      if (transcriptAreas.length > 0) {
+        transcript = transcriptAreas.first().text().trim();
+      } else {
+        // Fallback to body text
+        transcript = $('body').text().trim();
+      }
+
+      // Generate a basic transcript format if we have content
+      if (transcript.length > 100) {
+        const formattedTranscript = `
+Audio lesson content extracted from ${url}
+
+${transcript}
+
+This content covers key concepts and information from the source material.
+        `.trim();
+
+        return {
+          type: 'podcast',
+          title: title,
+          content: {
+            audioUrl: audioUrl,
+            transcript: formattedTranscript,
+            description: `Audio lesson content extracted from ${url}`,
+            extractedAt: new Date().toISOString(),
+            sourceUrl: url
+          },
+          duration: Math.ceil(transcript.length / 1000) // Rough estimate: 1 minute per 1000 chars
+        };
+      }
+
+      return null;
+    } catch (error) {
+      console.error('Error extracting podcast from HTML:', error);
+      return null;
+    }
   }
 
   private async extractChatFromHtml($: cheerio.CheerioAPI, url: string): Promise<ExtractedContent | null> {
-    // Implementation for chat content extraction
-    return null;
+    try {
+      const title = $('title').text() || 'Extracted Chat Content';
+      
+      // Extract main content for chat/teaching material
+      const contentAreas = $('main, .content, .chat, article, .lesson, .teaching');
+      const html = contentAreas.length > 0 ? contentAreas.html() || '' : $('body').html() || '';
+      const textContent = contentAreas.length > 0 ? contentAreas.text() : $('body').text();
+
+      // Extract key topics and concepts
+      const topics: string[] = [];
+      $('h1, h2, h3, h4, h5, h6, .topic, .concept, .key-point').each((index, element) => {
+        const text = $(element).text().trim();
+        if (text && text.length > 5) {
+          topics.push(text);
+        }
+      });
+
+      if (textContent.trim().length < 50) {
+        return null;
+      }
+
+      // Format content for interactive chat/teaching
+      const chatContent = `
+Content extracted from ${url}
+
+${textContent.trim()}
+
+🧠 Key Topics Available:
+${topics.slice(0, 10).map(topic => `• ${topic}`).join('\n')}
+
+This content is available for interactive discussion and learning.
+      `.trim();
+
+      return {
+        type: 'chat',
+        title: title,
+        content: {
+          chatContent: chatContent,
+          html: html,
+          topics: topics.slice(0, 10),
+          extractedAt: new Date().toISOString(),
+          sourceUrl: url
+        }
+      };
+    } catch (error) {
+      console.error('Error extracting chat content from HTML:', error);
+      return null;
+    }
   }
 
   private createSampleContent(url: string, contentType: string): ExtractedContent {
