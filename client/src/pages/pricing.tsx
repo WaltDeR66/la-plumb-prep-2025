@@ -139,7 +139,7 @@ export default function Pricing() {
                       size="lg"
                       data-testid={`button-select-${plan.id}`}
                     >
-                      Start 7-Day Free Trial
+                      Get 50% Off First Month
                     </Button>
                   </Link>
                 </CardContent>

@@ -61,7 +61,7 @@ const SubscribeForm = ({ planName, price }: { planName: string; price: string })
           {price}/month
         </p>
         <p className="text-sm text-muted-foreground mt-1">
-          7-day free trial • Cancel anytime
+          50% off first month • Cancel anytime
         </p>
       </div>
 
@@ -74,12 +74,12 @@ const SubscribeForm = ({ planName, price }: { planName: string; price: string })
         disabled={!stripe || isLoading}
         data-testid="button-confirm-subscription"
       >
-        {isLoading ? "Processing..." : "Start Free Trial"}
+        {isLoading ? "Processing..." : "Start 50% Off First Month"}
       </Button>
 
       <p className="text-xs text-muted-foreground text-center">
         By subscribing, you agree to our Terms of Service and Privacy Policy. 
-        Your trial starts today and you won't be charged until after 7 days.
+        You'll be charged 50% off for your first month, then the full amount monthly.
       </p>
     </form>
   );

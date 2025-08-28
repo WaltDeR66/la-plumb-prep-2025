@@ -81,7 +81,7 @@ export default function Header() {
                 </Link>
                 <Link href="/pricing">
                   <Button data-testid="button-start-trial">
-                    Start Free Trial
+                    Get 50% Off First Month
                   </Button>
                 </Link>
               </>
@@ -131,7 +131,7 @@ export default function Header() {
                       </Link>
                       <Link href="/pricing">
                         <Button className="w-full" onClick={() => setIsOpen(false)} data-testid="mobile-button-start-trial">
-                          Start Free Trial
+                          Get 50% Off First Month
                         </Button>
                       </Link>
                     </div>

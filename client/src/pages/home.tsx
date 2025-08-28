@@ -165,7 +165,7 @@ export default function Home() {
               <div className="flex flex-col sm:flex-row gap-4">
                 <Link href="/pricing">
                   <Button size="lg" className="bg-white text-primary hover:bg-gray-50 text-lg px-8 py-4" data-testid="button-free-trial">
-                    Start 7-Day Free Trial
+                    Get 50% Off First Month
                   </Button>
                 </Link>
                 <Button variant="outline" size="lg" className="border-2 border-white text-white hover:bg-white hover:text-primary text-lg px-8 py-4" data-testid="button-demo">
