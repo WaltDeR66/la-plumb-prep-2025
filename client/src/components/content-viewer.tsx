@@ -57,6 +57,11 @@ export default function ContentViewer({ contentId, contentType, title, courseId,
   const [currentUtterance, setCurrentUtterance] = useState<SpeechSynthesisUtterance | null>(null);
   const [, setLocation] = useLocation();
   const queryClient = useQueryClient();
+  
+  // Chat state
+  const [chatMessages, setChatMessages] = useState<Array<{role: 'user' | 'assistant', content: string}>>([]);
+  const [chatInputMessage, setChatInputMessage] = useState('');
+  const [isChatLoading, setIsChatLoading] = useState(false);
 
   const { data: content, isLoading, error } = useQuery<ExtractedContent>({
     queryKey: [`/api/content/${contentId}/display`],
@@ -591,6 +596,47 @@ export default function ContentViewer({ contentId, contentType, title, courseId,
     );
   };
 
+  // Initialize chat with welcome message
+  useEffect(() => {
+    if (contentType === 'chat' && chatMessages.length === 0) {
+      const initialMessage = {
+        role: 'assistant' as const,
+        content: `Welcome to the interactive chat for ${title}!\n\nI'm your AI tutor and I can help answer questions about Louisiana Plumbing Code Section 101 - Administration. This covers:\n\n• Code purpose and enforcement authority\n• Permit requirements and processes\n• Louisiana State Uniform Construction Code Council\n• Local jurisdiction requirements\n• Code violations and stop-work orders\n\nWhat would you like to learn about?`
+      };
+      setChatMessages([initialMessage]);
+    }
+  }, [contentType, chatMessages.length, title]);
+
+  const sendChatMessage = async () => {
+    if (!chatInputMessage.trim()) return;
+    
+    const userMessage = { role: 'user' as const, content: chatInputMessage };
+    setChatMessages(prev => [...prev, userMessage]);
+    setChatInputMessage('');
+    setIsChatLoading(true);
+
+    try {
+      const response = await fetch('/api/mentor/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          message: chatInputMessage,
+          context: `Louisiana Plumbing Code lesson context: ${title}. Student is learning about Section 101 Administration including code purpose, permit requirements, enforcement authority, and local jurisdiction requirements. Please provide educational responses focused on Louisiana plumbing code administration.`
+        })
+      });
+      
+      const data = await response.json();
+      const assistantMessage = { role: 'assistant' as const, content: data.response };
+      setChatMessages(prev => [...prev, assistantMessage]);
+    } catch (error) {
+      console.error('Chat error:', error);
+      const errorMessage = { role: 'assistant' as const, content: 'Sorry, I encountered an error. Please try again or ask a different question about Louisiana Plumbing Code administration.' };
+      setChatMessages(prev => [...prev, errorMessage]);
+    } finally {
+      setIsChatLoading(false);
+    }
+  };
+
   const renderChatContent = () => {
     return (
       <div className="space-y-6">
@@ -600,28 +646,51 @@ export default function ContentViewer({ contentId, contentType, title, courseId,
           <p className="text-muted-foreground mb-6">Ask questions about {title}</p>
         </div>
         
-        <Card>
-          <CardContent className="p-6">
-            <p className="text-center text-muted-foreground">
-              Chat functionality coming soon! This will be integrated with the AI mentor system 
-              to provide interactive Q&A about this specific lesson content.
-            </p>
+        <Card className="h-96 flex flex-col">
+          <CardContent className="flex-1 p-4 overflow-y-auto">
+            <div className="space-y-4">
+              {chatMessages.map((message, index) => (
+                <div
+                  key={index}
+                  className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                >
+                  <div
+                    className={`max-w-[80%] p-3 rounded-lg ${
+                      message.role === 'user'
+                        ? 'bg-blue-500 text-white'
+                        : 'bg-gray-100 text-gray-900'
+                    }`}
+                  >
+                    <p className="whitespace-pre-wrap">{message.content}</p>
+                  </div>
+                </div>
+              ))}
+              {isChatLoading && (
+                <div className="flex justify-start">
+                  <div className="bg-gray-100 p-3 rounded-lg">
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  </div>
+                </div>
+              )}
+            </div>
           </CardContent>
-        </Card>
-        
-        {content.quizgeckoUrl && (
-          <div className="text-center">
-            <p className="text-sm text-muted-foreground mb-4">
-              For now, you can access the interactive content at the source:
-            </p>
-            <Button asChild variant="outline">
-              <a href={content.quizgeckoUrl} target="_blank" rel="noopener noreferrer">
-                <ExternalLink className="w-4 h-4 mr-2" />
-                Open in QuizGecko
-              </a>
-            </Button>
+          <div className="p-4 border-t">
+            <div className="flex space-x-2">
+              <input
+                type="text"
+                value={chatInputMessage}
+                onChange={(e) => setChatInputMessage(e.target.value)}
+                onKeyPress={(e) => e.key === 'Enter' && sendChatMessage()}
+                placeholder="Ask a question about Louisiana Plumbing Code administration..."
+                className="flex-1 px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                disabled={isChatLoading}
+              />
+              <Button onClick={sendChatMessage} disabled={isChatLoading || !chatInputMessage.trim()}>
+                Send
+              </Button>
+            </div>
           </div>
-        )}
+        </Card>
         
         <Button onClick={handleComplete} className="w-full">
           Complete Session
