@@ -65,6 +65,13 @@ export default function ContentViewer({ contentId, contentType, title, courseId,
   useEffect(() => {
     if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
       setSpeechSynthesis(window.speechSynthesis);
+      
+      // Load voices if they're not ready yet
+      if (window.speechSynthesis.getVoices().length === 0) {
+        window.speechSynthesis.addEventListener('voiceschanged', () => {
+          // Voices are now loaded
+        });
+      }
     }
   }, []);
 
@@ -262,8 +269,40 @@ export default function ContentViewer({ contentId, contentType, title, courseId,
     speechSynthesis.cancel();
     
     const utterance = new SpeechSynthesisUtterance(transcript);
-    utterance.rate = 0.9;
-    utterance.pitch = 1;
+    
+    // Get available voices and select the best one
+    const voices = speechSynthesis.getVoices();
+    let selectedVoice = null;
+    
+    // Prefer high-quality voices in this order
+    const preferredVoices = [
+      'Microsoft Zira - English (United States)',
+      'Microsoft David - English (United States)', 
+      'Google US English Female',
+      'Google US English Male',
+      'Samantha',
+      'Alex',
+      'Victoria',
+      'Daniel'
+    ];
+    
+    for (const voiceName of preferredVoices) {
+      selectedVoice = voices.find(voice => voice.name.includes(voiceName) || voice.name === voiceName);
+      if (selectedVoice) break;
+    }
+    
+    // Fallback to first English voice if no preferred voice found
+    if (!selectedVoice) {
+      selectedVoice = voices.find(voice => voice.lang.includes('en')) || voices[0];
+    }
+    
+    if (selectedVoice) {
+      utterance.voice = selectedVoice;
+    }
+    
+    // Optimize speech settings for educational content
+    utterance.rate = 0.85; // Slightly slower for better comprehension
+    utterance.pitch = 1.1; // Slightly higher pitch for engagement
     utterance.volume = 1;
     
     utterance.onstart = () => {
