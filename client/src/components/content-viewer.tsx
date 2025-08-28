@@ -17,9 +17,11 @@ import {
   CheckCircle, 
   ExternalLink,
   RefreshCw,
-  Loader2
+  Loader2,
+  Settings
 } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface ContentViewerProps {
   contentId: string;
@@ -67,6 +69,8 @@ export default function ContentViewer({ contentId, contentType, title, courseId,
   const [isChatLoading, setIsChatLoading] = useState(false);
   const [autoPlayEnabled, setAutoPlayEnabled] = useState(true);
   const [currentPlayingId, setCurrentPlayingId] = useState<string | null>(null);
+  const [selectedVoice, setSelectedVoice] = useState<string>('auto');
+  const [availableVoices, setAvailableVoices] = useState<SpeechSynthesisVoice[]>([]);
 
   const { data: content, isLoading, error } = useQuery<ExtractedContent>({
     queryKey: [`/api/content/${contentId}/display`],
@@ -75,6 +79,25 @@ export default function ContentViewer({ contentId, contentType, title, courseId,
   useEffect(() => {
     if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
       setSpeechSynthesis(window.speechSynthesis);
+      
+      // Load available voices
+      const loadVoices = () => {
+        const voices = window.speechSynthesis.getVoices();
+        const englishVoices = voices.filter(voice => 
+          voice.lang.startsWith('en') && !voice.name.includes('eSpeak')
+        );
+        setAvailableVoices(englishVoices);
+        
+        // Load saved voice preference
+        const savedVoice = localStorage.getItem('ai-mentor-voice');
+        if (savedVoice) {
+          setSelectedVoice(savedVoice);
+        }
+      };
+      
+      loadVoices();
+      // Voices might not be loaded immediately, so listen for the voiceschanged event
+      window.speechSynthesis.addEventListener('voiceschanged', loadVoices);
       
       // Load voices if they're not ready yet
       if (window.speechSynthesis.getVoices().length === 0) {
@@ -733,20 +756,24 @@ export default function ContentViewer({ contentId, contentType, title, courseId,
       
       const utterance = new SpeechSynthesisUtterance(sentence);
       
-      // Select the best available voice
-      const voices = speechSynthesis.getVoices();
-      const preferredVoice = voices.find(voice => 
-        // Prioritize high-quality voices
-        voice.name.includes('Google') || 
-        voice.name.includes('Microsoft') ||
-        voice.name.includes('Alex') || // macOS high-quality voice
-        voice.name.includes('Samantha') || // macOS female voice
-        voice.name.includes('Daniel') || // macOS male voice
-        voice.quality === 'high' ||
-        voice.localService === true // Prefer local high-quality voices
-      ) || voices.find(voice => 
-        voice.lang.startsWith('en') && !voice.name.includes('eSpeak')
-      ) || voices[0];
+      // Select voice based on user preference
+      let preferredVoice = null;
+      
+      if (selectedVoice === 'auto') {
+        // Auto-select best voice
+        preferredVoice = availableVoices.find(voice => 
+          voice.name.includes('Google') || 
+          voice.name.includes('Microsoft') ||
+          voice.name.includes('Alex') || 
+          voice.name.includes('Samantha') || 
+          voice.name.includes('Daniel') || 
+          voice.quality === 'high' ||
+          voice.localService === true
+        ) || availableVoices[0];
+      } else {
+        // Use user-selected voice
+        preferredVoice = availableVoices.find(voice => voice.name === selectedVoice) || availableVoices[0];
+      }
       
       if (preferredVoice) {
         utterance.voice = preferredVoice;
@@ -791,6 +818,47 @@ export default function ContentViewer({ contentId, contentType, title, courseId,
     }
   };
 
+  const handleVoiceChange = (voiceName: string) => {
+    setSelectedVoice(voiceName);
+    localStorage.setItem('ai-mentor-voice', voiceName);
+    
+    // Preview the voice with a sample message
+    setTimeout(() => {
+      previewVoice(voiceName);
+    }, 100);
+  };
+
+  const previewVoice = (voiceName: string) => {
+    if (!speechSynthesis) return;
+    
+    speechSynthesis.cancel(); // Stop any current speech
+    
+    const previewText = "Hello! I'm your AI mentor for Louisiana Plumbing Code. I'm here to help you learn.";
+    const utterance = new SpeechSynthesisUtterance(previewText);
+    
+    let voice = null;
+    if (voiceName === 'auto') {
+      voice = availableVoices.find(v => 
+        v.name.includes('Google') || 
+        v.name.includes('Microsoft') ||
+        v.name.includes('Alex') || 
+        v.localService === true
+      ) || availableVoices[0];
+    } else {
+      voice = availableVoices.find(v => v.name === voiceName);
+    }
+    
+    if (voice) {
+      utterance.voice = voice;
+    }
+    
+    utterance.rate = 0.85;
+    utterance.pitch = 1.05;
+    utterance.volume = 0.85;
+    
+    speechSynthesis.speak(utterance);
+  };
+
   const renderChatContent = () => {
     return (
       <div className="space-y-6">
@@ -800,22 +868,48 @@ export default function ContentViewer({ contentId, contentType, title, courseId,
           <p className="text-muted-foreground mb-4">Ask questions about {title}</p>
           
           {/* Audio controls */}
-          <div className="flex items-center justify-center gap-2 mb-6">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setAutoPlayEnabled(!autoPlayEnabled)}
-              className="flex items-center gap-2"
-            >
-              {autoPlayEnabled ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
-              {autoPlayEnabled ? 'Auto-play ON' : 'Auto-play OFF'}
-            </Button>
-            {currentPlayingId && (
-              <Button variant="outline" size="sm" onClick={stopSpeech}>
-                <Pause className="w-4 h-4 mr-1" />
-                Stop
+          <div className="space-y-4 mb-6">
+            <div className="flex items-center justify-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setAutoPlayEnabled(!autoPlayEnabled)}
+                className="flex items-center gap-2"
+              >
+                {autoPlayEnabled ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
+                {autoPlayEnabled ? 'Auto-play ON' : 'Auto-play OFF'}
               </Button>
-            )}
+              {currentPlayingId && (
+                <Button variant="outline" size="sm" onClick={stopSpeech}>
+                  <Pause className="w-4 h-4 mr-1" />
+                  Stop
+                </Button>
+              )}
+            </div>
+            
+            {/* Voice selection */}
+            <div className="flex items-center justify-center gap-2">
+              <Settings className="w-4 h-4 text-muted-foreground" />
+              <span className="text-sm text-muted-foreground">AI Mentor Voice:</span>
+              <Select value={selectedVoice} onValueChange={handleVoiceChange}>
+                <SelectTrigger className="w-52">
+                  <SelectValue placeholder="Select voice" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="auto">🤖 Auto (Best Quality)</SelectItem>
+                  {availableVoices.map((voice) => {
+                    const genderIcon = voice.name.includes('Samantha') || voice.name.includes('Victoria') ? '👩' : 
+                                     voice.name.includes('Alex') || voice.name.includes('Daniel') ? '👨' : '🎙️';
+                    const qualityLabel = voice.name.includes('Google') || voice.name.includes('Microsoft') || voice.localService ? ' ⭐' : '';
+                    return (
+                      <SelectItem key={voice.name} value={voice.name}>
+                        {genderIcon} {voice.name.replace(' (Enhanced)', '')}{qualityLabel}
+                      </SelectItem>
+                    );
+                  })}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
         </div>
         
