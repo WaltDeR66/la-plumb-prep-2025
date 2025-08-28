@@ -21,17 +21,16 @@ export class ContentExtractor {
           return extractedContent;
         }
         
-        console.log(`Failed to extract from URL, falling back to sample content for ${contentType}`);
+        console.error(`Failed to extract ${contentType} content from URL: ${url} - No content extracted`);
+        return null;
       }
       
-      // Fallback to sample content if URL extraction fails or no URL provided
-      const sampleContent = this.createSampleContent(url, contentType);
-      return sampleContent;
+      // If no URL provided, return null instead of sample content
+      console.error(`No URL provided for ${contentType} content extraction`);
+      return null;
     } catch (error) {
       console.error(`Failed to extract content from ${url}:`, error);
-      // Still return sample content as fallback
-      const sampleContent = this.createSampleContent(url, contentType);
-      return sampleContent;
+      return null;
     }
   }
 
