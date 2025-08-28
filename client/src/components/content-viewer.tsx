@@ -209,17 +209,19 @@ export default function ContentViewer({ contentId, contentType, title, courseId,
         <div className="text-center">
           <h3 className="text-xl font-semibold mb-4">Audio Lesson</h3>
           
-          {extracted?.audioUrl ? (
+          {extracted?.transcript || extracted?.audioUrl ? (
             <div className="space-y-4">
-              <audio 
-                controls 
-                className="w-full"
-                onPlay={() => setAudioPlaying(true)}
-                onPause={() => setAudioPlaying(false)}
-              >
-                <source src={extracted.audioUrl} type="audio/mpeg" />
-                Your browser does not support the audio element.
-              </audio>
+              {extracted.audioUrl && (
+                <audio 
+                  controls 
+                  className="w-full"
+                  onPlay={() => setAudioPlaying(true)}
+                  onPause={() => setAudioPlaying(false)}
+                >
+                  <source src={extracted.audioUrl} type="audio/mpeg" />
+                  Your browser does not support the audio element.
+                </audio>
+              )}
               
               {extracted.transcript && (
                 <Card>
@@ -230,6 +232,14 @@ export default function ContentViewer({ contentId, contentType, title, courseId,
                     <p className="whitespace-pre-wrap">{extracted.transcript}</p>
                   </CardContent>
                 </Card>
+              )}
+              
+              {!extracted.audioUrl && extracted.transcript && (
+                <div className="text-center p-4 bg-blue-50 rounded-lg">
+                  <p className="text-sm text-blue-600">
+                    📝 This lesson includes a written transcript of the audio content
+                  </p>
+                </div>
               )}
             </div>
           ) : (
