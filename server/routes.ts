@@ -723,7 +723,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Extract content based on type
       const extractedContent = await contentExtractor.extractFromQuizGecko(
-        "", // No longer need URL since content is generated
+        content.quizgeckoUrl || "", // Use the stored QuizGecko URL
         content.type
       );
 
@@ -763,7 +763,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // If content hasn't been extracted yet, extract it now
       if (!content.content?.extracted) {
         const extractedContent = await contentExtractor.extractFromQuizGecko(
-          "", // No longer need URL
+          content.quizgeckoUrl || "", // Use the stored QuizGecko URL
           content.type
         );
 
