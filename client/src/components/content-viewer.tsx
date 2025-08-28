@@ -183,7 +183,7 @@ export default function ContentViewer({ contentId, contentType, title, courseId,
     );
   }
 
-  const hasExtractedContent = content.content?.extracted;
+  const hasExtractedContent = content.content?.extracted || (content.content?.extractedAt && content.content?.extracted !== undefined);
 
   const handleComplete = () => {
     setIsCompleted(true);
@@ -784,9 +784,9 @@ export default function ContentViewer({ contentId, contentType, title, courseId,
   };
 
   const renderStudyPlanContent = () => {
-    if (!hasExtractedContent) return renderNoContent();
+    if (!content?.content?.extracted) return renderNoContent();
 
-    const text = content.content?.extracted?.text || content.content?.extracted?.content;
+    const text = content.content.extracted.content || content.content.extracted.text;
     
     const parseMarkdownToHtml = (markdownText: string) => {
       return markdownText
