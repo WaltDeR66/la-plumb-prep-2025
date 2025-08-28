@@ -790,17 +790,25 @@ export default function ContentViewer({ contentId, contentType, title, courseId,
     
     const parseMarkdownToHtml = (markdownText: string) => {
       return markdownText
+        // First normalize line breaks
+        .replace(/\\n/g, '\n')  // Convert \n literals to actual newlines
         .replace(/### (.*$)/gm, '<h3 class="text-lg font-semibold mt-6 mb-3 text-blue-700">$1</h3>')
         .replace(/## (.*$)/gm, '<h2 class="text-xl font-bold mt-8 mb-4 text-blue-800">$1</h2>')
         .replace(/# (.*$)/gm, '<h1 class="text-2xl font-bold mt-8 mb-6 text-blue-900">$1</h1>')
         .replace(/\*\*(.*?)\*\*/g, '<strong class="font-semibold text-gray-800">$1</strong>')
         .replace(/\*(.*?)\*/g, '<em class="italic text-gray-700">$1</em>')
-        .replace(/- (.*$)/gm, '<li class="ml-6 my-1 text-gray-700">• $1</li>')
+        // Handle bullet points with proper spacing
+        .replace(/^- (.*)$/gm, '<div class="flex items-start my-2"><span class="text-blue-600 mr-2">•</span><span class="text-gray-700">$1</span></div>')
+        // Handle emojis
         .replace(/🕐|🕕/g, '<span class="text-2xl mr-2">⏰</span>')
-        .replace(/✅/g, '<span class="text-green-500 font-bold">✓</span>')
-        .replace(/🎯/g, '<span class="text-yellow-600">🎯</span>')
-        .replace(/\n\n/g, '<br/><br/>')
-        .replace(/\n/g, '<br/>');
+        .replace(/✅/g, '<span class="text-green-500 font-bold text-lg">✓</span>')
+        .replace(/🎯/g, '<span class="text-yellow-600 text-lg">🎯</span>')
+        // Convert double newlines to paragraph breaks
+        .replace(/\n\n/g, '</p><p class="mb-4">')
+        // Convert single newlines to line breaks
+        .replace(/\n/g, '<br/>')
+        // Wrap in paragraph tags
+        .replace(/^(.*)/, '<p class="mb-4">$1</p>');
     };
 
     return (
