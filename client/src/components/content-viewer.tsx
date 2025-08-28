@@ -71,6 +71,12 @@ export default function ContentViewer({ contentId, contentType, title, courseId,
   const [currentPlayingId, setCurrentPlayingId] = useState<string | null>(null);
   const [selectedVoice, setSelectedVoice] = useState<string>('auto');
   const [availableVoices, setAvailableVoices] = useState<SpeechSynthesisVoice[]>([]);
+  const [currentQuestion, setCurrentQuestion] = useState(0);
+  const [userAnswers, setUserAnswers] = useState<Record<number, number>>({});
+  const [selectedQuizAnswer, setSelectedQuizAnswer] = useState<number | null>(null);
+  const [showQuizResults, setShowQuizResults] = useState(false);
+  const [quizScore, setQuizScore] = useState(0);
+  const [incorrectQuizAnswers, setIncorrectQuizAnswers] = useState<any[]>([]);
 
   const { data: content, isLoading, error } = useQuery<ExtractedContent>({
     queryKey: [`/api/content/${contentId}/display`],
@@ -235,6 +241,8 @@ export default function ContentViewer({ contentId, contentType, title, courseId,
 
   const renderQuizContent = () => {
     const questions = content.content?.extracted?.questions || [];
+    const passingScore = content.content?.extracted?.passingScore || 70;
+    
     
     if (questions.length === 0) {
       return (
@@ -248,42 +256,192 @@ export default function ContentViewer({ contentId, contentType, title, courseId,
       );
     }
 
-    return (
-      <div className="space-y-6">
-        <div className="text-center mb-6">
-          <h3 className="text-xl font-semibold">Practice Quiz</h3>
-          <p className="text-muted-foreground">{questions.length} questions</p>
-        </div>
+    const handleAnswerSelect = (optionId: number) => {
+      setSelectedQuizAnswer(optionId);
+    };
+
+    const nextQuestion = () => {
+      if (selectedQuizAnswer !== null) {
+        setUserAnswers(prev => ({
+          ...prev,
+          [currentQuestion]: selectedQuizAnswer
+        }));
+        setSelectedQuizAnswer(null);
+        setCurrentQuestion(prev => prev + 1);
+      }
+    };
+
+    const prevQuestion = () => {
+      setCurrentQuestion(prev => prev - 1);
+      setSelectedQuizAnswer(userAnswers[currentQuestion - 1] || null);
+    };
+
+    const submitQuiz = () => {
+      // Record the last answer
+      const finalAnswers = {
+        ...userAnswers,
+        [currentQuestion]: selectedQuizAnswer || -1
+      };
+
+      // Calculate score
+      let correct = 0;
+      const incorrect: any[] = [];
+
+      questions.forEach((question: any, index: number) => {
+        const userAnswer = finalAnswers[index];
+        const correctAnswer = question.options.find((opt: any) => opt.isCorrect);
         
-        {questions.map((question: any, index: number) => (
-          <Card key={index}>
-            <CardHeader>
-              <CardTitle className="text-lg">Question {index + 1}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="mb-4">{question.question}</p>
-              <div className="space-y-2">
-                {question.options?.map((option: any, optIndex: number) => (
-                  <div 
-                    key={optIndex}
-                    className={`p-3 rounded border cursor-pointer hover:bg-muted ${
-                      option.isCorrect ? 'border-green-500 bg-green-50' : 'border-border'
-                    }`}
-                  >
-                    {option.text}
-                    {option.isCorrect && (
-                      <CheckCircle className="w-4 h-4 text-green-600 inline ml-2" />
-                    )}
+        if (userAnswer === correctAnswer?.id) {
+          correct++;
+        } else {
+          incorrect.push({
+            question: question.question,
+            userAnswer: userAnswer !== -1 ? question.options[userAnswer]?.text || 'No answer' : 'No answer',
+            correctAnswer: correctAnswer?.text,
+            explanation: question.explanation,
+            reference: question.reference
+          });
+        }
+      });
+
+      const score = Math.round((correct / questions.length) * 100);
+      setQuizScore(score);
+      setIncorrectQuizAnswers(incorrect);
+      setShowQuizResults(true);
+    };
+
+    const restartQuiz = () => {
+      setCurrentQuestion(0);
+      setUserAnswers({});
+      setSelectedQuizAnswer(null);
+      setShowQuizResults(false);
+      setQuizScore(0);
+      setIncorrectQuizAnswers([]);
+    };
+
+    if (showQuizResults) {
+      return (
+        <div className="space-y-6">
+          <div className="text-center">
+            <h3 className="text-2xl font-bold mb-2">Quiz Results</h3>
+            <div className={`text-4xl font-bold mb-4 ${quizScore >= passingScore ? 'text-green-600' : 'text-red-600'}`}>
+              {quizScore}%
+            </div>
+            <p className="text-lg mb-4">
+              You got {questions.length - incorrectQuizAnswers.length} out of {questions.length} questions correct
+            </p>
+            <p className={`text-lg font-semibold ${quizScore >= passingScore ? 'text-green-600' : 'text-red-600'}`}>
+              {quizScore >= passingScore ? '🎉 PASSED!' : `❌ FAILED - Need ${passingScore}% to pass`}
+            </p>
+          </div>
+
+          {incorrectQuizAnswers.length > 0 && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-red-600">Review Incorrect Answers</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {incorrectQuizAnswers.map((item, index) => (
+                  <div key={index} className="border-l-4 border-red-500 pl-4 space-y-2">
+                    <p className="font-semibold">{item.question}</p>
+                    <div className="space-y-1">
+                      <p><span className="text-red-600 font-medium">Your answer:</span> {item.userAnswer}</p>
+                      <p><span className="text-green-600 font-medium">Correct answer:</span> {item.correctAnswer}</p>
+                      <p className="text-muted-foreground italic">{item.explanation}</p>
+                      <p className="text-sm font-medium text-blue-600">📚 Reference: {item.reference}</p>
+                    </div>
                   </div>
                 ))}
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-        
-        <Button onClick={handleComplete} className="w-full">
-          Complete Quiz
-        </Button>
+              </CardContent>
+            </Card>
+          )}
+
+          <div className="flex gap-4">
+            <Button onClick={restartQuiz} variant="outline" className="flex-1">
+              <RefreshCw className="w-4 h-4 mr-2" />
+              Retake Quiz
+            </Button>
+            <Button onClick={handleComplete} className="flex-1">
+              {quizScore >= passingScore ? 'Continue to Next Lesson' : 'Study More'}
+            </Button>
+          </div>
+        </div>
+      );
+    }
+
+    const currentQ = questions[currentQuestion];
+    const isLastQuestion = currentQuestion === questions.length - 1;
+
+    return (
+      <div className="space-y-6">
+        <div className="flex justify-between items-center">
+          <h3 className="text-xl font-semibold">Louisiana Plumbing Code Quiz</h3>
+          <Badge variant="outline">
+            Question {currentQuestion + 1} of {questions.length}
+          </Badge>
+        </div>
+
+        <Progress value={(currentQuestion / questions.length) * 100} />
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">Question {currentQuestion + 1}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-lg mb-6">{currentQ.question}</p>
+            <div className="space-y-3">
+              {currentQ.options?.map((option: any, optIndex: number) => (
+                <div
+                  key={optIndex}
+                  onClick={() => handleAnswerSelect(option.id)}
+                  className={`p-4 rounded-lg border cursor-pointer transition-colors ${
+                    selectedQuizAnswer === option.id
+                      ? 'border-primary bg-primary/10 text-primary'
+                      : 'border-border hover:bg-muted'
+                  }`}
+                >
+                  <div className="flex items-center space-x-3">
+                    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+                      selectedQuizAnswer === option.id ? 'border-primary bg-primary' : 'border-muted-foreground'
+                    }`}>
+                      {selectedQuizAnswer === option.id && (
+                        <div className="w-2 h-2 rounded-full bg-white"></div>
+                      )}
+                    </div>
+                    <span className="text-base">{option.text}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+
+        <div className="flex justify-between">
+          <Button
+            variant="outline"
+            onClick={prevQuestion}
+            disabled={currentQuestion === 0}
+          >
+            Previous
+          </Button>
+          
+          {isLastQuestion ? (
+            <Button
+              onClick={submitQuiz}
+              disabled={selectedQuizAnswer === null}
+              className="bg-green-600 hover:bg-green-700"
+            >
+              Submit Quiz
+            </Button>
+          ) : (
+            <Button
+              onClick={nextQuestion}
+              disabled={selectedQuizAnswer === null}
+            >
+              Next Question
+            </Button>
+          )}
+        </div>
       </div>
     );
   };

@@ -89,7 +89,9 @@ export class ContentExtractor {
                   { id: 2, text: "To limit plumbing installations", isCorrect: false },
                   { id: 3, text: "To reduce the number of plumbers", isCorrect: false }
                 ],
-                type: 'multiple-choice'
+                type: 'multiple-choice',
+                explanation: "Section 101 establishes minimum requirements to safeguard life, property, and public welfare.",
+                reference: "Louisiana Plumbing Code §101.1"
               },
               {
                 id: 1,
@@ -100,7 +102,9 @@ export class ContentExtractor {
                   { id: 2, text: "Building contractors", isCorrect: false },
                   { id: 3, text: "Property owners", isCorrect: false }
                 ],
-                type: 'multiple-choice'
+                type: 'multiple-choice',
+                explanation: "The Louisiana State Uniform Construction Code Council administers and enforces the code statewide.",
+                reference: "Louisiana Plumbing Code §101.2"
               },
               {
                 id: 2,
@@ -111,10 +115,78 @@ export class ContentExtractor {
                   { id: 2, text: "Installing a new water heater", isCorrect: true },
                   { id: 3, text: "Cleaning a toilet", isCorrect: false }
                 ],
-                type: 'multiple-choice'
+                type: 'multiple-choice',
+                explanation: "Water heater installations are major plumbing work requiring permits and inspections.",
+                reference: "Louisiana Plumbing Code §101.4"
+              },
+              {
+                id: 3,
+                question: "What is the legal basis for Louisiana Plumbing Code enforcement?",
+                options: [
+                  { id: 0, text: "Municipal ordinances only", isCorrect: false },
+                  { id: 1, text: "Louisiana Revised Statute 36:258(B) and Title 40", isCorrect: true },
+                  { id: 2, text: "Federal building codes", isCorrect: false },
+                  { id: 3, text: "Insurance company requirements", isCorrect: false }
+                ],
+                type: 'multiple-choice',
+                explanation: "R.S. 36:258(B) and Title 40 provide the statutory authority for code enforcement.",
+                reference: "Louisiana Revised Statutes 36:258(B)"
+              },
+              {
+                id: 4,
+                question: "When was the current Louisiana Plumbing Code originally promulgated?",
+                options: [
+                  { id: 0, text: "January 2000", isCorrect: false },
+                  { id: 1, text: "June 2002", isCorrect: true },
+                  { id: 2, text: "November 2012", isCorrect: false },
+                  { id: 3, text: "March 2015", isCorrect: false }
+                ],
+                type: 'multiple-choice',
+                explanation: "The code was originally promulgated in June 2002, with amendments in November 2012.",
+                reference: "Louisiana Register Vol. 28, No. 6"
+              },
+              {
+                id: 5,
+                question: "What action can inspectors take when code violations are found?",
+                options: [
+                  { id: 0, text: "Only issue warnings", isCorrect: false },
+                  { id: 1, text: "Issue stop-work orders", isCorrect: true },
+                  { id: 2, text: "Immediately shut off utilities", isCorrect: false },
+                  { id: 3, text: "Call the police", isCorrect: false }
+                ],
+                type: 'multiple-choice',
+                explanation: "Inspectors have authority to issue stop-work orders requiring corrections before work continues.",
+                reference: "Louisiana Plumbing Code §101.3"
+              },
+              {
+                id: 6,
+                question: "Can local jurisdictions modify the Louisiana State Plumbing Code?",
+                options: [
+                  { id: 0, text: "No, they must follow it exactly", isCorrect: false },
+                  { id: 1, text: "Yes, but only to make it more restrictive", isCorrect: true },
+                  { id: 2, text: "Yes, they can make it less restrictive", isCorrect: false },
+                  { id: 3, text: "Only with state approval", isCorrect: false }
+                ],
+                type: 'multiple-choice',
+                explanation: "Local jurisdictions may adopt more restrictive requirements but cannot be less restrictive than state code.",
+                reference: "Louisiana Plumbing Code §101.2"
+              },
+              {
+                id: 7,
+                question: "Who can delegate plumbing inspection authority in Louisiana?",
+                options: [
+                  { id: 0, text: "The governor", isCorrect: false },
+                  { id: 1, text: "The state health officer", isCorrect: true },
+                  { id: 2, text: "Local mayors", isCorrect: false },
+                  { id: 3, text: "Building contractors", isCorrect: false }
+                ],
+                type: 'multiple-choice',
+                explanation: "The state health officer has authority and can delegate inspection responsibilities to qualified local entities.",
+                reference: "Louisiana Revised Statutes Title 40"
               }
             ],
-            totalQuestions: 3,
+            totalQuestions: 8,
+            passingScore: 70,
             extractedAt: new Date().toISOString()
           }
         };
