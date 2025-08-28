@@ -652,6 +652,27 @@ export default function ContentViewer({ contentId, contentType, title, courseId,
     }
   };
 
+  const suggestedQuestions = [
+    "Who enforces the Louisiana State Plumbing Code?",
+    "What is the legal basis for the LSPC?",
+    "Tell me about the historical notes and amendments",
+    "How does enforcement authority delegation work?",
+    "What happens if the code is violated?",
+    "When was the code first promulgated?",
+    "What are the key responsibilities of the state health officer?",
+    "Can local jurisdictions add their own requirements?"
+  ];
+
+  const handleSuggestedQuestion = (question: string) => {
+    setChatInputMessage(question);
+    // Auto-send the question
+    setTimeout(() => {
+      const event = new KeyboardEvent('keypress', { key: 'Enter' });
+      document.querySelector('input[type="text"]')?.dispatchEvent(event);
+      sendChatMessage();
+    }, 100);
+  };
+
   const renderChatContent = () => {
     return (
       <div className="space-y-6">
@@ -705,6 +726,27 @@ export default function ContentViewer({ contentId, contentType, title, courseId,
               </Button>
             </div>
           </div>
+        </Card>
+        
+        {/* Suggested Questions */}
+        <Card>
+          <CardContent className="p-4">
+            <h4 className="font-semibold mb-3 text-sm text-muted-foreground">Suggested Questions to Explore:</h4>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              {suggestedQuestions.map((question, index) => (
+                <Button
+                  key={index}
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleSuggestedQuestion(question)}
+                  disabled={isChatLoading}
+                  className="text-left justify-start h-auto p-3 text-xs"
+                >
+                  {question}
+                </Button>
+              ))}
+            </div>
+          </CardContent>
         </Card>
         
         <Button onClick={handleComplete} className="w-full">
