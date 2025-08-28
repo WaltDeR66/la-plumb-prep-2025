@@ -80,12 +80,15 @@ export default function CourseContent() {
     return <div>Course not found</div>;
   }
 
-  // Group content by type
-  const contentByType = content.reduce((acc, item) => {
-    if (!acc[item.type]) acc[item.type] = [];
-    acc[item.type].push(item);
+  // Group content by section
+  const contentBySection = content.reduce((acc, item) => {
+    if (!acc[item.section]) acc[item.section] = [];
+    acc[item.section].push(item);
     return acc;
   }, {} as Record<string, CourseContent[]>);
+  
+  // Get unique sections sorted
+  const sections = Object.keys(contentBySection).sort((a, b) => Number(a) - Number(b));
 
   const getTypeIcon = (type: string) => {
     switch (type) {
@@ -164,87 +167,100 @@ export default function CourseContent() {
         </div>
       </div>
 
-      {/* Content Sections */}
-      <div className="space-y-8">
-        {Object.entries(contentByType).map(([type, items]) => {
-          const IconComponent = getTypeIcon(type);
-          const typeLabel = getTypeLabel(type);
-          
-          return (
-            <Card key={type} className="overflow-hidden">
-              <CardHeader className="bg-muted/20">
-                <CardTitle className="flex items-center gap-2">
-                  <IconComponent className="w-5 h-5" />
-                  {typeLabel}
-                  <Badge variant="secondary" className="ml-auto">
-                    {items.length} {items.length === 1 ? 'item' : 'items'}
-                  </Badge>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-0">
-                <div className="divide-y">
-                  {items
-                    .sort((a, b) => (a.chapter - b.chapter) || (parseInt(a.section) - parseInt(b.section)))
-                    .map((item) => (
-                    <div key={item.id} className="p-6 hover:bg-muted/10 transition-colors">
-                      <div className="flex items-center justify-between">
-                        <div className="flex-1 min-w-0 mr-4">
-                          <h3 className="font-medium text-foreground mb-1" data-testid={`content-title-${item.id}`}>
-                            {item.title}
-                          </h3>
-                          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                            <span>Chapter {item.chapter}</span>
-                            <span>•</span>
-                            <span>Section {item.section}</span>
-                            {item.duration && (
-                              <>
-                                <span>•</span>
-                                <span>{item.duration}h</span>
-                              </>
-                            )}
+      {/* Course Lessons by Section */}
+      <div className="space-y-6">
+        <h2 className="text-xl font-semibold mb-4" data-testid="lessons-header">
+          Course Lessons
+        </h2>
+        
+        {sections.length === 0 ? (
+          <Card>
+            <CardContent className="p-8 text-center">
+              <BookOpen className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
+              <h3 className="text-lg font-medium mb-2">No Lessons Available</h3>
+              <p className="text-muted-foreground">
+                This course doesn't have any lessons yet. Check back later!
+              </p>
+            </CardContent>
+          </Card>
+        ) : (
+          sections.map((section) => {
+            const sectionItems = contentBySection[section];
+            const sectionTitle = sectionItems[0]?.title.split(' - ')[0] || `Section ${section}`;
+            
+            // Calculate lesson progress (placeholder for now)
+            const progress = 0;
+            const contentCount = sectionItems.length;
+            
+            return (
+              <Card key={section} className="hover:shadow-md transition-shadow" data-testid={`lesson-card-${section}`}>
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div className="flex-1">
+                      <div className="flex items-center space-x-2 mb-2">
+                        <Badge className="bg-primary/10 text-primary" data-testid={`lesson-section-${section}`}>
+                          Section {section}
+                        </Badge>
+                        <Badge variant="outline" data-testid={`lesson-content-count-${section}`}>
+                          {contentCount} parts
+                        </Badge>
+                      </div>
+                      <h3 className="text-lg font-semibold text-foreground mb-1" data-testid={`lesson-title-${section}`}>
+                        Louisiana State Plumbing Code §{section}
+                      </h3>
+                      <p className="text-sm text-muted-foreground mb-3" data-testid={`lesson-description-${section}`}>
+                        {sectionTitle}
+                      </p>
+                      
+                      {/* Progress bar for enrolled users */}
+                      {progress > 0 && (
+                        <div className="space-y-1 mb-3">
+                          <div className="flex justify-between text-xs">
+                            <span>Progress</span>
+                            <span>{progress}%</span>
                           </div>
-                          <Badge className={`mt-2 ${getTypeColor(item.type)}`}>
-                            {typeLabel}
-                          </Badge>
+                          <Progress value={progress} className="h-1.5" data-testid={`lesson-progress-${section}`} />
                         </div>
-                        
-                        <div className="flex items-center gap-2">
-                          {item.quizgeckoUrl && (
-                            <Button 
-                              variant="outline" 
-                              size="sm"
-                              asChild
-                              data-testid={`study-button-${item.id}`}
-                            >
-                              <a 
-                                href={item.quizgeckoUrl} 
-                                target="_blank" 
-                                rel="noopener noreferrer"
-                                className="flex items-center gap-1"
-                              >
-                                <ExternalLink className="w-3 h-3" />
-                                Study
-                              </a>
-                            </Button>
-                          )}
-                          <Button 
-                            variant="default" 
-                            size="sm"
-                            disabled={!item.quizgeckoUrl}
-                            data-testid={`start-button-${item.id}`}
-                          >
-                            <Play className="w-3 h-3 mr-1" />
-                            Start
-                          </Button>
+                      )}
+                      
+                      {/* Content overview */}
+                      <div className="flex items-center space-x-4 text-xs text-muted-foreground">
+                        <div className="flex items-center space-x-1">
+                          <BookOpen className="w-3 h-3" />
+                          <span>Introduction</span>
+                        </div>
+                        <div className="flex items-center space-x-1">
+                          <Headphones className="w-3 h-3" />
+                          <span>Podcast</span>
+                        </div>
+                        <div className="flex items-center space-x-1">
+                          <MessageSquare className="w-3 h-3" />
+                          <span>Chat</span>
+                        </div>
+                        <div className="flex items-center space-x-1">
+                          <Star className="w-3 h-3" />
+                          <span>Quiz</span>
                         </div>
                       </div>
                     </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          );
-        })}
+                    
+                    <div className="ml-4">
+                      <Button 
+                        asChild
+                        data-testid={`button-start-lesson-${section}`}
+                      >
+                        <Link href={`/course/${course.id}/lesson/${section}`}>
+                          <Play className="w-4 h-4 mr-2" />
+                          {progress > 0 ? "Continue" : "Start"}
+                        </Link>
+                      </Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            );
+          })
+        )}
       </div>
 
       {content.length === 0 && (
