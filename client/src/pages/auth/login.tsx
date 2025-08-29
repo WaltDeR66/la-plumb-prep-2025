@@ -9,6 +9,7 @@ import { Link, useLocation } from "wouter";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { queryClient } from "@/lib/queryClient";
+import plumbingEducationImage from "@assets/generated_images/Professional_plumbing_education_illustration_dfee2056.png";
 
 export default function Login() {
   const [, setLocation] = useLocation();
@@ -44,28 +45,50 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
-        {/* Header */}
-        <div className="text-center" data-testid="login-header">
-          <Link href="/">
-            <div className="flex items-center justify-center space-x-2 mb-6 cursor-pointer">
-              <div className="w-12 h-12 bg-primary rounded-lg flex items-center justify-center">
-                <Building2 className="w-7 h-7 text-primary-foreground" />
-              </div>
-              <div className="text-left">
-                <h1 className="text-xl font-bold text-primary">LA Plumb Prep</h1>
-                <p className="text-xs text-muted-foreground">Official State Prep Course</p>
-              </div>
-            </div>
-          </Link>
-          <h2 className="text-3xl font-bold text-foreground" data-testid="login-title">
-            Sign in to your account
-          </h2>
-          <p className="mt-2 text-muted-foreground" data-testid="login-subtitle">
-            Continue your plumbing education journey
-          </p>
+    <div className="min-h-screen bg-background flex">
+      {/* Left side - Image */}
+      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-primary/5 to-primary/10 items-center justify-center p-12">
+        <div className="max-w-lg">
+          <img 
+            src={plumbingEducationImage} 
+            alt="Professional plumbing education and certification training"
+            className="w-full h-auto rounded-lg shadow-2xl"
+          />
+          <div className="mt-8 text-center">
+            <h3 className="text-2xl font-bold text-foreground mb-4">
+              Master Louisiana Plumbing Code
+            </h3>
+            <p className="text-muted-foreground text-lg leading-relaxed">
+              Professional certification preparation designed by experts for Louisiana plumbers. 
+              Comprehensive courses, AI-powered assistance, and proven success methods.
+            </p>
+          </div>
         </div>
+      </div>
+
+      {/* Right side - Form */}
+      <div className="w-full lg:w-1/2 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-md w-full space-y-8">
+          {/* Header */}
+          <div className="text-center" data-testid="login-header">
+            <Link href="/">
+              <div className="flex items-center justify-center space-x-2 mb-6 cursor-pointer">
+                <div className="w-12 h-12 bg-primary rounded-lg flex items-center justify-center">
+                  <Building2 className="w-7 h-7 text-primary-foreground" />
+                </div>
+                <div className="text-left">
+                  <h1 className="text-xl font-bold text-primary">LA Plumb Prep</h1>
+                  <p className="text-xs text-muted-foreground">Official State Prep Course</p>
+                </div>
+              </div>
+            </Link>
+            <h2 className="text-3xl font-bold text-foreground" data-testid="login-title">
+              Sign in to your account
+            </h2>
+            <p className="mt-2 text-muted-foreground" data-testid="login-subtitle">
+              Continue your plumbing education journey
+            </p>
+          </div>
 
         {/* Login Form */}
         <Card data-testid="login-form">
@@ -197,6 +220,7 @@ export default function Login() {
               <span>Job Placement</span>
             </div>
           </div>
+        </div>
         </div>
       </div>
     </div>
