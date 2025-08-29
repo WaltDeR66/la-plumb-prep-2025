@@ -18,6 +18,7 @@ import {
   Star
 } from "lucide-react";
 import AIMentorChat from "@/components/ai-mentor-chat";
+import { ReferralInviter, ContactSupport } from "@/components/referral-inviter";
 import { Link } from "wouter";
 
 export default function Dashboard() {
@@ -206,6 +207,12 @@ export default function Dashboard() {
                   </Button>
                 </CardContent>
               </Card>
+            </div>
+
+            {/* Referral and Support Section */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <ReferralInviter />
+              <ContactSupport />
             </div>
           </TabsContent>
 

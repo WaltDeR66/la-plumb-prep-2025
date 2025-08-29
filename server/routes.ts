@@ -1,6 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
+import { emailService } from "./email";
 import { insertUserSchema, insertJobSchema, insertJobApplicationSchema, insertCourseContentSchema, insertPrivateCodeBookSchema, insertCourseSchema } from "@shared/schema";
 import { analyzePhoto, analyzePlans, getMentorResponse, calculatePipeSize } from "./openai";
 import { contentExtractor } from "./content-extractor";
@@ -1156,6 +1157,73 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
     } catch (error: any) {
       console.error("Re-extract quiz error:", error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Email routes
+  app.post("/api/referrals/send-invitation", async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+
+    try {
+      const { email } = req.body;
+      const user = req.user as any;
+      
+      if (!email) {
+        return res.status(400).json({ message: "Email is required" });
+      }
+
+      // Generate referral code if user doesn't have one
+      let referralCode = user.referralCode;
+      if (!referralCode) {
+        referralCode = Math.random().toString(36).substring(2, 8).toUpperCase();
+        await storage.updateUser(user.id, { referralCode });
+      }
+
+      // Create referral link
+      const referralLink = `${process.env.REPLIT_DEV_DOMAIN || 'https://laplumbprep.com'}/register?ref=${referralCode}`;
+
+      // Send referral invitation email
+      await emailService.sendReferralInvitation({
+        toEmail: email,
+        referrerName: `${user.firstName || user.username}`,
+        referralCode,
+        referralLink
+      });
+
+      res.json({ 
+        message: "Referral invitation sent successfully!",
+        referralCode,
+        referralLink
+      });
+    } catch (error: any) {
+      console.error('Send referral invitation error:', error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.post("/api/support/contact", async (req, res) => {
+    try {
+      const { name, email, subject, message } = req.body;
+      
+      if (!name || !email || !subject || !message) {
+        return res.status(400).json({ message: "All fields are required" });
+      }
+
+      // Send support notification
+      await emailService.sendSupportNotification({
+        fromEmail: email,
+        fromName: name,
+        subject,
+        message,
+        userInfo: req.isAuthenticated() ? req.user : null
+      });
+
+      res.json({ message: "Support request sent successfully!" });
+    } catch (error: any) {
+      console.error('Send support request error:', error);
       res.status(500).json({ message: error.message });
     }
   });
