@@ -406,7 +406,7 @@ export default function Tools() {
 
             <TabsContent value="content-generator" className="space-y-8">
               <div className="grid grid-cols-1 gap-8">
-                <QuizGeckoImporter />
+                <ContentImporter />
                 <AdminCodeBooksSection />
                 <LessonContentGenerator />
               </div>
@@ -455,59 +455,45 @@ export default function Tools() {
   );
 }
 
-// QuizGecko content importer
-function QuizGeckoImporter() {
-  const [urls, setUrls] = useState([
+// Content importer for specific components
+function ContentImporter() {
+  const [contentItems, setContentItems] = useState([
     { 
       chapter: 1, 
       section: 1, 
       title: '', 
-      url: '',
-      components: {
-        introduction: true,
-        podcast: true,
-        quiz: true,
-        flashcards: true,
-        studyNotes: true,
-        teachMe: true
-      }
+      content: '',
+      selectedComponent: 'quiz' as string
     },
   ]);
   const [importing, setImporting] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const addUrl = () => {
-    setUrls([...urls, { 
+  const addContentItem = () => {
+    setContentItems([...contentItems, { 
       chapter: 1, 
       section: 1, 
       title: '', 
-      url: '',
-      components: {
-        introduction: true,
-        podcast: true,
-        quiz: true,
-        flashcards: true,
-        studyNotes: true,
-        teachMe: true
-      }
+      content: '',
+      selectedComponent: 'quiz'
     }]);
   };
 
-  const removeUrl = (index: number) => {
-    setUrls(urls.filter((_, i) => i !== index));
+  const removeContentItem = (index: number) => {
+    setContentItems(contentItems.filter((_, i) => i !== index));
   };
 
-  const updateUrl = (index: number, field: string, value: any) => {
-    const updated = [...urls];
+  const updateContentItem = (index: number, field: string, value: any) => {
+    const updated = [...contentItems];
     updated[index] = { ...updated[index], [field]: value };
-    setUrls(updated);
+    setContentItems(updated);
   };
 
   const importMutation = useMutation({
     mutationFn: async (contentData: any[]) => {
       setImporting(true);
-      const response = await apiRequest("POST", "/api/admin/import-quizgecko", {
+      const response = await apiRequest("POST", "/api/admin/import-content", {
         content: contentData
       });
       return response.json();
@@ -515,29 +501,22 @@ function QuizGeckoImporter() {
     onSuccess: (data) => {
       toast({
         title: "Content Imported Successfully",
-        description: `Imported ${data.count} items from QuizGecko.`,
+        description: `Imported ${data.count} content items.`,
       });
       queryClient.invalidateQueries({ queryKey: ["/api/courses"] });
       // Reset form
-      setUrls([{ 
+      setContentItems([{ 
         chapter: 1, 
         section: 1, 
         title: '', 
-        url: '',
-        components: {
-          introduction: true,
-          podcast: true,
-          quiz: true,
-          flashcards: true,
-          studyNotes: true,
-          teachMe: true
-        }
+        content: '',
+        selectedComponent: 'quiz'
       }]);
     },
     onError: () => {
       toast({
         title: "Import Failed",
-        description: "Failed to import QuizGecko content. Please check your URLs and try again.",
+        description: "Failed to import content. Please check your data and try again.",
         variant: "destructive",
       });
     },
@@ -547,37 +526,24 @@ function QuizGeckoImporter() {
   });
 
   const handleImport = () => {
-    const validUrls = urls.filter(item => item.title.trim() && item.url.trim());
-    if (validUrls.length === 0) {
+    const validItems = contentItems.filter(item => item.title.trim() && item.content.trim());
+    if (validItems.length === 0) {
       toast({
         title: "No Valid Content",
-        description: "Please add at least one item with title and URL.",
+        description: "Please add at least one item with title and content.",
         variant: "destructive",
       });
       return;
     }
     
-    // Create individual content entries for each selected component
-    const contentToImport: Array<{
-      title: string;
-      type: string;
-      chapter: number;
-      section: number;
-      url: string;
-    }> = [];
-    for (const urlItem of validUrls) {
-      componentTypes.forEach(component => {
-        if (urlItem.components[component.key as keyof typeof urlItem.components]) {
-          contentToImport.push({
-            title: `${urlItem.title} - ${component.label}`,
-            type: component.type,
-            chapter: urlItem.chapter,
-            section: urlItem.section,
-            url: urlItem.url
-          });
-        }
-      });
-    }
+    // Create content entries for import
+    const contentToImport = validItems.map(item => ({
+      title: item.title,
+      type: componentTypes.find(c => c.key === item.selectedComponent)?.type || 'quiz',
+      chapter: item.chapter,
+      section: item.section,
+      content: item.content
+    }));
     
     importMutation.mutate(contentToImport);
   };
@@ -589,43 +555,44 @@ function QuizGeckoImporter() {
     { key: 'flashcards', label: 'Flashcards', type: 'flashcards' },
     { key: 'studyNotes', label: 'Study Notes', type: 'study-notes' },
     { key: 'teachMe', label: 'Teach Me (Chat)', type: 'chat' },
+    { key: 'lessonPlan', label: 'Lesson Plan', type: 'lesson-plan' },
   ];
 
   return (
-    <Card data-testid="quizgecko-importer">
+    <Card data-testid="content-importer">
       <CardHeader>
         <CardTitle className="flex items-center space-x-2">
-          <ExternalLink className="w-5 h-5" />
-          <span>QuizGecko Content Importer</span>
-          <Badge variant="secondary">Import Existing</Badge>
+          <FileEdit className="w-5 h-5" />
+          <span>Content Generator</span>
+          <Badge variant="secondary">Import to Components</Badge>
         </CardTitle>
       </CardHeader>
       <CardContent>
         <div className="space-y-6">
-          <div className="bg-orange-50 dark:bg-orange-900/20 p-4 rounded-lg border border-orange-200 dark:border-orange-800">
+          <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-800">
             <div className="flex items-start space-x-3">
-              <ExternalLink className="w-5 h-5 text-orange-600 mt-0.5 flex-shrink-0" />
+              <FileEdit className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
               <div>
-                <h4 className="font-medium text-orange-900 dark:text-orange-100 mb-1">Import Your Existing Content</h4>
-                <p className="text-sm text-orange-700 dark:text-orange-300">
-                  Add your QuizGecko URLs for chapters 1 & 2, then continue creating the remaining chapters to complete your code book.
+                <h4 className="font-medium text-blue-900 dark:text-blue-100 mb-1">Import Content to Specific Components</h4>
+                <p className="text-sm text-blue-700 dark:text-blue-300">
+                  Create content and import directly to specific components like Quiz Questions, Lesson Plans, Study Notes, and more.
                 </p>
               </div>
             </div>
           </div>
 
-          {/* Content URLs */}
+          {/* Content Items */}
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <h4 className="font-medium">Content Items</h4>
-              <Button variant="outline" size="sm" onClick={addUrl} data-testid="add-content-url">
+              <Button variant="outline" size="sm" onClick={addContentItem} data-testid="add-content-item">
                 <Upload className="w-4 h-4 mr-2" />
                 Add Item
               </Button>
             </div>
 
             <div className="space-y-4 max-h-96 overflow-y-auto">
-              {urls.map((item, index) => (
+              {contentItems.map((item, index) => (
                 <div key={index} className="p-4 border rounded-lg bg-muted/30" data-testid={`content-item-${index}`}>
                   <div className="space-y-4">
                     {/* Basic Info Row */}
@@ -636,7 +603,7 @@ function QuizGeckoImporter() {
                         <Input
                           type="number"
                           value={item.chapter}
-                          onChange={(e) => updateUrl(index, 'chapter', parseInt(e.target.value) || 1)}
+                          onChange={(e) => updateContentItem(index, 'chapter', parseInt(e.target.value) || 1)}
                           className="text-sm h-8"
                           min="1"
                           data-testid={`chapter-${index}`}
@@ -649,7 +616,7 @@ function QuizGeckoImporter() {
                         <Input
                           type="number"
                           value={item.section}
-                          onChange={(e) => updateUrl(index, 'section', parseInt(e.target.value) || 1)}
+                          onChange={(e) => updateContentItem(index, 'section', parseInt(e.target.value) || 1)}
                           className="text-sm h-8"
                           min="1"
                           data-testid={`section-${index}`}
@@ -661,7 +628,7 @@ function QuizGeckoImporter() {
                         <Label className="text-xs">Title</Label>
                         <Input
                           value={item.title}
-                          onChange={(e) => updateUrl(index, 'title', e.target.value)}
+                          onChange={(e) => updateContentItem(index, 'title', e.target.value)}
                           placeholder="e.g., Louisiana State Plumbing Code §101 Administration"
                           className="text-sm h-8"
                           data-testid={`title-${index}`}
@@ -673,8 +640,8 @@ function QuizGeckoImporter() {
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => removeUrl(index)}
-                          disabled={urls.length === 1}
+                          onClick={() => removeContentItem(index)}
+                          disabled={contentItems.length === 1}
                           className="h-8 w-8 p-0 text-red-600 hover:text-red-800 hover:bg-red-50"
                           data-testid={`remove-${index}`}
                         >
@@ -683,45 +650,33 @@ function QuizGeckoImporter() {
                       </div>
                     </div>
 
-                    {/* URL */}
+                    {/* Component Selection */}
                     <div>
-                      <Label className="text-xs">QuizGecko URL</Label>
-                      <Input
-                        value={item.url}
-                        onChange={(e) => updateUrl(index, 'url', e.target.value)}
-                        placeholder="https://quizgecko.com/join?code=..."
-                        className="text-sm"
-                        data-testid={`url-${index}`}
-                      />
+                      <Label className="text-xs">Import to Component</Label>
+                      <select
+                        value={item.selectedComponent}
+                        onChange={(e) => updateContentItem(index, 'selectedComponent', e.target.value)}
+                        className="w-full px-3 py-2 text-sm border border-border rounded-md bg-background"
+                        data-testid={`component-${index}`}
+                      >
+                        {componentTypes.map((component) => (
+                          <option key={component.key} value={component.key}>
+                            {component.label}
+                          </option>
+                        ))}
+                      </select>
                     </div>
 
-                    {/* Components Selection */}
+                    {/* Content Text Area */}
                     <div>
-                      <Label className="text-xs mb-2 block">Components to Import</Label>
-                      <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-                        {componentTypes.map((component) => (
-                          <label
-                            key={component.key}
-                            className="flex items-center space-x-2 text-sm cursor-pointer"
-                            data-testid={`component-${component.key}-${index}`}
-                          >
-                            <input
-                              type="checkbox"
-                              checked={item.components[component.key as keyof typeof item.components]}
-                              onChange={(e) => {
-                                const updated = [...urls];
-                                updated[index].components = {
-                                  ...updated[index].components,
-                                  [component.key]: e.target.checked
-                                };
-                                setUrls(updated);
-                              }}
-                              className="rounded"
-                            />
-                            <span className="text-xs">{component.label}</span>
-                          </label>
-                        ))}
-                      </div>
+                      <Label className="text-xs">Content</Label>
+                      <Textarea
+                        value={item.content}
+                        onChange={(e) => updateContentItem(index, 'content', e.target.value)}
+                        placeholder="Paste your content here..."
+                        className="text-sm min-h-[120px]"
+                        data-testid={`content-${index}`}
+                      />
                     </div>
                   </div>
                 </div>
@@ -733,10 +688,10 @@ function QuizGeckoImporter() {
               onClick={handleImport}
               disabled={importing}
               className="w-full"
-              data-testid="import-quizgecko-content"
+              data-testid="import-content"
             >
-              <ExternalLink className="w-4 h-4 mr-2" />
-              {importing ? "Importing Content..." : `Import ${urls.filter(u => u.title && u.url).length} Items`}
+              <FileEdit className="w-4 h-4 mr-2" />
+              {importing ? "Importing Content..." : `Import ${contentItems.filter(u => u.title && u.content).length} Items`}
             </Button>
           </div>
         </div>

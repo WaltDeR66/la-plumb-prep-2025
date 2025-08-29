@@ -610,7 +610,72 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // QuizGecko import route
+  // Content import route
+  app.post("/api/admin/import-content", async (req, res) => {
+    try {
+      const { content } = req.body;
+      
+      if (!Array.isArray(content)) {
+        return res.status(400).json({ message: "Invalid content format" });
+      }
+
+      // Get or create the Louisiana Plumbing course
+      let courses = await storage.getCourses();
+      let journeymanCourse = courses.find(c => c.type === "journeyman") || courses[0];
+      
+      // If no course exists, create the default Louisiana Plumbing course
+      if (!journeymanCourse) {
+        const defaultCourse = insertCourseSchema.parse({
+          title: "Louisiana Journeyman Prep",
+          description: "Comprehensive Louisiana plumbing code certification preparation course covering all aspects of state plumbing regulations and best practices.",
+          type: "journeyman",
+          price: "39.99",
+          duration: 40,
+          lessons: 0,
+          practiceQuestions: 0,
+          isActive: true
+        });
+        
+        journeymanCourse = await storage.createCourse(defaultCourse);
+      }
+
+      const imported = [];
+      for (const item of content) {
+        const courseContentData = insertCourseContentSchema.parse({
+          courseId: journeymanCourse.id,
+          title: item.title,
+          type: item.type,
+          chapter: item.chapter,
+          section: item.section,
+          content: { description: item.content, text: item.content },
+          isActive: true,
+          sortOrder: 0
+        });
+
+        const createdContent = await storage.createCourseContent(courseContentData);
+        imported.push(createdContent);
+      }
+
+      // Update course statistics after import
+      const courseStats = await storage.getCourseContentStats(journeymanCourse.id);
+      await storage.updateCourse(journeymanCourse.id, {
+        lessons: courseStats.lessons,
+        practiceQuestions: courseStats.quizzes,
+        duration: courseStats.duration
+      });
+
+      res.json({ 
+        message: "Content imported successfully", 
+        count: imported.length,
+        content: imported 
+      });
+    } catch (error: any) {
+      console.error('Content import error:', error);
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  // QuizGecko import route (legacy)
   app.post("/api/admin/import-quizgecko", async (req, res) => {
     try {
       const { content } = req.body;
