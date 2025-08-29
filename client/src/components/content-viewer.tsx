@@ -1073,7 +1073,7 @@ export default function ContentViewer({ contentId, contentType, title, courseId,
     const cleanText = text
       .replace(/\*\*(.*?)\*\*/g, '$1') // Remove bold markdown
       .replace(/•/g, '. ') // Replace bullet points with pauses
-      .replace(/[🎓📅⚖️🏛️⬇️📋🔍📝👨‍⚖️🤝⚠️]/g, '') // Remove emojis
+      .replace(/[🎓📅⚖️🏛️⬇️📋🔍📝👨‍⚖️🤝⚠️🔊]/g, '') // Remove emojis including speaker
       .replace(/\n\n/g, '. ') // Replace double newlines with periods
       .replace(/\n/g, ', ') // Replace single newlines with commas for natural pauses
       .replace(/R\.S\./g, 'Revised Statute') // Make abbreviations readable
