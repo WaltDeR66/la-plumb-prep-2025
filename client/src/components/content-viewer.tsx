@@ -212,6 +212,26 @@ export default function ContentViewer({ contentId, contentType, title, courseId,
     return text;
   };
 
+  // Helper function to get clean text for audio (no HTML/markdown)
+  const getCleanTextForAudio = () => {
+    const extracted = content?.content?.extracted;
+    let text = extracted?.content || extracted?.html || extracted?.text || '';
+    
+    // Clean up all formatting for audio reading
+    if (text) {
+      text = text
+        .replace(/\\n/g, ' ')  // Replace \n with spaces
+        .replace(/\*\*(.*?)\*\*/g, '$1')  // Remove bold markers
+        .replace(/### (.*$)/gm, '$1')  // Remove header markers
+        .replace(/## (.*$)/gm, '$1')
+        .replace(/# (.*$)/gm, '$1')
+        .replace(/\s+/g, ' ')  // Replace multiple spaces with single space
+        .trim();
+    }
+    
+    return text;
+  };
+
   const handleComplete = () => {
     setIsCompleted(true);
     onComplete?.();
@@ -562,8 +582,9 @@ export default function ContentViewer({ contentId, contentType, title, courseId,
     const podcastContent = getContentText();
 
     const handlePlayAudio = () => {
-      if (podcastContent) {
-        playAudio(podcastContent);
+      const cleanText = getCleanTextForAudio();
+      if (cleanText) {
+        playAudio(cleanText);
       }
     };
     
@@ -625,7 +646,7 @@ export default function ContentViewer({ contentId, contentType, title, courseId,
                         
                         <div className="flex items-center justify-center space-x-4">
                           <Button
-                            onClick={isPlaying ? pauseAudio : () => playAudio(podcastContent)}
+                            onClick={isPlaying ? pauseAudio : () => playAudio(getCleanTextForAudio())}
                             size="lg"
                             className="flex items-center space-x-2"
                           >
