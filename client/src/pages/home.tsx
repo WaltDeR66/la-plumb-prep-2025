@@ -3,6 +3,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { CheckCircle, Building2, Calculator, Camera, MessageCircle, Users, Star, Clock, MapPin, DollarSign } from "lucide-react";
 import { Link } from "wouter";
+import heroImage from "@assets/generated_images/Louisiana_plumbing_certification_hero_image_799850d9.png";
 
 export default function Home() {
   const courses = [
@@ -189,8 +190,8 @@ export default function Home() {
             </div>
             <div className="relative">
               <img 
-                src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=600" 
-                alt="Professional plumber working on pipes" 
+                src={heroImage} 
+                alt="Louisiana plumbing certification and professional education" 
                 className="rounded-2xl shadow-2xl w-full h-auto"
                 data-testid="hero-image"
               />
