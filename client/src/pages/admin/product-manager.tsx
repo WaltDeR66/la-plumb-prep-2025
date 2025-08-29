@@ -204,6 +204,8 @@ export default function ProductManager() {
       ...form,
       price: parseFloat(form.price),
       originalPrice: form.originalPrice ? parseFloat(form.originalPrice) : undefined,
+      features: Array.isArray(form.features) ? form.features : [],
+      tags: Array.isArray(form.tags) ? form.tags : [],
     };
 
     if (editingProduct) {

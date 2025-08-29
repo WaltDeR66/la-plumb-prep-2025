@@ -1366,10 +1366,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
 
     try {
-      const productData = insertProductSchema.parse(req.body);
+      console.log("Raw product data received:", JSON.stringify(req.body, null, 2));
+      
+      // Ensure arrays are properly formatted
+      const cleanedBody = {
+        ...req.body,
+        features: Array.isArray(req.body.features) ? req.body.features : [],
+        tags: Array.isArray(req.body.tags) ? req.body.tags : [],
+      };
+      
+      console.log("Cleaned product data:", JSON.stringify(cleanedBody, null, 2));
+      
+      const productData = insertProductSchema.parse(cleanedBody);
       const product = await storage.createProduct(productData);
       res.json(product);
     } catch (error: any) {
+      console.error("Product creation validation error:", error);
+      if (error.issues) {
+        console.error("Zod validation issues:", JSON.stringify(error.issues, null, 2));
+      }
       res.status(400).json({ message: error.message });
     }
   });
