@@ -226,6 +226,16 @@ export class DatabaseStorage implements IStorage {
     };
   }
 
+  // Helper function to automatically update course stats after content changes
+  async updateCourseStatsAutomatically(courseId: string): Promise<void> {
+    const stats = await this.getCourseContentStats(courseId);
+    await this.updateCourse(courseId, {
+      lessons: stats.lessons,
+      practiceQuestions: stats.quizzes,
+      duration: stats.duration
+    });
+  }
+
   async getUserEnrollments(userId: string): Promise<CourseEnrollment[]> {
     return await db
       .select()

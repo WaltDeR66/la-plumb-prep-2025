@@ -658,17 +658,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Update course statistics after import
+      await storage.updateCourseStatsAutomatically(journeymanCourse.id);
       const courseStats = await storage.getCourseContentStats(journeymanCourse.id);
-      await storage.updateCourse(journeymanCourse.id, {
-        lessons: courseStats.lessons,
-        practiceQuestions: courseStats.quizzes,
-        duration: courseStats.duration
-      });
 
       res.json({ 
         message: "Content imported successfully", 
         count: imported.length,
-        content: imported 
+        content: imported,
+        courseStats: courseStats
       });
     } catch (error: any) {
       console.error('Content import error:', error);
@@ -724,17 +721,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Update course statistics after import
+      await storage.updateCourseStatsAutomatically(journeymanCourse.id);
       const courseStats = await storage.getCourseContentStats(journeymanCourse.id);
-      await storage.updateCourse(journeymanCourse.id, {
-        lessons: courseStats.lessons,
-        practiceQuestions: courseStats.quizzes,
-        duration: courseStats.duration
-      });
 
       res.json({ 
         message: "Content imported successfully", 
         count: imported.length,
-        content: imported 
+        content: imported,
+        courseStats: courseStats
       });
     } catch (error: any) {
       console.error('QuizGecko import error:', error);
