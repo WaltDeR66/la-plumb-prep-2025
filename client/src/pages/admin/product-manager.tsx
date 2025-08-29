@@ -266,7 +266,7 @@ export default function ProductManager() {
       return;
     }
     
-    if (!amazonUrl.includes('amazon.com')) {
+    if (!amazonUrl.includes('amazon.com') && !amazonUrl.includes('amzn.to')) {
       toast({
         title: "Error",
         description: "Please enter a valid Amazon.com URL",

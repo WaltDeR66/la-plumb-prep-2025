@@ -1227,7 +1227,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { url } = req.body;
       
-      if (!url || !url.includes('amazon.com')) {
+      if (!url || (!url.includes('amazon.com') && !url.includes('amzn.to'))) {
         return res.status(400).json({ message: "Please provide a valid Amazon URL" });
       }
 
