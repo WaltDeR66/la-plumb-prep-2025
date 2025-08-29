@@ -690,7 +690,7 @@ export default function ContentViewer({ contentId, contentType, title, courseId,
                     <CardTitle>📄 Transcript</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div dangerouslySetInnerHTML={{ __html: podcastContent }} />
+                    <div className="whitespace-pre-wrap">{getCleanTextForAudio()}</div>
                   </CardContent>
                 </Card>
               )}
