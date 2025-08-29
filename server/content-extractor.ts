@@ -160,36 +160,81 @@ export class ContentExtractor {
     }
   }
 
-  private extractQuestionsFromText(text: string, url: string): any[] {
+  public extractQuestionsFromText(text: string, url: string): any[] {
     const questions: any[] = [];
     
-    // Try to find question patterns in the text
-    // Look for numbered questions like "1. What is..." or "Q1:" etc.
-    const questionPattern = /(?:^|\n)(?:\d+\.|\d+\)|Q\d+[:.]|Question\s+\d+[:.])\s*(.+?)(?=(?:\n(?:\d+\.|\d+\)|Q\d+[:.]|Question\s+\d+[:.])|\n[A-D][\).]\s|\n\n|\nAnswer|\nExplanation|$))/gim;
+    // Parse structured quiz format like in the database
+    // Look for pattern: **1. Question text**\nA. Option\nB. Option ✓\nC. Option\nD. Option
+    const questionBlocks = text.split(/\*\*\d+\./).filter(block => block.trim().length > 0);
     
-    const matches = text.match(questionPattern);
-    
-    if (matches) {
-      matches.forEach((match, index) => {
-        const questionText = match.replace(/^(?:\d+\.|\d+\)|Q\d+[:.]|Question\s+\d+[:.])\s*/, '').trim();
+    questionBlocks.forEach((block, index) => {
+      // Extract question text (until first A.)
+      const questionMatch = block.match(/^([^A]*?)(?=[A-D]\.)/s);
+      if (!questionMatch) return;
+      
+      const questionText = questionMatch[1].replace(/\*\*/g, '').trim();
+      if (questionText.length < 10) return;
+      
+      // Extract options (A., B., C., D.)
+      const optionMatches = block.match(/([A-D])\.([^A-D]*?)(?=[A-D]\.|$)/gs);
+      if (!optionMatches || optionMatches.length < 2) return;
+      
+      const options: any[] = [];
+      
+      optionMatches.forEach((optionMatch, optIndex) => {
+        const optionText = optionMatch.replace(/^[A-D]\./, '').trim();
+        // Remove checkmarks and extra formatting
+        const cleanText = optionText.replace(/✓/g, '').replace(/\*\*/g, '').trim();
         
-        if (questionText.length > 10) {
-          // Create some sample options based on the content
-          questions.push({
-            id: index,
-            question: questionText,
-            options: [
-              { id: 0, text: "Option A (extracted from content)", isCorrect: true },
-              { id: 1, text: "Option B (extracted from content)", isCorrect: false },
-              { id: 2, text: "Option C (extracted from content)", isCorrect: false },
-              { id: 3, text: "Option D (extracted from content)", isCorrect: false }
-            ],
-            type: 'multiple-choice',
-            explanation: `This question was extracted from the source content.`,
-            reference: url
+        if (cleanText.length > 0) {
+          const isCorrect = optionText.includes('✓');
+          options.push({
+            id: `${index}-${optIndex}`,
+            text: cleanText,
+            isCorrect: isCorrect
           });
         }
       });
+      
+      // Only add question if we have valid options and at least one correct answer
+      if (options.length >= 2 && options.some(opt => opt.isCorrect)) {
+        questions.push({
+          id: `q-${index}`,
+          question: questionText,
+          options: options,
+          type: 'multiple-choice',
+          explanation: `Reference: Louisiana State Plumbing Code`,
+          reference: url || 'Louisiana State Plumbing Code'
+        });
+      }
+    });
+    
+    // If the structured approach didn't work, try the old pattern matching
+    if (questions.length === 0) {
+      const questionPattern = /(?:^|\n)(?:\d+\.|\d+\)|Q\d+[:.]|Question\s+\d+[:.])\s*(.+?)(?=(?:\n(?:\d+\.|\d+\)|Q\d+[:.]|Question\s+\d+[:.])|\n[A-D][\).]\s|\n\n|\nAnswer|\nExplanation|$))/gim;
+      const matches = text.match(questionPattern);
+      
+      if (matches) {
+        matches.forEach((match, index) => {
+          const questionText = match.replace(/^(?:\d+\.|\d+\)|Q\d+[:.]|Question\s+\d+[:.])\s*/, '').trim();
+          
+          if (questionText.length > 10) {
+            questions.push({
+              id: `fallback-${index}`,
+              question: questionText,
+              options: [
+                { id: `${index}-0`, text: "Option A (extracted from content)", isCorrect: true },
+                { id: `${index}-1`, text: "Option B (extracted from content)", isCorrect: false },
+                { id: `${index}-2`, text: "Option C (extracted from content)", isCorrect: false },
+                { id: `${index}-3`, text: "Option D (extracted from content)", isCorrect: false }
+              ],
+              type: 'multiple-choice',
+              explanation: `This question was extracted from the source content.`,
+              reference: url
+            });
+          }
+        });
+      }
     }
     
     return questions.slice(0, 20); // Limit to 20 questions

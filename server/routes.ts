@@ -1008,6 +1008,53 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Re-extract quiz content to use new structured format
+  app.post("/api/content/:id/reextract-quiz", async (req, res) => {
+    try {
+      const contentId = req.params.id;
+      const content = await storage.getCourseContent(contentId);
+      
+      if (!content || content.type !== 'quiz') {
+        return res.status(404).json({ message: "Quiz content not found" });
+      }
+
+      // Get the text content from the extracted field
+      const textContent = content.content?.extracted?.content || '';
+      
+      if (textContent) {
+        // Use our improved quiz parser
+        const { ContentExtractor } = require('./content-extractor');
+        const extractor = new ContentExtractor();
+        
+        // Parse the text content using our new method
+        const questions = extractor.extractQuestionsFromText(textContent, content.title || '');
+        
+        if (questions.length > 0) {
+          // Update the content with structured questions
+          const updatedContent = {
+            ...content.content,
+            extracted: {
+              ...content.content.extracted,
+              questions: questions,
+              totalQuestions: questions.length,
+              passingScore: 70
+            }
+          };
+          
+          await storage.updateCourseContent(contentId, { content: updatedContent });
+          res.json({ message: `Successfully extracted ${questions.length} questions`, questions });
+        } else {
+          res.status(400).json({ message: "No questions could be extracted from content" });
+        }
+      } else {
+        res.status(400).json({ message: "No text content found to extract from" });
+      }
+    } catch (error: any) {
+      console.error("Re-extract quiz error:", error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

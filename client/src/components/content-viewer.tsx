@@ -132,6 +132,57 @@ export default function ContentViewer({ contentId, contentType, title, courseId,
     }
   }, []);
 
+  // Parse text-based quiz questions into structured format
+  const parseQuestionsFromText = (text: string): any[] => {
+    const questions: any[] = [];
+    
+    // Split by **number. pattern to get question blocks
+    const questionBlocks = text.split(/\*\*\d+\./).filter(block => block.trim().length > 0);
+    
+    questionBlocks.forEach((block, index) => {
+      // Extract question text (until first A.)
+      const questionMatch = block.match(/^([^A]*?)(?=[A-D]\.)/s);
+      if (!questionMatch) return;
+      
+      const questionText = questionMatch[1].replace(/\*\*/g, '').trim();
+      if (questionText.length < 10) return;
+      
+      // Extract options (A., B., C., D.)
+      const optionMatches = block.match(/([A-D])\.([^A-D]*?)(?=[A-D]\.|$)/gs);
+      if (!optionMatches || optionMatches.length < 2) return;
+      
+      const options: any[] = [];
+      
+      optionMatches.forEach((optionMatch, optIndex) => {
+        const optionText = optionMatch.replace(/^[A-D]\./, '').trim();
+        const cleanText = optionText.replace(/✓/g, '').replace(/\*\*/g, '').trim();
+        
+        if (cleanText.length > 0) {
+          const isCorrect = optionText.includes('✓');
+          options.push({
+            id: `${index}-${optIndex}`,
+            text: cleanText,
+            isCorrect: isCorrect
+          });
+        }
+      });
+      
+      // Only add question if we have valid options and at least one correct answer
+      if (options.length >= 2 && options.some(opt => opt.isCorrect)) {
+        questions.push({
+          id: `q-${index}`,
+          question: questionText,
+          options: options,
+          type: 'multiple-choice',
+          explanation: `Reference: Louisiana State Plumbing Code`,
+          reference: 'Louisiana State Plumbing Code'
+        });
+      }
+    });
+    
+    return questions.slice(0, 20);
+  };
+
   // Auto-start podcast audio for immediate playback
   useEffect(() => {
     if (contentType === 'podcast' && content?.content?.extracted) {
@@ -345,7 +396,13 @@ export default function ContentViewer({ contentId, contentType, title, courseId,
   };
 
   const renderQuizContent = () => {
-    const questions = content.content?.extracted?.questions || [];
+    let questions = content.content?.extracted?.questions || [];
+    
+    // If no structured questions exist, try to parse from text content
+    if (questions.length === 0 && content.content?.extracted?.content) {
+      questions = parseQuestionsFromText(content.content.extracted.content);
+    }
+    
     const passingScore = content.content?.extracted?.passingScore || 70;
     
     
