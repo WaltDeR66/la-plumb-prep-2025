@@ -1232,9 +1232,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Import puppeteer for web scraping
-      const puppeteer = require('puppeteer');
+      const puppeteer = await import('puppeteer');
       
-      const browser = await puppeteer.launch({ 
+      const browser = await puppeteer.default.launch({ 
         headless: true,
         args: ['--no-sandbox', '--disable-setuid-sandbox']
       });
