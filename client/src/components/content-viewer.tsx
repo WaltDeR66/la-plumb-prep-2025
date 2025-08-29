@@ -714,13 +714,22 @@ export default function ContentViewer({ contentId, contentType, title, courseId,
                   {/* Audio controls - always show when content is available */}
                   <div className="flex justify-center space-x-4">
                     <Button
-                      onClick={pauseAudio}
+                      onClick={isPaused ? () => playAudio('') : pauseAudio}
                       disabled={!isPlaying && !isPaused}
                       size="lg"
                       className="flex items-center space-x-2"
                     >
-                      <Pause className="w-5 h-5" />
-                      <span>Pause</span>
+                      {isPaused ? (
+                        <>
+                          <Play className="w-5 h-5" />
+                          <span>Resume</span>
+                        </>
+                      ) : (
+                        <>
+                          <Pause className="w-5 h-5" />
+                          <span>Pause</span>
+                        </>
+                      )}
                     </Button>
                     
                     <Button
