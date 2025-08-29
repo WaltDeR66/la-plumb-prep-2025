@@ -796,7 +796,27 @@ export default function ContentViewer({ contentId, contentType, title, courseId,
   };
 
   const renderFlashcardsContent = () => {
-    const cards = content.content?.extracted?.cards || [];
+    // Parse flashcards from text content
+    const extractedContent = content.content?.extracted?.content || '';
+    const cards = [];
+    
+    // Extract flashcards from the text using Front/Back pattern
+    const flashcardMatches = extractedContent.match(/\*\*Front:\*\*\s*(.*?)\s*\*\*Back:\*\*\s*(.*?)(?=\*\*Front:|$)/gs);
+    
+    if (flashcardMatches) {
+      flashcardMatches.forEach((match) => {
+        const frontMatch = match.match(/\*\*Front:\*\*\s*(.*?)(?=\*\*Back:)/s);
+        const backMatch = match.match(/\*\*Back:\*\*\s*(.*?)$/s);
+        
+        if (frontMatch && backMatch) {
+          cards.push({
+            front: frontMatch[1].trim(),
+            back: backMatch[1].trim()
+          });
+        }
+      });
+    }
+    
     const [currentCard, setCurrentCard] = useState(0);
     const [showAnswer, setShowAnswer] = useState(false);
     
