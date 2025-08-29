@@ -714,7 +714,13 @@ export default function ContentViewer({ contentId, contentType, title, courseId,
                   {/* Audio controls - always show when content is available */}
                   <div className="flex justify-center space-x-4">
                     <Button
-                      onClick={isPaused ? () => playAudio('') : pauseAudio}
+                      onClick={isPaused ? () => {
+                        if (speechSynthesis && currentUtterance) {
+                          speechSynthesis.resume();
+                          setIsPaused(false);
+                          setIsPlaying(true);
+                        }
+                      } : pauseAudio}
                       disabled={!isPlaying && !isPaused}
                       size="lg"
                       className="flex items-center space-x-2"
