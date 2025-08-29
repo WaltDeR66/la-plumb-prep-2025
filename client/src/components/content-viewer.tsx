@@ -63,6 +63,7 @@ export default function ContentViewer({ contentId, contentType, title, courseId,
   const [isPaused, setIsPaused] = useState(false);
   const [speechSynthesis, setSpeechSynthesis] = useState<SpeechSynthesis | null>(null);
   const [currentUtterance, setCurrentUtterance] = useState<SpeechSynthesisUtterance | null>(null);
+  const [currentSentence, setCurrentSentence] = useState('');
   const [, setLocation] = useLocation();
   const queryClient = useQueryClient();
   
@@ -508,63 +509,95 @@ export default function ContentViewer({ contentId, contentType, title, courseId,
 
     // Stop any existing speech
     speechSynthesis.cancel();
+    setCurrentSentence('');
     
-    const utterance = new SpeechSynthesisUtterance(transcript);
-    
-    // Get available voices and select the best one
-    const voices = speechSynthesis.getVoices();
-    let selectedVoice = null;
-    
-    // Prefer high-quality voices in this order
-    const preferredVoices = [
-      'Microsoft Zira - English (United States)',
-      'Microsoft David - English (United States)', 
-      'Google US English Female',
-      'Google US English Male',
-      'Samantha',
-      'Alex',
-      'Victoria',
-      'Daniel'
-    ];
-    
-    for (const voiceName of preferredVoices) {
-      selectedVoice = voices.find(voice => voice.name.includes(voiceName) || voice.name === voiceName);
-      if (selectedVoice) break;
-    }
-    
-    // Fallback to first English voice if no preferred voice found
-    if (!selectedVoice) {
-      selectedVoice = voices.find(voice => voice.lang.includes('en')) || voices[0];
-    }
-    
-    if (selectedVoice) {
-      utterance.voice = selectedVoice;
-    }
-    
-    // Optimize speech settings for educational content
-    utterance.rate = 0.85; // Slightly slower for better comprehension
-    utterance.pitch = 1.1; // Slightly higher pitch for engagement
-    utterance.volume = 1;
-    
-    utterance.onstart = () => {
-      setIsPlaying(true);
-      setIsPaused(false);
+    // Split transcript into sentences
+    const sentences = transcript.split(/[.!?]+/).filter(s => s.trim().length > 0);
+    let currentSentenceIndex = 0;
+
+    const speakNextSentence = () => {
+      if (currentSentenceIndex >= sentences.length) {
+        setIsPlaying(false);
+        setIsPaused(false);
+        setCurrentUtterance(null);
+        setCurrentSentence('');
+        return;
+      }
+
+      const sentence = sentences[currentSentenceIndex].trim();
+      if (!sentence) {
+        currentSentenceIndex++;
+        speakNextSentence();
+        return;
+      }
+
+      // Display current sentence
+      setCurrentSentence(sentence);
+
+      const utterance = new SpeechSynthesisUtterance(sentence);
+      
+      // Get available voices and select the best one
+      const voices = speechSynthesis.getVoices();
+      let selectedVoice = null;
+      
+      // Prefer high-quality voices in this order
+      const preferredVoices = [
+        'Microsoft Zira - English (United States)',
+        'Microsoft David - English (United States)', 
+        'Google US English Female',
+        'Google US English Male',
+        'Samantha',
+        'Alex',
+        'Victoria',
+        'Daniel'
+      ];
+      
+      for (const voiceName of preferredVoices) {
+        selectedVoice = voices.find(voice => voice.name.includes(voiceName) || voice.name === voiceName);
+        if (selectedVoice) break;
+      }
+      
+      // Fallback to first English voice if no preferred voice found
+      if (!selectedVoice) {
+        selectedVoice = voices.find(voice => voice.lang.includes('en')) || voices[0];
+      }
+      
+      if (selectedVoice) {
+        utterance.voice = selectedVoice;
+      }
+      
+      // Optimize speech settings for educational content
+      utterance.rate = 0.85; // Slightly slower for better comprehension
+      utterance.pitch = 1.1; // Slightly higher pitch for engagement
+      utterance.volume = 1;
+      
+      utterance.onend = () => {
+        // Clear sentence after a brief pause
+        setTimeout(() => {
+          setCurrentSentence('');
+        }, 800);
+        
+        // Move to next sentence after clearing
+        setTimeout(() => {
+          currentSentenceIndex++;
+          speakNextSentence();
+        }, 1200);
+      };
+      
+      utterance.onerror = () => {
+        setIsPlaying(false);
+        setIsPaused(false);
+        setCurrentUtterance(null);
+        setCurrentSentence('');
+      };
+      
+      setCurrentUtterance(utterance);
+      speechSynthesis.speak(utterance);
     };
-    
-    utterance.onend = () => {
-      setIsPlaying(false);
-      setIsPaused(false);
-      setCurrentUtterance(null);
-    };
-    
-    utterance.onerror = () => {
-      setIsPlaying(false);
-      setIsPaused(false);
-      setCurrentUtterance(null);
-    };
-    
-    setCurrentUtterance(utterance);
-    speechSynthesis.speak(utterance);
+
+    setIsPlaying(true);
+    setIsPaused(false);
+    speakNextSentence();
   };
 
   const pauseAudio = () => {
@@ -688,6 +721,20 @@ export default function ContentViewer({ contentId, contentType, title, courseId,
                       </div>
                     </CardContent>
                   </Card>
+
+                  {/* Scrolling sentence display */}
+                  {currentSentence && (
+                    <Card className="bg-gradient-to-r from-yellow-50 to-orange-50 border-2 border-yellow-200">
+                      <CardContent className="p-6">
+                        <div className="text-center">
+                          <div className="text-sm text-gray-600 mb-2">📖 Now Reading:</div>
+                          <div className="text-lg font-medium text-gray-800 leading-relaxed animate-in slide-in-from-bottom-4 duration-500">
+                            {currentSentence}
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )}
                 </div>
               ) : null}
               
