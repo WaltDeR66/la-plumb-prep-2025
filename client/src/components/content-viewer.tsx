@@ -869,11 +869,9 @@ export default function ContentViewer({ contentId, contentType, title, courseId,
         
         <Progress value={(currentCard + 1) / cards.length * 100} />
         
-        {currentCard === cards.length - 1 && (
-          <Button onClick={handleComplete} className="w-full">
-            Complete Flashcards
-          </Button>
-        )}
+        <Button onClick={handleComplete} className="w-full">
+          Complete Flashcards
+        </Button>
       </div>
     );
   };
