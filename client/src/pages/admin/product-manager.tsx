@@ -10,7 +10,7 @@ import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Plus, Edit, Trash2, Star, Package, Upload } from "lucide-react";
+import { Plus, Edit, Trash2, Star, Package, Upload, Download, ExternalLink } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface ProductForm {
@@ -53,6 +53,8 @@ export default function ProductManager() {
   const [form, setForm] = useState<ProductForm>(defaultForm);
   const [newFeature, setNewFeature] = useState("");
   const [newTag, setNewTag] = useState("");
+  const [extractingFromAmazon, setExtractingFromAmazon] = useState(false);
+  const [amazonUrl, setAmazonUrl] = useState("");
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -148,6 +150,44 @@ export default function ProductManager() {
     },
   });
 
+  const extractFromAmazonMutation = useMutation({
+    mutationFn: async (url: string) => {
+      const response = await fetch("/api/amazon/extract", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url }),
+      });
+      if (!response.ok) throw new Error("Failed to extract product data");
+      return response.json();
+    },
+    onSuccess: (data) => {
+      if (data.success) {
+        setForm({
+          ...form,
+          name: data.name || form.name,
+          description: data.description || form.description,
+          shortDescription: data.shortDescription || form.shortDescription,
+          price: data.price || form.price,
+          amazonUrl: data.amazonUrl || form.amazonUrl,
+          imageUrl: data.imageUrl || form.imageUrl,
+          brand: data.brand || form.brand,
+          features: data.features || form.features,
+        });
+        toast({
+          title: "Success",
+          description: "Product information extracted from Amazon!",
+        });
+      }
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Extraction Failed",
+        description: error.message || "Failed to extract product information",
+        variant: "destructive",
+      });
+    },
+  });
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -214,6 +254,28 @@ export default function ProductManager() {
 
   const handleRemoveTag = (index: number) => {
     setForm({ ...form, tags: form.tags.filter((_, i) => i !== index) });
+  };
+
+  const handleExtractFromAmazon = () => {
+    if (!amazonUrl.trim()) {
+      toast({
+        title: "Error",
+        description: "Please enter an Amazon URL",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    if (!amazonUrl.includes('amazon.com')) {
+      toast({
+        title: "Error",
+        description: "Please enter a valid Amazon.com URL",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    extractFromAmazonMutation.mutate(amazonUrl);
   };
 
   const formatPrice = (price: string | number) => {
@@ -350,6 +412,49 @@ export default function ProductManager() {
             </CardHeader>
             <CardContent>
               <form onSubmit={handleSubmit} className="space-y-6" data-testid="product-form">
+                {/* Amazon URL Extractor */}
+                <div className="bg-blue-50 dark:bg-blue-900/20 p-6 rounded-lg border border-blue-200 dark:border-blue-800">
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-2 mb-3">
+                      <ExternalLink className="w-5 h-5 text-blue-600" />
+                      <h3 className="font-medium text-blue-900 dark:text-blue-100">
+                        Quick Product Import from Amazon
+                      </h3>
+                    </div>
+                    <p className="text-sm text-blue-700 dark:text-blue-300 mb-4">
+                      Paste an Amazon product URL and we'll automatically extract the product name, price, description, features, and images for you!
+                    </p>
+                    <div className="flex gap-2">
+                      <Input
+                        placeholder="https://www.amazon.com/product-link..."
+                        value={amazonUrl}
+                        onChange={(e) => setAmazonUrl(e.target.value)}
+                        className="flex-1"
+                        data-testid="input-amazon-url"
+                      />
+                      <Button
+                        type="button"
+                        onClick={handleExtractFromAmazon}
+                        disabled={extractFromAmazonMutation.isPending}
+                        className="bg-blue-600 hover:bg-blue-700"
+                        data-testid="extract-amazon-button"
+                      >
+                        {extractFromAmazonMutation.isPending ? (
+                          <>
+                            <Download className="w-4 h-4 mr-2 animate-spin" />
+                            Extracting...
+                          </>
+                        ) : (
+                          <>
+                            <Download className="w-4 h-4 mr-2" />
+                            Extract
+                          </>
+                        )}
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+
                 {/* Basic Information */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2">
