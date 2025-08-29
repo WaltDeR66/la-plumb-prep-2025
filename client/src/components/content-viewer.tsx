@@ -120,7 +120,7 @@ export default function ContentViewer({ contentId, contentType, title, courseId,
 
   // Auto-start podcast audio for immediate playback
   useEffect(() => {
-    if (contentType === 'podcast' && content?.content?.extracted?.transcript) {
+    if (contentType === 'podcast' && content?.content?.extracted) {
       if (content?.content?.extracted?.audioUrl) {
         // If AI audio exists, play it
         setTimeout(() => {
@@ -131,13 +131,39 @@ export default function ContentViewer({ contentId, contentType, title, courseId,
             });
           }
         }, 100);
-      } else {
-        // If no AI audio, immediately start browser TTS for instant playback
-        setTimeout(() => {
-          if (content.content.extracted.transcript) {
-            playAudio(content.content.extracted.transcript);
+      } else if (content?.content?.extracted?.content || content?.content?.extracted?.text) {
+        // Otherwise use TTS with clean text
+        const getCleanTextForAutoStart = () => {
+          const extracted = content?.content?.extracted;
+          let text = extracted?.content || extracted?.html || extracted?.text || '';
+          
+          if (text) {
+            text = text
+              .replace(/\*\[This would be.*?\]\*/g, '')
+              .replace(/\\n\\n/g, '. ')
+              .replace(/\\n/g, '. ')
+              .replace(/\*\*(.*?)\*\*/g, '$1')
+              .replace(/### (.*$)/gm, '$1. ')
+              .replace(/## (.*$)/gm, '$1. ')
+              .replace(/# (.*$)/gm, '$1. ')
+              .replace(/\(\d{1,2}:\d{2}-\d{1,2}:\d{2}\)/g, '')
+              .replace(/###\s*/g, '')
+              .replace(/\?\s+/g, '? ')
+              .replace(/\.\s*\./g, '.')
+              .replace(/\s+/g, ' ')
+              .replace(/([a-z])([A-Z])/g, '$1. $2')
+              .trim();
           }
-        }, 500); // Small delay to let component render
+          
+          return text;
+        };
+        
+        setTimeout(() => {
+          const cleanText = getCleanTextForAutoStart();
+          if (cleanText) {
+            playAudio(cleanText);
+          }
+        }, 1000); // Small delay to let component render
       }
     }
   }, [contentType, content?.content?.extracted?.transcript, content?.content?.extracted?.audioUrl]);
@@ -627,6 +653,7 @@ export default function ContentViewer({ contentId, contentType, title, courseId,
         playAudio(cleanText);
       }
     };
+
     
     return (
       <div className="space-y-6">
@@ -666,88 +693,55 @@ export default function ContentViewer({ contentId, contentType, title, courseId,
                   </Card>
                 </div>
               ) : podcastContent ? (
-                <div className="space-y-4">
-                  <Card className="bg-gradient-to-r from-blue-50 to-indigo-50">
-                    <CardContent className="p-6">
-                      <div className="text-center space-y-4">
-                        <div className="flex items-center justify-center space-x-3">
-                          {isPlaying ? (
-                            <div className="w-6 h-6 bg-blue-600 rounded-full animate-pulse"></div>
-                          ) : (
-                            <Play className="w-6 h-6 text-blue-600" />
-                          )}
-                          <div>
-                            <h4 className="font-medium text-gray-800">🎧 Audio Lesson Playing</h4>
-                            <p className="text-sm text-gray-600 mt-1">
-                              {isPlaying ? 'Now playing Louisiana Plumbing Code content' : 'Audio lesson ready to play'}
-                            </p>
-                          </div>
-                        </div>
-                        
-                        <div className="flex items-center justify-center space-x-4">
-                          <Button
-                            onClick={isPlaying ? pauseAudio : () => playAudio(getCleanTextForAudio())}
-                            size="lg"
-                            className="flex items-center space-x-2"
-                          >
-                            {isPlaying ? (
-                              <>
-                                <Pause className="w-5 h-5" />
-                                <span>Pause Audio</span>
-                              </>
-                            ) : (
-                              <>
-                                <Play className="w-5 h-5" />
-                                <span>{isPaused ? 'Resume Audio' : 'Play Audio'}</span>
-                              </>
-                            )}
-                          </Button>
-                          
-                          {(isPlaying || isPaused) && (
-                            <Button
-                              onClick={stopAudio}
-                              variant="outline"
-                              size="lg"
-                            >
-                              <Square className="w-5 h-5 mr-2" />
-                              Stop
-                            </Button>
-                          )}
-                        </div>
-                        
-                        <div className="text-xs text-blue-600">
-                          {isPlaying && "🔊 Playing audio lesson automatically"}
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-
+                <div className="space-y-6">
                   {/* Scrolling sentence display */}
                   {currentSentence && (
                     <Card className="bg-gradient-to-r from-yellow-50 to-orange-50 border-2 border-yellow-200">
-                      <CardContent className="p-6">
+                      <CardContent className="p-8">
                         <div className="text-center">
-                          <div className="text-sm text-gray-600 mb-2">📖 Now Reading:</div>
-                          <div className="text-lg font-medium text-gray-800 leading-relaxed animate-in slide-in-from-bottom-4 duration-500">
+                          <div className="text-sm text-gray-600 mb-4">📖 Now Reading:</div>
+                          <div className="text-xl font-medium text-gray-800 leading-relaxed animate-in slide-in-from-bottom-4 duration-500">
                             {currentSentence}
                           </div>
                         </div>
                       </CardContent>
                     </Card>
                   )}
+
+                  {/* Audio controls */}
+                  <div className="flex justify-center space-x-4">
+                    <Button
+                      onClick={pauseAudio}
+                      disabled={!isPlaying}
+                      size="lg"
+                      className="flex items-center space-x-2"
+                    >
+                      <Pause className="w-5 h-5" />
+                      <span>Pause</span>
+                    </Button>
+                    
+                    <Button
+                      onClick={stopAudio}
+                      disabled={!isPlaying && !isPaused}
+                      variant="outline"
+                      size="lg"
+                      className="flex items-center space-x-2"
+                    >
+                      <Square className="w-5 h-5" />
+                      <span>Stop</span>
+                    </Button>
+                  </div>
+
+                  {!isPlaying && !isPaused && !currentSentence && (
+                    <div className="text-center p-6">
+                      <div className="text-gray-600 mb-4">
+                        🎧 Podcast will start automatically when you enter this page
+                      </div>
+                    </div>
+                  )}
                 </div>
               ) : null}
               
-              {podcastContent && (
-                <Card>
-                  <CardHeader>
-                    <CardTitle>📄 Transcript</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="whitespace-pre-wrap">{getCleanTextForAudio()}</div>
-                  </CardContent>
-                </Card>
-              )}
             </div>
           ) : (
             <div className="text-center p-6">
@@ -761,7 +755,7 @@ export default function ContentViewer({ contentId, contentType, title, courseId,
         </div>
         
         <Button onClick={handleComplete} className="w-full">
-          Complete Lesson
+          Complete Podcast
         </Button>
       </div>
     );
