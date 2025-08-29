@@ -267,6 +267,15 @@ export default function ContentViewer({ contentId, contentType, title, courseId,
   };
 
   const handleComplete = () => {
+    // Stop any playing audio before completing
+    if (speechSynthesis) {
+      speechSynthesis.cancel();
+      setIsPlaying(false);
+      setIsPaused(false);
+      setCurrentUtterance(null);
+      setCurrentSentence('');
+    }
+    
     setIsCompleted(true);
     onComplete?.();
     
