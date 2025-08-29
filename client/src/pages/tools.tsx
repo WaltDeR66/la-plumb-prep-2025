@@ -6,12 +6,13 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Calculator, Camera, FileText, Upload, Download, AlertTriangle, CheckCircle, BookOpen, ExternalLink, Lock, Wand2, FileEdit, Users, BookOpenCheck, Timer } from "lucide-react";
+import { Calculator, Camera, FileText, Upload, Download, AlertTriangle, CheckCircle, BookOpen, ExternalLink, Lock, Wand2, FileEdit, Users, BookOpenCheck, Timer, Package, ShoppingCart } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import PipeSizingCalculator from "@/components/calculator/pipe-sizing";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { useStudySession } from "@/hooks/use-study-session";
+import ProductManager from "./admin/product-manager";
 
 export default function Tools() {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -153,10 +154,11 @@ export default function Tools() {
       <section className="py-16" data-testid="tools-section">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <Tabs defaultValue="calculators" className="w-full">
-            <TabsList className="grid w-full grid-cols-4 mb-8">
+            <TabsList className="grid w-full grid-cols-5 mb-8">
               <TabsTrigger value="calculators" data-testid="tab-calculators">Calculators</TabsTrigger>
               <TabsTrigger value="ai-tools" data-testid="tab-ai-tools">AI Tools</TabsTrigger>
               <TabsTrigger value="content-generator" data-testid="tab-content-generator">Content Generator</TabsTrigger>
+              <TabsTrigger value="store-manager" data-testid="tab-store-manager">Store Manager</TabsTrigger>
               <TabsTrigger value="resources" data-testid="tab-resources">Resources</TabsTrigger>
             </TabsList>
 
@@ -410,6 +412,10 @@ export default function Tools() {
                 <AdminCodeBooksSection />
                 <LessonContentGenerator />
               </div>
+            </TabsContent>
+
+            <TabsContent value="store-manager" className="space-y-8">
+              <ProductManager />
             </TabsContent>
 
             <TabsContent value="resources" className="space-y-8">
