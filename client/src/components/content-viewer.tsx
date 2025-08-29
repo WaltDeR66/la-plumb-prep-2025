@@ -60,7 +60,6 @@ interface ExtractedContent {
 }
 
 export default function ContentViewer({ contentId, contentType, title, courseId, sectionId, onComplete }: ContentViewerProps) {
-  const [isCompleted, setIsCompleted] = useState(false);
   const [audioPlaying, setAudioPlaying] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
@@ -368,7 +367,6 @@ export default function ContentViewer({ contentId, contentType, title, courseId,
       await studySession.endSession();
     }
     
-    setIsCompleted(true);
     onComplete?.();
     
     // Navigate back to lesson page
@@ -402,17 +400,6 @@ export default function ContentViewer({ contentId, contentType, title, courseId,
           </div>
         )}
         
-        <div className="flex items-center justify-between pt-6 border-t">
-          <div className="flex items-center space-x-2">
-            {isCompleted && <CheckCircle className="w-5 h-5 text-green-600" />}
-            <span className="text-sm text-muted-foreground">
-              {isCompleted ? "Completed" : "Mark as complete when finished reading"}
-            </span>
-          </div>
-          <Button onClick={handleComplete} disabled={isCompleted}>
-            {isCompleted ? "Completed" : "Mark Complete"}
-          </Button>
-        </div>
       </div>
     );
   };
@@ -584,9 +571,15 @@ export default function ContentViewer({ contentId, contentType, title, courseId,
               <RefreshCw className="w-4 h-4 mr-2" />
               Retake Quiz
             </Button>
-            <Button onClick={handleComplete} className="flex-1">
-              {quizScore >= passingScore ? 'Continue to Next Lesson' : 'Study More'}
-            </Button>
+            {quizScore >= passingScore ? (
+              <Button onClick={handleComplete} className="flex-1">
+                Continue to Next Lesson
+              </Button>
+            ) : (
+              <Button disabled className="flex-1 opacity-50">
+                🔒 Must Pass to Continue
+              </Button>
+            )}
           </div>
         </div>
       );
