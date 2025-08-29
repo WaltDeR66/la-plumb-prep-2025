@@ -18,6 +18,7 @@ export const subscriptionTierEnum = pgEnum("subscription_tier", ["basic", "profe
 export const courseTypeEnum = pgEnum("course_type", ["journeyman", "backflow", "natural_gas", "medical_gas", "master"]);
 export const jobTypeEnum = pgEnum("job_type", ["full_time", "part_time", "contract", "temporary"]);
 export const paymentStatusEnum = pgEnum("payment_status", ["pending", "completed", "failed", "cancelled"]);
+export const productCategoryEnum = pgEnum("product_category", ["gas_detection", "pipe_tools", "measuring", "safety", "valves", "fittings", "books", "training_materials"]);
 
 // Users table
 export const users = pgTable("users", {
@@ -224,6 +225,57 @@ export const sectionProgress = pgTable("section_progress", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
+// Products
+export const products = pgTable("products", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  name: text("name").notNull(),
+  description: text("description").notNull(),
+  shortDescription: text("short_description"),
+  category: productCategoryEnum("category").notNull(),
+  price: decimal("price", { precision: 10, scale: 2 }).notNull(),
+  originalPrice: decimal("original_price", { precision: 10, scale: 2 }),
+  amazonUrl: text("amazon_url").notNull(),
+  affiliateTag: text("affiliate_tag").default("laplumbprep-20"),
+  imageUrl: text("image_url"),
+  brand: text("brand"),
+  model: text("model"),
+  features: text("features").array(),
+  specifications: jsonb("specifications"),
+  rating: decimal("rating", { precision: 3, scale: 1 }).default("0"),
+  reviewCount: integer("review_count").default(0),
+  isActive: boolean("is_active").default(true),
+  isFeatured: boolean("is_featured").default(false),
+  tags: text("tags").array(),
+  sortOrder: integer("sort_order").default(0),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Cart items
+export const cartItems = pgTable("cart_items", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: text("user_id").notNull(),
+  productId: text("product_id").notNull(),
+  quantity: integer("quantity").notNull().default(1),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Product reviews
+export const productReviews = pgTable("product_reviews", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  productId: text("product_id").notNull(),
+  userId: text("user_id").notNull(),
+  rating: integer("rating").notNull(), // 1-5 stars
+  title: text("title"),
+  comment: text("comment"),
+  isVerifiedPurchase: boolean("is_verified_purchase").default(false),
+  helpfulCount: integer("helpful_count").default(0),
+  isApproved: boolean("is_approved").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
 
 // Relations
 export const usersRelations = relations(users, ({ many }) => ({
@@ -235,6 +287,8 @@ export const usersRelations = relations(users, ({ many }) => ({
   studySessions: many(studySessions),
   quizAttempts: many(quizAttempts),
   sectionProgress: many(sectionProgress),
+  cartItems: many(cartItems),
+  productReviews: many(productReviews),
 }));
 
 export const coursesRelations = relations(courses, ({ many }) => ({
@@ -283,6 +337,33 @@ export const sectionProgressRelations = relations(sectionProgress, ({ one }) => 
   course: one(courses, {
     fields: [sectionProgress.courseId],
     references: [courses.id],
+  }),
+}));
+
+export const productsRelations = relations(products, ({ many }) => ({
+  cartItems: many(cartItems),
+  reviews: many(productReviews),
+}));
+
+export const cartItemsRelations = relations(cartItems, ({ one }) => ({
+  user: one(users, {
+    fields: [cartItems.userId],
+    references: [users.id],
+  }),
+  product: one(products, {
+    fields: [cartItems.productId],
+    references: [products.id],
+  }),
+}));
+
+export const productReviewsRelations = relations(productReviews, ({ one }) => ({
+  product: one(products, {
+    fields: [productReviews.productId],
+    references: [products.id],
+  }),
+  user: one(users, {
+    fields: [productReviews.userId],
+    references: [users.id],
   }),
 }));
 
@@ -372,6 +453,24 @@ export const insertSectionProgressSchema = createInsertSchema(sectionProgress).o
   updatedAt: true,
 });
 
+export const insertProductSchema = createInsertSchema(products).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertCartItemSchema = createInsertSchema(cartItems).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertProductReviewSchema = createInsertSchema(productReviews).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
 // Types
 export type User = typeof users.$inferSelect;
 export type InsertUser = z.infer<typeof insertUserSchema>;
@@ -398,3 +497,9 @@ export type QuizAttempt = typeof quizAttempts.$inferSelect;
 export type InsertQuizAttempt = z.infer<typeof insertQuizAttemptSchema>;
 export type SectionProgress = typeof sectionProgress.$inferSelect;
 export type InsertSectionProgress = z.infer<typeof insertSectionProgressSchema>;
+export type Product = typeof products.$inferSelect;
+export type InsertProduct = z.infer<typeof insertProductSchema>;
+export type CartItem = typeof cartItems.$inferSelect;
+export type InsertCartItem = z.infer<typeof insertCartItemSchema>;
+export type ProductReview = typeof productReviews.$inferSelect;
+export type InsertProductReview = z.infer<typeof insertProductReviewSchema>;

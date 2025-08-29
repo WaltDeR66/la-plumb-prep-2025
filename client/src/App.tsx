@@ -16,6 +16,8 @@ import Lesson from "@/pages/lesson";
 import ContentView from "@/pages/content-view";
 import Login from "@/pages/auth/login";
 import Register from "@/pages/auth/register";
+import Store from "@/pages/store";
+import ProductDetail from "@/pages/product-detail";
 import Header from "@/components/layout/header";
 import Footer from "@/components/layout/footer";
 
@@ -32,6 +34,8 @@ function Router() {
           <Route path="/pricing" component={Pricing} />
           <Route path="/subscribe" component={Subscribe} />
           <Route path="/dashboard" component={Dashboard} />
+          <Route path="/store" component={Store} />
+          <Route path="/store/product/:id" component={ProductDetail} />
           <Route path="/course/:courseId" component={CourseContent} />
           <Route path="/course/:courseId/lesson/:section" component={Lesson} />
           <Route path="/course/:courseId/content/:contentId" component={ContentView} />

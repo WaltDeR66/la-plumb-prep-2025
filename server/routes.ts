@@ -2,7 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { emailService } from "./email";
-import { insertUserSchema, insertJobSchema, insertJobApplicationSchema, insertCourseContentSchema, insertPrivateCodeBookSchema, insertCourseSchema } from "@shared/schema";
+import { insertUserSchema, insertJobSchema, insertJobApplicationSchema, insertCourseContentSchema, insertPrivateCodeBookSchema, insertCourseSchema, insertProductSchema, insertCartItemSchema, insertProductReviewSchema } from "@shared/schema";
 import { analyzePhoto, analyzePlans, getMentorResponse, calculatePipeSize } from "./openai";
 import { contentExtractor } from "./content-extractor";
 import Stripe from "stripe";
@@ -1219,6 +1219,195 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error: any) {
       console.error('Send support request error:', error);
       res.status(500).json({ message: error.message });
+    }
+  });
+
+  // E-commerce API Routes
+
+  // Product routes
+  app.get("/api/products", async (req, res) => {
+    try {
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 20;
+      const category = req.query.category as string;
+      const search = req.query.search as string;
+      
+      const result = await storage.getProducts(category, search, page, limit);
+      res.json(result);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/products/featured", async (req, res) => {
+    try {
+      const limit = parseInt(req.query.limit as string) || 8;
+      const products = await storage.getFeaturedProducts(limit);
+      res.json(products);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/products/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const product = await storage.getProduct(id);
+      if (!product) {
+        return res.status(404).json({ message: "Product not found" });
+      }
+      res.json(product);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.post("/api/products", async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+
+    try {
+      const productData = insertProductSchema.parse(req.body);
+      const product = await storage.createProduct(productData);
+      res.json(product);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.put("/api/products/:id", async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+
+    try {
+      const { id } = req.params;
+      const updates = req.body;
+      const product = await storage.updateProduct(id, updates);
+      res.json(product);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.delete("/api/products/:id", async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+
+    try {
+      const { id } = req.params;
+      await storage.deleteProduct(id);
+      res.json({ message: "Product deleted successfully" });
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Cart routes
+  app.get("/api/cart", async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+
+    try {
+      const userId = (req.user as any).id;
+      const cartItems = await storage.getCartItems(userId);
+      res.json(cartItems);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.post("/api/cart", async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+
+    try {
+      const userId = (req.user as any).id;
+      const { productId, quantity } = req.body;
+      const cartItem = await storage.addToCart(userId, productId, quantity);
+      res.json(cartItem);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.put("/api/cart/:productId", async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+
+    try {
+      const userId = (req.user as any).id;
+      const { productId } = req.params;
+      const { quantity } = req.body;
+      const cartItem = await storage.updateCartItem(userId, productId, quantity);
+      res.json(cartItem);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.delete("/api/cart/:productId", async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+
+    try {
+      const userId = (req.user as any).id;
+      const { productId } = req.params;
+      await storage.removeFromCart(userId, productId);
+      res.json({ message: "Item removed from cart" });
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.delete("/api/cart", async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+
+    try {
+      const userId = (req.user as any).id;
+      await storage.clearCart(userId);
+      res.json({ message: "Cart cleared" });
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Product review routes
+  app.get("/api/products/:productId/reviews", async (req, res) => {
+    try {
+      const { productId } = req.params;
+      const reviews = await storage.getProductReviews(productId);
+      res.json(reviews);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.post("/api/products/:productId/reviews", async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+
+    try {
+      const { productId } = req.params;
+      const userId = (req.user as any).id;
+      const reviewData = insertProductReviewSchema.parse({
+        ...req.body,
+        productId,
+        userId
+      });
+      const review = await storage.createProductReview(reviewData);
+      res.json(review);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
     }
   });
 
