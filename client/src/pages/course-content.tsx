@@ -111,7 +111,7 @@ export default function CourseContent() {
   const getTypeLabel = (type: string) => {
     switch (type) {
       case 'lesson': return 'Introduction';
-      case 'quiz': return 'Questions & Answers';
+      case 'quiz': return 'Quiz';
       case 'podcast': return 'Podcast';
       case 'chat': return 'Teach Me/Chat';
       case 'flashcards': return 'Flashcards';

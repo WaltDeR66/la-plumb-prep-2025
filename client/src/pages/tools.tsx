@@ -551,7 +551,7 @@ function ContentImporter() {
   const componentTypes = [
     { key: 'introduction', label: 'Introduction', type: 'lesson' },
     { key: 'podcast', label: 'Podcast', type: 'podcast' },
-    { key: 'quiz', label: 'Questions & Answers', type: 'quiz' },
+    { key: 'quiz', label: 'Quiz', type: 'quiz' },
     { key: 'flashcards', label: 'Flashcards', type: 'flashcards' },
     { key: 'studyNotes', label: 'Study Notes', type: 'study-notes' },
     { key: 'teachMe', label: 'Teach Me (Chat)', type: 'chat' },
