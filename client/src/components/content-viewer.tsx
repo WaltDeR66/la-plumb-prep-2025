@@ -810,8 +810,8 @@ export default function ContentViewer({ contentId, contentType, title, courseId,
         
         if (frontMatch && backMatch) {
           cards.push({
-            front: frontMatch[1].trim(),
-            back: backMatch[1].trim()
+            front: frontMatch[1].trim().replace(/\\n/g, ' ').replace(/\n/g, ' '),
+            back: backMatch[1].trim().replace(/\\n/g, ' ').replace(/\n/g, ' ')
           });
         }
       });
