@@ -190,6 +190,40 @@ export const studySessions = pgTable("study_sessions", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+// Quiz attempts
+export const quizAttempts = pgTable("quiz_attempts", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: text("user_id").notNull(),
+  contentId: text("content_id").notNull(), // quiz content ID
+  courseId: text("course_id").notNull(),
+  section: integer("section").notNull(),
+  chapter: integer("chapter").notNull(),
+  questions: jsonb("questions").notNull(), // Array of questions with user answers
+  totalQuestions: integer("total_questions").notNull(),
+  correctAnswers: integer("correct_answers").notNull(),
+  score: decimal("score", { precision: 5, scale: 2 }).notNull(), // percentage score
+  passed: boolean("passed").notNull(), // true if score >= 70%
+  completedAt: timestamp("completed_at").defaultNow(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Section progress tracking
+export const sectionProgress = pgTable("section_progress", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: text("user_id").notNull(),
+  courseId: text("course_id").notNull(),
+  chapter: integer("chapter").notNull(),
+  section: integer("section").notNull(),
+  isUnlocked: boolean("is_unlocked").default(false),
+  quizPassed: boolean("quiz_passed").default(false),
+  highestScore: decimal("highest_score", { precision: 5, scale: 2 }).default("0"),
+  attemptCount: integer("attempt_count").default(0),
+  lastAttemptAt: timestamp("last_attempt_at"),
+  unlockedAt: timestamp("unlocked_at"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
 
 // Relations
 export const usersRelations = relations(users, ({ many }) => ({
@@ -199,6 +233,8 @@ export const usersRelations = relations(users, ({ many }) => ({
   photoUploads: many(photoUploads),
   planUploads: many(planUploads),
   studySessions: many(studySessions),
+  quizAttempts: many(quizAttempts),
+  sectionProgress: many(sectionProgress),
 }));
 
 export const coursesRelations = relations(courses, ({ many }) => ({
@@ -221,6 +257,32 @@ export const studySessionsRelations = relations(studySessions, ({ one }) => ({
   content: one(courseContent, {
     fields: [studySessions.contentId],
     references: [courseContent.id],
+  }),
+}));
+
+export const quizAttemptsRelations = relations(quizAttempts, ({ one }) => ({
+  user: one(users, {
+    fields: [quizAttempts.userId],
+    references: [users.id],
+  }),
+  content: one(courseContent, {
+    fields: [quizAttempts.contentId],
+    references: [courseContent.id],
+  }),
+  course: one(courses, {
+    fields: [quizAttempts.courseId],
+    references: [courses.id],
+  }),
+}));
+
+export const sectionProgressRelations = relations(sectionProgress, ({ one }) => ({
+  user: one(users, {
+    fields: [sectionProgress.userId],
+    references: [users.id],
+  }),
+  course: one(courses, {
+    fields: [sectionProgress.courseId],
+    references: [courses.id],
   }),
 }));
 
@@ -298,6 +360,18 @@ export const insertStudySessionSchema = createInsertSchema(studySessions).omit({
   createdAt: true,
 });
 
+export const insertQuizAttemptSchema = createInsertSchema(quizAttempts).omit({
+  id: true,
+  completedAt: true,
+  createdAt: true,
+});
+
+export const insertSectionProgressSchema = createInsertSchema(sectionProgress).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
 // Types
 export type User = typeof users.$inferSelect;
 export type InsertUser = z.infer<typeof insertUserSchema>;
@@ -320,3 +394,7 @@ export type ChatAnswer = typeof chatAnswers.$inferSelect;
 export type InsertChatAnswer = z.infer<typeof insertChatAnswerSchema>;
 export type StudySession = typeof studySessions.$inferSelect;
 export type InsertStudySession = z.infer<typeof insertStudySessionSchema>;
+export type QuizAttempt = typeof quizAttempts.$inferSelect;
+export type InsertQuizAttempt = z.infer<typeof insertQuizAttemptSchema>;
+export type SectionProgress = typeof sectionProgress.$inferSelect;
+export type InsertSectionProgress = z.infer<typeof insertSectionProgressSchema>;

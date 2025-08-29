@@ -897,6 +897,117 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Quiz attempt endpoints
+  app.post("/api/quiz-attempts", async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+
+    try {
+      const userId = (req.user as any).id;
+      const attempt = await storage.createQuizAttempt({ ...req.body, userId });
+      
+      // Update section progress if quiz passed
+      if (attempt.passed) {
+        await storage.updateSectionProgress(
+          userId,
+          attempt.courseId,
+          attempt.chapter,
+          attempt.section,
+          {
+            quizPassed: true,
+            highestScore: attempt.score,
+            attemptCount: 1, // This will be incremented if already exists
+            lastAttemptAt: new Date(),
+          }
+        );
+        
+        // Unlock next section
+        await storage.unlockNextSection(userId, attempt.courseId, attempt.chapter, attempt.section);
+      }
+      
+      res.json(attempt);
+    } catch (error: any) {
+      console.error("Create quiz attempt error:", error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/quiz-attempts", async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+
+    try {
+      const userId = (req.user as any).id;
+      const { contentId } = req.query;
+      
+      const attempts = await storage.getUserQuizAttempts(userId, contentId as string);
+      res.json(attempts);
+    } catch (error: any) {
+      console.error("Get quiz attempts error:", error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/quiz-attempts/latest/:contentId", async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+
+    try {
+      const userId = (req.user as any).id;
+      const { contentId } = req.params;
+      
+      const attempt = await storage.getLatestQuizAttempt(userId, contentId);
+      res.json(attempt);
+    } catch (error: any) {
+      console.error("Get latest quiz attempt error:", error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Section progress endpoints
+  app.get("/api/section-progress/:courseId", async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+
+    try {
+      const userId = (req.user as any).id;
+      const { courseId } = req.params;
+      
+      const progress = await storage.getSectionProgress(userId, courseId);
+      res.json(progress);
+    } catch (error: any) {
+      console.error("Get section progress error:", error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/section-progress/:courseId/:chapter/:section/unlocked", async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+
+    try {
+      const userId = (req.user as any).id;
+      const { courseId, chapter, section } = req.params;
+      
+      const isUnlocked = await storage.isSectionUnlocked(
+        userId,
+        courseId,
+        parseInt(chapter),
+        parseInt(section)
+      );
+      
+      res.json({ isUnlocked });
+    } catch (error: any) {
+      console.error("Check section unlock error:", error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

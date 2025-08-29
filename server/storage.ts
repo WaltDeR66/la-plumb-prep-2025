@@ -12,6 +12,8 @@ import {
   privateCodeBooks,
   chatAnswers,
   studySessions,
+  quizAttempts,
+  sectionProgress,
   type User, 
   type InsertUser,
   type Course,
@@ -32,7 +34,11 @@ import {
   type ChatAnswer,
   type InsertChatAnswer,
   type StudySession,
-  type InsertStudySession
+  type InsertStudySession,
+  type QuizAttempt,
+  type InsertQuizAttempt,
+  type SectionProgress,
+  type InsertSectionProgress
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, and, or, ilike, count, sql } from "drizzle-orm";
@@ -106,6 +112,17 @@ export interface IStorage {
   endStudySession(sessionId: string): Promise<StudySession>;
   getUserStudySessions(userId: string, contentId?: string): Promise<StudySession[]>;
   getStudySessionStats(userId: string): Promise<{ totalTime: number; sessionsCount: number; avgSessionTime: number }>;
+  
+  // Quiz attempt methods
+  createQuizAttempt(attempt: InsertQuizAttempt): Promise<QuizAttempt>;
+  getUserQuizAttempts(userId: string, contentId?: string): Promise<QuizAttempt[]>;
+  getLatestQuizAttempt(userId: string, contentId: string): Promise<QuizAttempt | undefined>;
+  
+  // Section progress methods
+  getSectionProgress(userId: string, courseId: string): Promise<SectionProgress[]>;
+  updateSectionProgress(userId: string, courseId: string, chapter: number, section: number, data: Partial<SectionProgress>): Promise<SectionProgress>;
+  unlockNextSection(userId: string, courseId: string, chapter: number, section: number): Promise<void>;
+  isSectionUnlocked(userId: string, courseId: string, chapter: number, section: number): Promise<boolean>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -556,6 +573,135 @@ export class DatabaseStorage implements IStorage {
       sessionsCount,
       avgSessionTime,
     };
+  }
+
+  // Quiz attempt methods
+  async createQuizAttempt(attempt: InsertQuizAttempt): Promise<QuizAttempt> {
+    const [result] = await db
+      .insert(quizAttempts)
+      .values(attempt)
+      .returning();
+    
+    return result;
+  }
+
+  async getUserQuizAttempts(userId: string, contentId?: string): Promise<QuizAttempt[]> {
+    const conditions = [eq(quizAttempts.userId, userId)];
+    
+    if (contentId) {
+      conditions.push(eq(quizAttempts.contentId, contentId));
+    }
+    
+    return await db
+      .select()
+      .from(quizAttempts)
+      .where(and(...conditions))
+      .orderBy(desc(quizAttempts.completedAt));
+  }
+
+  async getLatestQuizAttempt(userId: string, contentId: string): Promise<QuizAttempt | undefined> {
+    const [result] = await db
+      .select()
+      .from(quizAttempts)
+      .where(and(
+        eq(quizAttempts.userId, userId),
+        eq(quizAttempts.contentId, contentId)
+      ))
+      .orderBy(desc(quizAttempts.completedAt))
+      .limit(1);
+    
+    return result;
+  }
+
+  // Section progress methods
+  async getSectionProgress(userId: string, courseId: string): Promise<SectionProgress[]> {
+    return await db
+      .select()
+      .from(sectionProgress)
+      .where(and(
+        eq(sectionProgress.userId, userId),
+        eq(sectionProgress.courseId, courseId)
+      ))
+      .orderBy(sectionProgress.chapter, sectionProgress.section);
+  }
+
+  async updateSectionProgress(userId: string, courseId: string, chapter: number, section: number, data: Partial<SectionProgress>): Promise<SectionProgress> {
+    // Try to find existing progress record
+    const [existing] = await db
+      .select()
+      .from(sectionProgress)
+      .where(and(
+        eq(sectionProgress.userId, userId),
+        eq(sectionProgress.courseId, courseId),
+        eq(sectionProgress.chapter, chapter),
+        eq(sectionProgress.section, section)
+      ));
+
+    if (existing) {
+      // Update existing record
+      const [updated] = await db
+        .update(sectionProgress)
+        .set({ ...data, updatedAt: new Date() })
+        .where(eq(sectionProgress.id, existing.id))
+        .returning();
+      
+      return updated;
+    } else {
+      // Create new record
+      const [created] = await db
+        .insert(sectionProgress)
+        .values({
+          userId,
+          courseId,
+          chapter,
+          section,
+          ...data,
+        })
+        .returning();
+      
+      return created;
+    }
+  }
+
+  async unlockNextSection(userId: string, courseId: string, chapter: number, section: number): Promise<void> {
+    // Get all course content to determine next section
+    const content = await db
+      .select()
+      .from(courseContent)
+      .where(eq(courseContent.courseId, courseId))
+      .orderBy(courseContent.chapter, courseContent.section);
+
+    // Find current section index
+    const currentIndex = content.findIndex(c => c.chapter === chapter && c.section === section);
+    
+    if (currentIndex >= 0 && currentIndex < content.length - 1) {
+      const nextContent = content[currentIndex + 1];
+      
+      // Unlock next section
+      await this.updateSectionProgress(userId, courseId, nextContent.chapter!, nextContent.section!, {
+        isUnlocked: true,
+        unlockedAt: new Date(),
+      });
+    }
+  }
+
+  async isSectionUnlocked(userId: string, courseId: string, chapter: number, section: number): Promise<boolean> {
+    // First section (chapter 1, section 1) is always unlocked
+    if (chapter === 1 && section === 1) {
+      return true;
+    }
+
+    const [progress] = await db
+      .select()
+      .from(sectionProgress)
+      .where(and(
+        eq(sectionProgress.userId, userId),
+        eq(sectionProgress.courseId, courseId),
+        eq(sectionProgress.chapter, chapter),
+        eq(sectionProgress.section, section)
+      ));
+
+    return progress?.isUnlocked || false;
   }
 }
 

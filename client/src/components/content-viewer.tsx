@@ -25,6 +25,7 @@ import {
 import { apiRequest } from "@/lib/queryClient";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useStudySession } from "@/hooks/use-study-session";
+import { useToast } from "@/hooks/use-toast";
 
 interface ContentViewerProps {
   contentId: string;
@@ -85,15 +86,19 @@ export default function ContentViewer({ contentId, contentType, title, courseId,
   const [selectedVoice, setSelectedVoice] = useState<string>('auto');
   const [availableVoices, setAvailableVoices] = useState<SpeechSynthesisVoice[]>([]);
   const [currentQuestion, setCurrentQuestion] = useState(0);
-  const [userAnswers, setUserAnswers] = useState<Record<number, number>>({});
-  const [selectedQuizAnswer, setSelectedQuizAnswer] = useState<number | null>(null);
+  const [userAnswers, setUserAnswers] = useState<Record<number, string>>({});
+  const [selectedQuizAnswer, setSelectedQuizAnswer] = useState<string | null>(null);
   const [showQuizResults, setShowQuizResults] = useState(false);
   const [quizScore, setQuizScore] = useState(0);
   const [incorrectQuizAnswers, setIncorrectQuizAnswers] = useState<any[]>([]);
+  const [isSubmittingQuiz, setIsSubmittingQuiz] = useState(false);
+  const [quizAttempt, setQuizAttempt] = useState<any>(null);
 
   const { data: content, isLoading, error } = useQuery<ExtractedContent>({
     queryKey: [`/api/content/${contentId}/display`],
   });
+  
+  const { toast } = useToast();
 
   useEffect(() => {
     if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
@@ -356,18 +361,18 @@ export default function ContentViewer({ contentId, contentType, title, courseId,
       );
     }
 
-    const handleAnswerSelect = (optionId: number) => {
+    const handleAnswerSelect = (optionId: string) => {
       setSelectedQuizAnswer(optionId);
+      setUserAnswers(prev => ({
+        ...prev,
+        [currentQuestion]: optionId
+      }));
     };
 
     const nextQuestion = () => {
-      if (selectedQuizAnswer !== null) {
-        setUserAnswers(prev => ({
-          ...prev,
-          [currentQuestion]: selectedQuizAnswer
-        }));
-        setSelectedQuizAnswer(null);
+      if (currentQuestion < questions.length - 1) {
         setCurrentQuestion(prev => prev + 1);
+        setSelectedQuizAnswer(userAnswers[currentQuestion + 1] ?? null);
       }
     };
 
@@ -376,38 +381,76 @@ export default function ContentViewer({ contentId, contentType, title, courseId,
       setSelectedQuizAnswer(userAnswers[currentQuestion - 1] || null);
     };
 
-    const submitQuiz = () => {
-      // Record the last answer
-      const finalAnswers = {
-        ...userAnswers,
-        [currentQuestion]: selectedQuizAnswer || -1
-      };
+    const submitQuiz = async () => {
+      setIsSubmittingQuiz(true);
+      const passingScore = content?.content?.extracted?.passingScore || 70;
+      
+      try {
+        // Record the last answer if not already saved
+        const finalAnswers = {
+          ...userAnswers,
+          [currentQuestion]: selectedQuizAnswer || ''
+        };
 
-      // Calculate score
-      let correct = 0;
-      const incorrect: any[] = [];
+        // Prepare questions with user answers
+        const questionsWithAnswers = questions.map((question: any, index: number) => ({
+          id: question.id,
+          question: question.question,
+          options: question.options,
+          userAnswer: finalAnswers[index] || null,
+          correctAnswer: question.options?.find((opt: any) => opt.isCorrect)?.id,
+          isCorrect: finalAnswers[index] === question.options?.find((opt: any) => opt.isCorrect)?.id,
+          explanation: question.explanation,
+          reference: question.reference
+        }));
 
-      questions.forEach((question: any, index: number) => {
-        const userAnswer = finalAnswers[index];
-        const correctAnswer = question.options.find((opt: any) => opt.isCorrect);
+        // Calculate score
+        const correctAnswers = questionsWithAnswers.filter(q => q.isCorrect).length;
+        const score = Math.round((correctAnswers / questions.length) * 100);
+        const passed = score >= passingScore;
+
+        // Submit to backend
+        const response = await apiRequest('POST', '/api/quiz-attempts', {
+          contentId,
+          courseId,
+          section: content?.section || 1,
+          chapter: content?.chapter || 1,
+          questions: questionsWithAnswers,
+          totalQuestions: questions.length,
+          correctAnswers,
+          score,
+          passed
+        });
+
+        const attempt = await response.json();
+        setQuizAttempt(attempt);
+        setQuizScore(score);
         
-        if (userAnswer === correctAnswer?.id) {
-          correct++;
-        } else {
-          incorrect.push({
-            question: question.question,
-            userAnswer: userAnswer !== -1 ? question.options[userAnswer]?.text || 'No answer' : 'No answer',
-            correctAnswer: correctAnswer?.text,
-            explanation: question.explanation,
-            reference: question.reference
-          });
-        }
-      });
-
-      const score = Math.round((correct / questions.length) * 100);
-      setQuizScore(score);
-      setIncorrectQuizAnswers(incorrect);
-      setShowQuizResults(true);
+        // Prepare incorrect answers for review
+        const incorrect = questionsWithAnswers.filter(q => !q.isCorrect).map(q => ({
+          question: q.question,
+          userAnswer: q.userAnswer ? q.options.find((opt: any) => opt.id === q.userAnswer)?.text || 'No answer' : 'No answer',
+          correctAnswer: q.options.find((opt: any) => opt.id === q.correctAnswer)?.text,
+          explanation: q.explanation,
+          reference: q.reference
+        }));
+        
+        setIncorrectQuizAnswers(incorrect);
+        setShowQuizResults(true);
+        
+        // Invalidate queries to refresh progress
+        queryClient.invalidateQueries({ queryKey: ['/api/section-progress'] });
+        
+      } catch (error) {
+        console.error('Failed to submit quiz:', error);
+        toast({
+          title: "Error",
+          description: "Failed to submit quiz. Please try again.",
+          variant: "destructive"
+        });
+      } finally {
+        setIsSubmittingQuiz(false);
+      }
     };
 
     const restartQuiz = () => {
@@ -417,6 +460,7 @@ export default function ContentViewer({ contentId, contentType, title, courseId,
       setShowQuizResults(false);
       setQuizScore(0);
       setIncorrectQuizAnswers([]);
+      setQuizAttempt(null);
     };
 
     if (showQuizResults) {
@@ -528,10 +572,17 @@ export default function ContentViewer({ contentId, contentType, title, courseId,
           {isLastQuestion ? (
             <Button
               onClick={submitQuiz}
-              disabled={selectedQuizAnswer === null}
+              disabled={selectedQuizAnswer === null || isSubmittingQuiz}
               className="bg-green-600 hover:bg-green-700"
             >
-              Submit Quiz
+              {isSubmittingQuiz ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Submitting...
+                </>
+              ) : (
+                'Submit Quiz'
+              )}
             </Button>
           ) : (
             <Button
