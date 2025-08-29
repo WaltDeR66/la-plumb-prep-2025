@@ -663,7 +663,7 @@ export default function ContentViewer({ contentId, contentType, title, courseId,
                 </div>
               ) : null}
               
-              {extracted.transcript && (
+              {podcastContent && (
                 <Card>
                   <CardHeader>
                     <CardTitle>📄 Transcript</CardTitle>
