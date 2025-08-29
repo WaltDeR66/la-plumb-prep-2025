@@ -559,10 +559,11 @@ export default function ContentViewer({ contentId, contentType, title, courseId,
 
   const renderPodcastContent = () => {
     const extracted = content.content?.extracted;
+    const podcastContent = getContentText();
 
     const handlePlayAudio = () => {
-      if (extracted?.transcript) {
-        playAudio(extracted.transcript || 'No transcript available');
+      if (podcastContent) {
+        playAudio(podcastContent);
       }
     };
     
@@ -571,7 +572,7 @@ export default function ContentViewer({ contentId, contentType, title, courseId,
         <div className="text-center">
           <h3 className="text-xl font-semibold mb-4">🎧 Audio Lesson</h3>
           
-          {extracted?.transcript || extracted?.audioUrl ? (
+          {podcastContent || extracted?.audioUrl ? (
             <div className="space-y-4">
               {extracted.audioUrl ? (
                 <div className="space-y-4">
@@ -603,7 +604,7 @@ export default function ContentViewer({ contentId, contentType, title, courseId,
                     </CardContent>
                   </Card>
                 </div>
-              ) : extracted.transcript ? (
+              ) : podcastContent ? (
                 <div className="space-y-4">
                   <Card className="bg-gradient-to-r from-blue-50 to-indigo-50">
                     <CardContent className="p-6">
@@ -624,7 +625,7 @@ export default function ContentViewer({ contentId, contentType, title, courseId,
                         
                         <div className="flex items-center justify-center space-x-4">
                           <Button
-                            onClick={isPlaying ? pauseAudio : () => playAudio(extracted.transcript)}
+                            onClick={isPlaying ? pauseAudio : () => playAudio(podcastContent)}
                             size="lg"
                             className="flex items-center space-x-2"
                           >
@@ -668,7 +669,7 @@ export default function ContentViewer({ contentId, contentType, title, courseId,
                     <CardTitle>📄 Transcript</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <p className="whitespace-pre-wrap text-left">{extracted.transcript}</p>
+                    <div dangerouslySetInnerHTML={{ __html: podcastContent }} />
                   </CardContent>
                 </Card>
               )}
