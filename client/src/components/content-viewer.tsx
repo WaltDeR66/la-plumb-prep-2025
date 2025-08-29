@@ -19,10 +19,12 @@ import {
   RefreshCw,
   Loader2,
   Settings,
-  Clock
+  Clock,
+  Timer
 } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useStudySession } from "@/hooks/use-study-session";
 
 interface ContentViewerProps {
   contentId: string;
@@ -66,6 +68,13 @@ export default function ContentViewer({ contentId, contentType, title, courseId,
   const [currentSentence, setCurrentSentence] = useState('');
   const [, setLocation] = useLocation();
   const queryClient = useQueryClient();
+  
+  // Initialize study session tracking
+  const studySession = useStudySession({
+    contentId,
+    contentType: contentType as 'lesson' | 'quiz' | 'flashcards' | 'chat' | 'podcast' | 'notes' | 'tools',
+    autoStart: true
+  });
   
   // Chat state
   const [chatMessages, setChatMessages] = useState<Array<{role: 'user' | 'assistant', content: string, id?: string}>>([]);
@@ -266,7 +275,7 @@ export default function ContentViewer({ contentId, contentType, title, courseId,
     return text;
   };
 
-  const handleComplete = () => {
+  const handleComplete = async () => {
     // Stop any playing audio before completing
     if (speechSynthesis) {
       speechSynthesis.cancel();
@@ -274,6 +283,11 @@ export default function ContentViewer({ contentId, contentType, title, courseId,
       setIsPaused(false);
       setCurrentUtterance(null);
       setCurrentSentence('');
+    }
+    
+    // End the study session tracking
+    if (studySession.session && studySession.isActive) {
+      await studySession.endSession();
     }
     
     setIsCompleted(true);
@@ -1360,9 +1374,17 @@ export default function ContentViewer({ contentId, contentType, title, courseId,
         <div className="flex items-center justify-between mb-4">
           <div>
             <h1 className="text-2xl font-bold">{title}</h1>
-            <Badge variant="outline" className="mt-2">
-              {contentType.charAt(0).toUpperCase() + contentType.slice(1)}
-            </Badge>
+            <div className="flex items-center gap-2 mt-2">
+              <Badge variant="outline">
+                {contentType.charAt(0).toUpperCase() + contentType.slice(1)}
+              </Badge>
+              {studySession.isActive && (
+                <Badge variant="secondary" className="flex items-center gap-1">
+                  <Timer className="w-3 h-3" />
+                  {studySession.formattedTime}
+                </Badge>
+              )}
+            </div>
           </div>
           
           {hasExtractedContent && (

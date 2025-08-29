@@ -6,17 +6,25 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Calculator, Camera, FileText, Upload, Download, AlertTriangle, CheckCircle, BookOpen, ExternalLink, Lock, Wand2, FileEdit, Users, BookOpenCheck } from "lucide-react";
+import { Calculator, Camera, FileText, Upload, Download, AlertTriangle, CheckCircle, BookOpen, ExternalLink, Lock, Wand2, FileEdit, Users, BookOpenCheck, Timer } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import PipeSizingCalculator from "@/components/calculator/pipe-sizing";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
+import { useStudySession } from "@/hooks/use-study-session";
 
 export default function Tools() {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisResult, setAnalysisResult] = useState<any>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
+  
+  // Initialize study session tracking for tools
+  const studySession = useStudySession({
+    contentId: 'professional-tools',
+    contentType: 'tools',
+    autoStart: true
+  });
 
   const handlePhotoUpload = async (file: File) => {
     if (!file) return;
@@ -109,9 +117,17 @@ export default function Tools() {
       <section className="gradient-hero text-white py-16" data-testid="tools-hero">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
-            <h1 className="text-4xl lg:text-5xl font-bold mb-6" data-testid="tools-title">
-              Professional Plumbing Tools
-            </h1>
+            <div className="flex items-center justify-center gap-4 mb-6">
+              <h1 className="text-4xl lg:text-5xl font-bold" data-testid="tools-title">
+                Professional Plumbing Tools
+              </h1>
+              {studySession.isActive && (
+                <Badge variant="secondary" className="flex items-center gap-1 bg-white/20 text-white border-white/30">
+                  <Timer className="w-4 h-4" />
+                  {studySession.formattedTime}
+                </Badge>
+              )}
+            </div>
             <p className="text-xl text-blue-100 max-w-3xl mx-auto mb-8" data-testid="tools-description">
               Comprehensive suite of calculators and AI-powered analysis tools to support your plumbing work and studies.
             </p>

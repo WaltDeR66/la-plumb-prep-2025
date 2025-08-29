@@ -828,6 +828,75 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Study session tracking endpoints
+  app.post("/api/study-sessions/start", async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+
+    try {
+      const { contentId, contentType } = req.body;
+      const userId = (req.user as any).id;
+
+      if (!contentId || !contentType) {
+        return res.status(400).json({ message: "contentId and contentType are required" });
+      }
+
+      const session = await storage.startStudySession(userId, contentId, contentType);
+      res.json(session);
+    } catch (error: any) {
+      console.error("Start study session error:", error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.post("/api/study-sessions/:sessionId/end", async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+
+    try {
+      const { sessionId } = req.params;
+      const session = await storage.endStudySession(sessionId);
+      res.json(session);
+    } catch (error: any) {
+      console.error("End study session error:", error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/study-sessions", async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+
+    try {
+      const userId = (req.user as any).id;
+      const { contentId } = req.query;
+      
+      const sessions = await storage.getUserStudySessions(userId, contentId as string);
+      res.json(sessions);
+    } catch (error: any) {
+      console.error("Get study sessions error:", error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/study-sessions/stats", async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+
+    try {
+      const userId = (req.user as any).id;
+      const stats = await storage.getStudySessionStats(userId);
+      res.json(stats);
+    } catch (error: any) {
+      console.error("Get study session stats error:", error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

@@ -5,10 +5,11 @@ import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { MessageCircle, Send, Bot, User, Lightbulb } from "lucide-react";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { MessageCircle, Send, Bot, User, Lightbulb, Timer } from "lucide-react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { useStudySession } from "@/hooks/use-study-session";
 
 interface Message {
   role: "user" | "assistant";
@@ -28,6 +29,14 @@ export default function AIMentorChat() {
   const [selectedConversation, setSelectedConversation] = useState<string | null>(null);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
+  const queryClient = useQueryClient();
+  
+  // Initialize study session tracking for chat
+  const studySession = useStudySession({
+    contentId: 'ai-mentor-chat',
+    contentType: 'chat',
+    autoStart: true
+  });
 
   const { data: conversations, isLoading } = useQuery({
     queryKey: ["/api/mentor/conversations"],
@@ -154,10 +163,18 @@ export default function AIMentorChat() {
       {/* Chat Interface */}
       <Card className="lg:col-span-3" data-testid="chat-interface">
         <CardHeader>
-          <CardTitle className="flex items-center space-x-2">
-            <Bot className="w-5 h-5 text-primary" />
-            <span>AI Plumbing Mentor</span>
-            <Badge variant="secondary">Online</Badge>
+          <CardTitle className="flex items-center justify-between">
+            <div className="flex items-center space-x-2">
+              <Bot className="w-5 h-5 text-primary" />
+              <span>AI Plumbing Mentor</span>
+              <Badge variant="secondary">Online</Badge>
+            </div>
+            {studySession.isActive && (
+              <Badge variant="outline" className="flex items-center gap-1">
+                <Timer className="w-3 h-3" />
+                {studySession.formattedTime}
+              </Badge>
+            )}
           </CardTitle>
         </CardHeader>
         <CardContent className="p-0">

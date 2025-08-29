@@ -177,6 +177,20 @@ export const privateCodeBooks = pgTable("private_code_books", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+// Study sessions (time tracking)
+export const studySessions = pgTable("study_sessions", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: text("user_id").notNull(),
+  contentId: text("content_id").notNull(),
+  contentType: text("content_type").notNull(), // 'lesson', 'flashcards', 'quiz', 'chat', 'podcast', 'study_notes', 'study_plans'
+  sessionStart: timestamp("session_start").defaultNow(),
+  sessionEnd: timestamp("session_end"),
+  durationSeconds: integer("duration_seconds"), // calculated duration in seconds
+  completed: boolean("completed").default(false),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+
 // Relations
 export const usersRelations = relations(users, ({ many }) => ({
   enrollments: many(courseEnrollments),
@@ -184,6 +198,7 @@ export const usersRelations = relations(users, ({ many }) => ({
   mentorConversations: many(mentorConversations),
   photoUploads: many(photoUploads),
   planUploads: many(planUploads),
+  studySessions: many(studySessions),
 }));
 
 export const coursesRelations = relations(courses, ({ many }) => ({
@@ -195,6 +210,17 @@ export const courseContentRelations = relations(courseContent, ({ one }) => ({
   course: one(courses, {
     fields: [courseContent.courseId],
     references: [courses.id],
+  }),
+}));
+
+export const studySessionsRelations = relations(studySessions, ({ one }) => ({
+  user: one(users, {
+    fields: [studySessions.userId],
+    references: [users.id],
+  }),
+  content: one(courseContent, {
+    fields: [studySessions.contentId],
+    references: [courseContent.id],
   }),
 }));
 
@@ -267,6 +293,11 @@ export const insertChatAnswerSchema = createInsertSchema(chatAnswers).omit({
   createdAt: true,
 });
 
+export const insertStudySessionSchema = createInsertSchema(studySessions).omit({
+  id: true,
+  createdAt: true,
+});
+
 // Types
 export type User = typeof users.$inferSelect;
 export type InsertUser = z.infer<typeof insertUserSchema>;
@@ -287,3 +318,5 @@ export type PrivateCodeBook = typeof privateCodeBooks.$inferSelect;
 export type InsertPrivateCodeBook = z.infer<typeof insertPrivateCodeBookSchema>;
 export type ChatAnswer = typeof chatAnswers.$inferSelect;
 export type InsertChatAnswer = z.infer<typeof insertChatAnswerSchema>;
+export type StudySession = typeof studySessions.$inferSelect;
+export type InsertStudySession = z.infer<typeof insertStudySessionSchema>;

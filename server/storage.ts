@@ -11,6 +11,7 @@ import {
   courseContent,
   privateCodeBooks,
   chatAnswers,
+  studySessions,
   type User, 
   type InsertUser,
   type Course,
@@ -29,7 +30,9 @@ import {
   type PrivateCodeBook,
   type InsertPrivateCodeBook,
   type ChatAnswer,
-  type InsertChatAnswer
+  type InsertChatAnswer,
+  type StudySession,
+  type InsertStudySession
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, and, or, ilike, count, sql } from "drizzle-orm";
@@ -97,6 +100,12 @@ export interface IStorage {
   getChatAnswer(question: string, contentId?: string): Promise<ChatAnswer | undefined>;
   createChatAnswer(answer: InsertChatAnswer): Promise<ChatAnswer>;
   getAllChatAnswers(): Promise<ChatAnswer[]>;
+  
+  // Study session methods
+  startStudySession(userId: string, contentId: string, contentType: string): Promise<StudySession>;
+  endStudySession(sessionId: string): Promise<StudySession>;
+  getUserStudySessions(userId: string, contentId?: string): Promise<StudySession[]>;
+  getStudySessionStats(userId: string): Promise<{ totalTime: number; sessionsCount: number; avgSessionTime: number }>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -467,6 +476,86 @@ export class DatabaseStorage implements IStorage {
 
   async getAllChatAnswers(): Promise<ChatAnswer[]> {
     return await db.select().from(chatAnswers);
+  }
+
+  // Study session methods
+  async startStudySession(userId: string, contentId: string, contentType: string): Promise<StudySession> {
+    const [session] = await db
+      .insert(studySessions)
+      .values({
+        userId,
+        contentId,
+        contentType,
+        sessionStart: new Date(),
+      })
+      .returning();
+    
+    return session;
+  }
+
+  async endStudySession(sessionId: string): Promise<StudySession> {
+    const now = new Date();
+    
+    // Get the session to calculate duration
+    const [existingSession] = await db
+      .select()
+      .from(studySessions)
+      .where(eq(studySessions.id, sessionId));
+    
+    if (!existingSession) {
+      throw new Error('Study session not found');
+    }
+    
+    const durationSeconds = Math.floor((now.getTime() - existingSession.sessionStart.getTime()) / 1000);
+    
+    const [session] = await db
+      .update(studySessions)
+      .set({
+        sessionEnd: now,
+        durationSeconds,
+        completed: true,
+      })
+      .where(eq(studySessions.id, sessionId))
+      .returning();
+    
+    return session;
+  }
+
+  async getUserStudySessions(userId: string, contentId?: string): Promise<StudySession[]> {
+    const conditions = [eq(studySessions.userId, userId)];
+    
+    if (contentId) {
+      conditions.push(eq(studySessions.contentId, contentId));
+    }
+    
+    return await db
+      .select()
+      .from(studySessions)
+      .where(and(...conditions))
+      .orderBy(desc(studySessions.sessionStart));
+  }
+
+  async getStudySessionStats(userId: string): Promise<{ totalTime: number; sessionsCount: number; avgSessionTime: number }> {
+    const stats = await db
+      .select({
+        totalSeconds: sql<number>`COALESCE(SUM(${studySessions.durationSeconds}), 0)`,
+        sessionCount: sql<number>`COUNT(*)`,
+      })
+      .from(studySessions)
+      .where(and(
+        eq(studySessions.userId, userId),
+        eq(studySessions.completed, true)
+      ));
+    
+    const totalSeconds = Number(stats[0]?.totalSeconds || 0);
+    const sessionsCount = Number(stats[0]?.sessionCount || 0);
+    const avgSessionTime = sessionsCount > 0 ? Math.round(totalSeconds / sessionsCount) : 0;
+    
+    return {
+      totalTime: totalSeconds,
+      sessionsCount,
+      avgSessionTime,
+    };
   }
 }
 
