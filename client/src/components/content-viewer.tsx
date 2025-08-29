@@ -136,32 +136,54 @@ export default function ContentViewer({ contentId, contentType, title, courseId,
   const parseQuestionsFromText = (text: string): any[] => {
     const questions: any[] = [];
     
+    // Clean up text by removing escaped newlines and extra formatting
+    const cleanText = text
+      .replace(/\\n/g, ' ')
+      .replace(/\\t/g, ' ')
+      .replace(/\n+/g, '\n')
+      .replace(/\s+/g, ' ')
+      .trim();
+    
     // Split by **number. pattern to get question blocks
-    const questionBlocks = text.split(/\*\*\d+\./).filter(block => block.trim().length > 0);
+    const questionBlocks = cleanText.split(/\*\*\d+\./).filter(block => block.trim().length > 0);
     
     questionBlocks.forEach((block, index) => {
-      // Extract question text (until first A.)
-      const questionMatch = block.match(/^([^A]*?)(?=[A-D]\.)/s);
+      // Clean the block text
+      let cleanBlock = block.replace(/\*\*/g, '').trim();
+      
+      // Extract question text (until first option A.)
+      const questionMatch = cleanBlock.match(/^([^A]*?)(?=[A-D]\.)/s);
       if (!questionMatch) return;
       
-      const questionText = questionMatch[1].replace(/\*\*/g, '').trim();
+      const questionText = questionMatch[1].trim();
       if (questionText.length < 10) return;
       
-      // Extract options (A., B., C., D.)
-      const optionMatches = block.match(/([A-D])\.([^A-D]*?)(?=[A-D]\.|$)/gs);
-      if (!optionMatches || optionMatches.length < 2) return;
+      // Extract individual options using more precise pattern
+      const optionPattern = /([A-D])\.\s*([^A-D]*?)(?=\s*[A-D]\.|$)/gs;
+      const optionMatches = [...cleanBlock.matchAll(optionPattern)];
+      
+      if (optionMatches.length < 2) return;
       
       const options: any[] = [];
+      const seenTexts = new Set(); // Track duplicate options
       
-      optionMatches.forEach((optionMatch, optIndex) => {
-        const optionText = optionMatch.replace(/^[A-D]\./, '').trim();
-        const cleanText = optionText.replace(/✓/g, '').replace(/\*\*/g, '').trim();
+      optionMatches.forEach((match, optIndex) => {
+        const [, letter, optionText] = match;
+        let cleanOptionText = optionText.trim();
         
-        if (cleanText.length > 0) {
-          const isCorrect = optionText.includes('✓');
+        // Remove checkmarks and other symbols
+        const isCorrect = cleanOptionText.includes('✓');
+        cleanOptionText = cleanOptionText
+          .replace(/✓/g, '')
+          .replace(/\s+/g, ' ')
+          .trim();
+        
+        // Only add if text is meaningful and not duplicate
+        if (cleanOptionText.length > 3 && !seenTexts.has(cleanOptionText)) {
+          seenTexts.add(cleanOptionText);
           options.push({
-            id: `${index}-${optIndex}`,
-            text: cleanText,
+            id: `${index}-${letter}`,
+            text: cleanOptionText,
             isCorrect: isCorrect
           });
         }
