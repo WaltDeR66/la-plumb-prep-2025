@@ -559,6 +559,9 @@ export default function ContentViewer({ contentId, contentType, title, courseId,
 
       // Display current sentence
       setCurrentSentence(sentence);
+      
+      // Keep playing state true throughout the entire sequence
+      setIsPlaying(true);
 
       const utterance = new SpeechSynthesisUtterance(sentence);
       
@@ -601,13 +604,13 @@ export default function ContentViewer({ contentId, contentType, title, courseId,
         // Clear sentence after a brief pause
         setTimeout(() => {
           setCurrentSentence('');
-        }, 800);
+        }, 500);
         
         // Move to next sentence after clearing
         setTimeout(() => {
           currentSentenceIndex++;
           speakNextSentence();
-        }, 1200);
+        }, 800);
       };
       
       utterance.onerror = () => {
@@ -708,11 +711,11 @@ export default function ContentViewer({ contentId, contentType, title, courseId,
                     </Card>
                   )}
 
-                  {/* Audio controls */}
+                  {/* Audio controls - always show when content is available */}
                   <div className="flex justify-center space-x-4">
                     <Button
                       onClick={pauseAudio}
-                      disabled={!isPlaying}
+                      disabled={!isPlaying && !isPaused}
                       size="lg"
                       className="flex items-center space-x-2"
                     >
@@ -722,7 +725,6 @@ export default function ContentViewer({ contentId, contentType, title, courseId,
                     
                     <Button
                       onClick={stopAudio}
-                      disabled={!isPlaying && !isPaused}
                       variant="outline"
                       size="lg"
                       className="flex items-center space-x-2"
@@ -732,7 +734,7 @@ export default function ContentViewer({ contentId, contentType, title, courseId,
                     </Button>
                   </div>
 
-                  {!isPlaying && !isPaused && !currentSentence && (
+                  {!isPlaying && !isPaused && !currentSentence && !currentUtterance && (
                     <div className="text-center p-6">
                       <div className="text-gray-600 mb-4">
                         🎧 Click to start the podcast
