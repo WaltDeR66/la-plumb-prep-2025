@@ -221,15 +221,18 @@ export default function ContentViewer({ contentId, contentType, title, courseId,
     if (text) {
       text = text
         .replace(/\*\[This would be.*?\]\*/g, '')  // Remove placeholder instructions
-        .replace(/\\n\\n/g, '\n\n')  // Convert literal \n\n to actual line breaks
-        .replace(/\\n/g, ' ')  // Convert literal \n to spaces
+        .replace(/\\n\\n/g, '. ')  // Convert paragraph breaks to sentences with periods
+        .replace(/\\n/g, '. ')  // Convert line breaks to sentence breaks with periods
         .replace(/\*\*(.*?)\*\*/g, '$1')  // Remove bold markers **text**
-        .replace(/### (.*$)/gm, '$1')  // Remove ### headers
-        .replace(/## (.*$)/gm, '$1')   // Remove ## headers
-        .replace(/# (.*$)/gm, '$1')    // Remove # headers
+        .replace(/### (.*$)/gm, '$1. ')  // Remove ### headers and add periods
+        .replace(/## (.*$)/gm, '$1. ')   // Remove ## headers and add periods
+        .replace(/# (.*$)/gm, '$1. ')    // Remove # headers and add periods
         .replace(/\(\d{1,2}:\d{2}-\d{1,2}:\d{2}\)/g, '')  // Remove timestamps (0:00-1:30)
         .replace(/###\s*/g, '')  // Remove any remaining ###
+        .replace(/\?\s+/g, '? ')  // Clean up question marks
+        .replace(/\.\s*\./g, '.')  // Remove double periods
         .replace(/\s+/g, ' ')  // Replace multiple spaces with single space
+        .replace(/([a-z])([A-Z])/g, '$1. $2')  // Add periods between sentences that run together
         .trim();
     }
     
