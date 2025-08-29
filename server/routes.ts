@@ -271,6 +271,43 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Section progress routes
+  app.get("/api/section-progress/:courseId", async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+
+    try {
+      const { courseId } = req.params;
+      const userId = (req.user as any).id;
+      const user = req.user as any;
+      
+      // Check if user is admin (admin email or subscription tier)
+      const isAdmin = user.email?.includes('admin') || user.subscriptionTier === 'master';
+      
+      // Get all course content to determine sections
+      const content = await storage.getCourseContent(courseId);
+      const sections = [...new Set(content.map(c => c.section))].sort((a, b) => Number(a) - Number(b));
+      
+      const sectionStatus = [];
+      
+      for (const section of sections) {
+        const sectionNum = Number(section);
+        const isUnlocked = isAdmin || await storage.isSectionUnlocked(userId, courseId, 1, sectionNum);
+        
+        sectionStatus.push({
+          section: sectionNum,
+          isUnlocked,
+          isAdmin
+        });
+      }
+      
+      res.json(sectionStatus);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
   // Job routes
   app.get("/api/jobs", async (req, res) => {
     try {

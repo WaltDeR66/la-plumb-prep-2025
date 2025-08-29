@@ -16,7 +16,8 @@ import {
   Headphones,
   MessageSquare,
   Bookmark,
-  NotebookPen
+  NotebookPen,
+  Lock
 } from "lucide-react";
 import { Link } from "wouter";
 
@@ -58,6 +59,11 @@ export default function CourseContent() {
 
   const { data: content, isLoading } = useQuery<CourseContent[]>({
     queryKey: [`/api/courses/${courseId}/content`],
+  });
+
+  const { data: sectionProgress } = useQuery<Array<{section: number, isUnlocked: boolean, isAdmin: boolean}>>({
+    queryKey: [`/api/section-progress/${courseId}`],
+    enabled: !!courseId,
   });
 
   if (isLoading) {
@@ -192,8 +198,14 @@ export default function CourseContent() {
             const progress = 0;
             const contentCount = sectionItems.length;
             
+            // Check if this section is unlocked
+            const sectionNum = Number(section);
+            const sectionStatus = sectionProgress?.find(s => s.section === sectionNum);
+            const isUnlocked = sectionStatus?.isUnlocked ?? false;
+            const isAdmin = sectionStatus?.isAdmin ?? false;
+            
             return (
-              <Card key={section} className="hover:shadow-md transition-shadow" data-testid={`lesson-card-${section}`}>
+              <Card key={section} className={`hover:shadow-md transition-shadow ${!isUnlocked ? 'opacity-60' : ''}`} data-testid={`lesson-card-${section}`}>
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
                     <div className="flex-1">
@@ -204,6 +216,17 @@ export default function CourseContent() {
                         <Badge variant="outline" data-testid={`lesson-content-count-${section}`}>
                           {contentCount} parts
                         </Badge>
+                        {!isUnlocked && (
+                          <Badge variant="secondary" className="bg-red-100 text-red-800">
+                            <Lock className="w-3 h-3 mr-1" />
+                            Locked
+                          </Badge>
+                        )}
+                        {isAdmin && (
+                          <Badge variant="secondary" className="bg-yellow-100 text-yellow-800">
+                            Admin Access
+                          </Badge>
+                        )}
                       </div>
                       <h3 className="text-lg font-semibold text-foreground mb-1" data-testid={`lesson-title-${section}`}>
                         Louisiana State Plumbing Code §{section}
@@ -242,18 +265,36 @@ export default function CourseContent() {
                           <span>Quiz</span>
                         </div>
                       </div>
+                      
+                      {!isUnlocked && !isAdmin && (
+                        <p className="text-xs text-red-600 mt-2">
+                          🔒 Complete the previous section's quiz with 70%+ to unlock
+                        </p>
+                      )}
                     </div>
                     
                     <div className="ml-4">
-                      <Button 
-                        asChild
-                        data-testid={`button-start-lesson-${section}`}
-                      >
-                        <Link href={`/course/${course.id}/lesson/${section}`}>
-                          <Play className="w-4 h-4 mr-2" />
-                          {progress > 0 ? "Continue" : "Start"}
-                        </Link>
-                      </Button>
+                      {isUnlocked ? (
+                        <Button 
+                          asChild
+                          data-testid={`button-start-lesson-${section}`}
+                        >
+                          <Link href={`/course/${course.id}/lesson/${section}`}>
+                            <Play className="w-4 h-4 mr-2" />
+                            {progress > 0 ? "Continue" : "Start"}
+                          </Link>
+                        </Button>
+                      ) : (
+                        <Button 
+                          disabled
+                          variant="secondary"
+                          className="opacity-50"
+                          data-testid={`button-locked-lesson-${section}`}
+                        >
+                          <Lock className="w-4 h-4 mr-2" />
+                          Locked
+                        </Button>
+                      )}
                     </div>
                   </div>
                 </CardContent>

@@ -15,7 +15,8 @@ import {
   NotebookPen,
   HelpCircle,
   ChevronRight,
-  ArrowLeft
+  ArrowLeft,
+  Lock
 } from "lucide-react";
 
 interface CourseContent {
@@ -56,6 +57,11 @@ export default function Lesson() {
     queryKey: [`/api/courses/${courseId}/content`],
   });
 
+  const { data: sectionProgress } = useQuery<Array<{section: number, isUnlocked: boolean, isAdmin: boolean}>>({
+    queryKey: [`/api/section-progress/${courseId}`],
+    enabled: !!courseId,
+  });
+
   // Filter content for this specific section and sort by the desired order
   const sectionContent = allContent?.filter(item => {
     const itemSection = item.section?.toString();
@@ -91,6 +97,35 @@ export default function Lesson() {
 
   if (!course || !sortedContent || sortedContent.length === 0) {
     return <div>Lesson not found</div>;
+  }
+
+  // Check if this section is unlocked
+  const sectionNum = Number(section);
+  const sectionStatus = sectionProgress?.find(s => s.section === sectionNum);
+  const isUnlocked = sectionStatus?.isUnlocked ?? false;
+  const isAdmin = sectionStatus?.isAdmin ?? false;
+
+  // If section is locked and user is not admin, show locked message
+  if (!isUnlocked && !isAdmin && sectionProgress) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <div className="text-center">
+          <div className="bg-red-50 border border-red-200 rounded-lg p-8 max-w-md mx-auto">
+            <Lock className="w-12 h-12 text-red-500 mx-auto mb-4" />
+            <h2 className="text-xl font-semibold text-red-800 mb-2">Section Locked</h2>
+            <p className="text-red-600 mb-4">
+              You need to complete the previous section's quiz with 70% or higher to unlock this section.
+            </p>
+            <Button asChild variant="outline">
+              <Link href={`/course/${courseId}`}>
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                Back to Course
+              </Link>
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   const getTypeIcon = (type: string) => {
@@ -149,9 +184,16 @@ export default function Lesson() {
       <div className="bg-gradient-to-r from-primary/10 to-accent/10 rounded-lg p-6 mb-8">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <Badge className="mb-2" data-testid={`lesson-section-${section}`}>
-              Section {section}
-            </Badge>
+            <div className="flex items-center gap-2 mb-2">
+              <Badge data-testid={`lesson-section-${section}`}>
+                Section {section}
+              </Badge>
+              {isAdmin && (
+                <Badge variant="secondary" className="bg-yellow-100 text-yellow-800">
+                  Admin Access
+                </Badge>
+              )}
+            </div>
             <h1 className="text-3xl font-bold text-foreground mb-2" data-testid="lesson-title">
               Louisiana State Plumbing Code §{section}
             </h1>
