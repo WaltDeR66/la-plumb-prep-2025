@@ -1231,92 +1231,84 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Please provide a valid Amazon URL" });
       }
 
-      // Import puppeteer for web scraping
-      const puppeteer = await import('puppeteer');
+      // Use node-fetch to get the page content
+      const fetch = await import('node-fetch');
+      const cheerio = await import('cheerio');
       
-      const browser = await puppeteer.default.launch({ 
-        headless: true,
-        args: ['--no-sandbox', '--disable-setuid-sandbox']
+      const response = await fetch.default(url, {
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+        }
       });
-      const page = await browser.newPage();
       
-      // Set user agent to avoid blocking
-      await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36');
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
       
-      await page.goto(url, { waitUntil: 'networkidle0' });
+      const html = await response.text();
+      const $ = cheerio.load(html);
       
-      // Extract product information
-      const productData = await page.evaluate(() => {
-        const getTextContent = (selector: string) => {
-          const element = document.querySelector(selector);
-          return element ? element.textContent?.trim() : '';
-        };
-        
-        const getImageSrc = (selector: string) => {
-          const element = document.querySelector(selector) as HTMLImageElement;
-          return element ? element.src : '';
-        };
+      // Extract product information using jQuery-like selectors
+      const name = $('#productTitle').text().trim() || 
+                  $('[data-automation-id="product-title"]').text().trim() ||
+                  $('h1.a-size-large').text().trim();
 
-        // Product name
-        const name = getTextContent('#productTitle') || 
-                    getTextContent('[data-automation-id="product-title"]') ||
-                    getTextContent('h1.a-size-large');
+      // Price extraction
+      let price = '';
+      const priceWhole = $('.a-price-whole').first().text().trim();
+      const priceFraction = $('.a-price-fraction').first().text().trim();
+      if (priceWhole && priceFraction) {
+        price = `${priceWhole}.${priceFraction}`;
+      } else {
+        price = $('.a-price .a-offscreen').first().text().trim() ||
+               $('[data-automation-id="price"]').first().text().trim();
+      }
+      price = price.replace(/[^0-9.]/g, '');
 
-        // Price
-        const priceWhole = getTextContent('.a-price-whole');
-        const priceFraction = getTextContent('.a-price-fraction');
-        const price = priceWhole && priceFraction ? 
-          `${priceWhole}.${priceFraction}` : 
-          getTextContent('.a-price .a-offscreen') || 
-          getTextContent('[data-automation-id="price"]') || '';
+      // Image
+      const imageUrl = $('#landingImage').attr('src') || 
+                      $('[data-automation-id="product-image"]').attr('src') ||
+                      $('.a-dynamic-image').first().attr('src') || '';
 
-        // Image
-        const imageUrl = getImageSrc('#landingImage') || 
-                        getImageSrc('[data-automation-id="product-image"]') ||
-                        getImageSrc('.a-dynamic-image');
+      // Description
+      let description = $('#feature-bullets ul').text().trim() || 
+                       $('[data-automation-id="product-overview"]').text().trim() ||
+                       $('#productDescription p').text().trim();
+      
+      // Clean up description
+      description = description.replace(/\s+/g, ' ').trim();
 
-        // Description/Features
-        const description = getTextContent('#feature-bullets ul') || 
-                           getTextContent('[data-automation-id="product-overview"]') ||
-                           getTextContent('#productDescription p') || '';
+      // Brand
+      const brand = $('#bylineInfo_feature_div .a-color-secondary').text().trim() ||
+                   $('[data-automation-id="product-brand"]').text().trim() ||
+                   $('.po-brand .po-break-word').text().trim();
 
-        // Brand
-        const brand = getTextContent('#bylineInfo_feature_div .a-color-secondary') ||
-                     getTextContent('[data-automation-id="product-brand"]') ||
-                     getTextContent('.po-brand .po-break-word') || '';
-
-        // Features list
-        const featureElements = document.querySelectorAll('#feature-bullets li, .a-unordered-list li');
-        const features: string[] = [];
-        featureElements.forEach(el => {
-          const text = el.textContent?.trim();
-          if (text && text.length > 10 && !text.includes('Make sure') && !text.includes('See more')) {
-            features.push(text);
-          }
-        });
-
-        return {
-          name: name || '',
-          price: price.replace(/[^0-9.]/g, '') || '',
-          imageUrl: imageUrl || '',
-          description: description || '',
-          brand: brand || '',
-          features: features.slice(0, 8) // Limit to 8 features
-        };
+      // Features
+      const features: string[] = [];
+      $('#feature-bullets li, .a-unordered-list li').each((_, el) => {
+        const text = $(el).text().trim();
+        if (text && text.length > 10 && !text.includes('Make sure') && !text.includes('See more')) {
+          features.push(text);
+        }
       });
-
-      await browser.close();
 
       // Add the affiliate tag to the URL
       const affiliateUrl = url.includes('tag=') ? url : 
         url + (url.includes('?') ? '&' : '?') + 'tag=laplumbprep-20';
 
-      res.json({
-        ...productData,
+      const productData = {
+        name: name || '',
+        price: price || '',
+        imageUrl: imageUrl || '',
+        description: description || '',
+        brand: brand || '',
+        features: features.slice(0, 8),
         amazonUrl: affiliateUrl,
-        shortDescription: productData.description.substring(0, 150) + (productData.description.length > 150 ? '...' : ''),
+        shortDescription: description.substring(0, 150) + (description.length > 150 ? '...' : ''),
         success: true
-      });
+      };
+
+      res.json(productData);
 
     } catch (error: any) {
       console.error('Amazon extraction error:', error);
