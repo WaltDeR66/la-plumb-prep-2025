@@ -220,6 +220,7 @@ export default function ContentViewer({ contentId, contentType, title, courseId,
     // Clean up all formatting for audio reading and display
     if (text) {
       text = text
+        .replace(/\*\[This would be.*?\]\*/g, '')  // Remove placeholder instructions
         .replace(/\\n\\n/g, '\n\n')  // Convert literal \n\n to actual line breaks
         .replace(/\\n/g, ' ')  // Convert literal \n to spaces
         .replace(/\*\*(.*?)\*\*/g, '$1')  // Remove bold markers **text**
