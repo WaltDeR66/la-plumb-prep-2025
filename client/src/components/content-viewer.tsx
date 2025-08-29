@@ -166,7 +166,7 @@ export default function ContentViewer({ contentId, contentType, title, courseId,
         }, 1000); // Small delay to let component render
       }
     }
-  }, [contentType, content?.content?.extracted?.transcript, content?.content?.extracted?.audioUrl]);
+  }, [contentType, content?.content?.extracted?.content, content?.content?.extracted?.text, content?.content?.extracted?.audioUrl]);
 
   const extractMutation = useMutation({
     mutationFn: () => fetch(`/api/extract-content/${contentId}`, { 
@@ -735,8 +735,16 @@ export default function ContentViewer({ contentId, contentType, title, courseId,
                   {!isPlaying && !isPaused && !currentSentence && (
                     <div className="text-center p-6">
                       <div className="text-gray-600 mb-4">
-                        🎧 Podcast will start automatically when you enter this page
+                        🎧 Click to start the podcast
                       </div>
+                      <Button
+                        onClick={handlePlayAudio}
+                        size="lg"
+                        className="flex items-center space-x-2"
+                      >
+                        <Play className="w-5 h-5" />
+                        <span>Start Podcast</span>
+                      </Button>
                     </div>
                   )}
                 </div>
