@@ -1268,9 +1268,9 @@ export default function ContentViewer({ contentId, contentType, title, courseId,
                   key={index}
                   className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
                 >
-                  <div className={`flex items-start space-x-2 max-w-[80%]`}>
+                  <div className="w-full">
                     <div
-                      className={`p-3 rounded-lg ${
+                      className={`p-3 rounded-lg w-full ${
                         message.role === 'user'
                           ? 'bg-blue-500 text-white'
                           : 'bg-gray-100 text-gray-900'
@@ -1278,29 +1278,12 @@ export default function ContentViewer({ contentId, contentType, title, courseId,
                     >
                       <p className="whitespace-pre-wrap">{message.content}</p>
                     </div>
-                    
-                    {/* Audio control for assistant messages */}
-                    {message.role === 'assistant' && message.id && (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => currentPlayingId === message.id ? stopSpeech() : playMessageWithSpeech(message.content, message.id!)}
-                        className="mt-2 h-8 w-8 p-0"
-                        data-testid={`audio-button-${message.id}`}
-                      >
-                        {currentPlayingId === message.id ? (
-                          <Pause className="w-4 h-4" />
-                        ) : (
-                          <Volume2 className="w-4 h-4" />
-                        )}
-                      </Button>
-                    )}
                   </div>
                 </div>
               ))}
               {isChatLoading && (
                 <div className="flex justify-start">
-                  <div className="bg-gray-100 p-3 rounded-lg">
+                  <div className="bg-gray-100 p-3 rounded-lg w-full">
                     <Loader2 className="w-4 h-4 animate-spin" />
                   </div>
                 </div>
