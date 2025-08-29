@@ -105,7 +105,7 @@ export default function Lesson() {
   const isUnlocked = sectionStatus?.isUnlocked ?? false;
   const isAdmin = sectionStatus?.isAdmin ?? false;
 
-  // If section is locked and user is not admin, show locked message
+  // For demo purposes, don't show locked message for admin users
   if (!isUnlocked && !isAdmin && sectionProgress) {
     return (
       <div className="container mx-auto px-4 py-8">
@@ -184,16 +184,9 @@ export default function Lesson() {
       <div className="bg-gradient-to-r from-primary/10 to-accent/10 rounded-lg p-6 mb-8">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <div className="flex items-center gap-2 mb-2">
-              <Badge data-testid={`lesson-section-${section}`}>
-                Section {section}
-              </Badge>
-              {isAdmin && (
-                <Badge variant="secondary" className="bg-yellow-100 text-yellow-800">
-                  Admin Access
-                </Badge>
-              )}
-            </div>
+            <Badge className="mb-2" data-testid={`lesson-section-${section}`}>
+              Section {section}
+            </Badge>
             <h1 className="text-3xl font-bold text-foreground mb-2" data-testid="lesson-title">
               Louisiana State Plumbing Code §{section}
             </h1>

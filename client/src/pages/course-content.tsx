@@ -204,9 +204,9 @@ export default function CourseContent() {
             const isUnlocked = sectionStatus?.isUnlocked ?? false;
             const isAdmin = sectionStatus?.isAdmin ?? false;
             
-            // For regular users, only first section (101) should be unlocked by default
-            // For admin users, show they have admin access but still show proper locking UI for demo purposes
-            const shouldShowAsLocked = !isUnlocked && !isAdmin;
+            // For demo purposes, show proper locking UI even for admins
+            // Only Section 101 should appear unlocked, others should show locks
+            const shouldShowAsLocked = sectionNum !== 101;
             
             return (
               <Card key={section} className={`hover:shadow-md transition-shadow ${!isUnlocked ? 'opacity-60' : ''}`} data-testid={`lesson-card-${section}`}>
@@ -224,11 +224,6 @@ export default function CourseContent() {
                           <Badge variant="secondary" className="bg-red-100 text-red-800">
                             <Lock className="w-3 h-3 mr-1" />
                             Locked
-                          </Badge>
-                        )}
-                        {isAdmin && (
-                          <Badge variant="secondary" className="bg-yellow-100 text-yellow-800">
-                            Admin Access
                           </Badge>
                         )}
                       </div>
@@ -290,10 +285,11 @@ export default function CourseContent() {
                         <Button 
                           asChild
                           data-testid={`button-start-lesson-${section}`}
+                          className={shouldShowAsLocked ? "opacity-75" : ""}
                         >
                           <Link href={`/course/${course.id}/lesson/${section}`}>
-                            <Play className="w-4 h-4 mr-2" />
-                            {progress > 0 ? "Continue" : "Start"}
+                            {shouldShowAsLocked ? <Lock className="w-4 h-4 mr-2" /> : <Play className="w-4 h-4 mr-2" />}
+                            {shouldShowAsLocked ? "Locked" : (progress > 0 ? "Continue" : "Start")}
                           </Link>
                         </Button>
                       ) : (
