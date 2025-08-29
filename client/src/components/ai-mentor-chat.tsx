@@ -196,23 +196,13 @@ export default function AIMentorChat() {
                 {messages.map((message, index) => (
                   <div
                     key={index}
-                    className={`flex items-start space-x-3 ${
-                      message.role === "user" ? "flex-row-reverse space-x-reverse" : ""
+                    className={`flex ${
+                      message.role === "user" ? "justify-end" : "justify-start"
                     }`}
                     data-testid={`message-${index}`}
                   >
-                    <Avatar className="w-8 h-8">
-                      <AvatarFallback>
-                        {message.role === "user" ? (
-                          <User className="w-4 h-4" />
-                        ) : (
-                          <Bot className="w-4 h-4 text-primary" />
-                        )}
-                      </AvatarFallback>
-                    </Avatar>
-                    
                     <div
-                      className={`max-w-[80%] p-3 rounded-lg ${
+                      className={`w-full p-3 rounded-lg ${
                         message.role === "user"
                           ? "bg-primary text-primary-foreground"
                           : "bg-muted"
@@ -227,13 +217,8 @@ export default function AIMentorChat() {
                 ))}
                 
                 {chatMutation.isPending && (
-                  <div className="flex items-start space-x-3">
-                    <Avatar className="w-8 h-8">
-                      <AvatarFallback>
-                        <Bot className="w-4 h-4 text-primary" />
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="bg-muted p-3 rounded-lg">
+                  <div className="flex justify-start">
+                    <div className="bg-muted p-3 rounded-lg w-full">
                       <div className="flex items-center space-x-1">
                         <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce"></div>
                         <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
