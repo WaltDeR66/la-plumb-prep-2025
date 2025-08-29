@@ -204,6 +204,10 @@ export default function CourseContent() {
             const isUnlocked = sectionStatus?.isUnlocked ?? false;
             const isAdmin = sectionStatus?.isAdmin ?? false;
             
+            // For regular users, only first section (101) should be unlocked by default
+            // For admin users, show they have admin access but still show proper locking UI for demo purposes
+            const shouldShowAsLocked = !isUnlocked && !isAdmin;
+            
             return (
               <Card key={section} className={`hover:shadow-md transition-shadow ${!isUnlocked ? 'opacity-60' : ''}`} data-testid={`lesson-card-${section}`}>
                 <CardContent className="p-6">
@@ -216,7 +220,7 @@ export default function CourseContent() {
                         <Badge variant="outline" data-testid={`lesson-content-count-${section}`}>
                           {contentCount} parts
                         </Badge>
-                        {!isUnlocked && (
+                        {shouldShowAsLocked && (
                           <Badge variant="secondary" className="bg-red-100 text-red-800">
                             <Lock className="w-3 h-3 mr-1" />
                             Locked
@@ -247,7 +251,7 @@ export default function CourseContent() {
                       )}
                       
                       {/* Content overview */}
-                      <div className="flex items-center space-x-4 text-xs text-muted-foreground">
+                      <div className="flex items-center space-x-3 text-xs text-muted-foreground flex-wrap">
                         <div className="flex items-center space-x-1">
                           <BookOpen className="w-3 h-3" />
                           <span>Introduction</span>
@@ -261,12 +265,20 @@ export default function CourseContent() {
                           <span>Chat</span>
                         </div>
                         <div className="flex items-center space-x-1">
+                          <Bookmark className="w-3 h-3" />
+                          <span>Flashcards</span>
+                        </div>
+                        <div className="flex items-center space-x-1">
+                          <NotebookPen className="w-3 h-3" />
+                          <span>Study Notes</span>
+                        </div>
+                        <div className="flex items-center space-x-1">
                           <Star className="w-3 h-3" />
                           <span>Quiz</span>
                         </div>
                       </div>
                       
-                      {!isUnlocked && !isAdmin && (
+                      {shouldShowAsLocked && (
                         <p className="text-xs text-red-600 mt-2">
                           🔒 Complete the previous section's quiz with {sectionTitle.toLowerCase().includes('chapter review') ? '80%' : '70%'}+ to unlock
                         </p>
@@ -274,7 +286,7 @@ export default function CourseContent() {
                     </div>
                     
                     <div className="ml-4">
-                      {isUnlocked ? (
+                      {(isUnlocked || isAdmin) ? (
                         <Button 
                           asChild
                           data-testid={`button-start-lesson-${section}`}

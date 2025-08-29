@@ -686,8 +686,8 @@ export class DatabaseStorage implements IStorage {
   }
 
   async isSectionUnlocked(userId: string, courseId: string, chapter: number, section: number): Promise<boolean> {
-    // First section (chapter 1, section 1) is always unlocked
-    if (chapter === 1 && section === 1) {
+    // First section (section 101) is always unlocked
+    if (section === 101) {
       return true;
     }
 
