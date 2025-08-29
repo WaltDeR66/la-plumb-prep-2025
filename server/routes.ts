@@ -282,8 +282,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const userId = (req.user as any).id;
       const user = req.user as any;
       
-      // Check if user is admin (admin email or subscription tier)
+      // Check if user is admin (admin email or subscription tier)  
       const isAdmin = user.email?.includes('admin') || user.subscriptionTier === 'master';
+      
+      // For demo purposes, let's make admin more restrictive - only specific admin emails
+      const isSuperAdmin = user.email === 'admin@latrainer.com' || user.email === 'admin@laplumbprep.com';
       
       // Get all course content to determine sections
       const content = await storage.getCourseContent(courseId);
@@ -293,12 +296,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       for (const section of sections) {
         const sectionNum = Number(section);
-        const isUnlocked = isAdmin || await storage.isSectionUnlocked(userId, courseId, 1, sectionNum);
+        const isUnlocked = isSuperAdmin || await storage.isSectionUnlocked(userId, courseId, 1, sectionNum);
         
         sectionStatus.push({
           section: sectionNum,
           isUnlocked,
-          isAdmin
+          isAdmin: isSuperAdmin
         });
       }
       
