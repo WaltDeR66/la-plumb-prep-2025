@@ -412,7 +412,10 @@ export default function ContentViewer({ contentId, contentType, title, courseId,
       questions = parseQuestionsFromText(content.content.extracted.content);
     }
     
-    const passingScore = content.content?.extracted?.passingScore || 70;
+    // Chapter Review sections require 80%, all others require 70%
+    const isChapterReview = content.title?.toLowerCase().includes('chapter review') || 
+                           content.title?.toLowerCase().includes('review') && content.title?.toLowerCase().includes('chapter');
+    const passingScore = isChapterReview ? 80 : (content.content?.extracted?.passingScore || 70);
     
     
     if (questions.length === 0) {
@@ -449,7 +452,10 @@ export default function ContentViewer({ contentId, contentType, title, courseId,
 
     const submitQuiz = async () => {
       setIsSubmittingQuiz(true);
-      const passingScore = content?.content?.extracted?.passingScore || 70;
+      // Chapter Review sections require 80%, all others require 70%
+      const isChapterReview = content.title?.toLowerCase().includes('chapter review') || 
+                             content.title?.toLowerCase().includes('review') && content.title?.toLowerCase().includes('chapter');
+      const passingScore = isChapterReview ? 80 : (content?.content?.extracted?.passingScore || 70);
       
       try {
         // Record the last answer if not already saved
@@ -543,6 +549,11 @@ export default function ContentViewer({ contentId, contentType, title, courseId,
             <p className={`text-lg font-semibold ${quizScore >= passingScore ? 'text-green-600' : 'text-red-600'}`}>
               {quizScore >= passingScore ? '🎉 PASSED!' : `❌ FAILED - Need ${passingScore}% to pass`}
             </p>
+            {isChapterReview && (
+              <p className="text-sm text-blue-600 font-medium mt-2">
+                📚 Chapter Review - Higher passing score required (80%)
+              </p>
+            )}
           </div>
 
           {incorrectQuizAnswers.length > 0 && (
@@ -591,7 +602,14 @@ export default function ContentViewer({ contentId, contentType, title, courseId,
     return (
       <div className="space-y-6">
         <div className="flex justify-between items-center">
-          <h3 className="text-xl font-semibold">Louisiana Plumbing Code Quiz</h3>
+          <div className="flex items-center gap-3">
+            <h3 className="text-xl font-semibold">Louisiana Plumbing Code Quiz</h3>
+            {isChapterReview && (
+              <Badge className="bg-blue-100 text-blue-800">
+                📚 Chapter Review - 80% Required
+              </Badge>
+            )}
+          </div>
           <Badge variant="outline">
             Question {currentQuestion + 1} of {questions.length}
           </Badge>

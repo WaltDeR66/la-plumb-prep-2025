@@ -268,7 +268,7 @@ export default function CourseContent() {
                       
                       {!isUnlocked && !isAdmin && (
                         <p className="text-xs text-red-600 mt-2">
-                          🔒 Complete the previous section's quiz with 70%+ to unlock
+                          🔒 Complete the previous section's quiz with {sectionTitle.toLowerCase().includes('chapter review') ? '80%' : '70%'}+ to unlock
                         </p>
                       )}
                     </div>

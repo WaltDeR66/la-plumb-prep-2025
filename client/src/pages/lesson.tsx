@@ -114,7 +114,7 @@ export default function Lesson() {
             <Lock className="w-12 h-12 text-red-500 mx-auto mb-4" />
             <h2 className="text-xl font-semibold text-red-800 mb-2">Section Locked</h2>
             <p className="text-red-600 mb-4">
-              You need to complete the previous section's quiz with 70% or higher to unlock this section.
+              You need to complete the previous section's quiz with {sortedContent[0]?.title?.toLowerCase().includes('chapter review') ? '80%' : '70%'} or higher to unlock this section.
             </p>
             <Button asChild variant="outline">
               <Link href={`/course/${courseId}`}>
