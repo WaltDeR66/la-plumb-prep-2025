@@ -202,8 +202,8 @@ export default function ProductManager() {
 
     const productData = {
       ...form,
-      price: parseFloat(form.price),
-      originalPrice: form.originalPrice ? parseFloat(form.originalPrice) : undefined,
+      price: form.price.toString(),
+      originalPrice: form.originalPrice ? form.originalPrice.toString() : undefined,
       features: Array.isArray(form.features) ? form.features : [],
       tags: Array.isArray(form.tags) ? form.tags : [],
     };
