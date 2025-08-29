@@ -217,14 +217,17 @@ export default function ContentViewer({ contentId, contentType, title, courseId,
     const extracted = content?.content?.extracted;
     let text = extracted?.content || extracted?.html || extracted?.text || '';
     
-    // Clean up all formatting for audio reading
+    // Clean up all formatting for audio reading and display
     if (text) {
       text = text
-        .replace(/\\n/g, ' ')  // Replace \n with spaces
-        .replace(/\*\*(.*?)\*\*/g, '$1')  // Remove bold markers
-        .replace(/### (.*$)/gm, '$1')  // Remove header markers
-        .replace(/## (.*$)/gm, '$1')
-        .replace(/# (.*$)/gm, '$1')
+        .replace(/\\n\\n/g, '\n\n')  // Convert literal \n\n to actual line breaks
+        .replace(/\\n/g, ' ')  // Convert literal \n to spaces
+        .replace(/\*\*(.*?)\*\*/g, '$1')  // Remove bold markers **text**
+        .replace(/### (.*$)/gm, '$1')  // Remove ### headers
+        .replace(/## (.*$)/gm, '$1')   // Remove ## headers
+        .replace(/# (.*$)/gm, '$1')    // Remove # headers
+        .replace(/\(\d{1,2}:\d{2}-\d{1,2}:\d{2}\)/g, '')  // Remove timestamps (0:00-1:30)
+        .replace(/###\s*/g, '')  // Remove any remaining ###
         .replace(/\s+/g, ' ')  // Replace multiple spaces with single space
         .trim();
     }
