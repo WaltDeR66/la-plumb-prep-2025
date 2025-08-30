@@ -276,19 +276,12 @@ export default function Pricing() {
           <p className="text-xl text-blue-100 mb-8" data-testid="cta-description">
             Join thousands of Louisiana plumbers who have successfully advanced their careers with our comprehensive training programs.
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <div className="flex justify-center">
             <Link href="#pricing-plans">
               <Button size="lg" className="bg-white text-primary hover:bg-gray-50 text-lg px-8 py-4" data-testid="cta-button-start">
                 Get Started Today
               </Button>
             </Link>
-            <a 
-              href="mailto:support@laplumbprep.com"
-              className="inline-flex items-center justify-center border-2 border-white text-white hover:bg-white hover:text-primary text-lg px-8 py-4 rounded-md font-medium transition-colors"
-              data-testid="cta-button-contact"
-            >
-              Contact Sales
-            </a>
           </div>
         </div>
       </section>
