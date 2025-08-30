@@ -12,7 +12,7 @@ export default function Footer() {
 
   const supportLinks = [
     { name: "Help Center", href: "#" },
-    { name: "Contact Us", href: "#" },
+    { name: "Contact Us", href: "mailto:support@laplumbprep.com" },
     { name: "Louisiana State Board", href: "#" },
     { name: "Technical Support", href: "#" },
     { name: "System Status", href: "#" },
