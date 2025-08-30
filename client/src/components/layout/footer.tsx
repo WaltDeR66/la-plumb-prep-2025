@@ -72,9 +72,13 @@ export default function Footer() {
             <h4 className="text-lg font-semibold mb-4" data-testid="footer-support-title">Support</h4>
             <ul className="space-y-2 text-background/70">
               <li>
-                <button className="hover:text-background transition-colors text-left block cursor-pointer" data-testid="footer-support-link-0">
+                <a 
+                  href="/help"
+                  className="hover:text-background transition-colors text-left block cursor-pointer" 
+                  data-testid="footer-support-link-0"
+                >
                   Help Center
-                </button>
+                </a>
               </li>
               <li>
                 <button 

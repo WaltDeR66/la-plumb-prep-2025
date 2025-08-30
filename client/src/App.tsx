@@ -24,6 +24,7 @@ import JobAnalytics from "@/pages/employer/job-analytics";
 import Privacy from "@/pages/privacy";
 import Terms from "@/pages/terms";
 import Accessibility from "@/pages/accessibility";
+import Help from "@/pages/help";
 import Header from "@/components/layout/header";
 import Footer from "@/components/layout/footer";
 
@@ -53,6 +54,7 @@ function Router() {
           <Route path="/privacy" component={Privacy} />
           <Route path="/terms" component={Terms} />
           <Route path="/accessibility" component={Accessibility} />
+          <Route path="/help" component={Help} />
           <Route component={NotFound} />
         </Switch>
       </main>
