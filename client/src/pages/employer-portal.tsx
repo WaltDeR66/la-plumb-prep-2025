@@ -20,7 +20,11 @@ const employerSchema = z.object({
   contactName: z.string().min(2, "Contact name is required"),
   contactEmail: z.string().email("Valid email is required"),
   contactPhone: z.string().optional(),
-  companyWebsite: z.string().url().optional().or(z.literal("")),
+  companyWebsite: z.string().optional().refine((val) => {
+    if (!val || val === "") return true;
+    const urlPattern = /^(https?:\/\/)?(www\.)?[a-zA-Z0-9-]+(\.[a-zA-Z]{2,})+(\S*)?$/;
+    return urlPattern.test(val);
+  }, "Please enter a valid website URL"),
   companyDescription: z.string().min(10, "Please provide a brief company description"),
   address: z.string().min(5, "Address is required"),
   city: z.string().min(2, "City is required"),
@@ -416,7 +420,7 @@ export default function EmployerPortal() {
             <Card data-testid="pricing-form">
               <CardHeader>
                 <CardTitle className="flex items-center space-x-2">
-                  <DollarSign className="w-6 h-6" />
+                  <BarChart3 className="w-6 h-6" />
                   <span>Job Posting Plans</span>
                 </CardTitle>
               </CardHeader>
@@ -449,8 +453,7 @@ export default function EmployerPortal() {
                         </li>
                       </ul>
                       <Button 
-                        className="w-full" 
-                        variant="outline"
+                        className="w-full bg-primary hover:bg-primary/90 text-white" 
                         onClick={() => setStep('job')}
                         data-testid="select-basic-plan"
                       >
