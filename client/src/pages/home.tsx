@@ -19,7 +19,7 @@ export default function Home() {
       id: "backflow",
       title: "Backflow Prevention",
       description: "Specialized certification for backflow prevention assembly testing and maintenance.",
-      price: "$49/mo",
+      price: "Coming Soon",
       icon: Calculator,
       features: ["Device Testing Modules", "Cross-Connection Control", "Field Reports Training"]
     },
@@ -27,7 +27,7 @@ export default function Home() {
       id: "natural-gas",
       title: "Natural Gas",
       description: "Gas line installation, pressure testing, and safety protocols for natural gas systems.",
-      price: "$59/mo",
+      price: "Coming Soon",
       icon: Building2,
       features: ["Pressure Testing Procedures", "Safety Protocols", "Code Compliance"]
     },
@@ -35,7 +35,7 @@ export default function Home() {
       id: "medical-gas",
       title: "Medical Gas",
       description: "Hospital and healthcare facility gas systems installation and maintenance certification.",
-      price: "$69/mo",
+      price: "Coming Soon",
       icon: Building2,
       features: ["NFPA 99 Standards", "Critical Care Systems", "Purity Testing"]
     },
@@ -43,7 +43,7 @@ export default function Home() {
       id: "master",
       title: "Master Plumber",
       description: "Advanced business operations, code interpretation, and supervisory responsibilities.",
-      price: "$99/mo",
+      price: "Coming Soon",
       icon: Star,
       features: ["Business Law & Operations", "Advanced Code Interpretation", "Project Management"],
       badge: "Most Advanced"
@@ -154,14 +154,11 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div>
-              <Badge className="bg-accent text-accent-foreground mb-4" data-testid="approval-badge">
-                Louisiana State Approved
-              </Badge>
               <h1 className="text-4xl lg:text-6xl font-bold mb-6 leading-tight" data-testid="hero-title">
                 Master Your Plumbing Career in Louisiana
               </h1>
               <p className="text-xl text-blue-100 mb-8 leading-relaxed" data-testid="hero-description">
-                Comprehensive prep courses for Journeyman, Backflow, Natural Gas, Medical Gas, and Master Plumber certifications. Get certified with confidence.
+                Comprehensive prep courses for Journeyman, Backflow, Natural Gas, Medical Gas, and Master Plumber certifications. Take your Louisiana plumbing test with confidence that you will pass the first time.
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
                 <Link href="/pricing">
