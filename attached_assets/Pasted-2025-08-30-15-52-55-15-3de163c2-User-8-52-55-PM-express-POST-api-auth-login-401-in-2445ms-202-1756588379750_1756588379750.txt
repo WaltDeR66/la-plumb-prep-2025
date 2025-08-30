@@ -1,0 +1,148 @@
+2025-08-30 15:52:55.15
+3de163c2
+User
+8:52:55 PM [express] POST /api/auth/login 401 in 2445ms
+2025-08-30 15:56:00.84
+3de163c2
+User
+Processing 0 pending emails
+2025-08-30 15:58:38.25
+3de163c2
+User
+8:58:38 PM [express] POST /api/auth/login 401 in 493ms
+2025-08-30 16:01:00.44
+3de163c2
+User
+Processing 0 pending emails
+2025-08-30 16:02:12.61
+3de163c2
+User
+9:02:12 PM [express] POST /api/auth/login 401 in 116ms
+2025-08-30 16:02:17.38
+3de163c2
+User
+9:02:17 PM [express] GET /api/auth/me 401 in 2ms :: {"message":"Not authenticated"}
+2025-08-30 16:02:19.98
+3de163c2
+User
+9:02:19 PM [express] POST /api/auth/login 401 in 24ms
+2025-08-30 16:03:23.63
+3de163c2
+User
+9:03:23 PM [express] POST /api/auth/login 401 in 109ms
+2025-08-30 16:06:02.83
+3de163c2
+User
+Processing 0 pending emails
+2025-08-30 16:06:21.31
+234052c3
+System
+starting up user application
+2025-08-30 16:06:21.71
+234052c3
+System
+forwarding local port 5000 to external port 80 (mapped as 1104)
+2025-08-30 16:06:26.66
+234052c3
+User
+> rest-express@1.0.0 start
+2025-08-30 16:06:26.66
+234052c3
+User
+> NODE_ENV=production node dist/index.js
+2025-08-30 16:06:30.16
+234052c3
+User
+Warning: connect.session() MemoryStore is not
+2025-08-30 16:06:30.16
+234052c3
+User
+designed for a production environment, as it will leak
+2025-08-30 16:06:30.16
+234052c3
+User
+memory, and will not scale past a single process.
+2025-08-30 16:06:30.46
+234052c3
+User
+9:06:30 PM [express] serving on port 5000
+2025-08-30 16:06:33.10
+234052c3
+User
+Email campaigns already initialized
+2025-08-30 16:06:33.40
+234052c3
+User
+9:06:33 PM [express] Email automation system initialized
+2025-08-30 16:06:33.40
+234052c3
+User
+9:06:33 PM [express] Bulk pricing system initialized
+2025-08-30 16:06:58.93
+234052c3
+User
+9:06:58 PM [express] GET /api/auth/me 401 in 2ms :: {"message":"Not authenticated"}
+2025-08-30 16:07:03.29
+234052c3
+User
+9:07:03 PM [express] POST /api/auth/login 401 in 106ms
+2025-08-30 16:08:29.14
+234052c3
+User
+9:08:29 PM [express] HEAD /api/auth/me 401 in 1ms :: {"message":"Not authenticated"}
+2025-08-30 16:08:33.25
+3de163c2
+System
+system: received signal terminated
+2025-08-30 16:08:39.79
+234052c3
+User
+9:08:39 PM [express] POST /api/auth/login 401 in 457ms
+2025-08-30 16:11:36.42
+234052c3
+User
+Processing 0 pending emails
+2025-08-30 16:11:52.25
+8a0e267d
+System
+starting up user application
+2025-08-30 16:11:52.60
+8a0e267d
+System
+forwarding local port 5000 to external port 80 (mapped as 1104)
+2025-08-30 16:11:55.31
+8a0e267d
+User
+> rest-express@1.0.0 start
+2025-08-30 16:11:55.31
+8a0e267d
+User
+> NODE_ENV=production node dist/index.js
+2025-08-30 16:11:58.13
+8a0e267d
+User
+Warning: connect.session() MemoryStore is not
+2025-08-30 16:11:58.13
+8a0e267d
+User
+designed for a production environment, as it will leak
+2025-08-30 16:11:58.13
+8a0e267d
+User
+memory, and will not scale past a single process.
+2025-08-30 16:11:58.27
+8a0e267d
+User
+9:11:58 PM [express] serving on port 5000
+2025-08-30 16:11:58.47
+8a0e267d
+User
+Email campaigns already initialized
+2025-08-30 16:11:58.49
+8a0e267d
+User
+9:11:58 PM [express] Email automation system initialized
+2025-08-30 16:11:58.49
+8a0e267d
+User
+9:11:58 PM [express] Bulk pricing system initialized
