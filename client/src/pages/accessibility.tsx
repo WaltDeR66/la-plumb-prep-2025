@@ -101,7 +101,6 @@ export default function Accessibility() {
               </p>
               <div className="mt-4">
                 <p><strong>Email:</strong> support@laplumbprep.com</p>
-                <p><strong>Phone:</strong> 1-800-PLUMB-PREP</p>
                 <p><strong>Response Time:</strong> We aim to respond within 2 business days</p>
               </div>
             </CardContent>
@@ -148,7 +147,6 @@ export default function Accessibility() {
               </p>
               <div className="mt-4">
                 <p><strong>Email:</strong> support@laplumbprep.com</p>
-                <p><strong>Phone:</strong> 1-800-PLUMB-PREP (TTY available)</p>
                 <p><strong>Address:</strong> LA Plumb Prep, Louisiana, USA</p>
               </div>
             </CardContent>
