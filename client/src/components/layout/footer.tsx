@@ -60,10 +60,8 @@ export default function Footer() {
             <ul className="space-y-2 text-background/70">
               {courseLinks.map((link, index) => (
                 <li key={index}>
-                  <Link href={link.href}>
-                    <a className="hover:text-background transition-colors" data-testid={`footer-course-link-${index}`}>
-                      {link.name}
-                    </a>
+                  <Link href={link.href} className="hover:text-background transition-colors" data-testid={`footer-course-link-${index}`}>
+                    {link.name}
                   </Link>
                 </li>
               ))}
