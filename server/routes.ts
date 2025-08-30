@@ -111,36 +111,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Serve downloadable PDFs for lead magnets - MUST BE FIRST TO AVOID CONFLICTS
   app.get("/downloads/louisiana-code-guide.pdf", async (req, res) => {
     try {
-      const token = req.query.token as string;
+      const email = req.query.email as string;
       
-      if (!token) {
-        return res.redirect('/lead-magnet?error=missing_token');
+      if (!email) {
+        return res.redirect('/lead-magnet?error=email_required');
       }
 
-      // Verify token exists and is valid
+      // Check if email exists in lead magnet downloads
       const [leadRecord] = await db.select()
         .from(leadMagnetDownloads)
-        .where(eq(leadMagnetDownloads.downloadToken, token))
+        .where(eq(leadMagnetDownloads.email, email.toLowerCase()))
         .limit(1);
 
       if (!leadRecord) {
-        return res.redirect('/lead-magnet?error=invalid_token');
+        return res.redirect('/lead-magnet?error=email_not_found');
       }
-
-      // Check if token is expired
-      if (new Date() > new Date(leadRecord.tokenExpiresAt)) {
-        return res.redirect('/lead-magnet?error=expired_token');
-      }
-
-      // Check if token was already used (optional - allow multiple downloads)
-      // if (leadRecord.tokenUsed) {
-      //   return res.redirect('/lead-magnet?error=token_used');
-      // }
-
-      // Mark token as used (optional)
-      // await db.update(leadMagnetDownloads)
-      //   .set({ tokenUsed: true })
-      //   .where(eq(leadMagnetDownloads.downloadToken, token));
       
       res.setHeader('Content-Type', 'application/pdf');
       res.setHeader('Content-Disposition', 'attachment; filename="louisiana-code-guide.pdf"');
@@ -169,25 +154,20 @@ Visit laplumbprep.com/courses to start your certification prep.
 
   app.get("/downloads/louisiana-career-roadmap.pdf", async (req, res) => {
     try {
-      const token = req.query.token as string;
+      const email = req.query.email as string;
       
-      if (!token) {
-        return res.redirect('/student-lead-magnet?error=missing_token');
+      if (!email) {
+        return res.redirect('/student-lead-magnet?error=email_required');
       }
 
-      // Verify token exists and is valid
+      // Check if email exists in student lead magnet downloads
       const [leadRecord] = await db.select()
         .from(studentLeadMagnetDownloads)
-        .where(eq(studentLeadMagnetDownloads.downloadToken, token))
+        .where(eq(studentLeadMagnetDownloads.email, email.toLowerCase()))
         .limit(1);
 
       if (!leadRecord) {
-        return res.redirect('/student-lead-magnet?error=invalid_token');
-      }
-
-      // Check if token is expired
-      if (new Date() > new Date(leadRecord.tokenExpiresAt)) {
-        return res.redirect('/student-lead-magnet?error=expired_token');
+        return res.redirect('/student-lead-magnet?error=email_not_found');
       }
       
       res.setHeader('Content-Type', 'application/pdf');
@@ -2190,11 +2170,6 @@ Start your journey at laplumbprep.com/courses
         return res.status(400).json({ message: "Missing required fields" });
       }
 
-      // Generate secure download token
-      const crypto = require('crypto');
-      const downloadToken = crypto.randomBytes(64).toString('hex');
-      const tokenExpiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days
-
       // Store lead magnet download record
       const [leadRecord] = await db.insert(leadMagnetDownloads).values({
         email,
@@ -2202,8 +2177,6 @@ Start your journey at laplumbprep.com/courses
         lastName,
         companyName,
         position: position || null,
-        downloadToken,
-        tokenExpiresAt,
         leadSource: "website",
         emailSent: true
       }).returning();
@@ -2242,7 +2215,7 @@ Start your journey at laplumbprep.com/courses
                 </ul>
                 
                 <div style="text-align: center; margin: 25px 0;">
-                  <a href="${process.env.WEBSITE_URL || 'https://laplumbprep.com'}/downloads/louisiana-code-guide.pdf?token=${downloadToken}" 
+                  <a href="${process.env.WEBSITE_URL || 'https://laplumbprep.com'}/downloads/louisiana-code-guide.pdf?email=${encodeURIComponent(email)}" 
                      style="background: #059669; color: white; padding: 15px 30px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">
                     📥 Download Guide & Tools
                   </a>
@@ -2295,11 +2268,6 @@ Start your journey at laplumbprep.com/courses
         return res.status(400).json({ message: "Missing required fields" });
       }
 
-      // Generate secure download token
-      const crypto = require('crypto');
-      const downloadToken = crypto.randomBytes(64).toString('hex');
-      const tokenExpiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days
-
       // Store student lead magnet download record
       const [leadRecord] = await db.insert(studentLeadMagnetDownloads).values({
         email,
@@ -2307,8 +2275,6 @@ Start your journey at laplumbprep.com/courses
         lastName,
         currentLevel,
         goals: goals || null,
-        downloadToken,
-        tokenExpiresAt,
         leadSource: "website",
         emailSent: true
       }).returning();
@@ -2349,7 +2315,7 @@ Start your journey at laplumbprep.com/courses
                 </ul>
                 
                 <div style="text-align: center; margin: 25px 0;">
-                  <a href="${process.env.WEBSITE_URL || 'https://laplumbprep.com'}/downloads/louisiana-career-roadmap.pdf?token=${downloadToken}" 
+                  <a href="${process.env.WEBSITE_URL || 'https://laplumbprep.com'}/downloads/louisiana-career-roadmap.pdf?email=${encodeURIComponent(email)}" 
                      style="background: #7c3aed; color: white; padding: 15px 30px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">
                     📥 Download Career Roadmap & Bonuses
                   </a>
