@@ -258,9 +258,9 @@ export default function Pricing() {
             </div>
             
             <div>
-              <h3 className="text-lg font-semibold text-foreground mb-2">Is there a discount for annual payments?</h3>
+              <h3 className="text-lg font-semibold text-foreground mb-2">How does the cancel anytime policy work?</h3>
               <p className="text-muted-foreground">
-                Yes, we offer a 20% discount when you pay annually. Use the toggle above to see annual pricing and sign up directly.
+                You can cancel your subscription at any time with no penalties or fees. When you cancel, you'll only be charged for the actual days you used the service, not the full billing period.
               </p>
             </div>
           </div>
