@@ -6,12 +6,14 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Calculator, Camera, FileText, Upload, Download, AlertTriangle, CheckCircle, BookOpen, ExternalLink, Lock, Wand2, FileEdit, Users, BookOpenCheck, Timer, Package, ShoppingCart } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Calculator, Camera, FileText, Upload, Download, AlertTriangle, CheckCircle, BookOpen, ExternalLink, Lock, Wand2, FileEdit, Users, BookOpenCheck, Timer, Package, ShoppingCart, CreditCard } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import PipeSizingCalculator from "@/components/calculator/pipe-sizing";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { useStudySession } from "@/hooks/use-study-session";
+import { Link } from "wouter";
 import ProductManager from "./admin/product-manager";
 
 export default function Tools() {
@@ -26,6 +28,14 @@ export default function Tools() {
     contentType: 'tools',
     autoStart: true
   });
+
+  // Check subscription status
+  const { data: subscriptionStatus } = useQuery({
+    queryKey: ['/api/subscription-status'],
+    retry: false,
+  });
+
+  const hasActiveSubscription = subscriptionStatus?.hasActiveSubscription;
 
   const handlePhotoUpload = async (file: File) => {
     if (!file) return;
@@ -43,12 +53,20 @@ export default function Tools() {
         title: "Photo Analysis Complete",
         description: "Your plumbing installation has been analyzed for code compliance.",
       });
-    } catch (error) {
-      toast({
-        title: "Upload Failed",
-        description: "Failed to analyze photo. Please try again.",
-        variant: "destructive",
-      });
+    } catch (error: any) {
+      if (error.message?.includes('subscription') || error.message?.includes('403')) {
+        toast({
+          title: "Subscription Required",
+          description: "Professional tools require an active subscription. Upgrade to access AI analysis.",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Upload Failed",
+          description: "Failed to analyze photo. Please try again.",
+          variant: "destructive",
+        });
+      }
     } finally {
       setIsAnalyzing(false);
     }
@@ -70,12 +88,20 @@ export default function Tools() {
         title: "Plan Analysis Complete",
         description: "Material list and code compliance check generated.",
       });
-    } catch (error) {
-      toast({
-        title: "Upload Failed",
-        description: "Failed to analyze plans. Please try again.",
-        variant: "destructive",
-      });
+    } catch (error: any) {
+      if (error.message?.includes('subscription') || error.message?.includes('403')) {
+        toast({
+          title: "Subscription Required",
+          description: "Professional tools require an active subscription. Upgrade to access AI analysis.",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Upload Failed",
+          description: "Failed to analyze plans. Please try again.",
+          variant: "destructive",
+        });
+      }
     } finally {
       setIsAnalyzing(false);
     }
@@ -250,14 +276,27 @@ export default function Tools() {
             </TabsContent>
 
             <TabsContent value="ai-tools" className="space-y-8">
+              {!hasActiveSubscription && (
+                <Alert className="border-amber-200 bg-amber-50 dark:bg-amber-900/20" data-testid="subscription-notice">
+                  <CreditCard className="h-4 w-4" />
+                  <AlertDescription>
+                    AI-powered tools require an active subscription. 
+                    <Link href="/pricing" className="text-primary hover:underline ml-1">
+                      Upgrade now
+                    </Link> to access photo analysis, plan review, and AI mentor features.
+                  </AlertDescription>
+                </Alert>
+              )}
+              
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 {/* Photo Code Checker */}
-                <Card data-testid="photo-checker-tool">
+                <Card data-testid="photo-checker-tool" className={!hasActiveSubscription ? "opacity-60" : ""}>
                   <CardHeader>
                     <CardTitle className="flex items-center space-x-2">
                       <Camera className="w-5 h-5" />
                       <span>Photo Code Checker</span>
                       <Badge variant="secondary">AI Powered</Badge>
+                      {!hasActiveSubscription && <Lock className="w-4 h-4 text-muted-foreground" />}
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
@@ -280,12 +319,12 @@ export default function Tools() {
                       
                       <Button
                         onClick={() => fileInputRef.current?.click()}
-                        disabled={isAnalyzing}
+                        disabled={isAnalyzing || !hasActiveSubscription}
                         className="w-full"
                         data-testid="upload-photo-button"
                       >
                         <Upload className="w-4 h-4 mr-2" />
-                        {isAnalyzing ? "Analyzing..." : "Upload Photo"}
+                        {!hasActiveSubscription ? "Subscription Required" : isAnalyzing ? "Analyzing..." : "Upload Photo"}
                       </Button>
 
                       {analysisResult?.analysis && (
@@ -329,12 +368,13 @@ export default function Tools() {
                 </Card>
 
                 {/* Plan Analysis Tool */}
-                <Card data-testid="plan-analysis-tool">
+                <Card data-testid="plan-analysis-tool" className={!hasActiveSubscription ? "opacity-60" : ""}>
                   <CardHeader>
                     <CardTitle className="flex items-center space-x-2">
                       <FileText className="w-5 h-5" />
                       <span>Plan Analysis Tool</span>
                       <Badge variant="secondary">AI Powered</Badge>
+                      {!hasActiveSubscription && <Lock className="w-4 h-4 text-muted-foreground" />}
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
@@ -356,12 +396,12 @@ export default function Tools() {
                       
                       <Button
                         onClick={() => (document.querySelector('input[data-testid="plan-input"]') as HTMLInputElement)?.click()}
-                        disabled={isAnalyzing}
+                        disabled={isAnalyzing || !hasActiveSubscription}
                         className="w-full"
                         data-testid="upload-plan-button"
                       >
                         <FileText className="w-4 h-4 mr-2" />
-                        {isAnalyzing ? "Analyzing..." : "Upload Plans"}
+                        {!hasActiveSubscription ? "Subscription Required" : isAnalyzing ? "Analyzing..." : "Upload Plans"}
                       </Button>
 
                       {analysisResult?.materialList && (

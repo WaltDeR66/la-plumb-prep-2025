@@ -22,6 +22,36 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
   apiVersion: "2025-08-27.basil",
 });
 
+// Middleware to check if user has active subscription for professional tools
+const requireActiveSubscription = async (req: any, res: any, next: any) => {
+  if (!req.isAuthenticated()) {
+    return res.status(401).json({ message: "Not authenticated" });
+  }
+
+  const user = req.user as any;
+  
+  try {
+    // Check if user has professional or master tier subscription
+    if (user.subscriptionTier === 'professional' || user.subscriptionTier === 'master') {
+      // Verify the subscription is actually active in Stripe
+      if (user.stripeSubscriptionId) {
+        const subscription = await stripe.subscriptions.retrieve(user.stripeSubscriptionId);
+        if (subscription.status === 'active') {
+          return next();
+        }
+      }
+    }
+    
+    return res.status(403).json({ 
+      message: "Professional tools access requires an active subscription",
+      subscriptionRequired: true
+    });
+  } catch (error) {
+    console.error('Subscription check error:', error);
+    return res.status(500).json({ message: "Error checking subscription status" });
+  }
+};
+
 // Configure multer for file uploads
 const upload = multer({
   dest: 'uploads/',
@@ -219,6 +249,61 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get subscription status
+  app.get('/api/subscription-status', async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+
+    const user = req.user as any;
+    
+    try {
+      if (!user.stripeSubscriptionId) {
+        return res.json({ 
+          hasActiveSubscription: false, 
+          subscriptionTier: user.subscriptionTier || 'basic'
+        });
+      }
+
+      const subscription = await stripe.subscriptions.retrieve(user.stripeSubscriptionId);
+      const hasActiveSubscription = subscription.status === 'active';
+
+      res.json({
+        hasActiveSubscription,
+        subscriptionTier: user.subscriptionTier || 'basic',
+        subscriptionStatus: subscription.status,
+        currentPeriodEnd: subscription.current_period_end,
+      });
+    } catch (error: any) {
+      console.error('Subscription status error:', error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Cancel subscription
+  app.post('/api/cancel-subscription', async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+
+    const user = req.user as any;
+    
+    try {
+      if (!user.stripeSubscriptionId) {
+        return res.status(400).json({ message: "No active subscription found" });
+      }
+
+      await stripe.subscriptions.update(user.stripeSubscriptionId, {
+        cancel_at_period_end: true,
+      });
+
+      res.json({ message: "Subscription will be cancelled at the end of the current period" });
+    } catch (error: any) {
+      console.error('Cancel subscription error:', error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
   // Course routes
   app.get("/api/courses", async (req, res) => {
     try {
@@ -362,7 +447,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // AI Mentor routes
-  app.post("/api/mentor/chat", async (req, res) => {
+  app.post("/api/mentor/chat", requireActiveSubscription, async (req, res) => {
     if (!req.isAuthenticated()) {
       return res.status(401).json({ message: "Not authenticated" });
     }
@@ -433,7 +518,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Photo upload and analysis
-  app.post("/api/photos/upload", upload.single('photo'), async (req, res) => {
+  app.post("/api/photos/upload", requireActiveSubscription, upload.single('photo'), async (req, res) => {
     if (!req.isAuthenticated()) {
       return res.status(401).json({ message: "Not authenticated" });
     }
@@ -469,7 +554,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Plan upload and analysis
-  app.post("/api/plans/upload", upload.single('plan'), async (req, res) => {
+  app.post("/api/plans/upload", requireActiveSubscription, upload.single('plan'), async (req, res) => {
     if (!req.isAuthenticated()) {
       return res.status(401).json({ message: "Not authenticated" });
     }
@@ -901,7 +986,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Generate AI audio for podcast content
-  app.post("/api/generate-audio/:id", async (req, res) => {
+  app.post("/api/generate-audio/:id", requireActiveSubscription, async (req, res) => {
     try {
       const { id } = req.params;
       const content = await storage.getCourseContentById(id);

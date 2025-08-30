@@ -1,10 +1,11 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import type { User, Course, CourseEnrollment, MentorConversation, JobApplication } from "@/../../shared/schema";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { 
   BookOpen, 
   Trophy, 
@@ -15,8 +16,15 @@ import {
   MessageCircle, 
   FileText,
   Download,
-  Star
+  Star,
+  CreditCard,
+  Check,
+  X,
+  Crown,
+  Zap
 } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { apiRequest } from "@/lib/queryClient";
 import AIMentorChat from "@/components/ai-mentor-chat";
 import { ReferralInviter, ContactSupport } from "@/components/referral-inviter";
 import { Link } from "wouter";
@@ -94,11 +102,12 @@ export default function Dashboard() {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Tabs defaultValue="overview" className="space-y-8">
-          <TabsList className="grid w-full grid-cols-5">
+          <TabsList className="grid w-full grid-cols-6">
             <TabsTrigger value="overview" data-testid="tab-overview">Overview</TabsTrigger>
             <TabsTrigger value="courses" data-testid="tab-courses">My Courses</TabsTrigger>
             <TabsTrigger value="progress" data-testid="tab-progress">Progress</TabsTrigger>
             <TabsTrigger value="mentor" data-testid="tab-mentor">AI Mentor</TabsTrigger>
+            <TabsTrigger value="subscription" data-testid="tab-subscription">Subscription</TabsTrigger>
             <TabsTrigger value="jobs" data-testid="tab-jobs">Job Applications</TabsTrigger>
           </TabsList>
 
@@ -333,6 +342,10 @@ export default function Dashboard() {
             <AIMentorChat />
           </TabsContent>
 
+          <TabsContent value="subscription" className="space-y-8">
+            <SubscriptionManagement />
+          </TabsContent>
+
           <TabsContent value="jobs" className="space-y-8">
             <Card data-testid="job-applications">
               <CardHeader>
@@ -373,6 +386,240 @@ export default function Dashboard() {
           </TabsContent>
         </Tabs>
       </div>
+    </div>
+  );
+}
+
+// Subscription Management Component
+function SubscriptionManagement() {
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  const { data: user } = useQuery<User>({
+    queryKey: ["/api/auth/me"],
+  });
+
+  const { data: subscriptionStatus } = useQuery({
+    queryKey: ['/api/subscription-status'],
+    retry: false,
+  });
+
+  const cancelMutation = useMutation({
+    mutationFn: async () => {
+      const response = await apiRequest("POST", "/api/cancel-subscription");
+      return response.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: "Subscription Cancelled",
+        description: "Your subscription will be cancelled at the end of the current billing period.",
+      });
+      queryClient.invalidateQueries({ queryKey: ['/api/subscription-status'] });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to cancel subscription",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const pricingPlans = [
+    {
+      id: "basic",
+      name: "Basic",
+      price: "$49",
+      priceId: "price_basic_monthly",
+      tier: "basic",
+      description: "Perfect for getting started",
+      features: [
+        "1 Certification Track",
+        "Basic Calculator Tools", 
+        "Practice Tests",
+        "Job Board Access",
+        "Email Support"
+      ]
+    },
+    {
+      id: "professional",
+      name: "Professional",
+      price: "$79",
+      priceId: "price_professional_monthly",
+      tier: "professional",
+      description: "For serious professionals",
+      popular: true,
+      features: [
+        "3 Certification Tracks",
+        "Complete Calculator Suite",
+        "Photo Code Checker",
+        "AI Mentor Support",
+        "Resume Builder",
+        "Priority Support"
+      ]
+    },
+    {
+      id: "master",
+      name: "Master",
+      price: "$99",
+      priceId: "price_master_monthly",
+      tier: "master",
+      description: "Complete mastery package",
+      features: [
+        "All 5 Certification Tracks",
+        "Plan Analysis Tools",
+        "Material List Generator",
+        "Referral Commissions",
+        "Book Store Access",
+        "White-Glove Support"
+      ]
+    }
+  ];
+
+  const currentPlan = pricingPlans.find(plan => plan.tier === user?.subscriptionTier) || pricingPlans[0];
+  const hasActiveSubscription = subscriptionStatus?.hasActiveSubscription;
+
+  return (
+    <div className="space-y-8">
+      {/* Current Subscription Status */}
+      <Card data-testid="current-subscription">
+        <CardHeader>
+          <CardTitle className="flex items-center space-x-2">
+            <CreditCard className="w-5 h-5" />
+            <span>Current Subscription</span>
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-start justify-between">
+            <div className="space-y-4">
+              <div>
+                <div className="flex items-center space-x-2 mb-2">
+                  <h3 className="text-xl font-semibold">{currentPlan.name} Plan</h3>
+                  {currentPlan.popular && <Crown className="w-5 h-5 text-yellow-500" />}
+                  <Badge variant={hasActiveSubscription ? "default" : "secondary"}>
+                    {hasActiveSubscription ? "Active" : "Inactive"}
+                  </Badge>
+                </div>
+                <p className="text-2xl font-bold text-primary">{currentPlan.price}/month</p>
+                <p className="text-muted-foreground">{currentPlan.description}</p>
+              </div>
+
+              {subscriptionStatus?.currentPeriodEnd && (
+                <p className="text-sm text-muted-foreground">
+                  {hasActiveSubscription ? "Renews" : "Expires"} on{" "}
+                  {new Date(subscriptionStatus.currentPeriodEnd * 1000).toLocaleDateString()}
+                </p>
+              )}
+
+              <div className="space-y-2">
+                <h4 className="font-medium">Included Features:</h4>
+                <ul className="space-y-1">
+                  {currentPlan.features.map((feature, index) => (
+                    <li key={index} className="flex items-center space-x-2 text-sm">
+                      <Check className="w-4 h-4 text-green-600" />
+                      <span>{feature}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              {hasActiveSubscription && user?.subscriptionTier !== 'basic' && (
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  onClick={() => cancelMutation.mutate()}
+                  disabled={cancelMutation.isPending}
+                  data-testid="cancel-subscription"
+                >
+                  {cancelMutation.isPending ? "Cancelling..." : "Cancel Subscription"}
+                </Button>
+              )}
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Upgrade Options */}
+      {(!hasActiveSubscription || user?.subscriptionTier === 'basic') && (
+        <Card data-testid="upgrade-options">
+          <CardHeader>
+            <CardTitle className="flex items-center space-x-2">
+              <Zap className="w-5 h-5" />
+              <span>Upgrade Your Plan</span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {pricingPlans.filter(plan => plan.tier !== user?.subscriptionTier).map((plan) => (
+                <Card key={plan.id} className={`relative ${plan.popular ? 'border-primary' : ''}`}>
+                  {plan.popular && (
+                    <Badge className="absolute -top-2 left-1/2 transform -translate-x-1/2">
+                      Most Popular
+                    </Badge>
+                  )}
+                  <CardContent className="p-6">
+                    <div className="text-center mb-4">
+                      <h3 className="text-lg font-semibold">{plan.name}</h3>
+                      <p className="text-2xl font-bold text-primary">{plan.price}/month</p>
+                      <p className="text-sm text-muted-foreground">{plan.description}</p>
+                    </div>
+                    
+                    <ul className="space-y-2 mb-6">
+                      {plan.features.slice(0, 4).map((feature, index) => (
+                        <li key={index} className="flex items-center space-x-2 text-sm">
+                          <Check className="w-4 h-4 text-green-600" />
+                          <span>{feature}</span>
+                        </li>
+                      ))}
+                      {plan.features.length > 4 && (
+                        <li className="text-sm text-muted-foreground">
+                          +{plan.features.length - 4} more features
+                        </li>
+                      )}
+                    </ul>
+                    
+                    <Link href={`/subscribe?plan=${plan.id}&priceId=${plan.priceId}&tier=${plan.tier}`}>
+                      <Button className="w-full" size="sm">
+                        Upgrade to {plan.name}
+                      </Button>
+                    </Link>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Billing Information */}
+      <Card data-testid="billing-info">
+        <CardHeader>
+          <CardTitle>Billing Information</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg">
+              <div>
+                <p className="font-medium">Payment Method</p>
+                <p className="text-sm text-muted-foreground">Managed by Stripe</p>
+              </div>
+              <Button variant="outline" size="sm">
+                Update Payment
+              </Button>
+            </div>
+
+            <Alert>
+              <FileText className="h-4 w-4" />
+              <AlertDescription>
+                For billing questions or to update your payment method, please contact our support team.
+                All billing is processed securely through Stripe.
+              </AlertDescription>
+            </Alert>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }
