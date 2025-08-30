@@ -78,6 +78,7 @@ export default function Pricing() {
         "Basic Calculator Tools", 
         "Practice Tests",
         "Job Board Access",
+        "Referral Commissions (10%)",
         "Email Support"
       ]
     },
@@ -94,6 +95,7 @@ export default function Pricing() {
         "Photo Code Checker",
         "AI Mentor Support",
         "Resume Builder",
+        "Referral Commissions (10%)",
         "Priority Support"
       ]
     },
@@ -107,7 +109,7 @@ export default function Pricing() {
         "Journeyman Prep Course",
         "Plan Analysis Tools",
         "Material List Generator",
-        "Referral Commissions",
+        "Referral Commissions (10%)",
         "Book Store Access",
         "White-Glove Support"
       ]
@@ -293,8 +295,8 @@ export default function Pricing() {
                 </tr>
                 <tr>
                   <td className="p-4 font-medium">Referral Commissions</td>
-                  <td className="p-4 text-center">❌</td>
-                  <td className="p-4 text-center">❌</td>
+                  <td className="p-4 text-center">10%</td>
+                  <td className="p-4 text-center">10%</td>
                   <td className="p-4 text-center">10%</td>
                 </tr>
               </tbody>
