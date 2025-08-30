@@ -2057,6 +2057,104 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Lead Magnet Download API
+  app.post("/api/lead-magnet/download", async (req, res) => {
+    try {
+      const { email, firstName, lastName, companyName, position } = req.body;
+      
+      if (!email || !firstName || !lastName || !companyName) {
+        return res.status(400).json({ message: "Missing required fields" });
+      }
+
+      // Store lead magnet download record
+      const [leadRecord] = await db.insert(leadMagnetDownloads).values({
+        email,
+        firstName,
+        lastName,
+        companyName,
+        position: position || null,
+        leadSource: "website",
+        emailSent: true
+      }).returning();
+
+      // Start lead nurture email sequence
+      await emailAutomation.queueEmailSequence(
+        email,
+        `${firstName} ${lastName}`,
+        "employer_onboarding"
+      );
+
+      // Send immediate download email with lead magnet
+      await emailService.sendEmail({
+        to: email,
+        subject: "📋 Your FREE Louisiana Plumbing Code Guide + Bonus Tools",
+        html: `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+            <div style="background: linear-gradient(135deg, #1e40af 0%, #059669 100%); color: white; padding: 30px; text-align: center;">
+              <h1 style="margin: 0; font-size: 24px;">🎉 Your Louisiana Code Guide is Ready!</h1>
+            </div>
+            
+            <div style="padding: 30px; background: #f9fafb;">
+              <p style="font-size: 18px; color: #374151;">Hi ${firstName},</p>
+              
+              <p style="color: #6b7280; line-height: 1.6;">
+                Thank you for downloading our Louisiana Plumbing Code Quick Reference Guide! 
+                This comprehensive resource will help you avoid costly code violations and stay compliant on every job.
+              </p>
+              
+              <div style="background: white; border: 2px solid #10b981; border-radius: 8px; padding: 20px; margin: 20px 0;">
+                <h2 style="color: #059669; margin-top: 0;">📥 Download Your Resources:</h2>
+                <ul style="color: #374151; line-height: 1.8;">
+                  <li><strong>Louisiana Plumbing Code Guide (15 pages)</strong> - Essential violations to avoid</li>
+                  <li><strong>BONUS: Pipe Sizing Calculator Tool</strong> - Professional calculations made easy</li>
+                  <li><strong>BONUS: Code Update Checklist</strong> - Stay current with 2024 changes</li>
+                </ul>
+                
+                <div style="text-align: center; margin: 25px 0;">
+                  <a href="${process.env.WEBSITE_URL || 'https://laplumbprep.com'}/downloads/louisiana-code-guide.pdf" 
+                     style="background: #059669; color: white; padding: 15px 30px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">
+                    📥 Download Guide & Tools
+                  </a>
+                </div>
+              </div>
+              
+              <div style="background: #fef3c7; border-left: 4px solid #f59e0b; padding: 15px; margin: 20px 0;">
+                <h3 style="color: #92400e; margin-top: 0;">💡 Pro Tip:</h3>
+                <p style="color: #92400e; margin-bottom: 0;">
+                  Print the guide and keep it on every job site. Many contractors save $1,000+ 
+                  per project by catching code issues before inspections!
+                </p>
+              </div>
+              
+              <div style="text-align: center; margin: 30px 0;">
+                <p style="color: #6b7280;">Want to take your skills to the next level?</p>
+                <a href="${process.env.WEBSITE_URL || 'https://laplumbprep.com'}/courses" 
+                   style="background: #1e40af; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px;">
+                  View Our Certification Courses
+                </a>
+              </div>
+              
+              <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 30px 0;">
+              
+              <p style="color: #9ca3af; font-size: 14px; text-align: center;">
+                Questions? Reply to this email or contact us at support@laplumbprep.com<br>
+                Louisiana Plumbing Prep | Your Path to Certification Success
+              </p>
+            </div>
+          </div>
+        `
+      });
+
+      res.status(200).json({ 
+        message: "Download link sent successfully",
+        leadId: leadRecord.id
+      });
+    } catch (error: any) {
+      console.error("Error processing lead magnet download:", error);
+      res.status(500).json({ message: "Failed to send download link" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

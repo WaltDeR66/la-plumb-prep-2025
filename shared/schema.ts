@@ -4,6 +4,7 @@ import {
   text, 
   varchar, 
   integer, 
+  serial,
   decimal, 
   boolean, 
   timestamp, 
@@ -23,6 +24,7 @@ export const jobStatusEnum = pgEnum("job_status", ["pending", "approved", "rejec
 export const emailCampaignTypeEnum = pgEnum("email_campaign_type", ["employer_onboarding", "student_enrollment", "bulk_enrollment"]);
 export const emailStatusEnum = pgEnum("email_status", ["pending", "sent", "failed", "cancelled"]);
 export const bulkEnrollmentStatusEnum = pgEnum("bulk_enrollment_status", ["pending", "approved", "active", "cancelled"]);
+export const leadSourceEnum = pgEnum("lead_source", ["linkedin", "website", "referral", "google", "facebook", "other"]);
 
 // Users table
 export const users = pgTable("users", {
@@ -625,6 +627,19 @@ export const bulkStudentEnrollments = pgTable("bulk_student_enrollments", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+// Lead magnet downloads table
+export const leadMagnetDownloads = pgTable("lead_magnet_downloads", {
+  id: serial("id").primaryKey(),
+  email: varchar("email", { length: 255 }).notNull(),
+  firstName: varchar("first_name", { length: 100 }).notNull(),
+  lastName: varchar("last_name", { length: 100 }).notNull(),
+  companyName: varchar("company_name", { length: 255 }).notNull(),
+  position: varchar("position", { length: 100 }),
+  leadSource: leadSourceEnum("lead_source").default("website"),
+  downloadedAt: timestamp("downloaded_at").defaultNow(),
+  emailSent: boolean("email_sent").default(false),
+});
+
 // Create insert schemas
 export const insertEmailCampaignSchema = createInsertSchema(emailCampaigns);
 export const insertEmailQueueSchema = createInsertSchema(emailQueue);
@@ -632,6 +647,11 @@ export const insertEmailUnsubscribeSchema = createInsertSchema(emailUnsubscribes
 export const insertBulkEnrollmentTierSchema = createInsertSchema(bulkEnrollmentTiers);
 export const insertBulkEnrollmentRequestSchema = createInsertSchema(bulkEnrollmentRequests);
 export const insertBulkStudentEnrollmentSchema = createInsertSchema(bulkStudentEnrollments);
+export const insertLeadMagnetDownloadSchema = createInsertSchema(leadMagnetDownloads).omit({
+  id: true,
+  downloadedAt: true,
+  emailSent: true
+});
 
 // Types
 export type User = typeof users.$inferSelect;
@@ -680,3 +700,5 @@ export type BulkEnrollmentRequest = typeof bulkEnrollmentRequests.$inferSelect;
 export type InsertBulkEnrollmentRequest = z.infer<typeof insertBulkEnrollmentRequestSchema>;
 export type BulkStudentEnrollment = typeof bulkStudentEnrollments.$inferSelect;
 export type InsertBulkStudentEnrollment = z.infer<typeof insertBulkStudentEnrollmentSchema>;
+export type LeadMagnetDownload = typeof leadMagnetDownloads.$inferSelect;
+export type InsertLeadMagnetDownload = z.infer<typeof insertLeadMagnetDownloadSchema>;
