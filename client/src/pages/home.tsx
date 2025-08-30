@@ -155,7 +155,9 @@ export default function Home() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div>
               <h1 className="text-4xl lg:text-6xl font-bold mb-6 leading-tight" data-testid="hero-title">
-                Master Your Plumbing Career in Louisiana
+                Master Your<br />
+                Plumbing Career<br />
+                in Louisiana
               </h1>
               <p className="text-xl text-blue-100 mb-8 leading-relaxed" data-testid="hero-description">
                 Comprehensive prep courses for Journeyman, Backflow, Natural Gas, Medical Gas, and Master Plumber certifications. Take your Louisiana plumbing test with confidence that you will pass the first time.
