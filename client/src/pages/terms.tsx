@@ -157,7 +157,7 @@ export default function Terms() {
                 Questions about the Terms of Service should be sent to:
               </p>
               <div className="mt-4">
-                <p><strong>Email:</strong> legal@laplumbprep.com</p>
+                <p><strong>Email:</strong> support@laplumbprep.com</p>
                 <p><strong>Address:</strong> LA Plumb Prep, Louisiana, USA</p>
               </div>
             </CardContent>

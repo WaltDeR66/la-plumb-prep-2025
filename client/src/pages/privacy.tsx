@@ -110,8 +110,8 @@ export default function Privacy() {
               </ul>
               <p>
                 To exercise these rights, please contact us at{" "}
-                <a href="mailto:privacy@laplumbprep.com" className="text-primary hover:underline">
-                  privacy@laplumbprep.com
+                <a href="mailto:support@laplumbprep.com" className="text-primary hover:underline">
+                  support@laplumbprep.com
                 </a>
               </p>
             </CardContent>
@@ -126,7 +126,7 @@ export default function Privacy() {
                 If you have questions about this Privacy Policy, please contact us at:
               </p>
               <div className="mt-4">
-                <p><strong>Email:</strong> privacy@laplumbprep.com</p>
+                <p><strong>Email:</strong> support@laplumbprep.com</p>
                 <p><strong>Address:</strong> LA Plumb Prep, Louisiana, USA</p>
               </div>
             </CardContent>

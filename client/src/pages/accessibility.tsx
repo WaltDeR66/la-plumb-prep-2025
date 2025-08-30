@@ -100,7 +100,7 @@ export default function Accessibility() {
                 We welcome your feedback on the accessibility of LA Plumb Prep. Please let us know if you encounter accessibility barriers:
               </p>
               <div className="mt-4">
-                <p><strong>Email:</strong> accessibility@laplumbprep.com</p>
+                <p><strong>Email:</strong> support@laplumbprep.com</p>
                 <p><strong>Phone:</strong> 1-800-PLUMB-PREP</p>
                 <p><strong>Response Time:</strong> We aim to respond within 2 business days</p>
               </div>
@@ -147,7 +147,7 @@ export default function Accessibility() {
                 For accessibility concerns or requests for assistance:
               </p>
               <div className="mt-4">
-                <p><strong>Email:</strong> accessibility@laplumbprep.com</p>
+                <p><strong>Email:</strong> support@laplumbprep.com</p>
                 <p><strong>Phone:</strong> 1-800-PLUMB-PREP (TTY available)</p>
                 <p><strong>Address:</strong> LA Plumb Prep, Louisiana, USA</p>
               </div>
