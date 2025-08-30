@@ -178,7 +178,7 @@ export default function Home() {
                 </div>
                 <div className="flex items-center space-x-2">
                   <CheckCircle className="w-5 h-5" />
-                  <span className="text-sm">Job Placement</span>
+                  <span className="text-sm">Louisiana Job Placement</span>
                 </div>
               </div>
             </div>
