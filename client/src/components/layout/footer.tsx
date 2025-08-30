@@ -71,19 +71,31 @@ export default function Footer() {
           <div>
             <h4 className="text-lg font-semibold mb-4" data-testid="footer-support-title">Support</h4>
             <ul className="space-y-2 text-background/70">
-              {supportLinks.map((link, index) => (
-                <li key={index}>
-                  {link.href.startsWith('mailto:') ? (
-                    <a href={link.href} className="hover:text-background transition-colors block cursor-pointer" data-testid={`footer-support-link-${index}`}>
-                      {link.name}
-                    </a>
-                  ) : (
-                    <button className="hover:text-background transition-colors text-left block cursor-pointer" data-testid={`footer-support-link-${index}`}>
-                      {link.name}
-                    </button>
-                  )}
-                </li>
-              ))}
+              <li>
+                <button className="hover:text-background transition-colors text-left block cursor-pointer" data-testid="footer-support-link-0">
+                  Help Center
+                </button>
+              </li>
+              <li>
+                <a href="mailto:support@laplumbprep.com" className="hover:text-background transition-colors block cursor-pointer" data-testid="footer-support-link-1">
+                  Contact Us
+                </a>
+              </li>
+              <li>
+                <button className="hover:text-background transition-colors text-left block cursor-pointer" data-testid="footer-support-link-2">
+                  Louisiana State Board
+                </button>
+              </li>
+              <li>
+                <button className="hover:text-background transition-colors text-left block cursor-pointer" data-testid="footer-support-link-3">
+                  Technical Support
+                </button>
+              </li>
+              <li>
+                <button className="hover:text-background transition-colors text-left block cursor-pointer" data-testid="footer-support-link-4">
+                  System Status
+                </button>
+              </li>
             </ul>
           </div>
         </div>
