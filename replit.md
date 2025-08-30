@@ -58,6 +58,21 @@ Key architectural decisions:
 - **AI Mentor**: Conversational support for plumbing questions
 - **Response Format**: Structured JSON responses for consistent data handling
 
+## Recent Changes
+
+### January 30, 2025
+- **Course Management Updates**: Removed pricing display from course cards, all "Start Course" buttons now redirect to unified pricing page
+- **Course Status System**: Implemented "Coming Soon" functionality - all courses except Louisiana Journeyman Prep are marked as inactive with disabled buttons and yellow badges
+- **Course Data Updates**: 
+  - Updated Backflow Prevention from "certification" to "training course" for testing, repairs, and field report completion
+  - Added complete course database with 5 total courses (only Journeyman active)
+- **Referral System**: Implemented tiered commission system with plan-based caps (Basic: $4.90, Professional: $7.90, Master: $9.90)
+- **Database Schema**: Added referral tracking, commission calculations, and course status management
+
+### Current Course Status
+- **Active**: Louisiana Journeyman Prep (fully functional)
+- **Coming Soon**: Backflow Prevention Training, Natural Gas Certification, Medical Gas Installer Certification, Master Plumber Prep
+
 ## External Dependencies
 
 ### Core Infrastructure
