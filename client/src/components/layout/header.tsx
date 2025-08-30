@@ -65,7 +65,7 @@ export default function Header() {
           <div className="hidden md:flex items-center space-x-3">
             <Link href="/employer-portal">
               <Button variant="outline" size="sm" data-testid="button-employer-portal">
-                Hire Plumbers
+                Post a Job
               </Button>
             </Link>
             {user ? (
