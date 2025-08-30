@@ -3,6 +3,7 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { emailService } from "./email";
 import { insertUserSchema, insertJobSchema, insertJobApplicationSchema, insertCourseContentSchema, insertPrivateCodeBookSchema, insertCourseSchema, insertProductSchema, insertCartItemSchema, insertProductReviewSchema, insertReferralSchema, leadMagnetDownloads, studentLeadMagnetDownloads } from "@shared/schema";
+import { eq, and, or, desc, sql, count } from "drizzle-orm";
 import { db } from "./db";
 import { analyzePhoto, analyzePlans, getMentorResponse, calculatePipeSize } from "./openai";
 import { calculateReferralCommission, isValidSubscriptionTier } from "@shared/referral-utils";

@@ -54,7 +54,7 @@ import {
   type InsertProductReview
 } from "@shared/schema";
 import { db } from "./db";
-import { eq, desc, and, or, ilike, count, sql } from "drizzle-orm";
+import { eq, and, or, desc, sql, count, isNull, ilike } from "drizzle-orm";
 
 export interface IStorage {
   // User methods
