@@ -11,6 +11,160 @@ import { contentExtractor } from "./content-extractor";
 import { emailAutomation } from "./email-automation";
 import { bulkPricingService } from "./bulk-pricing";
 import Stripe from "stripe";
+
+// Course content seeding function
+async function seedCourseContent() {
+  const courseId = "5f02238b-afb2-4e7f-a488-96fb471fee56"; // Louisiana Journeyman Prep
+  
+  // Check if course content already exists
+  const existingContent = await storage.getCourseContent(courseId);
+  if (existingContent.length > 0) {
+    console.log("Course content already exists, skipping seeding");
+    return;
+  }
+
+  console.log("Auto-seeding course content...");
+  
+  const courseContentData = [
+    {
+      id: "810cafa9-6024-4bdc-a3c5-266490062114",
+      courseId,
+      title: "LSPC 101 Administration  Subchapter A. General - Questions & Answers",
+      type: "quiz",
+      chapter: 1,
+      section: 101,
+      content: {
+        "extracted": {
+          "title": "LSPC 101 Administration - Questions & Answers",
+          "content": "# Louisiana State Plumbing Code Section 101 - Practice Quiz\n\n## Multiple Choice Questions\n\n**1. Which specific section of the Louisiana Sanitary Code does the Department of Health and Hospitals, Office of Public Health adopt?**\nA. Part XV (Electrical)\nB. Part XIII (Building)\nC. Part XIV (Plumbing) ✓\nD. Part XII (Environmental)\n\n**2. What is the alternative citation for 'Part XIV (Plumbing) of the Sanitary Code, State of Louisiana'?**\nA. The Louisiana State Environmental Code\nB. The Louisiana State Plumbing Code ✓\nC. The Louisiana Building Code\nD. The Louisiana Residential Code\n\n**3. Any reference or citation to the 'Louisiana State Plumbing Code' is considered synonymous with what other reference or citation?**\nA. Part XIV (Plumbing) of the Sanitary Code, State of Louisiana ✓\nB. Part XII (Fire Safety) of the Sanitary Code\nC. Part XIII (Electrical) of the Sanitary Code\nD. Part XI (Zoning) of the Sanitary Code",
+          "extractedAt": "2025-01-28T22:10:00Z"
+        }
+      },
+      quizgeckoUrl: "https://quizgecko.com/learn/assignment/d64de6a8-229e-4889-8711-163498aafb8d",
+      isActive: true,
+      sortOrder: 0
+    },
+    {
+      id: "c57f3c38-34c2-4a17-bbba-1ae88d2b524d",
+      courseId,
+      title: "LSPC 101 Administration  Subchapter A. General - Study Notes",
+      type: "study-notes",
+      chapter: 1,
+      section: 101,
+      content: {
+        "extracted": {
+          "title": "LSPC 101 Administration - Study Notes",
+          "content": "# Louisiana State Plumbing Code Section 101 - Study Notes\n\n## Louisiana State Plumbing Code (LSPC) Adoption\n\nThe **Department of Health and Hospitals, Office of Public Health**, has adopted **Part XIV (Plumbing) of the Sanitary Code, State of Louisiana (LAC 51:XIV)**.\n\n### Key Terms and References\n- **\"Part XIV (Plumbing) of the Sanitary Code, State of Louisiana\"** is officially referred to as the **\"Louisiana State Plumbing Code.\"**\n- Any mention or citation of **\"this code,\"** **\"this Part,\"** or the **\"Louisiana State Plumbing Code\"** is interchangeable and refers to **\"Part XIV (Plumbing) of the Sanitary Code, State of Louisiana.\"**",
+          "extractedAt": "2025-01-28T22:12:00Z"
+        }
+      },
+      quizgeckoUrl: "https://quizgecko.com/learn/assignment/d64de6a8-229e-4889-8711-163498aafb8d",
+      isActive: true,
+      sortOrder: 0
+    },
+    {
+      id: "1db67ac7-708c-4904-8bdc-4dfa0c5157ce",
+      courseId,
+      title: "LSPC 101 Administration - Study Plan",
+      type: "study-plan",
+      chapter: 1,
+      section: 101,
+      content: {
+        "extracted": {
+          "title": "LSPC 101 Administration - Time-Based Study Plans",
+          "content": "# Section 101 Study Plans - Administration & Authority\n\nChoose your available study time to get a customized learning plan:\n\n## 🕐 10-Minute Quick Study\n\n### Focus: Core Administration & Authority\n\n**Minutes 0-2: Core Adoption & Naming**\n- Department of Health and Hospitals adopts Part XIV (Plumbing)\n- Also known as Louisiana State Plumbing Code (LSPC)\n- These terms are interchangeable",
+          "extractedAt": "2025-01-28T22:17:00Z"
+        }
+      },
+      isActive: true,
+      sortOrder: 0
+    },
+    {
+      id: "6bf16416-942a-4e08-9210-d9841331f819",
+      courseId,
+      title: "LSPC 101 Administration  Subchapter A. General - Teach Me (Chat)",
+      type: "chat",
+      chapter: 1,
+      section: 101,
+      content: {
+        "chatContent": "This is an interactive chat session about Louisiana State Plumbing Code Section 101 Administration. Ask me anything about the administrative aspects, adoption authority, or legal framework of the LSPC."
+      },
+      isActive: true,
+      sortOrder: 0
+    },
+    {
+      id: "56240fe9-043f-4885-ade7-e73678295ef0",
+      courseId,
+      title: "LSPC 101 Administration  Subchapter A. General - Podcast",
+      type: "podcast",
+      chapter: 1,
+      section: 101,
+      content: {
+        "extracted": {
+          "audioUrl": "https://quizgecko.com/audio/lspc-101-admin-podcast.mp3",
+          "transcript": "Welcome to the Louisiana State Plumbing Code podcast series. In this episode, we'll explore Section 101 Administration, covering the adoption authority, legal framework, and key terminology that forms the foundation of Louisiana's plumbing regulations."
+        }
+      },
+      isActive: true,
+      sortOrder: 0
+    },
+    {
+      id: "657dee72-fdc9-42cf-a196-e535426032d3",
+      courseId,
+      title: "LSPC 101 Administration  Subchapter A. General - Introduction",
+      type: "lesson",
+      chapter: 1,
+      section: 101,
+      content: {
+        "extracted": {
+          "html": "<h2>LSPC 101 - Administration and Authority</h2><p>Welcome to Section 101 of the Louisiana State Plumbing Code. This foundational section establishes the administrative framework and legal authority for plumbing regulations throughout Louisiana.</p><h3>Key Learning Objectives</h3><ul><li>Understand the adoption of Part XIV (Plumbing) by the Department of Health and Hospitals</li><li>Learn the legal authority structure under Louisiana Revised Statutes</li><li>Master the terminology and interchangeable references used throughout the code</li></ul>"
+        }
+      },
+      duration: 30,
+      isActive: true,
+      sortOrder: 0
+    },
+    {
+      id: "b33d9c97-02a5-4362-9217-94cb39e56bde",
+      courseId,
+      title: "LSPC 101 Administration  Subchapter A. General - Flashcards",
+      type: "flashcards",
+      chapter: 1,
+      section: 101,
+      content: {
+        "extracted": {
+          "cards": [
+            {
+              "front": "What department adopts Part XIV (Plumbing) of the Sanitary Code?",
+              "back": "Department of Health and Hospitals, Office of Public Health"
+            },
+            {
+              "front": "What is the alternative name for Part XIV (Plumbing) of the Sanitary Code?",
+              "back": "Louisiana State Plumbing Code (LSPC)"
+            },
+            {
+              "front": "What is the primary legal authority for the sanitary code?",
+              "back": "R.S. 36:258(B)"
+            }
+          ]
+        }
+      },
+      isActive: true,
+      sortOrder: 0
+    }
+  ];
+
+  // Insert all course content
+  for (const content of courseContentData) {
+    try {
+      await storage.createCourseContent(content);
+    } catch (error) {
+      console.error(`Error seeding content ${content.title}:`, error);
+    }
+  }
+
+  console.log(`Course content seeded successfully: ${courseContentData.length} items`);
+}
 import bcrypt from "bcrypt";
 import session from "express-session";
 import passport from "passport";
@@ -673,6 +827,9 @@ Start your journey at laplumbprep.com/courses
             // Course might already exist, continue
           }
         }
+
+        // Auto-seed course content for Louisiana Journeyman Prep
+        await seedCourseContent();
 
         // Return the seeded courses
         const seededCourses = await storage.getCourses();
