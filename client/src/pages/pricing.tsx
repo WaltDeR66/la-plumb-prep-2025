@@ -282,10 +282,12 @@ export default function Pricing() {
                 Get Started Today
               </Button>
             </Link>
-            <a href="mailto:support@laplumbprep.com">
-              <Button variant="outline" size="lg" className="border-2 border-white text-white hover:bg-white hover:text-primary text-lg px-8 py-4" data-testid="cta-button-contact">
-                Contact Sales
-              </Button>
+            <a 
+              href="mailto:support@laplumbprep.com"
+              className="inline-flex items-center justify-center border-2 border-white text-white hover:bg-white hover:text-primary text-lg px-8 py-4 rounded-md font-medium transition-colors"
+              data-testid="cta-button-contact"
+            >
+              Contact Sales
             </a>
           </div>
         </div>
