@@ -92,8 +92,8 @@ export default function Pricing() {
       features: [
         "Journeyman Prep Course",
         "Complete Calculator Suite",
-        "Photo Code Checker",
-        "AI Mentor Support",
+        "Photo Code Checker (Coming Soon)",
+        "AI Mentor Support (Coming Soon)",
         "Resume Builder",
         "Referral Commissions (10%)",
         "Priority Support"
@@ -107,7 +107,7 @@ export default function Pricing() {
       description: "Complete mastery package",
       features: [
         "Journeyman Prep Course",
-        "Plan Analysis Tools",
+        "Plan Analysis Tools (Coming Soon)",
         "Material List Generator",
         "Referral Commissions (10%)",
         "Book Store Access",
@@ -272,20 +272,20 @@ export default function Pricing() {
                 <tr>
                   <td className="p-4 font-medium">AI Mentor Support</td>
                   <td className="p-4 text-center">❌</td>
-                  <td className="p-4 text-center">✅</td>
-                  <td className="p-4 text-center">✅</td>
+                  <td className="p-4 text-center"><span className="text-yellow-600 text-sm">Coming Soon</span></td>
+                  <td className="p-4 text-center"><span className="text-yellow-600 text-sm">Coming Soon</span></td>
                 </tr>
                 <tr>
                   <td className="p-4 font-medium">Photo Code Checker</td>
                   <td className="p-4 text-center">❌</td>
-                  <td className="p-4 text-center">✅</td>
-                  <td className="p-4 text-center">✅</td>
+                  <td className="p-4 text-center"><span className="text-yellow-600 text-sm">Coming Soon</span></td>
+                  <td className="p-4 text-center"><span className="text-yellow-600 text-sm">Coming Soon</span></td>
                 </tr>
                 <tr>
                   <td className="p-4 font-medium">Plan Analysis</td>
                   <td className="p-4 text-center">❌</td>
                   <td className="p-4 text-center">❌</td>
-                  <td className="p-4 text-center">✅</td>
+                  <td className="p-4 text-center"><span className="text-yellow-600 text-sm">Coming Soon</span></td>
                 </tr>
                 <tr>
                   <td className="p-4 font-medium">Resume Builder</td>
