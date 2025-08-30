@@ -7,6 +7,7 @@ import { analyzePhoto, analyzePlans, getMentorResponse, calculatePipeSize } from
 import { calculateReferralCommission, isValidSubscriptionTier } from "@shared/referral-utils";
 import { contentExtractor } from "./content-extractor";
 import { emailAutomation } from "./email-automation";
+import { bulkPricingService } from "./bulk-pricing";
 import Stripe from "stripe";
 import bcrypt from "bcrypt";
 import session from "express-session";
@@ -903,6 +904,132 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
     } catch (error: any) {
       console.error("Error unsubscribing:", error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Get bulk pricing tiers
+  app.get("/api/bulk-pricing/tiers", async (req, res) => {
+    try {
+      const tiers = await bulkPricingService.getBulkPricingTiers();
+      res.json({ tiers });
+    } catch (error: any) {
+      console.error("Error fetching bulk pricing tiers:", error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Calculate bulk pricing for a quote
+  app.post("/api/bulk-pricing/calculate", async (req, res) => {
+    try {
+      const { studentCount, courseIds = ["journeyman"] } = req.body;
+      
+      if (!studentCount || studentCount < 1) {
+        return res.status(400).json({ message: "Student count is required and must be greater than 0" });
+      }
+      
+      const pricing = await bulkPricingService.calculateBulkPricing(studentCount, courseIds);
+      res.json({ pricing });
+    } catch (error: any) {
+      console.error("Error calculating bulk pricing:", error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Create bulk enrollment request (requires authentication)
+  app.post("/api/bulk-enrollment/request", async (req, res) => {
+    try {
+      const { 
+        employerId, 
+        studentEmails, 
+        courseIds = ["journeyman"], 
+        contactEmail, 
+        contactPhone, 
+        notes, 
+        requestedStartDate 
+      } = req.body;
+      
+      if (!employerId || !studentEmails || !Array.isArray(studentEmails) || studentEmails.length === 0) {
+        return res.status(400).json({ 
+          message: "Employer ID and student emails array are required" 
+        });
+      }
+      
+      if (!contactEmail) {
+        return res.status(400).json({ message: "Contact email is required" });
+      }
+
+      // Validate student email format
+      for (const student of studentEmails) {
+        if (!student.email || !student.firstName) {
+          return res.status(400).json({ 
+            message: "Each student must have email and firstName" 
+          });
+        }
+      }
+
+      const result = await bulkPricingService.createBulkEnrollmentRequest(
+        employerId,
+        studentEmails,
+        courseIds,
+        contactEmail,
+        contactPhone,
+        notes,
+        requestedStartDate ? new Date(requestedStartDate) : undefined
+      );
+      
+      res.status(201).json({ 
+        message: "Bulk enrollment request created successfully",
+        ...result
+      });
+    } catch (error: any) {
+      console.error("Error creating bulk enrollment request:", error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Get bulk enrollment requests for an employer
+  app.get("/api/bulk-enrollment/requests/:employerId", async (req, res) => {
+    try {
+      const { employerId } = req.params;
+      const requests = await bulkPricingService.getBulkEnrollmentRequests(employerId);
+      res.json({ requests });
+    } catch (error: any) {
+      console.error("Error fetching bulk enrollment requests:", error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Get student enrollments for a bulk request
+  app.get("/api/bulk-enrollment/:requestId/students", async (req, res) => {
+    try {
+      const { requestId } = req.params;
+      const students = await bulkPricingService.getBulkStudentEnrollments(requestId);
+      res.json({ students });
+    } catch (error: any) {
+      console.error("Error fetching bulk student enrollments:", error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Approve bulk enrollment request (admin only)
+  app.post("/api/bulk-enrollment/:requestId/approve", async (req, res) => {
+    try {
+      const { requestId } = req.params;
+      const { approvedBy } = req.body;
+      
+      if (!approvedBy) {
+        return res.status(400).json({ message: "Approved by field is required" });
+      }
+      
+      const updatedRequest = await bulkPricingService.approveBulkEnrollmentRequest(requestId, approvedBy);
+      
+      res.json({ 
+        message: "Bulk enrollment request approved successfully",
+        request: updatedRequest 
+      });
+    } catch (error: any) {
+      console.error("Error approving bulk enrollment request:", error);
       res.status(500).json({ message: error.message });
     }
   });

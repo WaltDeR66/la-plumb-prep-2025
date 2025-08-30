@@ -22,6 +22,7 @@ export const productCategoryEnum = pgEnum("product_category", ["gas_detection", 
 export const jobStatusEnum = pgEnum("job_status", ["pending", "approved", "rejected", "expired"]);
 export const emailCampaignTypeEnum = pgEnum("email_campaign_type", ["employer_onboarding", "student_enrollment"]);
 export const emailStatusEnum = pgEnum("email_status", ["pending", "sent", "failed", "cancelled"]);
+export const bulkEnrollmentStatusEnum = pgEnum("bulk_enrollment_status", ["pending", "approved", "active", "cancelled"]);
 
 // Users table
 export const users = pgTable("users", {
@@ -578,10 +579,59 @@ export const emailUnsubscribes = pgTable("email_unsubscribes", {
   unsubscribedAt: timestamp("unsubscribed_at").defaultNow(),
 });
 
+// Bulk enrollment pricing tiers
+export const bulkEnrollmentTiers = pgTable("bulk_enrollment_tiers", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  tierName: text("tier_name").notNull(), // e.g., "Small Team", "Medium Team", "Large Company"
+  minStudents: integer("min_students").notNull(),
+  maxStudents: integer("max_students"), // null for unlimited
+  discountPercent: decimal("discount_percent", { precision: 5, scale: 2 }).notNull(), // e.g., 15.00 for 15%
+  basePrice: decimal("base_price", { precision: 10, scale: 2 }).notNull(), // price per student
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Bulk enrollment requests from employers
+export const bulkEnrollmentRequests = pgTable("bulk_enrollment_requests", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  employerId: text("employer_id").notNull(),
+  studentCount: integer("student_count").notNull(),
+  courseIds: text("course_ids").array().notNull(), // Array of course IDs
+  totalPrice: decimal("total_price", { precision: 10, scale: 2 }).notNull(),
+  discountPercent: decimal("discount_percent", { precision: 5, scale: 2 }).notNull(),
+  finalPrice: decimal("final_price", { precision: 10, scale: 2 }).notNull(),
+  status: bulkEnrollmentStatusEnum("status").default("pending"),
+  notes: text("notes"), // Additional requirements or notes
+  contactEmail: text("contact_email").notNull(),
+  contactPhone: text("contact_phone"),
+  requestedStartDate: timestamp("requested_start_date"),
+  approvedBy: text("approved_by"),
+  approvedAt: timestamp("approved_at"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Individual student enrollments within bulk requests
+export const bulkStudentEnrollments = pgTable("bulk_student_enrollments", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  bulkRequestId: text("bulk_request_id").notNull(),
+  studentEmail: text("student_email").notNull(),
+  studentFirstName: text("student_first_name").notNull(),
+  studentLastName: text("student_last_name"),
+  userId: text("user_id"), // Set when student creates account
+  isActivated: boolean("is_activated").default(false),
+  activatedAt: timestamp("activated_at"),
+  inviteSentAt: timestamp("invite_sent_at"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 // Create insert schemas
 export const insertEmailCampaignSchema = createInsertSchema(emailCampaigns);
 export const insertEmailQueueSchema = createInsertSchema(emailQueue);
 export const insertEmailUnsubscribeSchema = createInsertSchema(emailUnsubscribes);
+export const insertBulkEnrollmentTierSchema = createInsertSchema(bulkEnrollmentTiers);
+export const insertBulkEnrollmentRequestSchema = createInsertSchema(bulkEnrollmentRequests);
+export const insertBulkStudentEnrollmentSchema = createInsertSchema(bulkStudentEnrollments);
 
 // Types
 export type User = typeof users.$inferSelect;
@@ -624,3 +674,9 @@ export type EmailQueue = typeof emailQueue.$inferSelect;
 export type InsertEmailQueue = z.infer<typeof insertEmailQueueSchema>;
 export type EmailUnsubscribe = typeof emailUnsubscribes.$inferSelect;
 export type InsertEmailUnsubscribe = z.infer<typeof insertEmailUnsubscribeSchema>;
+export type BulkEnrollmentTier = typeof bulkEnrollmentTiers.$inferSelect;
+export type InsertBulkEnrollmentTier = z.infer<typeof insertBulkEnrollmentTierSchema>;
+export type BulkEnrollmentRequest = typeof bulkEnrollmentRequests.$inferSelect;
+export type InsertBulkEnrollmentRequest = z.infer<typeof insertBulkEnrollmentRequestSchema>;
+export type BulkStudentEnrollment = typeof bulkStudentEnrollments.$inferSelect;
+export type InsertBulkStudentEnrollment = z.infer<typeof insertBulkStudentEnrollmentSchema>;

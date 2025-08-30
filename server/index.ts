@@ -2,6 +2,7 @@ import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import { emailAutomation } from "./email-automation";
+import { bulkPricingService } from "./bulk-pricing";
 
 const app = express();
 app.use(express.json());
@@ -75,6 +76,9 @@ app.use((req, res, next) => {
     // Initialize email campaigns on startup
     await emailAutomation.initializeCampaigns();
     
+    // Initialize bulk pricing tiers
+    await bulkPricingService.initializeBulkTiers();
+    
     // Start email queue processor (runs every 5 minutes)
     setInterval(async () => {
       try {
@@ -85,5 +89,6 @@ app.use((req, res, next) => {
     }, 5 * 60 * 1000); // 5 minutes
     
     log("Email automation system initialized");
+    log("Bulk pricing system initialized");
   });
 })();

@@ -63,6 +63,11 @@ export default function Header() {
           
           {/* Desktop Auth Buttons */}
           <div className="hidden md:flex items-center space-x-3">
+            <Link href="/bulk-enrollment">
+              <Button variant="outline" size="sm" data-testid="button-bulk-enrollment">
+                Bulk Enrollment
+              </Button>
+            </Link>
             <Link href="/employer-portal">
               <Button variant="outline" size="sm" data-testid="button-employer-portal">
                 Post a Job

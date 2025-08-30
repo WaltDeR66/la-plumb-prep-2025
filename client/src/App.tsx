@@ -30,6 +30,7 @@ import LouisianaBoard from "@/pages/louisiana-board";
 import TechnicalSupport from "@/pages/technical-support";
 import SystemStatus from "@/pages/system-status";
 import Referrals from "@/pages/referrals";
+import BulkEnrollment from "@/pages/bulk-enrollment";
 import Header from "@/components/layout/header";
 import Footer from "@/components/layout/footer";
 
@@ -65,6 +66,7 @@ function Router() {
           <Route path="/technical-support" component={TechnicalSupport} />
           <Route path="/system-status" component={SystemStatus} />
           <Route path="/referrals" component={Referrals} />
+          <Route path="/bulk-enrollment" component={BulkEnrollment} />
           <Route component={NotFound} />
         </Switch>
       </main>
