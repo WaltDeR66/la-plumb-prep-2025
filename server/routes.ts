@@ -362,6 +362,15 @@ Start your journey at laplumbprep.com/courses
     let user = req.user as any;
     const { priceId, tier } = req.body;
 
+    // Admin bypass - if admin already has subscription tier, just return success
+    if (user.email === 'admin@latrainer.com' && user.subscriptionTier) {
+      return res.json({
+        subscriptionId: 'admin-bypass',
+        clientSecret: 'admin-bypass-secret',
+        status: 'active'
+      });
+    }
+
     if (user.stripeSubscriptionId) {
       const subscription = await stripe.subscriptions.retrieve(user.stripeSubscriptionId);
       

@@ -6,6 +6,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useLocation } from "wouter";
+import { useQuery } from "@tanstack/react-query";
 
 if (!import.meta.env.VITE_STRIPE_PUBLIC_KEY) {
   throw new Error('Missing required Stripe key: VITE_STRIPE_PUBLIC_KEY');
@@ -90,6 +91,12 @@ export default function Subscribe() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
 
+  // Check if user is already logged in and has subscription
+  const { data: user } = useQuery({
+    queryKey: ["/api/auth/me"],
+    retry: false,
+  });
+
   // Get plan details from URL params
   const urlParams = new URLSearchParams(window.location.search);
   const planId = urlParams.get('plan') || 'professional';
@@ -103,6 +110,18 @@ export default function Subscribe() {
   };
 
   const currentPlan = planDetails[planId as keyof typeof planDetails] || planDetails.professional;
+
+  // Redirect if user already has active subscription
+  useEffect(() => {
+    if (user && user.subscriptionTier) {
+      toast({
+        title: "Already Subscribed",
+        description: `You already have an active ${user.subscriptionTier} subscription!`,
+      });
+      setLocation("/dashboard");
+      return;
+    }
+  }, [user, toast, setLocation]);
 
   useEffect(() => {
     // Create subscription as soon as the page loads
