@@ -220,7 +220,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getCourses(): Promise<Course[]> {
-    return await db.select().from(courses).where(eq(courses.isActive, true));
+    return await db.select().from(courses);
   }
 
   async getCourse(id: string): Promise<Course | undefined> {
