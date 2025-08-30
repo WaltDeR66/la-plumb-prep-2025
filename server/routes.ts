@@ -545,6 +545,47 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Employer analytics routes
+  app.get("/api/employer/:employerId/jobs", async (req, res) => {
+    try {
+      const { employerId } = req.params;
+      
+      // Verify employer exists
+      const employer = await storage.getEmployer(employerId);
+      if (!employer) {
+        return res.status(404).json({ message: "Employer not found" });
+      }
+      
+      // Get all jobs for this employer with their applications
+      const jobsWithApplications = await storage.getEmployerJobsWithApplications(employerId);
+      
+      res.json(jobsWithApplications);
+    } catch (error: any) {
+      console.error("Error fetching employer jobs:", error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Get specific job applications for an employer
+  app.get("/api/employer/:employerId/jobs/:jobId/applications", async (req, res) => {
+    try {
+      const { employerId, jobId } = req.params;
+      
+      // Verify employer owns this job
+      const job = await storage.getJob(jobId);
+      if (!job || job.employerId !== employerId) {
+        return res.status(404).json({ message: "Job not found or unauthorized" });
+      }
+      
+      const applications = await storage.getJobApplicationsWithUserDetails(jobId);
+      
+      res.json(applications);
+    } catch (error: any) {
+      console.error("Error fetching job applications:", error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
   app.post("/api/jobs/:jobId/apply", requireStudentEnrollment, async (req, res) => {
     if (!req.isAuthenticated()) {
       return res.status(401).json({ message: "Not authenticated" });

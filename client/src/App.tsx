@@ -20,6 +20,7 @@ import Store from "@/pages/store";
 import ProductDetail from "@/pages/product-detail";
 import EmployerPortal from "@/pages/employer-portal";
 import JobApproval from "@/pages/admin/job-approval";
+import JobAnalytics from "@/pages/employer/job-analytics";
 import Header from "@/components/layout/header";
 import Footer from "@/components/layout/footer";
 
@@ -44,6 +45,7 @@ function Router() {
           <Route path="/login" component={Login} />
           <Route path="/register" component={Register} />
           <Route path="/employer-portal" component={EmployerPortal} />
+          <Route path="/employer/analytics" component={JobAnalytics} />
           <Route path="/admin/job-approval" component={JobApproval} />
           <Route component={NotFound} />
         </Switch>
