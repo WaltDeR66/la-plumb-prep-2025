@@ -295,6 +295,42 @@ Start your journey at laplumbprep.com/courses
     });
   });
 
+  // Emergency admin reset endpoint
+  app.post("/api/admin/reset", async (req, res) => {
+    try {
+      const { secretCode } = req.body;
+      if (secretCode !== "EMERGENCY_RESET_2025") {
+        return res.status(403).json({ message: "Invalid secret code" });
+      }
+
+      const hashedPassword = await bcrypt.hash("admin123", 10);
+      
+      // Try to update existing admin user
+      const existingUser = await storage.getUserByEmail("admin@latrainer.com");
+      
+      if (existingUser) {
+        await storage.updateUser(existingUser.id, { password: hashedPassword });
+        res.json({ message: "Admin password reset successfully" });
+      } else {
+        // Create new admin user
+        const adminUser = await storage.createUser({
+          id: "admin-emergency-" + Date.now(),
+          email: "admin@latrainer.com",
+          username: "admin",
+          password: hashedPassword,
+          firstName: "Admin",
+          lastName: "User",
+          subscriptionTier: "master",
+          isActive: true
+        });
+        res.json({ message: "Admin user created successfully", user: adminUser.email });
+      }
+    } catch (error: any) {
+      console.error("Admin reset error:", error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
   app.get("/api/auth/me", (req, res) => {
     if (req.isAuthenticated()) {
       res.json(req.user);
