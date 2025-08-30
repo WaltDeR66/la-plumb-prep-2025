@@ -124,8 +124,12 @@ export default function Pricing() {
                     </h3>
                     <div className="text-4xl font-bold text-primary mb-2" data-testid={`plan-price-${plan.id}`}>
                       {isAnnual ? `$${Math.floor(parseInt(plan.price.replace('$', '')) * 0.8)}` : plan.price}
-                      <span className="text-xl font-normal text-muted-foreground">/{isAnnual ? 'year' : 'month'}</span>
-                      {isAnnual && <div className="text-sm text-green-600 font-normal">Save 20%</div>}
+                      <span className="text-xl font-normal text-muted-foreground">/month</span>
+                      {isAnnual && (
+                        <div className="text-sm text-green-600 font-normal">
+                          Save 20% • ${Math.floor(parseInt(plan.price.replace('$', '')) * 0.8 * 12)} annually
+                        </div>
+                      )}
                     </div>
                     <p className="text-muted-foreground" data-testid={`plan-description-${plan.id}`}>
                       {plan.description}
