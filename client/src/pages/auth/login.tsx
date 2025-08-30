@@ -9,7 +9,7 @@ import { Link, useLocation } from "wouter";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { queryClient } from "@/lib/queryClient";
-import plumbingEducationImage from "@assets/generated_images/Louisiana_plumbing_prep_hero_image_70473180.png";
+import plumbingEducationImage from "@assets/generated_images/Louisiana_plumbing_prep_interface_dd5de1e1.png";
 
 export default function Login() {
   const [, setLocation] = useLocation();
