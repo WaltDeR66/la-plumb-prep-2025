@@ -108,6 +108,77 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use(passport.initialize());
   app.use(passport.session());
 
+  // Serve downloadable PDFs for lead magnets - MUST BE FIRST TO AVOID CONFLICTS
+  app.get("/downloads/louisiana-code-guide.pdf", async (req, res) => {
+    try {
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader('Content-Disposition', 'attachment; filename="louisiana-code-guide.pdf"');
+      
+      const pdfContent = `
+Louisiana Plumbing Code Quick Reference Guide
+
+This comprehensive guide covers:
+- Essential code violations to avoid
+- Pipe sizing requirements
+- Installation best practices
+- 2024 Louisiana code updates
+- Common inspection failures
+- Professional troubleshooting tips
+
+Complete PDF version coming soon!
+Visit laplumbprep.com/courses to start your certification prep.
+      `;
+      
+      res.send(pdfContent);
+    } catch (error: any) {
+      console.error("Error serving code guide:", error);
+      res.status(500).send("Error downloading guide");
+    }
+  });
+
+  app.get("/downloads/louisiana-career-roadmap.pdf", async (req, res) => {
+    try {
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader('Content-Disposition', 'attachment; filename="louisiana-career-roadmap.pdf"');
+      
+      const pdfContent = `
+Louisiana Plumbing Career Roadmap 2024
+
+Your path to $75,000+ plumbing career:
+
+APPRENTICE LEVEL:
+- Starting salary: $35,000-$45,000
+- Get on-the-job training
+- Complete 4-year apprenticeship
+
+JOURNEYMAN LEVEL:
+- Salary: $50,000-$65,000  
+- Pass state licensing exam
+- Work independently
+- Supervise apprentices
+
+MASTER PLUMBER:
+- Salary: $65,000-$85,000+
+- Own your business
+- Pull permits
+- Train others
+
+CERTIFICATION TIMELINE:
+- Year 1-4: Apprenticeship
+- Year 5: Journeyman exam prep
+- Year 6+: Master plumber track
+
+Complete roadmap PDF coming soon!
+Start your journey at laplumbprep.com/courses
+      `;
+      
+      res.send(pdfContent);
+    } catch (error: any) {
+      console.error("Error serving career roadmap:", error);
+      res.status(500).send("Error downloading roadmap");
+    }
+  });
+
   // Passport configuration
   passport.use(new LocalStrategy(
     { usernameField: 'email' },
@@ -2269,78 +2340,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Serve downloadable PDFs for lead magnets
-  app.get("/downloads/louisiana-code-guide.pdf", async (req, res) => {
-    try {
-      // For now, redirect to a placeholder or generate a simple PDF response
-      res.setHeader('Content-Type', 'application/pdf');
-      res.setHeader('Content-Disposition', 'attachment; filename="louisiana-code-guide.pdf"');
-      
-      // Send a simple text response indicating the PDF will be available soon
-      const pdfContent = `
-Louisiana Plumbing Code Quick Reference Guide
-
-This comprehensive guide covers:
-- Essential code violations to avoid
-- Pipe sizing requirements
-- Installation best practices
-- 2024 Louisiana code updates
-- Common inspection failures
-- Professional troubleshooting tips
-
-Complete PDF version coming soon!
-Visit laplumbprep.com/courses to start your certification prep.
-      `;
-      
-      res.send(pdfContent);
-    } catch (error: any) {
-      console.error("Error serving code guide:", error);
-      res.status(500).send("Error downloading guide");
-    }
-  });
-
-  app.get("/downloads/louisiana-career-roadmap.pdf", async (req, res) => {
-    try {
-      res.setHeader('Content-Type', 'application/pdf');
-      res.setHeader('Content-Disposition', 'attachment; filename="louisiana-career-roadmap.pdf"');
-      
-      const pdfContent = `
-Louisiana Plumbing Career Roadmap 2024
-
-Your path to $75,000+ plumbing career:
-
-APPRENTICE LEVEL:
-- Starting salary: $35,000-$45,000
-- Get on-the-job training
-- Complete 4-year apprenticeship
-
-JOURNEYMAN LEVEL:
-- Salary: $50,000-$65,000  
-- Pass state licensing exam
-- Work independently
-- Supervise apprentices
-
-MASTER PLUMBER:
-- Salary: $65,000-$85,000+
-- Own your business
-- Pull permits
-- Train others
-
-CERTIFICATION TIMELINE:
-- Year 1-4: Apprenticeship
-- Year 5: Journeyman exam prep
-- Year 6+: Master plumber track
-
-Complete roadmap PDF coming soon!
-Start your journey at laplumbprep.com/courses
-      `;
-      
-      res.send(pdfContent);
-    } catch (error: any) {
-      console.error("Error serving career roadmap:", error);
-      res.status(500).send("Error downloading roadmap");
-    }
-  });
+  // PDF routes moved to beginning of file for priority
 
   // Test endpoint to check email credentials
   app.get("/api/check-email-config", async (req, res) => {
