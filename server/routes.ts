@@ -35,6 +35,11 @@ const requireActiveSubscription = async (req: any, res: any, next: any) => {
   const user = req.user as any;
   
   try {
+    // Allow admin users without Stripe verification
+    if (user.email === 'admin@latrainer.com' || user.email === 'admin@laplumbprep.com') {
+      return next();
+    }
+
     // Check if user has professional or master tier subscription
     if (user.subscriptionTier === 'professional' || user.subscriptionTier === 'master') {
       // Verify the subscription is actually active in Stripe
