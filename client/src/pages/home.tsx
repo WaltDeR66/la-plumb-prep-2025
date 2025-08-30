@@ -12,15 +12,15 @@ export default function Home() {
       id: "journeyman",
       title: "Journeyman Plumber",
       description: "Master residential and commercial plumbing systems, codes, and installation techniques.",
-      price: "$79/mo",
+      price: "Coming Soon",
       icon: Building2,
       features: ["120+ Practice Questions", "Video Lessons", "Code Books Included"]
     },
     {
       id: "backflow",
       title: "Backflow Prevention",
-      description: "Specialized certification for backflow prevention assembly testing and maintenance.",
-      price: "$199 Course",
+      description: "Comprehensive training course covering backflow prevention testing, repairs, and field report completion.",
+      price: "Coming Soon",
       icon: Calculator,
       features: ["Device Testing Modules", "Cross-Connection Control", "Field Reports Training"]
     },
@@ -243,14 +243,27 @@ export default function Home() {
                     ))}
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-2xl font-bold text-foreground" data-testid={`course-price-${course.id}`}>
-                      {course.price}
-                    </span>
-                    <Link href="/pricing">
-                      <Button data-testid={`button-start-course-${course.id}`}>
-                        Start Course
-                      </Button>
-                    </Link>
+                    {course.price === "Coming Soon" ? (
+                      <>
+                        <span className="text-lg font-semibold text-muted-foreground" data-testid={`course-status-${course.id}`}>
+                          Coming Soon
+                        </span>
+                        <Button disabled data-testid={`button-coming-soon-${course.id}`}>
+                          Coming Soon
+                        </Button>
+                      </>
+                    ) : (
+                      <>
+                        <span className="text-lg font-semibold text-muted-foreground">
+                          Available Now
+                        </span>
+                        <Link href="/pricing">
+                          <Button data-testid={`button-start-course-${course.id}`}>
+                            Start Course
+                          </Button>
+                        </Link>
+                      </>
+                    )}
                   </div>
                 </CardContent>
               </Card>
