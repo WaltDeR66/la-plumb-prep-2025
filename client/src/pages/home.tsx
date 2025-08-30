@@ -3,7 +3,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { CheckCircle, Building2, Calculator, Camera, MessageCircle, Users, Star, Clock, MapPin, DollarSign } from "lucide-react";
 import { Link } from "wouter";
-import heroImage from "@assets/generated_images/Louisiana_plumbing_certification_hero_image_799850d9.png";
+import heroImage from "@assets/generated_images/Louisiana_plumbing_prep_hero_image_70473180.png";
 import BetaBanner from "@/components/beta-banner";
 
 export default function Home() {
