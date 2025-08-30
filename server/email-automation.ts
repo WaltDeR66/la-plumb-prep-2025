@@ -203,9 +203,9 @@ Thank you for your interest in bulk enrollment at Louisiana Plumbing Prep! You'r
 - Current 2024 Louisiana code updates
 
 💰 **Massive Bulk Savings**
-- 5-19 students: 10% discount ($44/student vs $49)
-- 20-49 students: 15% discount ($42/student vs $49)  
-- 50+ students: 25% discount ($37/student vs $49)
+- ALL employer enrollments: 25% discount ($37/student vs $49)
+- Any number of students qualifies for the discount
+- Simple, fair pricing for all employers
 
 🚀 **Complete Professional Toolkit**
 - AI Mentor for instant code questions
@@ -253,7 +253,7 @@ See how smart contractors are maximizing their training budgets:
 
 **Results achieved:**
 ✅ 25 technicians certified in 60 days
-✅ $1,875 saved on training costs (15% bulk discount)
+✅ $3,063 saved on training costs (25% bulk discount)
 ✅ 40% increase in high-value commercial contracts
 ✅ Zero code violations in the past 6 months
 
@@ -310,7 +310,7 @@ Your competition is already using AI-powered plumbing tools. Here's what your te
 "Our estimating accuracy improved by 30% using the professional calculators. We're winning more bids and maintaining better margins." - Acadiana Mechanical
 
 **Your Investment vs Your Returns:**
-- Bulk enrollment: $37-44 per student
+- Bulk enrollment: $37 per student (25% discount)
 - Prevent one $5,000 code violation = 135+ students covered
 - Win one additional $50,000 contract = 1,350+ students covered
 

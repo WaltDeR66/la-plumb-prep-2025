@@ -41,28 +41,14 @@ export class BulkPricingService {
         return; // Already initialized
       }
 
-      // Create default bulk pricing tiers
+      // Create single flat discount tier for all employer enrollments
       const defaultTiers = [
         {
-          tierName: "Small Team",
-          minStudents: 5,
-          maxStudents: 19,
-          discountPercent: "10.00", // 10% discount
-          basePrice: "49.00" // Base price per student
-        },
-        {
-          tierName: "Medium Team", 
-          minStudents: 20,
-          maxStudents: 49,
-          discountPercent: "15.00", // 15% discount
-          basePrice: "49.00"
-        },
-        {
-          tierName: "Large Company",
-          minStudents: 50,
+          tierName: "Employer Bulk Discount",
+          minStudents: 1,
           maxStudents: null, // No upper limit
-          discountPercent: "25.00", // 25% discount
-          basePrice: "49.00"
+          discountPercent: "25.00", // 25% discount for all employer enrollments
+          basePrice: "49.00" // Base price per student
         }
       ];
 

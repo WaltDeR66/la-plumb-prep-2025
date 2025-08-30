@@ -24,7 +24,7 @@ const bulkEnrollmentSchema = z.object({
   contactPhone: z.string().optional(),
   notes: z.string().optional(),
   requestedStartDate: z.string().optional(),
-  students: z.array(studentSchema).min(5, "Minimum 5 students required for bulk enrollment"),
+  students: z.array(studentSchema).min(1, "Minimum 1 student required for bulk enrollment"),
 });
 
 type BulkEnrollmentForm = z.infer<typeof bulkEnrollmentSchema>;
@@ -98,7 +98,7 @@ export default function BulkEnrollment() {
   useEffect(() => {
     const subscription = form.watch((value) => {
       const studentCount = value.students?.filter(s => s.email && s.firstName).length || 0;
-      if (studentCount >= 5) {
+      if (studentCount >= 1) {
         calculatePricing(studentCount);
       } else {
         setPricingCalculation(null);
@@ -163,7 +163,7 @@ export default function BulkEnrollment() {
   };
 
   const removeStudent = (index: number) => {
-    if (fields.length > 5) {
+    if (fields.length > 1) {
       remove(index);
     }
   };
