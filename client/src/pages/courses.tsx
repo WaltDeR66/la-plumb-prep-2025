@@ -119,8 +119,7 @@ export default function Courses() {
                 <SelectContent>
                   <SelectItem value="popular">Most Popular</SelectItem>
                   <SelectItem value="newest">Newest</SelectItem>
-                  <SelectItem value="price-low">Price: Low to High</SelectItem>
-                  <SelectItem value="price-high">Price: High to Low</SelectItem>
+                  <SelectItem value="alphabetical">Alphabetical</SelectItem>
                 </SelectContent>
               </Select>
             </div>

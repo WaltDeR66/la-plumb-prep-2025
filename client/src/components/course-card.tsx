@@ -163,22 +163,20 @@ export default function CourseCard({ course, isEnrolled = false, progress = 0, i
             </div>
           </div>
 
-          {/* Price and Action */}
+          {/* Action */}
           <div className="flex items-center justify-between pt-4 border-t">
             {!isEnrolled ? (
               <>
-                <div>
-                  <span className="text-2xl font-bold text-foreground" data-testid={`course-price-${course.id}`}>
-                    {course.price}
-                  </span>
-                  <span className="text-muted-foreground text-sm">/month</span>
+                <div className="text-sm text-muted-foreground">
+                  Professional certification prep
                 </div>
                 <Button 
-                  onClick={handleEnroll}
-                  disabled={enrollMutation.isPending}
-                  data-testid={`button-enroll-${course.id}`}
+                  asChild
+                  data-testid={`button-start-${course.id}`}
                 >
-                  {enrollMutation.isPending ? "Enrolling..." : "Start Course"}
+                  <Link href="/pricing">
+                    Start Course
+                  </Link>
                 </Button>
               </>
             ) : (
