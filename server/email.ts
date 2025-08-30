@@ -257,6 +257,23 @@ export class EmailService {
       html: htmlContent,
     });
   }
+
+  // General purpose email sending method
+  async sendEmail(params: {
+    to: string;
+    subject: string;
+    html: string;
+    from?: string;
+  }) {
+    const { to, subject, html, from } = params;
+    
+    await this.noreplyTransporter.sendMail({
+      from: from || `"LA Plumb Prep" <${process.env.NOREPLY_USER}>`,
+      to: to,
+      subject: subject,
+      html: html,
+    });
+  }
 }
 
 // Create singleton instance
