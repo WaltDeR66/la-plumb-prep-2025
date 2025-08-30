@@ -19,7 +19,7 @@ export default function Home() {
       id: "backflow",
       title: "Backflow Prevention",
       description: "Specialized certification for backflow prevention assembly testing and maintenance.",
-      price: "Coming Soon",
+      price: "$199 Course",
       icon: Calculator,
       features: ["Device Testing Modules", "Cross-Connection Control", "Field Reports Training"]
     },
@@ -192,17 +192,6 @@ export default function Home() {
                 className="rounded-2xl shadow-2xl w-full h-auto"
                 data-testid="hero-image"
               />
-              <div className="absolute -bottom-6 -left-6 bg-white rounded-xl p-6 shadow-xl" data-testid="stats-card">
-                <div className="flex items-center space-x-3">
-                  <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
-                    <CheckCircle className="w-6 h-6 text-green-600" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-gray-900" data-testid="stats-number">2,847 Students</p>
-                    <p className="text-xs text-gray-500" data-testid="stats-description">Certified This Year</p>
-                  </div>
-                </div>
-              </div>
             </div>
           </div>
         </div>
