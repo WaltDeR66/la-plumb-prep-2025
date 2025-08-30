@@ -42,7 +42,7 @@ type EmployerData = z.infer<typeof employerSchema>;
 type JobData = z.infer<typeof jobSchema>;
 
 export default function EmployerPortal() {
-  const [step, setStep] = useState<'employer' | 'job' | 'success'>('employer');
+  const [step, setStep] = useState<'employer' | 'pricing' | 'job' | 'success'>('employer');
   const [employerId, setEmployerId] = useState<string>("");
   const { toast } = useToast();
 
@@ -62,10 +62,10 @@ export default function EmployerPortal() {
       apiRequest("POST", "/api/employers/register", data),
     onSuccess: (response) => {
       setEmployerId(response.employerId);
-      setStep('job');
+      setStep('pricing');
       toast({
         title: "Registration Successful",
-        description: "Your company has been registered. Now let's create your job posting.",
+        description: "Your company has been registered. Now let's select your job posting plan.",
       });
     },
     onError: (error: any) => {
@@ -195,32 +195,41 @@ export default function EmployerPortal() {
       {/* Progress Steps */}
       <section className="py-8 bg-white border-b">
         <div className="max-w-4xl mx-auto px-4">
-          <div className="flex items-center justify-center space-x-4">
+          <div className="flex items-center justify-center space-x-2">
             <div className={`flex items-center space-x-2 ${step === 'employer' ? 'text-primary' : 'text-muted-foreground'}`}>
               <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold ${
                 step === 'employer' ? 'bg-primary text-primary-foreground' : 'bg-muted'
               }`}>
                 1
               </div>
-              <span className="font-medium">Company Info</span>
+              <span className="font-medium hidden sm:block">Company Info</span>
             </div>
-            <div className="w-16 h-px bg-muted"></div>
+            <div className="w-8 h-px bg-muted"></div>
+            <div className={`flex items-center space-x-2 ${step === 'pricing' ? 'text-primary' : 'text-muted-foreground'}`}>
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold ${
+                step === 'pricing' ? 'bg-primary text-primary-foreground' : 'bg-muted'
+              }`}>
+                2
+              </div>
+              <span className="font-medium hidden sm:block">Pricing</span>
+            </div>
+            <div className="w-8 h-px bg-muted"></div>
             <div className={`flex items-center space-x-2 ${step === 'job' ? 'text-primary' : 'text-muted-foreground'}`}>
               <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold ${
                 step === 'job' ? 'bg-primary text-primary-foreground' : 'bg-muted'
               }`}>
-                2
+                3
               </div>
-              <span className="font-medium">Job Details</span>
+              <span className="font-medium hidden sm:block">Job Details</span>
             </div>
-            <div className="w-16 h-px bg-muted"></div>
+            <div className="w-8 h-px bg-muted"></div>
             <div className={`flex items-center space-x-2 ${step === 'success' ? 'text-primary' : 'text-muted-foreground'}`}>
               <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold ${
                 step === 'success' ? 'bg-primary text-primary-foreground' : 'bg-muted'
               }`}>
-                3
+                4
               </div>
-              <span className="font-medium">Review</span>
+              <span className="font-medium hidden sm:block">Complete</span>
             </div>
           </div>
         </div>
@@ -395,10 +404,111 @@ export default function EmployerPortal() {
                       disabled={registerEmployerMutation.isPending}
                       data-testid="button-continue-employer"
                     >
-                      {registerEmployerMutation.isPending ? "Registering..." : "Continue to Job Details"}
+                      {registerEmployerMutation.isPending ? "Registering..." : "Continue to Pricing"}
                     </Button>
                   </form>
                 </Form>
+              </CardContent>
+            </Card>
+          )}
+
+          {step === 'pricing' && (
+            <Card data-testid="pricing-form">
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <DollarSign className="w-6 h-6" />
+                  <span>Job Posting Plans</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid md:grid-cols-2 gap-6 mb-8">
+                  {/* Basic Job Posting */}
+                  <Card className="border-2 hover:border-primary transition-colors cursor-pointer">
+                    <CardContent className="p-6">
+                      <div className="text-center mb-6">
+                        <h3 className="text-2xl font-bold">Basic Job Post</h3>
+                        <div className="text-3xl font-bold text-primary mt-2">$49</div>
+                        <p className="text-muted-foreground">30-day listing</p>
+                      </div>
+                      <ul className="space-y-3 mb-6">
+                        <li className="flex items-center space-x-2">
+                          <CheckCircle className="w-5 h-5 text-green-500" />
+                          <span>30-day active job listing</span>
+                        </li>
+                        <li className="flex items-center space-x-2">
+                          <CheckCircle className="w-5 h-5 text-green-500" />
+                          <span>Receive student applications</span>
+                        </li>
+                        <li className="flex items-center space-x-2">
+                          <CheckCircle className="w-5 h-5 text-green-500" />
+                          <span>Basic application analytics</span>
+                        </li>
+                        <li className="flex items-center space-x-2">
+                          <CheckCircle className="w-5 h-5 text-green-500" />
+                          <span>Email notifications</span>
+                        </li>
+                      </ul>
+                      <Button 
+                        className="w-full" 
+                        variant="outline"
+                        onClick={() => setStep('job')}
+                        data-testid="select-basic-plan"
+                      >
+                        Select Basic Plan
+                      </Button>
+                    </CardContent>
+                  </Card>
+
+                  {/* Premium Job Posting */}
+                  <Card className="border-2 border-primary bg-primary/5">
+                    <CardContent className="p-6">
+                      <div className="text-center mb-6">
+                        <Badge className="mb-2">Most Popular</Badge>
+                        <h3 className="text-2xl font-bold">Premium Job Post</h3>
+                        <div className="text-3xl font-bold text-primary mt-2">$89</div>
+                        <p className="text-muted-foreground">60-day listing + features</p>
+                      </div>
+                      <ul className="space-y-3 mb-6">
+                        <li className="flex items-center space-x-2">
+                          <CheckCircle className="w-5 h-5 text-green-500" />
+                          <span>60-day active job listing</span>
+                        </li>
+                        <li className="flex items-center space-x-2">
+                          <CheckCircle className="w-5 h-5 text-green-500" />
+                          <span>Priority placement in job board</span>
+                        </li>
+                        <li className="flex items-center space-x-2">
+                          <CheckCircle className="w-5 h-5 text-green-500" />
+                          <span>Advanced application analytics</span>
+                        </li>
+                        <li className="flex items-center space-x-2">
+                          <CheckCircle className="w-5 h-5 text-green-500" />
+                          <span>Resume download & management</span>
+                        </li>
+                        <li className="flex items-center space-x-2">
+                          <CheckCircle className="w-5 h-5 text-green-500" />
+                          <span>Direct student messaging</span>
+                        </li>
+                        <li className="flex items-center space-x-2">
+                          <CheckCircle className="w-5 h-5 text-green-500" />
+                          <span>Priority support</span>
+                        </li>
+                      </ul>
+                      <Button 
+                        className="w-full bg-primary hover:bg-primary/90" 
+                        onClick={() => setStep('job')}
+                        data-testid="select-premium-plan"
+                      >
+                        Select Premium Plan
+                      </Button>
+                    </CardContent>
+                  </Card>
+                </div>
+
+                <div className="text-center text-sm text-muted-foreground">
+                  <p>All plans include access to apprentice plumbers actively enrolled in Louisiana Plumbing Code training.</p>
+                  <p className="mt-2">Payment will be processed after job posting approval.</p>
+                </div>
               </CardContent>
             </Card>
           )}
