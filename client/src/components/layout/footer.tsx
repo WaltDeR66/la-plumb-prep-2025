@@ -117,15 +117,27 @@ export default function Footer() {
               © 2024 LA Plumb Prep. All rights reserved.
             </p>
             <div className="flex items-center space-x-6 mt-4 md:mt-0">
-              {legalLinks.map((link, index) => (
-                <button 
-                  key={index}
-                  className="text-background/70 hover:text-background text-sm transition-colors"
-                  data-testid={`footer-legal-link-${index}`}
-                >
-                  {link.name}
-                </button>
-              ))}
+              <button 
+                onClick={() => console.log('Privacy Policy clicked - would navigate to /privacy')}
+                className="text-background/70 hover:text-background text-sm transition-colors cursor-pointer"
+                data-testid="footer-legal-link-0"
+              >
+                Privacy Policy
+              </button>
+              <button 
+                onClick={() => console.log('Terms of Service clicked - would navigate to /terms')}
+                className="text-background/70 hover:text-background text-sm transition-colors cursor-pointer"
+                data-testid="footer-legal-link-1"
+              >
+                Terms of Service
+              </button>
+              <button 
+                onClick={() => console.log('Accessibility clicked - would navigate to /accessibility')}
+                className="text-background/70 hover:text-background text-sm transition-colors cursor-pointer"
+                data-testid="footer-legal-link-2"
+              >
+                Accessibility
+              </button>
             </div>
           </div>
         </div>
