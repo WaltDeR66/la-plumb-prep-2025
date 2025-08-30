@@ -790,29 +790,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Object storage routes for public assets (PDFs, code books, etc.)
-  app.get("/public-objects/:filePath(*)", async (req, res) => {
+  // Serve public files (PDFs, code books, etc.) from uploads directory
+  app.get("/public-objects/:filePath(*)", (req, res) => {
     const filePath = req.params.filePath;
-    const { ObjectStorageService } = await import('./objectStorage');
-    const objectStorageService = new ObjectStorageService();
-    try {
-      const file = await objectStorageService.searchPublicObject(filePath);
-      if (!file) {
-        return res.status(404).json({ error: "File not found" });
-      }
-      objectStorageService.downloadObject(file, res);
-    } catch (error) {
-      console.error("Error searching for public object:", error);
-      return res.status(500).json({ error: "Internal server error" });
+    const fullPath = path.join(process.cwd(), 'uploads', 'public', filePath);
+    
+    if (fs.existsSync(fullPath)) {
+      res.sendFile(fullPath);
+    } else {
+      res.status(404).json({ error: "File not found" });
     }
   });
 
   // API endpoint to list available code books
   app.get("/api/code-books", async (req, res) => {
     try {
-      const { ObjectStorageService } = await import('./objectStorage');
-      const objectStorageService = new ObjectStorageService();
-      
       // List common code book file names
       const codeBooks = [
         {
@@ -835,19 +827,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       ];
 
-      // Check which files actually exist
+      // Check which files actually exist in uploads/public directory
       const availableBooks = [];
       for (const book of codeBooks) {
-        try {
-          const file = await objectStorageService.searchPublicObject(book.filename);
-          if (file) {
-            availableBooks.push({
-              ...book,
-              url: `/public-objects/${book.filename}`
-            });
-          }
-        } catch (error) {
-          // File doesn't exist, skip it
+        const filePath = path.join(process.cwd(), 'uploads', 'public', book.filename);
+        if (fs.existsSync(filePath)) {
+          availableBooks.push({
+            ...book,
+            url: `/public-objects/${book.filename}`
+          });
         }
       }
       
