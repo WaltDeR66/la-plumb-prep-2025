@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { CheckCircle, Building2, Calculator, Camera, MessageCircle, Users, Star, Clock, MapPin, DollarSign } from "lucide-react";
 import { Link } from "wouter";
 import heroImage from "@assets/generated_images/Louisiana_plumbing_certification_hero_image_799850d9.png";
+import BetaBanner from "@/components/beta-banner";
 
 export default function Home() {
   const courses = [
@@ -149,6 +150,13 @@ export default function Home() {
 
   return (
     <div>
+      {/* Beta Banner */}
+      <section className="py-6 bg-background">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <BetaBanner />
+        </div>
+      </section>
+
       {/* Hero Section */}
       <section className="gradient-hero text-white py-20" data-testid="hero-section">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

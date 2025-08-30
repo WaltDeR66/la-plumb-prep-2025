@@ -5,16 +5,32 @@ import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { CheckCircle } from "lucide-react";
 import { Link } from "wouter";
+import BetaBanner from "@/components/beta-banner";
 
 export default function Pricing() {
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
   const [isAnnual, setIsAnnual] = useState(false);
+  const [isBetaTester] = useState(true); // Would come from user session/API in real app
+
+  const calculatePrice = (basePrice: number, isAnnual: boolean, isBeta: boolean) => {
+    let price = basePrice;
+    
+    if (isAnnual) {
+      price = price * 0.8; // 20% annual discount
+    }
+    
+    if (isBeta) {
+      price = price * 0.75; // Additional 25% off for beta testers
+    }
+    
+    return Math.round(price);
+  };
 
   const pricingPlans = [
     {
       id: "basic",
       name: "Basic",
-      price: "$49",
+      basePrice: 49,
       priceId: "price_basic_monthly", // Replace with actual Stripe price ID
       tier: "basic",
       description: "Perfect for getting started",
@@ -29,7 +45,7 @@ export default function Pricing() {
     {
       id: "professional",
       name: "Professional",
-      price: "$79",
+      basePrice: 79,
       priceId: "price_professional_monthly", // Replace with actual Stripe price ID
       tier: "professional",
       description: "For serious professionals",
@@ -46,7 +62,7 @@ export default function Pricing() {
     {
       id: "master",
       name: "Master",
-      price: "$99",
+      basePrice: 99,
       priceId: "price_master_monthly", // Replace with actual Stripe price ID
       tier: "master",
       description: "Complete mastery package",
@@ -67,6 +83,15 @@ export default function Pricing() {
 
   return (
     <div className="min-h-screen bg-background">
+      {/* Beta Banner */}
+      {isBetaTester && (
+        <section className="py-6 bg-background">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <BetaBanner showCTA={false} />
+          </div>
+        </section>
+      )}
+
       {/* Hero Section */}
       <section className="py-20 bg-gradient-to-br from-primary/10 to-accent/10" data-testid="pricing-hero">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
@@ -123,11 +148,25 @@ export default function Pricing() {
                       {plan.name}
                     </h3>
                     <div className="text-4xl font-bold text-primary mb-2" data-testid={`plan-price-${plan.id}`}>
-                      {isAnnual ? `$${Math.floor(parseInt(plan.price.replace('$', '')) * 0.8)}` : plan.price}
+                      ${calculatePrice(plan.basePrice, isAnnual, isBetaTester)}
                       <span className="text-xl font-normal text-muted-foreground">/month</span>
-                      {isAnnual && (
-                        <div className="text-sm text-green-600 font-normal">
-                          Save 20% • ${Math.floor(parseInt(plan.price.replace('$', '')) * 0.8 * 12)} annually
+                      {(isAnnual || isBetaTester) && (
+                        <div className="text-sm space-y-1">
+                          {plan.basePrice !== calculatePrice(plan.basePrice, isAnnual, isBetaTester) && (
+                            <div className="text-muted-foreground line-through">
+                              ${plan.basePrice}/month
+                            </div>
+                          )}
+                          {isBetaTester && (
+                            <div className="text-orange-600 font-semibold">
+                              🎉 Beta: Extra 25% off + 50% off first month
+                            </div>
+                          )}
+                          {isAnnual && (
+                            <div className="text-green-600 font-normal">
+                              Annual discount: 20% off
+                            </div>
+                          )}
                         </div>
                       )}
                     </div>
