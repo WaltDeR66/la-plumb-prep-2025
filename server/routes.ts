@@ -754,6 +754,17 @@ Start your journey at laplumbprep.com/courses
     }
   });
 
+  // Manual seed endpoint for course content
+  app.post("/api/seed/course-content", async (req, res) => {
+    try {
+      await seedCourseContent();
+      res.json({ message: "Course content seeded successfully" });
+    } catch (error: any) {
+      console.error("Error seeding course content:", error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
   // Course routes
   app.get("/api/courses", async (req, res) => {
     try {
