@@ -32,6 +32,7 @@ import SystemStatus from "@/pages/system-status";
 import Referrals from "@/pages/referrals";
 import BulkEnrollment from "@/pages/bulk-enrollment";
 import LeadMagnet from "@/pages/lead-magnet";
+import StudentLeadMagnet from "@/pages/student-lead-magnet";
 import Header from "@/components/layout/header";
 import Footer from "@/components/layout/footer";
 
@@ -69,6 +70,7 @@ function Router() {
           <Route path="/referrals" component={Referrals} />
           <Route path="/bulk-enrollment" component={BulkEnrollment} />
           <Route path="/lead-magnet" component={LeadMagnet} />
+          <Route path="/student-lead-magnet" component={StudentLeadMagnet} />
           <Route component={NotFound} />
         </Switch>
       </main>

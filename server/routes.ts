@@ -2155,6 +2155,119 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Student Lead Magnet Download API
+  app.post("/api/student-lead-magnet/download", async (req, res) => {
+    try {
+      const { email, firstName, lastName, currentLevel, goals } = req.body;
+      
+      if (!email || !firstName || !lastName || !currentLevel) {
+        return res.status(400).json({ message: "Missing required fields" });
+      }
+
+      // Store student lead magnet download record
+      const [leadRecord] = await db.insert(studentLeadMagnetDownloads).values({
+        email,
+        firstName,
+        lastName,
+        currentLevel,
+        goals: goals || null,
+        leadSource: "website",
+        emailSent: true
+      }).returning();
+
+      // Start student enrollment email sequence  
+      await emailAutomation.queueEmailSequence(
+        email,
+        `${firstName} ${lastName}`,
+        "student_enrollment"
+      );
+
+      // Send immediate download email with student career guide
+      await emailService.sendEmail({
+        to: email,
+        subject: "🚀 Your FREE Louisiana Plumbing Career Roadmap + Study Materials",
+        html: `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+            <div style="background: linear-gradient(135deg, #7c3aed 0%, #2563eb 100%); color: white; padding: 30px; text-align: center;">
+              <h1 style="margin: 0; font-size: 24px;">🎉 Your Career Roadmap is Ready!</h1>
+            </div>
+            
+            <div style="padding: 30px; background: #f9fafb;">
+              <p style="font-size: 18px; color: #374151;">Hi ${firstName},</p>
+              
+              <p style="color: #6b7280; line-height: 1.6;">
+                Congratulations on taking the first step toward building a successful $75,000+ plumbing career in Louisiana! 
+                Your complete career roadmap and bonus study materials are ready for download.
+              </p>
+              
+              <div style="background: white; border: 2px solid #7c3aed; border-radius: 8px; padding: 20px; margin: 20px 0;">
+                <h2 style="color: #7c3aed; margin-top: 0;">📥 Download Your Career Resources:</h2>
+                <ul style="color: #374151; line-height: 1.8;">
+                  <li><strong>Louisiana Plumbing Career Roadmap (20 pages)</strong> - Complete path from apprentice to master</li>
+                  <li><strong>Salary Progression Guide</strong> - Real Louisiana wages from $35K to $85K+</li>
+                  <li><strong>BONUS: Practice Test Pack</strong> - Journeyman prep questions (Value: $67)</li>
+                  <li><strong>BONUS: Study Flashcards</strong> - 200+ code questions (Value: $37)</li>
+                  <li><strong>BONUS: Certification Timeline</strong> - When to get each license (Value: $23)</li>
+                </ul>
+                
+                <div style="text-align: center; margin: 25px 0;">
+                  <a href="${process.env.WEBSITE_URL || 'https://laplumbprep.com'}/downloads/louisiana-career-roadmap.pdf" 
+                     style="background: #7c3aed; color: white; padding: 15px 30px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">
+                    📥 Download Career Roadmap & Bonuses
+                  </a>
+                </div>
+              </div>
+              
+              <div style="background: #ddd6fe; border-left: 4px solid #7c3aed; padding: 15px; margin: 20px 0;">
+                <h3 style="color: #5b21b6; margin-top: 0;">💡 Your Next Steps:</h3>
+                <p style="color: #5b21b6; margin-bottom: 0;">
+                  Based on your current level (${currentLevel}), we recommend starting with our Louisiana Journeyman Prep course. 
+                  Students typically see a $15,000-$25,000 salary increase within 12 months of certification!
+                </p>
+              </div>
+              
+              <div style="text-align: center; margin: 30px 0;">
+                <p style="color: #6b7280;">Ready to start your certification journey?</p>
+                <a href="${process.env.WEBSITE_URL || 'https://laplumbprep.com'}/courses" 
+                   style="background: #2563eb; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px;">
+                  🎯 View Certification Courses
+                </a>
+              </div>
+              
+              <div style="background: #ecfdf5; border-radius: 8px; padding: 20px; margin: 20px 0; text-align: center;">
+                <h3 style="color: #059669; margin-top: 0;">🔥 Early Bird Special</h3>
+                <p style="color: #065f46; margin-bottom: 10px;">
+                  As a career roadmap download, you get exclusive access to:
+                </p>
+                <ul style="color: #065f46; text-align: left; max-width: 400px; margin: 0 auto;">
+                  <li>25% off your first certification course</li>
+                  <li>Free 1-on-1 career planning session</li>
+                  <li>Priority access to new courses</li>
+                  <li>Weekly tips from Louisiana master plumbers</li>
+                </ul>
+              </div>
+              
+              <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 30px 0;">
+              
+              <p style="color: #9ca3af; font-size: 14px; text-align: center;">
+                Questions about your career path? Reply to this email or contact us at support@laplumbprep.com<br>
+                Louisiana Plumbing Prep | Your Path to $75K+ Career Success
+              </p>
+            </div>
+          </div>
+        `
+      });
+
+      res.status(200).json({ 
+        message: "Career roadmap sent successfully",
+        leadId: leadRecord.id
+      });
+    } catch (error: any) {
+      console.error("Error processing student lead magnet download:", error);
+      res.status(500).json({ message: "Failed to send career roadmap" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

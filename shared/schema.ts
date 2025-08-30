@@ -627,7 +627,7 @@ export const bulkStudentEnrollments = pgTable("bulk_student_enrollments", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
-// Lead magnet downloads table
+// Lead magnet downloads table (contractor-focused)
 export const leadMagnetDownloads = pgTable("lead_magnet_downloads", {
   id: serial("id").primaryKey(),
   email: varchar("email", { length: 255 }).notNull(),
@@ -635,6 +635,19 @@ export const leadMagnetDownloads = pgTable("lead_magnet_downloads", {
   lastName: varchar("last_name", { length: 100 }).notNull(),
   companyName: varchar("company_name", { length: 255 }).notNull(),
   position: varchar("position", { length: 100 }),
+  leadSource: leadSourceEnum("lead_source").default("website"),
+  downloadedAt: timestamp("downloaded_at").defaultNow(),
+  emailSent: boolean("email_sent").default(false),
+});
+
+// Student lead magnet downloads table (student-focused)
+export const studentLeadMagnetDownloads = pgTable("student_lead_magnet_downloads", {
+  id: serial("id").primaryKey(),
+  email: varchar("email", { length: 255 }).notNull(),
+  firstName: varchar("first_name", { length: 100 }).notNull(),
+  lastName: varchar("last_name", { length: 100 }).notNull(),
+  currentLevel: varchar("current_level", { length: 100 }).notNull(),
+  goals: text("goals"),
   leadSource: leadSourceEnum("lead_source").default("website"),
   downloadedAt: timestamp("downloaded_at").defaultNow(),
   emailSent: boolean("email_sent").default(false),
@@ -648,6 +661,11 @@ export const insertBulkEnrollmentTierSchema = createInsertSchema(bulkEnrollmentT
 export const insertBulkEnrollmentRequestSchema = createInsertSchema(bulkEnrollmentRequests);
 export const insertBulkStudentEnrollmentSchema = createInsertSchema(bulkStudentEnrollments);
 export const insertLeadMagnetDownloadSchema = createInsertSchema(leadMagnetDownloads).omit({
+  id: true,
+  downloadedAt: true,
+  emailSent: true
+});
+export const insertStudentLeadMagnetDownloadSchema = createInsertSchema(studentLeadMagnetDownloads).omit({
   id: true,
   downloadedAt: true,
   emailSent: true
@@ -702,3 +720,5 @@ export type BulkStudentEnrollment = typeof bulkStudentEnrollments.$inferSelect;
 export type InsertBulkStudentEnrollment = z.infer<typeof insertBulkStudentEnrollmentSchema>;
 export type LeadMagnetDownload = typeof leadMagnetDownloads.$inferSelect;
 export type InsertLeadMagnetDownload = z.infer<typeof insertLeadMagnetDownloadSchema>;
+export type StudentLeadMagnetDownload = typeof studentLeadMagnetDownloads.$inferSelect;
+export type InsertStudentLeadMagnetDownload = z.infer<typeof insertStudentLeadMagnetDownloadSchema>;
