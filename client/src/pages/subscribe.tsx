@@ -100,7 +100,7 @@ export default function Subscribe() {
   // Get plan details from URL params
   const urlParams = new URLSearchParams(window.location.search);
   const planId = urlParams.get('plan') || 'professional';
-  const priceId = urlParams.get('priceId') || 'price_professional_monthly';
+  const priceId = urlParams.get('priceId') || 'price_1S1xriByFL1L8uV2cKXSxmwV';
   const tier = urlParams.get('tier') || 'professional';
 
   const planDetails = {

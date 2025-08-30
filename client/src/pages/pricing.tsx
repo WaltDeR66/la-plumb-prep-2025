@@ -31,7 +31,7 @@ export default function Pricing() {
       id: "basic",
       name: "Basic",
       basePrice: 49,
-      priceId: "price_basic_monthly", // Replace with actual Stripe price ID
+      priceId: "price_1S1xrhByFL1L8uV2JfKn5bqI",
       tier: "basic",
       description: "Perfect for getting started",
       features: [
@@ -46,7 +46,7 @@ export default function Pricing() {
       id: "professional",
       name: "Professional",
       basePrice: 79,
-      priceId: "price_professional_monthly", // Replace with actual Stripe price ID
+      priceId: "price_1S1xriByFL1L8uV2cKXSxmwV",
       tier: "professional",
       description: "For serious professionals",
       popular: true,
@@ -63,7 +63,7 @@ export default function Pricing() {
       id: "master",
       name: "Master",
       basePrice: 99,
-      priceId: "price_master_monthly", // Replace with actual Stripe price ID
+      priceId: "price_1S1xrjByFL1L8uV2iwBxqPG8",
       tier: "master",
       description: "Complete mastery package",
       features: [

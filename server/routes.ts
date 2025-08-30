@@ -362,14 +362,6 @@ Start your journey at laplumbprep.com/courses
     let user = req.user as any;
     const { priceId, tier } = req.body;
 
-    // Admin bypass - if admin already has subscription tier, just return success
-    if (user.email === 'admin@latrainer.com' && user.subscriptionTier) {
-      return res.json({
-        subscriptionId: 'admin-bypass',
-        clientSecret: 'admin-bypass-secret',
-        status: 'active'
-      });
-    }
 
     if (user.stripeSubscriptionId) {
       const subscription = await stripe.subscriptions.retrieve(user.stripeSubscriptionId);
@@ -418,9 +410,9 @@ Start your journey at laplumbprep.com/courses
         try {
           // Calculate commission based on subscription price (10% of first month)
           const planPrices = {
-            'price_basic_monthly': 39.99,
-            'price_professional_monthly': 79.99,
-            'price_master_monthly': 99.99
+            'price_1S1xrhByFL1L8uV2JfKn5bqI': 49.99,
+            'price_1S1xriByFL1L8uV2cKXSxmwV': 79.99,
+            'price_1S1xrjByFL1L8uV2iwBxqPG8': 99.99
           };
           const subscriptionPrice = planPrices[priceId as keyof typeof planPrices] || 39.99;
           const commissionAmount = subscriptionPrice * 0.10; // 10% commission
