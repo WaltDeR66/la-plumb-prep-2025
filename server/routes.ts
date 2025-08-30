@@ -52,6 +52,31 @@ const requireActiveSubscription = async (req: any, res: any, next: any) => {
   }
 };
 
+// Middleware to check if user is enrolled in courses (student access)
+const requireStudentEnrollment = async (req: any, res: any, next: any) => {
+  if (!req.isAuthenticated()) {
+    return res.status(401).json({ message: "Not authenticated" });
+  }
+
+  const user = req.user as any;
+  
+  try {
+    // Check if user has any course enrollments
+    const enrollments = await storage.getUserEnrollments(user.id);
+    if (enrollments && enrollments.length > 0) {
+      return next();
+    }
+    
+    return res.status(403).json({ 
+      message: "Job board access requires course enrollment",
+      enrollmentRequired: true
+    });
+  } catch (error) {
+    console.error('Enrollment check error:', error);
+    return res.status(500).json({ message: "Error checking enrollment status" });
+  }
+};
+
 // Configure multer for file uploads
 const upload = multer({
   dest: 'uploads/',
@@ -398,7 +423,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Job routes
-  app.get("/api/jobs", async (req, res) => {
+  app.get("/api/jobs", requireStudentEnrollment, async (req, res) => {
     try {
       const page = parseInt(req.query.page as string) || 1;
       const limit = parseInt(req.query.limit as string) || 10;
@@ -425,7 +450,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/jobs/:jobId/apply", async (req, res) => {
+  app.post("/api/jobs/:jobId/apply", requireStudentEnrollment, async (req, res) => {
     if (!req.isAuthenticated()) {
       return res.status(401).json({ message: "Not authenticated" });
     }

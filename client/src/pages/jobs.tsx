@@ -5,7 +5,9 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Search, MapPin, Clock, DollarSign, Briefcase, Filter } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Search, MapPin, Clock, DollarSign, Briefcase, Filter, BookOpen, Lock } from "lucide-react";
+import { Link } from "wouter";
 import JobCard from "@/components/job-card";
 
 export default function Jobs() {
@@ -14,7 +16,7 @@ export default function Jobs() {
   const [typeFilter, setTypeFilter] = useState("all");
   const [page, setPage] = useState(1);
 
-  const { data: jobsData, isLoading } = useQuery({
+  const { data: jobsData, isLoading, error } = useQuery({
     queryKey: ["/api/jobs", { page, search: searchTerm, location: locationFilter, type: typeFilter }],
     queryFn: async () => {
       const params = new URLSearchParams({
@@ -25,8 +27,13 @@ export default function Jobs() {
         ...(typeFilter !== "all" && { type: typeFilter }),
       });
       const response = await fetch(`/api/jobs?${params}`);
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to fetch jobs');
+      }
       return response.json();
     },
+    retry: false,
   });
 
   const locations = [
@@ -132,6 +139,68 @@ export default function Jobs() {
       {/* Job Listings */}
       <section className="py-16" data-testid="jobs-listings">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          {error && error.message.includes("course enrollment") ? (
+            <div className="max-w-4xl mx-auto">
+              <Alert className="mb-8 border-amber-200 bg-amber-50">
+                <Lock className="h-4 w-4 text-amber-600" />
+                <AlertDescription className="text-amber-800">
+                  <div className="space-y-4">
+                    <div>
+                      <h3 className="font-semibold mb-2">Job Board Access Requires Course Enrollment</h3>
+                      <p>Our exclusive job board is available only to students enrolled in our Louisiana Plumbing Code certification courses. This ensures our partner employers connect with qualified, trained professionals.</p>
+                    </div>
+                    <div className="flex flex-col sm:flex-row gap-4">
+                      <Link href="/courses">
+                        <Button className="bg-amber-600 hover:bg-amber-700">
+                          <BookOpen className="w-4 h-4 mr-2" />
+                          View Courses
+                        </Button>
+                      </Link>
+                      <Link href="/pricing">
+                        <Button variant="outline">
+                          See Pricing
+                        </Button>
+                      </Link>
+                    </div>
+                  </div>
+                </AlertDescription>
+              </Alert>
+              
+              <Card className="text-center py-16">
+                <CardContent>
+                  <Lock className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
+                  <h3 className="text-2xl font-bold mb-4">Exclusive Student Job Board</h3>
+                  <p className="text-muted-foreground max-w-2xl mx-auto mb-6">
+                    Get access to exclusive plumbing job opportunities across Louisiana by enrolling in our certification courses. 
+                    Our partner employers prefer candidates who have completed our comprehensive training programs.
+                  </p>
+                  <div className="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+                    <div className="text-center">
+                      <div className="bg-primary/10 rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-3">
+                        <Briefcase className="w-6 h-6 text-primary" />
+                      </div>
+                      <h4 className="font-semibold mb-2">Exclusive Opportunities</h4>
+                      <p className="text-sm text-muted-foreground">Access jobs not posted elsewhere</p>
+                    </div>
+                    <div className="text-center">
+                      <div className="bg-primary/10 rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-3">
+                        <DollarSign className="w-6 h-6 text-primary" />
+                      </div>
+                      <h4 className="font-semibold mb-2">Higher Pay</h4>
+                      <p className="text-sm text-muted-foreground">Premium positions for trained professionals</p>
+                    </div>
+                    <div className="text-center">
+                      <div className="bg-primary/10 rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-3">
+                        <MapPin className="w-6 h-6 text-primary" />
+                      </div>
+                      <h4 className="font-semibold mb-2">Statewide Network</h4>
+                      <p className="text-sm text-muted-foreground">Opportunities across Louisiana</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          ) : (
           <div className="flex flex-col lg:flex-row gap-8">
             {/* Main Content */}
             <div className="flex-1">
@@ -281,6 +350,7 @@ export default function Jobs() {
               </div>
             </div>
           </div>
+          )}
         </div>
       </section>
     </div>
