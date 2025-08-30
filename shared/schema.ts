@@ -168,7 +168,12 @@ export const referrals = pgTable("referrals", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   referrerId: text("referrer_id").notNull(),
   referredId: text("referred_id").notNull(),
+  referrerPlanTier: subscriptionTierEnum("referrer_plan_tier").notNull(),
+  referredPlanTier: subscriptionTierEnum("referred_plan_tier").notNull(),
+  referredPlanPrice: decimal("referred_plan_price", { precision: 10, scale: 2 }).notNull(),
+  commissionRate: decimal("commission_rate", { precision: 5, scale: 4 }).default("0.10"), // 10% default
   commissionAmount: decimal("commission_amount", { precision: 10, scale: 2 }),
+  eligibleTier: subscriptionTierEnum("eligible_tier").notNull(), // The tier used for commission calculation
   isPaid: boolean("is_paid").default(false),
   createdAt: timestamp("created_at").defaultNow(),
   paidAt: timestamp("paid_at"),
@@ -314,6 +319,8 @@ export const usersRelations = relations(users, ({ many }) => ({
   sectionProgress: many(sectionProgress),
   cartItems: many(cartItems),
   productReviews: many(productReviews),
+  referralsMade: many(referrals, { relationName: "referrer" }),
+  referralsReceived: many(referrals, { relationName: "referred" }),
 }));
 
 export const coursesRelations = relations(courses, ({ many }) => ({
@@ -389,6 +396,19 @@ export const productReviewsRelations = relations(productReviews, ({ one }) => ({
   user: one(users, {
     fields: [productReviews.userId],
     references: [users.id],
+  }),
+}));
+
+export const referralsRelations = relations(referrals, ({ one }) => ({
+  referrer: one(users, {
+    fields: [referrals.referrerId],
+    references: [users.id],
+    relationName: "referrer",
+  }),
+  referred: one(users, {
+    fields: [referrals.referredId],
+    references: [users.id],
+    relationName: "referred",
   }),
 }));
 
@@ -513,6 +533,12 @@ export const insertProductReviewSchema = createInsertSchema(productReviews).omit
   updatedAt: true,
 });
 
+export const insertReferralSchema = createInsertSchema(referrals).omit({
+  id: true,
+  createdAt: true,
+  paidAt: true,
+});
+
 // Types
 export type User = typeof users.$inferSelect;
 export type InsertUser = z.infer<typeof insertUserSchema>;
@@ -547,3 +573,4 @@ export type CartItem = typeof cartItems.$inferSelect;
 export type InsertCartItem = z.infer<typeof insertCartItemSchema>;
 export type ProductReview = typeof productReviews.$inferSelect;
 export type InsertProductReview = z.infer<typeof insertProductReviewSchema>;
+export type InsertReferral = z.infer<typeof insertReferralSchema>;

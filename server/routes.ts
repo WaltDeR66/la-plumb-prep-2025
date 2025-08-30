@@ -2,8 +2,9 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { emailService } from "./email";
-import { insertUserSchema, insertJobSchema, insertJobApplicationSchema, insertCourseContentSchema, insertPrivateCodeBookSchema, insertCourseSchema, insertProductSchema, insertCartItemSchema, insertProductReviewSchema } from "@shared/schema";
+import { insertUserSchema, insertJobSchema, insertJobApplicationSchema, insertCourseContentSchema, insertPrivateCodeBookSchema, insertCourseSchema, insertProductSchema, insertCartItemSchema, insertProductReviewSchema, insertReferralSchema } from "@shared/schema";
 import { analyzePhoto, analyzePlans, getMentorResponse, calculatePipeSize } from "./openai";
+import { calculateReferralCommission, isValidSubscriptionTier } from "@shared/referral-utils";
 import { contentExtractor } from "./content-extractor";
 import Stripe from "stripe";
 import bcrypt from "bcrypt";
@@ -1759,6 +1760,117 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(review);
     } catch (error: any) {
       res.status(400).json({ message: error.message });
+    }
+  });
+
+  // ========================
+  // REFERRAL ROUTES
+  // ========================
+
+  // Get user's referral statistics and earnings
+  app.get("/api/referrals/stats", async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+
+    try {
+      const userId = (req.user as any).id;
+      const user = (req.user as any);
+      
+      const [referrals, earnings] = await Promise.all([
+        storage.getUserReferrals(userId),
+        storage.getUserReferralEarnings(userId)
+      ]);
+
+      res.json({
+        referralCode: user.referralCode,
+        planTier: user.subscriptionTier,
+        totalReferrals: referrals.length,
+        earnings,
+        recentReferrals: referrals.slice(0, 10) // Last 10 referrals
+      });
+    } catch (error: any) {
+      console.error('Error fetching referral stats:', error);
+      res.status(500).json({ message: "Error fetching referral statistics" });
+    }
+  });
+
+  // Process a new referral signup
+  app.post("/api/referrals/process", async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+
+    try {
+      const { referredUserId, referredPlanTier, referredPlanPrice } = req.body;
+      const referrerId = (req.user as any).id;
+      const referrerUser = await storage.getUser(referrerId);
+      
+      if (!referrerUser) {
+        return res.status(404).json({ message: "Referrer not found" });
+      }
+
+      if (!isValidSubscriptionTier(referredPlanTier)) {
+        return res.status(400).json({ message: "Invalid subscription tier" });
+      }
+
+      // Calculate commission based on referrer's tier cap
+      const commission = calculateReferralCommission(
+        referrerUser.subscriptionTier,
+        referredPlanTier
+      );
+
+      const referralData = insertReferralSchema.parse({
+        referrerId,
+        referredId: referredUserId,
+        referrerPlanTier: referrerUser.subscriptionTier,
+        referredPlanTier,
+        referredPlanPrice: referredPlanPrice.toString(),
+        commissionAmount: commission.commissionAmount.toString(),
+        eligibleTier: commission.eligibleTier
+      });
+
+      const referral = await storage.createReferral(referralData);
+      
+      res.json({
+        success: true,
+        referral,
+        commission: {
+          amount: commission.commissionAmount,
+          eligibleTier: commission.eligibleTier,
+          originalPrice: commission.eligiblePrice
+        }
+      });
+    } catch (error: any) {
+      console.error('Error processing referral:', error);
+      res.status(500).json({ message: "Error processing referral" });
+    }
+  });
+
+  // Get referral commission preview (what user would earn for different tiers)
+  app.get("/api/referrals/commission-preview", async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+
+    try {
+      const user = (req.user as any);
+      const referrerTier = user.subscriptionTier;
+
+      const previews = {
+        basic: calculateReferralCommission(referrerTier, "basic"),
+        professional: calculateReferralCommission(referrerTier, "professional"),
+        master: calculateReferralCommission(referrerTier, "master")
+      };
+
+      res.json({
+        referrerTier,
+        commissionPreviews: previews,
+        note: "Commission is capped at your current plan tier or lower"
+      });
+    } catch (error: any) {
+      console.error('Error generating commission preview:', error);
+      res.status(500).json({ message: "Error generating commission preview" });
     }
   });
 

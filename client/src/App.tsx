@@ -29,6 +29,7 @@ import Contact from "@/pages/contact";
 import LouisianaBoard from "@/pages/louisiana-board";
 import TechnicalSupport from "@/pages/technical-support";
 import SystemStatus from "@/pages/system-status";
+import Referrals from "@/pages/referrals";
 import Header from "@/components/layout/header";
 import Footer from "@/components/layout/footer";
 
@@ -63,6 +64,7 @@ function Router() {
           <Route path="/louisiana-board" component={LouisianaBoard} />
           <Route path="/technical-support" component={TechnicalSupport} />
           <Route path="/system-status" component={SystemStatus} />
+          <Route path="/referrals" component={Referrals} />
           <Route component={NotFound} />
         </Switch>
       </main>

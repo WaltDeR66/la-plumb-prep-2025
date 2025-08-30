@@ -33,6 +33,7 @@ import {
   type PhotoUpload,
   type PlanUpload,
   type Referral,
+  type InsertReferral,
   type CourseContent,
   type InsertCourseContent,
   type PrivateCodeBook,
@@ -110,8 +111,9 @@ export interface IStorage {
   getUserPlanUploads(userId: string): Promise<PlanUpload[]>;
   
   // Referral methods
-  createReferral(referrerId: string, referredId: string, commissionAmount: number): Promise<Referral>;
+  createReferral(referralData: InsertReferral): Promise<Referral>;
   getUserReferrals(userId: string): Promise<Referral[]>;
+  getUserReferralEarnings(userId: string): Promise<{ total: number; unpaid: number; paid: number }>;
   
   // Course content methods
   getCourseContent(courseId: string): Promise<CourseContent[]>;
@@ -554,10 +556,10 @@ export class DatabaseStorage implements IStorage {
       .orderBy(desc(planUploads.createdAt));
   }
 
-  async createReferral(referrerId: string, referredId: string, commissionAmount: number): Promise<Referral> {
+  async createReferral(referralData: InsertReferral): Promise<Referral> {
     const [referral] = await db
       .insert(referrals)
-      .values({ referrerId, referredId, commissionAmount: commissionAmount.toString() })
+      .values(referralData)
       .returning();
     return referral;
   }
@@ -568,6 +570,24 @@ export class DatabaseStorage implements IStorage {
       .from(referrals)
       .where(eq(referrals.referrerId, userId))
       .orderBy(desc(referrals.createdAt));
+  }
+
+  async getUserReferralEarnings(userId: string): Promise<{ total: number; unpaid: number; paid: number }> {
+    const earnings = await db
+      .select({
+        total: sql<number>`sum(${referrals.commissionAmount})`,
+        unpaid: sql<number>`sum(case when ${referrals.isPaid} = false then ${referrals.commissionAmount} else 0 end)`,
+        paid: sql<number>`sum(case when ${referrals.isPaid} = true then ${referrals.commissionAmount} else 0 end)`
+      })
+      .from(referrals)
+      .where(eq(referrals.referrerId, userId));
+
+    const result = earnings[0];
+    return {
+      total: Number(result?.total || 0),
+      unpaid: Number(result?.unpaid || 0),
+      paid: Number(result?.paid || 0)
+    };
   }
 
   // Course content methods
