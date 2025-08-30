@@ -187,26 +187,55 @@ export default function Tools() {
             </TabsList>
 
             <TabsContent value="calculators" className="space-y-8">
+              {!hasActiveSubscription && (
+                <Alert className="border-amber-200 bg-amber-50 dark:bg-amber-900/20" data-testid="calculator-subscription-notice">
+                  <CreditCard className="h-4 w-4" />
+                  <AlertDescription>
+                    Professional calculators require an active subscription. 
+                    <Link href="/pricing" className="text-primary hover:underline ml-1">
+                      Upgrade now
+                    </Link> to access pipe sizing, pressure loss, and flow rate calculators.
+                  </AlertDescription>
+                </Alert>
+              )}
+              
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 {/* Pipe Sizing Calculator */}
-                <Card className="lg:col-span-2" data-testid="pipe-sizing-tool">
+                <Card className={`lg:col-span-2 ${!hasActiveSubscription ? "opacity-60" : ""}`} data-testid="pipe-sizing-tool">
                   <CardHeader>
                     <CardTitle className="flex items-center space-x-2">
                       <Calculator className="w-5 h-5" />
                       <span>Pipe Sizing Calculator</span>
+                      {!hasActiveSubscription && <Lock className="w-4 h-4 text-muted-foreground" />}
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <PipeSizingCalculator />
+                    {hasActiveSubscription ? (
+                      <PipeSizingCalculator />
+                    ) : (
+                      <div className="space-y-4">
+                        <p className="text-muted-foreground text-sm">
+                          Calculate proper pipe sizes for water supply systems based on fixture units and flow rates.
+                        </p>
+                        <Button 
+                          className="w-full" 
+                          disabled
+                          data-testid="calculator-subscription-required"
+                        >
+                          Subscription Required
+                        </Button>
+                      </div>
+                    )}
                   </CardContent>
                 </Card>
 
                 {/* Pressure Loss Calculator */}
-                <Card data-testid="pressure-loss-tool">
+                <Card data-testid="pressure-loss-tool" className={!hasActiveSubscription ? "opacity-60" : ""}>
                   <CardHeader>
                     <CardTitle className="flex items-center space-x-2">
                       <Calculator className="w-5 h-5" />
                       <span>Pressure Loss Calculator</span>
+                      {!hasActiveSubscription && <Lock className="w-4 h-4 text-muted-foreground" />}
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
@@ -229,19 +258,24 @@ export default function Tools() {
                           data-testid="input-flow-rate"
                         />
                       </div>
-                      <Button className="w-full" data-testid="calculate-pressure-loss">
-                        Calculate Pressure Loss
+                      <Button 
+                        className="w-full" 
+                        disabled={!hasActiveSubscription}
+                        data-testid="calculate-pressure-loss"
+                      >
+                        {!hasActiveSubscription ? "Subscription Required" : "Calculate Pressure Loss"}
                       </Button>
                     </div>
                   </CardContent>
                 </Card>
 
                 {/* Flow Rate Calculator */}
-                <Card data-testid="flow-rate-tool">
+                <Card data-testid="flow-rate-tool" className={!hasActiveSubscription ? "opacity-60" : ""}>
                   <CardHeader>
                     <CardTitle className="flex items-center space-x-2">
                       <Calculator className="w-5 h-5" />
                       <span>Flow Rate Calculator</span>
+                      {!hasActiveSubscription && <Lock className="w-4 h-4 text-muted-foreground" />}
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
@@ -264,8 +298,12 @@ export default function Tools() {
                           data-testid="input-velocity"
                         />
                       </div>
-                      <Button className="w-full" data-testid="calculate-flow-rate">
-                        Calculate Flow Rate
+                      <Button 
+                        className="w-full" 
+                        disabled={!hasActiveSubscription}
+                        data-testid="calculate-flow-rate"
+                      >
+                        {!hasActiveSubscription ? "Subscription Required" : "Calculate Flow Rate"}
                       </Button>
                     </div>
                   </CardContent>
@@ -446,36 +484,62 @@ export default function Tools() {
 
 
             <TabsContent value="resources" className="space-y-8">
+              {!hasActiveSubscription && (
+                <Alert className="border-amber-200 bg-amber-50 dark:bg-amber-900/20" data-testid="resources-subscription-notice">
+                  <CreditCard className="h-4 w-4" />
+                  <AlertDescription>
+                    Professional resources require an active subscription. 
+                    <Link href="/pricing" className="text-primary hover:underline ml-1">
+                      Upgrade now
+                    </Link> to access unit converters, quick reference guides, and code books.
+                  </AlertDescription>
+                </Alert>
+              )}
+              
               <div className="grid grid-cols-1 gap-6">
                 <CodeBooksSection />
               </div>
               
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 
-                <Card data-testid="resource-conversion">
+                <Card data-testid="resource-conversion" className={!hasActiveSubscription ? "opacity-60" : ""}>
                   <CardHeader>
-                    <CardTitle>Unit Converter</CardTitle>
+                    <CardTitle className="flex items-center space-x-2">
+                      <span>Unit Converter</span>
+                      {!hasActiveSubscription && <Lock className="w-4 h-4 text-muted-foreground" />}
+                    </CardTitle>
                   </CardHeader>
                   <CardContent>
                     <p className="text-muted-foreground text-sm mb-4">
                       Convert between different units commonly used in plumbing.
                     </p>
-                    <Button variant="outline" className="w-full">
-                      Open Converter
+                    <Button 
+                      variant="outline" 
+                      className="w-full"
+                      disabled={!hasActiveSubscription}
+                    >
+                      {!hasActiveSubscription ? "Subscription Required" : "Open Converter"}
                     </Button>
                   </CardContent>
                 </Card>
 
-                <Card data-testid="resource-reference">
+                <Card data-testid="resource-reference" className={!hasActiveSubscription ? "opacity-60" : ""}>
                   <CardHeader>
-                    <CardTitle>Quick Reference</CardTitle>
+                    <CardTitle className="flex items-center space-x-2">
+                      <span>Quick Reference</span>
+                      {!hasActiveSubscription && <Lock className="w-4 h-4 text-muted-foreground" />}
+                    </CardTitle>
                   </CardHeader>
                   <CardContent>
                     <p className="text-muted-foreground text-sm mb-4">
                       Common pipe sizes, fittings, and code requirements at a glance.
                     </p>
-                    <Button variant="outline" className="w-full">
-                      View Reference
+                    <Button 
+                      variant="outline" 
+                      className="w-full"
+                      disabled={!hasActiveSubscription}
+                    >
+                      {!hasActiveSubscription ? "Subscription Required" : "View Reference"}
                     </Button>
                   </CardContent>
                 </Card>
