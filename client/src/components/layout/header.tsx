@@ -83,6 +83,14 @@ export default function Header() {
                 <span className="text-sm text-muted-foreground" data-testid="user-email">
                   {user.email}
                 </span>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={() => window.location.href = '/api/auth/logout'}
+                  data-testid="button-logout"
+                >
+                  Logout
+                </Button>
               </div>
             ) : (
               <>
@@ -133,6 +141,17 @@ export default function Header() {
                       <p className="text-sm text-muted-foreground" data-testid="mobile-user-email">
                         {user.email}
                       </p>
+                      <Button 
+                        variant="outline" 
+                        className="w-full justify-start"
+                        onClick={() => {
+                          setIsOpen(false);
+                          window.location.href = '/api/auth/logout';
+                        }}
+                        data-testid="mobile-button-logout"
+                      >
+                        Logout
+                      </Button>
                     </div>
                   ) : (
                     <div className="space-y-3">
