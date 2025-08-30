@@ -60,7 +60,7 @@ export default function Footer() {
             <ul className="space-y-2 text-background/70">
               {courseLinks.map((link, index) => (
                 <li key={index}>
-                  <Link href={link.href} className="hover:text-background transition-colors" data-testid={`footer-course-link-${index}`}>
+                  <Link href={link.href} className="hover:text-background transition-colors block cursor-pointer" data-testid={`footer-course-link-${index}`}>
                     {link.name}
                   </Link>
                 </li>
@@ -74,11 +74,11 @@ export default function Footer() {
               {supportLinks.map((link, index) => (
                 <li key={index}>
                   {link.href.startsWith('mailto:') ? (
-                    <a href={link.href} className="hover:text-background transition-colors" data-testid={`footer-support-link-${index}`}>
+                    <a href={link.href} className="hover:text-background transition-colors block cursor-pointer" data-testid={`footer-support-link-${index}`}>
                       {link.name}
                     </a>
                   ) : (
-                    <button className="hover:text-background transition-colors text-left" data-testid={`footer-support-link-${index}`}>
+                    <button className="hover:text-background transition-colors text-left block cursor-pointer" data-testid={`footer-support-link-${index}`}>
                       {link.name}
                     </button>
                   )}
