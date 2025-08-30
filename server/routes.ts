@@ -2138,6 +2138,11 @@ Start your journey at laplumbprep.com/courses
         return res.status(400).json({ message: "Missing required fields" });
       }
 
+      // Generate secure download token
+      const crypto = require('crypto');
+      const downloadToken = crypto.randomBytes(64).toString('hex');
+      const tokenExpiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days
+
       // Store lead magnet download record
       const [leadRecord] = await db.insert(leadMagnetDownloads).values({
         email,
@@ -2145,6 +2150,8 @@ Start your journey at laplumbprep.com/courses
         lastName,
         companyName,
         position: position || null,
+        downloadToken,
+        tokenExpiresAt,
         leadSource: "website",
         emailSent: true
       }).returning();
@@ -2183,7 +2190,7 @@ Start your journey at laplumbprep.com/courses
                 </ul>
                 
                 <div style="text-align: center; margin: 25px 0;">
-                  <a href="${process.env.WEBSITE_URL || 'https://laplumbprep.com'}/downloads/louisiana-code-guide.pdf" 
+                  <a href="${process.env.WEBSITE_URL || 'https://laplumbprep.com'}/downloads/louisiana-code-guide.pdf?token=${downloadToken}" 
                      style="background: #059669; color: white; padding: 15px 30px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">
                     📥 Download Guide & Tools
                   </a>
