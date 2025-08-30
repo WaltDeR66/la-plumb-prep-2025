@@ -18,7 +18,7 @@ export default function Store() {
     queryFn: async () => {
       const params = new URLSearchParams();
       if (searchTerm) params.set("search", searchTerm);
-      if (category) params.set("category", category);
+      if (category && category !== "all") params.set("category", category);
       params.set("page", page.toString());
       params.set("limit", "12");
       
@@ -175,7 +175,7 @@ export default function Store() {
               <SelectValue placeholder="All Categories" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="" data-testid="category-all">All Categories</SelectItem>
+              <SelectItem value="all" data-testid="category-all">All Categories</SelectItem>
               {categories.map((cat) => (
                 <SelectItem key={cat.value} value={cat.value} data-testid={`category-${cat.value}`}>
                   {cat.label}
