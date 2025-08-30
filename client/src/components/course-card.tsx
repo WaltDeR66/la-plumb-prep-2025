@@ -18,6 +18,7 @@ interface CourseCardProps {
     duration?: number;
     lessons?: number;
     practiceQuestions?: number;
+    isActive?: boolean;
   };
   isEnrolled?: boolean;
   progress?: number;
@@ -93,15 +94,22 @@ export default function CourseCard({ course, isEnrolled = false, progress = 0, i
         <div className="space-y-4">
           {/* Header */}
           <div className="flex items-start justify-between">
-            <div className={`w-12 h-12 ${colorClass} rounded-lg flex items-center justify-center`}>
+            <div className={`w-12 h-12 ${colorClass} rounded-lg flex items-center justify-center${course.isActive === false ? ' opacity-50' : ''}`}>
               <IconComponent className="w-6 h-6 text-white" />
             </div>
-            {isCompleted && (
-              <Badge className="bg-green-100 text-green-800" data-testid="completed-badge">
-                <CheckCircle className="w-3 h-3 mr-1" />
-                Completed
-              </Badge>
-            )}
+            <div className="flex gap-2">
+              {course.isActive === false && (
+                <Badge className="bg-yellow-100 text-yellow-800" data-testid="coming-soon-badge">
+                  Coming Soon
+                </Badge>
+              )}
+              {isCompleted && (
+                <Badge className="bg-green-100 text-green-800" data-testid="completed-badge">
+                  <CheckCircle className="w-3 h-3 mr-1" />
+                  Completed
+                </Badge>
+              )}
+            </div>
           </div>
 
           {/* Course Info */}
@@ -168,16 +176,25 @@ export default function CourseCard({ course, isEnrolled = false, progress = 0, i
             {!isEnrolled ? (
               <>
                 <div className="text-sm text-muted-foreground">
-                  Professional certification prep
+                  {course.isActive === false ? "Coming soon" : "Professional certification prep"}
                 </div>
-                <Button 
-                  asChild
-                  data-testid={`button-start-${course.id}`}
-                >
-                  <Link href="/pricing">
-                    Start Course
-                  </Link>
-                </Button>
+                {course.isActive === false ? (
+                  <Button 
+                    disabled
+                    data-testid={`button-coming-soon-${course.id}`}
+                  >
+                    Coming Soon
+                  </Button>
+                ) : (
+                  <Button 
+                    asChild
+                    data-testid={`button-start-${course.id}`}
+                  >
+                    <Link href="/pricing">
+                      Start Course
+                    </Link>
+                  </Button>
+                )}
               </>
             ) : (
               <>
