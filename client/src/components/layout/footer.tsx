@@ -78,7 +78,14 @@ export default function Footer() {
               </li>
               <li>
                 <button 
-                  onClick={() => window.location.href = 'mailto:support@laplumbprep.com'}
+                  onClick={() => {
+                    console.log('Contact Us clicked');
+                    // Try opening in new window if direct mailto doesn't work
+                    const subject = 'Contact Us - LA Plumb Prep';
+                    const body = 'Hello LA Plumb Prep team,\n\nI would like to get in touch regarding:\n\n';
+                    const mailtoUrl = `mailto:support@laplumbprep.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+                    window.open(mailtoUrl, '_blank');
+                  }}
                   className="hover:text-background transition-colors text-left block cursor-pointer" 
                   data-testid="footer-support-link-1"
                 >
