@@ -428,12 +428,12 @@ export default function EmployerPortal() {
                       <div className="text-center mb-6">
                         <h3 className="text-2xl font-bold">Basic Job Post</h3>
                         <div className="text-3xl font-bold text-primary mt-2">$49</div>
-                        <p className="text-muted-foreground">30-day listing</p>
+                        <p className="text-muted-foreground">60-day listing</p>
                       </div>
                       <ul className="space-y-3 mb-6">
                         <li className="flex items-center space-x-2">
                           <CheckCircle className="w-5 h-5 text-green-500" />
-                          <span>30-day active job listing</span>
+                          <span>60-day active job listing</span>
                         </li>
                         <li className="flex items-center space-x-2">
                           <CheckCircle className="w-5 h-5 text-green-500" />
@@ -466,12 +466,12 @@ export default function EmployerPortal() {
                         <Badge className="mb-2">Most Popular</Badge>
                         <h3 className="text-2xl font-bold">Premium Job Post</h3>
                         <div className="text-3xl font-bold text-primary mt-2">$89</div>
-                        <p className="text-muted-foreground">60-day listing + features</p>
+                        <p className="text-muted-foreground">120-day listing + features</p>
                       </div>
                       <ul className="space-y-3 mb-6">
                         <li className="flex items-center space-x-2">
                           <CheckCircle className="w-5 h-5 text-green-500" />
-                          <span>60-day active job listing</span>
+                          <span>120-day active job listing</span>
                         </li>
                         <li className="flex items-center space-x-2">
                           <CheckCircle className="w-5 h-5 text-green-500" />
