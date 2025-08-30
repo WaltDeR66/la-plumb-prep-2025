@@ -12,7 +12,7 @@ export default function Home() {
       id: "journeyman",
       title: "Journeyman Plumber",
       description: "Master residential and commercial plumbing systems, codes, and installation techniques.",
-      price: "Coming Soon",
+      price: "Available",
       icon: Building2,
       features: ["120+ Practice Questions", "Video Lessons", "Code Books Included"]
     },
