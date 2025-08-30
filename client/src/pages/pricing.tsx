@@ -74,7 +74,7 @@ export default function Pricing() {
       tier: "basic",
       description: "Perfect for getting started",
       features: [
-        "1 Certification Track",
+        "Journeyman Prep Course",
         "Basic Calculator Tools", 
         "Practice Tests",
         "Job Board Access",
@@ -89,7 +89,7 @@ export default function Pricing() {
       description: "For serious professionals",
       popular: true,
       features: [
-        "3 Certification Tracks",
+        "Journeyman Prep Course",
         "Complete Calculator Suite",
         "Photo Code Checker",
         "AI Mentor Support",
@@ -104,7 +104,7 @@ export default function Pricing() {
       tier: "master",
       description: "Complete mastery package",
       features: [
-        "All 5 Certification Tracks",
+        "Journeyman Prep Course",
         "Plan Analysis Tools",
         "Material List Generator",
         "Referral Commissions",
@@ -256,10 +256,10 @@ export default function Pricing() {
               </thead>
               <tbody className="divide-y">
                 <tr>
-                  <td className="p-4 font-medium">Certification Tracks</td>
-                  <td className="p-4 text-center">1</td>
-                  <td className="p-4 text-center">3</td>
-                  <td className="p-4 text-center">5</td>
+                  <td className="p-4 font-medium">Journeyman Prep Course</td>
+                  <td className="p-4 text-center">✅</td>
+                  <td className="p-4 text-center">✅</td>
+                  <td className="p-4 text-center">✅</td>
                 </tr>
                 <tr>
                   <td className="p-4 font-medium">Calculator Tools</td>
