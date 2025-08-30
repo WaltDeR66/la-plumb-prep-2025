@@ -1,0 +1,151 @@
+2025-08-30 12:32:55.72
+32f81cd5
+User
+at moduleResolve (node:internal/modules/esm/resolve:946:18)
+2025-08-30 12:32:55.72
+32f81cd5
+User
+at defaultResolve (node:internal/modules/esm/resolve:1188:11)
+2025-08-30 12:32:55.72
+32f81cd5
+User
+at ModuleLoader.defaultResolve (node:internal/modules/esm/loader:642:12)
+2025-08-30 12:32:55.72
+32f81cd5
+User
+at #cachedDefaultResolve (node:internal/modules/esm/loader:591:25)
+2025-08-30 12:32:55.72
+32f81cd5
+User
+at ModuleLoader.resolve (node:internal/modules/esm/loader:574:38)
+2025-08-30 12:32:55.72
+32f81cd5
+User
+at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:236:38)
+2025-08-30 12:32:55.72
+32f81cd5
+User
+at ModuleJob._link (node:internal/modules/esm/module_job:130:49) {
+2025-08-30 12:32:55.72
+32f81cd5
+User
+code: 'ERR_MODULE_NOT_FOUND'
+2025-08-30 12:32:55.72
+32f81cd5
+User
+}
+2025-08-30 12:32:55.72
+32f81cd5
+User
+2025-08-30 12:32:55.72
+32f81cd5
+User
+Node.js v20.19.3
+2025-08-30 12:32:55.73
+32f81cd5
+System
+command finished with error [npm run start]: exit status 1
+2025-08-30 12:32:58.64
+32f81cd5
+System
+crash loop detected
+2025-08-30 12:37:27.68
+5f9c5c73
+System
+starting up user application
+2025-08-30 12:37:27.89
+5f9c5c73
+System
+forwarding local port 5000 to external port 80 (mapped as 1104)
+2025-08-30 12:37:29.50
+5f9c5c73
+User
+> rest-express@1.0.0 start
+2025-08-30 12:37:29.50
+5f9c5c73
+User
+> NODE_ENV=production node dist/index.js
+2025-08-30 12:37:31.82
+5f9c5c73
+User
+Warning: connect.session() MemoryStore is not
+2025-08-30 12:37:31.82
+5f9c5c73
+User
+designed for a production environment, as it will leak
+2025-08-30 12:37:31.82
+5f9c5c73
+User
+memory, and will not scale past a single process.
+2025-08-30 12:37:31.91
+5f9c5c73
+User
+5:37:31 PM [express] serving on port 5000
+2025-08-30 12:41:04.60
+90661fe5
+System
+starting up user application
+2025-08-30 12:41:05.02
+90661fe5
+System
+forwarding local port 5000 to external port 80 (mapped as 1104)
+2025-08-30 12:41:08.31
+90661fe5
+User
+> rest-express@1.0.0 start
+2025-08-30 12:41:08.31
+90661fe5
+User
+> NODE_ENV=production node dist/index.js
+2025-08-30 12:41:12.13
+90661fe5
+User
+Warning: connect.session() MemoryStore is not
+2025-08-30 12:41:12.13
+90661fe5
+User
+designed for a production environment, as it will leak
+2025-08-30 12:41:12.13
+90661fe5
+User
+memory, and will not scale past a single process.
+2025-08-30 12:41:12.33
+90661fe5
+User
+5:41:12 PM [express] serving on port 5000
+2025-08-30 12:42:44.02
+5f9c5c73
+System
+system: received signal terminated
+2025-08-30 12:44:58.78
+47bb6de4
+System
+starting up user application
+2025-08-30 12:44:59.00
+47bb6de4
+System
+forwarding local port 5000 to external port 80 (mapped as 1104)
+2025-08-30 12:45:00.55
+47bb6de4
+User
+> rest-express@1.0.0 start
+2025-08-30 12:45:00.55
+47bb6de4
+User
+> NODE_ENV=production node dist/index.js
+2025-08-30 12:45:02.51
+47bb6de4
+User
+Warning: connect.session() MemoryStore is not
+2025-08-30 12:45:02.51
+47bb6de4
+User
+designed for a production environment, as it will leak
+2025-08-30 12:45:02.51
+47bb6de4
+User
+memory, and will not scale past a single process.
+2025-08-30 12:45:02.61
+47bb6de4
+User
+5:45:02 PM [express] serving on port 5000
