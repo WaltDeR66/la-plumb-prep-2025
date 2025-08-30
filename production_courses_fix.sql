@@ -1,0 +1,9 @@
+-- Add missing courses to production database
+-- Copy/paste these commands into your production database console
+
+INSERT INTO courses (id, title, description, type, price, duration, lessons, practice_questions, is_active, created_at, updated_at) VALUES
+('5f02238b-afb2-4e7f-a488-96fb471fee56', 'Louisiana Journeyman Prep', 'Comprehensive Louisiana plumbing code certification preparation course covering all aspects of state plumbing regulations and best practices.', 'journeyman', '39.99', 5, 3, 3, true, NOW(), NOW()),
+('b1f02238b-afb2-4e7f-a488-96fb471fee57', 'Louisiana Backflow Prevention Training', 'Comprehensive training course covering backflow prevention testing, repairs, and field report completion. Learn proper testing procedures, equipment maintenance, and regulatory compliance for backflow prevention assemblies.', 'backflow', '29.99', 8, 12, 5, false, NOW(), NOW()),
+('c2f02238b-afb2-4e7f-a488-96fb471fee58', 'Natural Gas Certification Prep', 'Complete preparation for Louisiana natural gas certification covering safety protocols, installation procedures, and state regulations for natural gas systems.', 'natural_gas', '34.99', 6, 10, 4, false, NOW(), NOW()),
+('d3f02238b-afb2-4e7f-a488-96fb471fee59', 'Medical Gas Installer Certification', 'Specialized certification preparation for medical gas systems including oxygen, nitrous oxide, and vacuum systems in healthcare facilities.', 'medical_gas', '44.99', 10, 15, 6, false, NOW(), NOW()),
+('e4f02238b-afb2-4e7f-a488-96fb471fee60', 'Louisiana Master Plumber Prep', 'Advanced certification preparation for Louisiana master plumber license covering business practices, advanced code knowledge, and supervisory responsibilities.', 'master', '59.99', 20, 25, 12, false, NOW(), NOW());
