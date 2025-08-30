@@ -23,7 +23,7 @@ export async function analyzePhoto(base64Image: string): Promise<{
 }> {
   try {
     const response = await openai.chat.completions.create({
-      model: "gpt-5",
+      model: "gpt-4o",
       messages: [
         {
           role: "system",
@@ -75,7 +75,7 @@ export async function analyzePlans(base64Image: string): Promise<{
 }> {
   try {
     const response = await openai.chat.completions.create({
-      model: "gpt-5",
+      model: "gpt-4o",
       messages: [
         {
           role: "system",
@@ -135,7 +135,7 @@ export async function getMentorResponse(message: string, context?: string): Prom
 
     const response = await openai.chat.completions.create({
       // the newest OpenAI model is "gpt-5" which was released August 7, 2025. do not change this unless explicitly requested by the user
-      model: "gpt-5",
+      model: "gpt-4o",
       messages: [
         {
           role: "system",
@@ -173,7 +173,7 @@ export async function calculatePipeSize(fixtureUnits: number, pipeLength: number
 }> {
   try {
     const response = await openai.chat.completions.create({
-      model: "gpt-5",
+      model: "gpt-4o",
       messages: [
         {
           role: "system",
