@@ -2,11 +2,13 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Switch } from "@/components/ui/switch";
 import { CheckCircle } from "lucide-react";
 import { Link } from "wouter";
 
 export default function Pricing() {
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
+  const [isAnnual, setIsAnnual] = useState(false);
 
   const pricingPlans = [
     {
@@ -72,20 +74,24 @@ export default function Pricing() {
             Choose Your Learning Path
           </h1>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto mb-8" data-testid="pricing-hero-description">
-            Flexible pricing plans designed for every stage of your plumbing career. Start with a 7-day free trial on any plan.
+            Flexible pricing plans designed for every stage of your plumbing career. Cancel anytime - only pay for days used.
           </p>
-          <div className="flex items-center justify-center space-x-8 text-sm text-muted-foreground">
-            <div className="flex items-center space-x-2">
-              <CheckCircle className="w-5 h-5 text-green-600" />
-              <span>7-Day Free Trial</span>
+          <div className="flex flex-col items-center space-y-6">
+            <div className="flex items-center justify-center space-x-8 text-sm text-muted-foreground">
+              <div className="flex items-center space-x-2">
+                <CheckCircle className="w-5 h-5 text-green-600" />
+                <span>Cancel Anytime</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <CheckCircle className="w-5 h-5 text-green-600" />
+                <span>Pro-rated Billing</span>
+              </div>
             </div>
-            <div className="flex items-center space-x-2">
-              <CheckCircle className="w-5 h-5 text-green-600" />
-              <span>Cancel Anytime</span>
-            </div>
-            <div className="flex items-center space-x-2">
-              <CheckCircle className="w-5 h-5 text-green-600" />
-              <span>Louisiana State Approved</span>
+            <div className="flex items-center space-x-4 bg-card p-3 rounded-lg border">
+              <span className={`text-sm font-medium ${!isAnnual ? 'text-primary' : 'text-muted-foreground'}`}>Monthly</span>
+              <Switch checked={isAnnual} onCheckedChange={setIsAnnual} />
+              <span className={`text-sm font-medium ${isAnnual ? 'text-primary' : 'text-muted-foreground'}`}>Annual</span>
+              {isAnnual && <Badge className="bg-green-100 text-green-800 text-xs">Save 20%</Badge>}
             </div>
           </div>
         </div>
@@ -117,7 +123,9 @@ export default function Pricing() {
                       {plan.name}
                     </h3>
                     <div className="text-4xl font-bold text-primary mb-2" data-testid={`plan-price-${plan.id}`}>
-                      {plan.price}<span className="text-xl font-normal text-muted-foreground">/month</span>
+                      {isAnnual ? `$${Math.floor(parseInt(plan.price.replace('$', '')) * 0.8)}` : plan.price}
+                      <span className="text-xl font-normal text-muted-foreground">/{isAnnual ? 'year' : 'month'}</span>
+                      {isAnnual && <div className="text-sm text-green-600 font-normal">Save 20%</div>}
                     </div>
                     <p className="text-muted-foreground" data-testid={`plan-description-${plan.id}`}>
                       {plan.description}
@@ -139,7 +147,7 @@ export default function Pricing() {
                       size="lg"
                       data-testid={`button-select-${plan.id}`}
                     >
-                      Get 50% Off First Month
+                      Get Started Now
                     </Button>
                   </Link>
                 </CardContent>
@@ -224,9 +232,9 @@ export default function Pricing() {
           
           <div className="space-y-8">
             <div className="border-b pb-6">
-              <h3 className="text-lg font-semibold text-foreground mb-2">How does the 7-day free trial work?</h3>
+              <h3 className="text-lg font-semibold text-foreground mb-2">How does cancellation work?</h3>
               <p className="text-muted-foreground">
-                You get full access to your chosen plan for 7 days. Your first payment will be charged after the trial period ends. You can cancel anytime during the trial with no charges.
+                You can cancel anytime with no penalties. When you cancel, you'll only be charged for the days you actually used the service. For example, if you cancel after 10 days of a monthly plan, you'll only pay for those 10 days.
               </p>
             </div>
             
@@ -237,12 +245,6 @@ export default function Pricing() {
               </p>
             </div>
             
-            <div className="border-b pb-6">
-              <h3 className="text-lg font-semibold text-foreground mb-2">Are the courses Louisiana state approved?</h3>
-              <p className="text-muted-foreground">
-                Yes, all our certification prep courses are approved by the Louisiana State Licensing Board for Contractors and meet all continuing education requirements.
-              </p>
-            </div>
             
             <div className="border-b pb-6">
               <h3 className="text-lg font-semibold text-foreground mb-2">What payment methods do you accept?</h3>
@@ -254,7 +256,7 @@ export default function Pricing() {
             <div>
               <h3 className="text-lg font-semibold text-foreground mb-2">Is there a discount for annual payments?</h3>
               <p className="text-muted-foreground">
-                Yes, we offer a 20% discount when you pay annually. Contact our support team to set up annual billing for your account.
+                Yes, we offer a 20% discount when you pay annually. Use the toggle above to see annual pricing and sign up directly.
               </p>
             </div>
           </div>
@@ -273,12 +275,14 @@ export default function Pricing() {
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link href="#pricing-plans">
               <Button size="lg" className="bg-white text-primary hover:bg-gray-50 text-lg px-8 py-4" data-testid="cta-button-start">
-                Start Your Free Trial Today
+                Get Started Today
               </Button>
             </Link>
-            <Button variant="outline" size="lg" className="border-2 border-white text-white hover:bg-white hover:text-primary text-lg px-8 py-4" data-testid="cta-button-contact">
-              Contact Sales
-            </Button>
+            <Link href="mailto:support@laplumbprep.com">
+              <Button variant="outline" size="lg" className="border-2 border-white text-white hover:bg-white hover:text-primary text-lg px-8 py-4" data-testid="cta-button-contact">
+                Contact Sales
+              </Button>
+            </Link>
           </div>
         </div>
       </section>
