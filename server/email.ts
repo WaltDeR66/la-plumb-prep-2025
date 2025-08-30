@@ -9,7 +9,7 @@ export class EmailService {
   constructor() {
     // Support email transporter
     this.supportTransporter = nodemailer.createTransport({
-      host: 'smtp.gmail.com', // or your SMTP host
+      host: 'mail.privateemail.com', // Namecheap SMTP
       port: 587,
       secure: false,
       auth: {
@@ -20,7 +20,7 @@ export class EmailService {
 
     // Referral email transporter
     this.referralTransporter = nodemailer.createTransport({
-      host: 'smtp.gmail.com',
+      host: 'mail.privateemail.com',
       port: 587,
       secure: false,
       auth: {
@@ -31,7 +31,7 @@ export class EmailService {
 
     // No-reply email transporter
     this.noreplyTransporter = nodemailer.createTransport({
-      host: 'smtp.gmail.com',
+      host: 'mail.privateemail.com',
       port: 587,
       secure: false,
       auth: {
