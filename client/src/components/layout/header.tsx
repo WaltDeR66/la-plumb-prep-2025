@@ -4,6 +4,7 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Menu, Building2 } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { useQuery } from "@tanstack/react-query";
+import { apiRequest } from "@/lib/queryClient";
 import type { User } from "@/../../shared/schema";
 
 export default function Header() {
@@ -22,6 +23,17 @@ export default function Header() {
     { name: "Jobs", href: "/jobs" },
     { name: "Pricing", href: "/pricing" },
   ];
+
+  const handleLogout = async () => {
+    try {
+      await apiRequest("POST", "/api/auth/logout");
+      window.location.href = "/";
+    } catch (error) {
+      console.error("Logout error:", error);
+      // Fallback to redirect even if logout fails
+      window.location.href = "/";
+    }
+  };
 
   return (
     <header className="bg-white border-b border-border sticky top-0 z-50" data-testid="header">
@@ -86,7 +98,7 @@ export default function Header() {
                 <Button 
                   variant="outline" 
                   size="sm" 
-                  onClick={() => window.location.href = '/api/auth/logout'}
+                  onClick={handleLogout}
                   data-testid="button-logout"
                 >
                   Logout
@@ -146,7 +158,7 @@ export default function Header() {
                         className="w-full justify-start"
                         onClick={() => {
                           setIsOpen(false);
-                          window.location.href = '/api/auth/logout';
+                          handleLogout();
                         }}
                         data-testid="mobile-button-logout"
                       >
