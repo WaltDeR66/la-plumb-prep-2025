@@ -43,15 +43,15 @@ export default function Footer() {
             </p>
             <div className="flex items-center space-x-4">
               <span className="text-sm text-background/70">Follow us:</span>
-              <a href="#" className="text-background/70 hover:text-background transition-colors" data-testid="social-link-twitter">
+              <button className="text-background/70 hover:text-background transition-colors" data-testid="social-link-twitter">
                 <Twitter className="w-5 h-5" />
-              </a>
-              <a href="#" className="text-background/70 hover:text-background transition-colors" data-testid="social-link-facebook">
+              </button>
+              <button className="text-background/70 hover:text-background transition-colors" data-testid="social-link-facebook">
                 <Facebook className="w-5 h-5" />
-              </a>
-              <a href="#" className="text-background/70 hover:text-background transition-colors" data-testid="social-link-linkedin">
+              </button>
+              <button className="text-background/70 hover:text-background transition-colors" data-testid="social-link-linkedin">
                 <Linkedin className="w-5 h-5" />
-              </a>
+              </button>
             </div>
           </div>
           
@@ -73,9 +73,15 @@ export default function Footer() {
             <ul className="space-y-2 text-background/70">
               {supportLinks.map((link, index) => (
                 <li key={index}>
-                  <a href={link.href} className="hover:text-background transition-colors" data-testid={`footer-support-link-${index}`}>
-                    {link.name}
-                  </a>
+                  {link.href.startsWith('mailto:') ? (
+                    <a href={link.href} className="hover:text-background transition-colors" data-testid={`footer-support-link-${index}`}>
+                      {link.name}
+                    </a>
+                  ) : (
+                    <button className="hover:text-background transition-colors text-left" data-testid={`footer-support-link-${index}`}>
+                      {link.name}
+                    </button>
+                  )}
                 </li>
               ))}
             </ul>
@@ -89,14 +95,13 @@ export default function Footer() {
             </p>
             <div className="flex items-center space-x-6 mt-4 md:mt-0">
               {legalLinks.map((link, index) => (
-                <a 
+                <button 
                   key={index}
-                  href={link.href} 
                   className="text-background/70 hover:text-background text-sm transition-colors"
                   data-testid={`footer-legal-link-${index}`}
                 >
                   {link.name}
-                </a>
+                </button>
               ))}
             </div>
           </div>
