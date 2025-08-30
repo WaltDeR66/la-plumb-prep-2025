@@ -166,9 +166,6 @@ export default function Home() {
                     Get 50% Off First Month
                   </Button>
                 </Link>
-                <Button variant="outline" size="lg" className="border-2 border-white text-white hover:bg-white hover:text-primary text-lg px-8 py-4" data-testid="button-demo">
-                  View Course Demo
-                </Button>
               </div>
               <div className="flex items-center space-x-6 mt-8 text-blue-100">
                 <div className="flex items-center space-x-2">
