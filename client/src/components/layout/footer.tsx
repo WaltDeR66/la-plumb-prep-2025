@@ -77,9 +77,13 @@ export default function Footer() {
                 </button>
               </li>
               <li>
-                <a href="mailto:support@laplumbprep.com" className="hover:text-background transition-colors block cursor-pointer" data-testid="footer-support-link-1">
+                <button 
+                  onClick={() => window.location.href = 'mailto:support@laplumbprep.com'}
+                  className="hover:text-background transition-colors text-left block cursor-pointer" 
+                  data-testid="footer-support-link-1"
+                >
                   Contact Us
-                </a>
+                </button>
               </li>
               <li>
                 <button className="hover:text-background transition-colors text-left block cursor-pointer" data-testid="footer-support-link-2">
