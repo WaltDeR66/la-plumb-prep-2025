@@ -21,6 +21,9 @@ import ProductDetail from "@/pages/product-detail";
 import EmployerPortal from "@/pages/employer-portal";
 import JobApproval from "@/pages/admin/job-approval";
 import JobAnalytics from "@/pages/employer/job-analytics";
+import Privacy from "@/pages/privacy";
+import Terms from "@/pages/terms";
+import Accessibility from "@/pages/accessibility";
 import Header from "@/components/layout/header";
 import Footer from "@/components/layout/footer";
 
@@ -47,6 +50,9 @@ function Router() {
           <Route path="/employer-portal" component={EmployerPortal} />
           <Route path="/employer/analytics" component={JobAnalytics} />
           <Route path="/admin/job-approval" component={JobApproval} />
+          <Route path="/privacy" component={Privacy} />
+          <Route path="/terms" component={Terms} />
+          <Route path="/accessibility" component={Accessibility} />
           <Route component={NotFound} />
         </Switch>
       </main>
