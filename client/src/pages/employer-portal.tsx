@@ -517,16 +517,18 @@ export default function EmployerPortal() {
           )}
 
           {step === 'job' && (
-            <Card data-testid="job-form">
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <MapPin className="w-6 h-6" />
-                  <span>Job Details</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <Form {...jobForm}>
-                  <form onSubmit={jobForm.handleSubmit(onSubmitJob)} className="space-y-6">
+            <div className="grid lg:grid-cols-2 gap-8">
+              {/* Job Form */}
+              <Card data-testid="job-form">
+                <CardHeader>
+                  <CardTitle className="flex items-center space-x-2">
+                    <MapPin className="w-6 h-6" />
+                    <span>Job Details</span>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <Form {...jobForm}>
+                    <form onSubmit={jobForm.handleSubmit(onSubmitJob)} className="space-y-6">
                     <FormField
                       control={jobForm.control}
                       name="title"
@@ -697,6 +699,104 @@ export default function EmployerPortal() {
                 </Form>
               </CardContent>
             </Card>
+
+            {/* Live Preview */}
+            <div className="lg:sticky lg:top-8">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center space-x-2">
+                    <CheckCircle className="w-6 h-6" />
+                    <span>Preview - How Students See Your Job</span>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {/* Job Card Preview */}
+                  <div className="border rounded-lg p-6 bg-card hover:bg-accent/50 transition-colors">
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <h3 className="text-lg font-semibold mb-2">
+                          {jobForm.watch("title") || "Job Title"}
+                        </h3>
+                        <p className="text-muted-foreground mb-2">
+                          {employerForm.getValues("companyName") || "Company Name"}
+                        </p>
+                        <div className="flex items-center space-x-4 text-sm text-muted-foreground mb-4">
+                          <span className="flex items-center space-x-1">
+                            <MapPin className="w-4 h-4" />
+                            <span>{jobForm.watch("location") || "Location"}</span>
+                          </span>
+                          <span className="capitalize">
+                            {jobForm.watch("type")?.replace("_", "-") || "Job Type"}
+                          </span>
+                          {(jobForm.watch("salaryMin") || jobForm.watch("salaryMax")) && (
+                            <span className="flex items-center space-x-1">
+                              <DollarSign className="w-4 h-4" />
+                              <span>
+                                {jobForm.watch("salaryMin") && `$${jobForm.watch("salaryMin")}`}
+                                {jobForm.watch("salaryMin") && jobForm.watch("salaryMax") && "-"}
+                                {jobForm.watch("salaryMax") && `$${jobForm.watch("salaryMax")}`}
+                                /hr
+                              </span>
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-sm line-clamp-3">
+                          {jobForm.watch("description") || "Job description will appear here..."}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="mt-4 pt-4 border-t">
+                      <Button className="w-full" disabled>
+                        Apply Now
+                      </Button>
+                    </div>
+                  </div>
+
+                  {/* Full Job Detail Preview */}
+                  <div className="mt-6 p-4 border rounded-lg bg-muted/50">
+                    <h4 className="font-semibold mb-3">Full Job Details Preview</h4>
+                    
+                    {jobForm.watch("description") && (
+                      <div className="mb-4">
+                        <h5 className="font-medium mb-2">Description</h5>
+                        <p className="text-sm whitespace-pre-wrap">
+                          {jobForm.watch("description")}
+                        </p>
+                      </div>
+                    )}
+
+                    {jobForm.watch("requirements") && (
+                      <div className="mb-4">
+                        <h5 className="font-medium mb-2">Requirements</h5>
+                        <ul className="text-sm space-y-1">
+                          {jobForm.watch("requirements").split('\n').filter(req => req.trim()).map((req, idx) => (
+                            <li key={idx} className="flex items-start space-x-2">
+                              <CheckCircle className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                              <span>{req.trim()}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+
+                    {jobForm.watch("benefits") && (
+                      <div className="mb-4">
+                        <h5 className="font-medium mb-2">Benefits</h5>
+                        <ul className="text-sm space-y-1">
+                          {jobForm.watch("benefits").split('\n').filter(benefit => benefit.trim()).map((benefit, idx) => (
+                            <li key={idx} className="flex items-start space-x-2">
+                              <CheckCircle className="w-4 h-4 text-blue-500 mt-0.5 flex-shrink-0" />
+                              <span>{benefit.trim()}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
           )}
         </div>
       </section>
