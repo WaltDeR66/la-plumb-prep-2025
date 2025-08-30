@@ -20,7 +20,7 @@ export const jobTypeEnum = pgEnum("job_type", ["full_time", "part_time", "contra
 export const paymentStatusEnum = pgEnum("payment_status", ["pending", "completed", "failed", "cancelled"]);
 export const productCategoryEnum = pgEnum("product_category", ["gas_detection", "pipe_tools", "measuring", "safety", "valves", "fittings", "books", "training_materials"]);
 export const jobStatusEnum = pgEnum("job_status", ["pending", "approved", "rejected", "expired"]);
-export const emailCampaignTypeEnum = pgEnum("email_campaign_type", ["employer_onboarding", "student_enrollment"]);
+export const emailCampaignTypeEnum = pgEnum("email_campaign_type", ["employer_onboarding", "student_enrollment", "bulk_enrollment"]);
 export const emailStatusEnum = pgEnum("email_status", ["pending", "sent", "failed", "cancelled"]);
 export const bulkEnrollmentStatusEnum = pgEnum("bulk_enrollment_status", ["pending", "approved", "active", "cancelled"]);
 

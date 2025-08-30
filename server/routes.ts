@@ -978,8 +978,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
         requestedStartDate ? new Date(requestedStartDate) : undefined
       );
       
+      // Start automated email sequence for bulk enrollment follow-up
+      await emailAutomation.queueEmailSequence(
+        contactEmail,
+        employerId, // Using employerId as name for now
+        "bulk_enrollment"
+      );
+
       res.status(201).json({ 
-        message: "Bulk enrollment request created successfully",
+        message: "Bulk enrollment request created successfully! Check your email for follow-up information.",
         ...result
       });
     } catch (error: any) {

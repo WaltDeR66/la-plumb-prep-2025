@@ -183,6 +183,200 @@ Your future self will thank you.
 Best,
 LA Plumb Prep Team`
     }
+  ],
+
+  // Bulk enrollment follow-up sequence
+  bulk_enrollment: [
+    {
+      sequenceOrder: 1,
+      delayDays: 0,
+      subject: "Transform Your Team with Louisiana's Premier Plumbing Certification",
+      content: `Hi {{name}},
+
+Thank you for your interest in bulk enrollment at Louisiana Plumbing Prep! You're about to give your team the competitive edge they need.
+
+**Why Choose LA Plumb Prep for Your Team:**
+
+🎯 **Louisiana Code Expertise**
+- State-specific regulations and requirements
+- Real Louisiana plumbing scenarios and examples
+- Current 2024 Louisiana code updates
+
+💰 **Massive Bulk Savings**
+- 5-19 students: 10% discount ($44/student vs $49)
+- 20-49 students: 15% discount ($42/student vs $49)  
+- 50+ students: 25% discount ($37/student vs $49)
+
+🚀 **Complete Professional Toolkit**
+- AI Mentor for instant code questions
+- Photo Code Checker for job site compliance
+- Pipe Sizing Calculator and professional tools
+- Plan Review and analysis capabilities
+
+📚 **Comprehensive Training**
+- 5 certification tracks available
+- Interactive lessons with real-world scenarios
+- Practice tests and progress tracking
+- Job placement assistance
+
+👨‍💼 **Perfect for Your Business**
+- Reduce training time and costs
+- Ensure code compliance on all jobs
+- Boost your team's credentials and value
+- Attract better clients with certified staff
+
+**Next Steps:**
+1. Submit your bulk enrollment request
+2. We'll create custom pricing for your team size
+3. Students receive individual access within 24 hours
+4. Track progress through our employer dashboard
+
+[Get Your Custom Quote - {{website_url}}/bulk-enrollment]
+
+Questions? Contact our bulk enrollment specialists:
+📧 bulk@laplumbprep.com
+📞 (555) 123-4567
+
+Best regards,
+LA Plumb Prep Team`
+    },
+    {
+      sequenceOrder: 2,
+      delayDays: 3,
+      subject: "How Regional Plumbing Saved $15,000 on Training Costs",
+      content: `Hi {{name}},
+
+See how smart contractors are maximizing their training budgets:
+
+**Regional Plumbing Services - Lafayette**
+"We enrolled 25 technicians through LA Plumb Prep's bulk program. Not only did we save $1,875 on enrollment costs, but our team became Louisiana code experts overnight. We're now winning bigger contracts because clients trust our certified expertise."
+
+**Results achieved:**
+✅ 25 technicians certified in 60 days
+✅ $1,875 saved on training costs (15% bulk discount)
+✅ 40% increase in high-value commercial contracts
+✅ Zero code violations in the past 6 months
+
+**Gulf Coast Construction - New Orleans**
+"The AI tools alone are worth the investment. Our crews use the Photo Code Checker on every job. We've caught compliance issues before inspectors even arrive. It's like having a code expert on every job site."
+
+**Your team deserves the same success.**
+
+**Special Limited Offer for This Week:**
+- Additional 5% discount on top of bulk rates
+- Free employer dashboard access
+- Priority student onboarding (24-hour activation)
+
+[Claim Your Additional Discount - {{website_url}}/bulk-enrollment]
+
+Ready to level up your entire team?
+
+Best,
+LA Plumb Prep Team
+P.S. This additional discount expires in 4 days - don't let your team miss out.`
+    },
+    {
+      sequenceOrder: 3,
+      delayDays: 7,
+      subject: "Complete Professional Toolkit Awaits Your Team",
+      content: `Hi {{name}},
+
+Your competition is already using AI-powered plumbing tools. Here's what your team is missing:
+
+**🤖 AI Mentor Support**
+- Instant answers to complex code questions
+- Available 24/7 for job site challenges
+- Louisiana-specific expertise at your fingertips
+
+**📸 Photo Code Checker**
+- Snap a photo, get instant compliance feedback
+- Prevent costly rework and violations
+- Boost client confidence in your work
+
+**📐 Professional Calculators**
+- Pipe sizing for complex systems
+- Material estimators and cost calculators
+- Load calculations and capacity planning
+
+**📋 Plan Review System**
+- AI-powered plan analysis
+- Code compliance checking before construction
+- Risk identification and mitigation
+
+**Real Results from Real Contractors:**
+
+"The Photo Code Checker caught a gas line issue that would have cost us $8,000 to fix during inspection. The tool paid for itself on day one." - Mike's Plumbing, Baton Rouge
+
+"Our estimating accuracy improved by 30% using the professional calculators. We're winning more bids and maintaining better margins." - Acadiana Mechanical
+
+**Your Investment vs Your Returns:**
+- Bulk enrollment: $37-44 per student
+- Prevent one $5,000 code violation = 135+ students covered
+- Win one additional $50,000 contract = 1,350+ students covered
+
+**The math is simple. The results are proven.**
+
+[Start Your Team's Transformation - {{website_url}}/bulk-enrollment]
+
+Still have questions? I'm here to help:
+📧 bulk@laplumbprep.com
+📞 (555) 123-4567
+
+Best,
+Sarah Thompson
+Bulk Enrollment Specialist
+LA Plumb Prep`
+    },
+    {
+      sequenceOrder: 4,
+      delayDays: 14,
+      subject: "Final Notice: Louisiana's Top Contractors Are Moving Fast",
+      content: `Hi {{name}},
+
+I wanted to reach out one final time about your team's professional development.
+
+**The landscape is changing fast:**
+- Louisiana code updates are more frequent
+- Clients demand certified, knowledgeable teams
+- Insurance companies reward certified contractors
+- Competition is investing in professional development
+
+**Don't let your team fall behind.**
+
+**What You Get with Bulk Enrollment:**
+✅ Up to 25% savings on professional certification
+✅ Complete AI-powered professional toolkit
+✅ Louisiana code expertise for your entire team
+✅ Employer dashboard to track progress
+✅ Job placement assistance for new hires
+✅ 24/7 support and resources
+
+**What You Risk by Waiting:**
+❌ Code violations and costly rework
+❌ Lost contracts to certified competitors
+❌ Higher insurance premiums
+❌ Difficulty attracting quality workers
+❌ Full-price individual enrollments
+
+**This is my last email about bulk enrollment.**
+
+If you're ready to invest in your team's future (and your company's success), I'm here to help make it happen.
+
+If not, I understand - we'll remove you from this sequence and wish you the best.
+
+[Yes, I Want to Enroll My Team - {{website_url}}/bulk-enrollment]
+
+[No Thanks, Remove Me from This List - {{website_url}}/api/unsubscribe?email={{email}}&campaignType=bulk_enrollment]
+
+Thank you for your time and consideration.
+
+Best regards,
+Sarah Thompson
+Bulk Enrollment Specialist
+LA Plumb Prep
+
+P.S. Our most successful contractors started with bulk enrollment. They're now industry leaders in Louisiana. Your team could be next.`
+    }
   ]
 };
 
@@ -224,6 +418,19 @@ export class EmailAutomationService {
         });
       }
 
+      // Insert bulk enrollment campaigns
+      for (const template of EMAIL_TEMPLATES.bulk_enrollment) {
+        await db.insert(emailCampaigns).values({
+          name: `Bulk Enrollment - Email ${template.sequenceOrder}`,
+          type: "bulk_enrollment",
+          subject: template.subject,
+          content: template.content,
+          sequenceOrder: template.sequenceOrder,
+          delayDays: template.delayDays,
+          isActive: true
+        });
+      }
+
       console.log("Email campaigns initialized successfully");
     } catch (error) {
       console.error("Error initializing email campaigns:", error);
@@ -234,7 +441,7 @@ export class EmailAutomationService {
   async queueEmailSequence(
     email: string, 
     name: string, 
-    campaignType: "employer_onboarding" | "student_enrollment"
+    campaignType: "employer_onboarding" | "student_enrollment" | "bulk_enrollment"
   ) {
     try {
       // Check if user has unsubscribed
