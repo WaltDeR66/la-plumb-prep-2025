@@ -132,8 +132,9 @@ export default function EmployerPortal() {
                 <ul className="text-sm text-muted-foreground space-y-2 text-left">
                   <li>• Our team will review your job posting within 24-48 hours</li>
                   <li>• You'll receive an email confirmation once approved</li>
-                  <li>• Your job will be visible to our certified students</li>
+                  <li>• Your job will be visible to apprentice plumbers in our training program</li>
                   <li>• Applications will be forwarded directly to your email</li>
+                  <li>• Access detailed analytics about student applications and engagement</li>
                 </ul>
               </div>
               <Button size="lg" onClick={() => window.location.href = "/"} data-testid="return-home">
@@ -152,24 +153,24 @@ export default function EmployerPortal() {
       <section className="gradient-hero text-white py-16" data-testid="employer-hero">
         <div className="max-w-4xl mx-auto px-4 text-center">
           <h1 className="text-4xl lg:text-5xl font-bold mb-6" data-testid="hero-title">
-            Hire Certified Louisiana Plumbers
+            Hire Apprentice Plumbers in Training
           </h1>
           <p className="text-xl text-blue-100 max-w-3xl mx-auto mb-8">
-            Connect with qualified, certified plumbers who have completed our comprehensive 
-            Louisiana Plumbing Code training program.
+            Connect with qualified apprentice plumbers who are actively enrolled in our comprehensive 
+            Louisiana Plumbing Code training program. Get detailed analytics on student applications to your job postings.
           </p>
           <div className="flex items-center justify-center space-x-8 text-blue-100">
             <div className="flex items-center space-x-2">
               <Building2 className="w-5 h-5" />
-              <span>Certified Professionals</span>
+              <span>Apprentices in Training</span>
             </div>
             <div className="flex items-center space-x-2">
               <MapPin className="w-5 h-5" />
-              <span>Louisiana Specialists</span>
+              <span>Louisiana Code Specialists</span>
             </div>
             <div className="flex items-center space-x-2">
               <CheckCircle className="w-5 h-5" />
-              <span>Verified Training</span>
+              <span>Application Analytics</span>
             </div>
           </div>
         </div>
