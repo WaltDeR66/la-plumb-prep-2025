@@ -1,0 +1,148 @@
+2025-08-30 15:30:34.10
+e18304c3
+User
+length: 88,
+2025-08-30 15:30:34.10
+e18304c3
+User
+severity: 'ERROR',
+2025-08-30 15:30:34.10
+e18304c3
+User
+code: 'XX000',
+2025-08-30 15:30:34.10
+e18304c3
+User
+detail: undefined,
+2025-08-30 15:30:34.10
+e18304c3
+User
+hint: undefined,
+2025-08-30 15:30:34.10
+e18304c3
+User
+position: undefined,
+2025-08-30 15:30:34.10
+e18304c3
+User
+internalPosition: undefined,
+2025-08-30 15:30:34.10
+e18304c3
+User
+internalQuery: undefined,
+2025-08-30 15:30:34.10
+e18304c3
+User
+where: undefined,
+2025-08-30 15:30:34.10
+e18304c3
+User
+schema: undefined,
+2025-08-30 15:30:34.10
+e18304c3
+User
+table: undefined,
+2025-08-30 15:30:34.10
+e18304c3
+User
+column: undefined,
+2025-08-30 15:30:34.10
+e18304c3
+User
+dataType: undefined,
+2025-08-30 15:30:34.10
+e18304c3
+User
+constraint: undefined,
+2025-08-30 15:30:34.10
+e18304c3
+User
+file: undefined,
+2025-08-30 15:30:34.10
+e18304c3
+User
+line: undefined,
+2025-08-30 15:30:34.10
+e18304c3
+User
+routine: undefined
+2025-08-30 15:30:34.10
+e18304c3
+User
+}
+2025-08-30 15:31:19.14
+e18304c3
+System
+system: received signal terminated
+2025-08-30 15:50:53.76
+3de163c2
+System
+starting up user application
+2025-08-30 15:50:54.16
+3de163c2
+System
+forwarding local port 5000 to external port 80 (mapped as 1104)
+2025-08-30 15:50:56.49
+3de163c2
+User
+> rest-express@1.0.0 start
+2025-08-30 15:50:56.49
+3de163c2
+User
+> NODE_ENV=production node dist/index.js
+2025-08-30 15:50:59.33
+3de163c2
+User
+Warning: connect.session() MemoryStore is not
+2025-08-30 15:50:59.33
+3de163c2
+User
+designed for a production environment, as it will leak
+2025-08-30 15:50:59.33
+3de163c2
+User
+memory, and will not scale past a single process.
+2025-08-30 15:50:59.47
+3de163c2
+User
+8:50:59 PM [express] serving on port 5000
+2025-08-30 15:50:59.65
+3de163c2
+User
+Email campaigns already initialized
+2025-08-30 15:50:59.68
+3de163c2
+User
+8:50:59 PM [express] Email automation system initialized
+2025-08-30 15:50:59.68
+3de163c2
+User
+8:50:59 PM [express] Bulk pricing system initialized
+2025-08-30 15:51:56.98
+3de163c2
+User
+8:51:56 PM [express] GET /api/subscription-status 401 in 2ms :: {"message":"Not authenticated"}
+2025-08-30 15:51:56.98
+3de163c2
+User
+8:51:56 PM [express] GET /api/auth/me 401 in 1ms :: {"message":"Not authenticated"}
+2025-08-30 15:51:57.02
+3de163c2
+User
+8:51:57 PM [express] POST /api/study-sessions/start 401 in 2ms :: {"message":"Not authenticated"}
+2025-08-30 15:52:15.73
+3de163c2
+User
+8:52:15 PM [express] GET /api/code-books 200 in 2ms :: []
+2025-08-30 15:52:55.15
+3de163c2
+User
+8:52:55 PM [express] POST /api/auth/login 401 in 2445ms
+2025-08-30 15:56:00.84
+3de163c2
+User
+Processing 0 pending emails
+2025-08-30 15:58:38.25
+3de163c2
+User
+8:58:38 PM [express] POST /api/auth/login 401 in 493ms
