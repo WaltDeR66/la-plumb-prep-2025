@@ -419,7 +419,7 @@ export default function EmployerPortal() {
           {step === 'pricing' && (
             <Card data-testid="pricing-form">
               <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
+                <CardTitle className="flex items-center justify-center space-x-2">
                   <BarChart3 className="w-6 h-6" />
                   <span>Job Posting Plans</span>
                 </CardTitle>
