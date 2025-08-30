@@ -3,7 +3,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { BookOpen, Clock, Users, Star, CheckCircle, Play } from "lucide-react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { Link } from "wouter";
@@ -28,6 +28,12 @@ interface CourseCardProps {
 export default function CourseCard({ course, isEnrolled = false, progress = 0, isCompleted = false }: CourseCardProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
+
+  // Check user's subscription status
+  const { data: user } = useQuery({
+    queryKey: ["/api/auth/me"],
+    retry: false,
+  });
 
   const enrollMutation = useMutation({
     mutationFn: () => apiRequest("POST", `/api/courses/${course.id}/enroll`),
@@ -83,6 +89,13 @@ export default function CourseCard({ course, isEnrolled = false, progress = 0, i
 
   const handleEnroll = () => {
     enrollMutation.mutate();
+  };
+
+  // Check if user has active subscription for course access
+  const hasActiveSubscription = () => {
+    if (!user) return false;
+    const validTiers = ['basic', 'professional', 'master'];
+    return validTiers.includes(user.subscriptionTier?.toLowerCase());
   };
 
   const IconComponent = getCourseIcon();
@@ -184,6 +197,14 @@ export default function CourseCard({ course, isEnrolled = false, progress = 0, i
                     data-testid={`button-coming-soon-${course.id}`}
                   >
                     Coming Soon
+                  </Button>
+                ) : hasActiveSubscription() ? (
+                  <Button 
+                    onClick={handleEnroll}
+                    disabled={enrollMutation.isPending}
+                    data-testid={`button-start-${course.id}`}
+                  >
+                    {enrollMutation.isPending ? "Enrolling..." : "Start Course"}
                   </Button>
                 ) : (
                   <Button 
