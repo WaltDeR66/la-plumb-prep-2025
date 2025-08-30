@@ -2269,6 +2269,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Test endpoint to check email credentials
+  app.get("/api/check-email-config", async (req, res) => {
+    try {
+      const config = {
+        noreply_user: process.env.NOREPLY_USER ? `${process.env.NOREPLY_USER.substring(0, 3)}***` : 'NOT SET',
+        noreply_pass: process.env.NOREPLY_PASS ? 'SET (hidden)' : 'NOT SET',
+        support_user: process.env.SUPPORT_USER ? `${process.env.SUPPORT_USER.substring(0, 3)}***` : 'NOT SET',
+        support_pass: process.env.SUPPORT_PASS ? 'SET (hidden)' : 'NOT SET',
+        referrals_user: process.env.REFERRALS_USER ? `${process.env.REFERRALS_USER.substring(0, 3)}***` : 'NOT SET',
+        referrals_pass: process.env.REFERRALS_PASS ? 'SET (hidden)' : 'NOT SET'
+      };
+      res.json(config);
+    } catch (error: any) {
+      res.status(500).json({ error: "Failed to check config" });
+    }
+  });
+
   // Test endpoint to send actual emails
   app.post("/api/test-email-delivery", async (req, res) => {
     const { type = "contractor", email = "laplumbprep@gmail.com" } = req.body;
