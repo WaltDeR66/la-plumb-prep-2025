@@ -25,6 +25,10 @@ import Privacy from "@/pages/privacy";
 import Terms from "@/pages/terms";
 import Accessibility from "@/pages/accessibility";
 import Help from "@/pages/help";
+import Contact from "@/pages/contact";
+import LouisianaBoard from "@/pages/louisiana-board";
+import TechnicalSupport from "@/pages/technical-support";
+import SystemStatus from "@/pages/system-status";
 import Header from "@/components/layout/header";
 import Footer from "@/components/layout/footer";
 
@@ -55,6 +59,10 @@ function Router() {
           <Route path="/terms" component={Terms} />
           <Route path="/accessibility" component={Accessibility} />
           <Route path="/help" component={Help} />
+          <Route path="/contact" component={Contact} />
+          <Route path="/louisiana-board" component={LouisianaBoard} />
+          <Route path="/technical-support" component={TechnicalSupport} />
+          <Route path="/system-status" component={SystemStatus} />
           <Route component={NotFound} />
         </Switch>
       </main>

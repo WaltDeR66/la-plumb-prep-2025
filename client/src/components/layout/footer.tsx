@@ -11,11 +11,11 @@ export default function Footer() {
   ];
 
   const supportLinks = [
-    { name: "Help Center", href: "#" },
-    { name: "Contact Us", href: "mailto:support@laplumbprep.com" },
-    { name: "Louisiana State Board", href: "#" },
-    { name: "Technical Support", href: "#" },
-    { name: "System Status", href: "#" },
+    { name: "Help Center", href: "/help" },
+    { name: "Contact Us", href: "/contact" },
+    { name: "Louisiana State Board", href: "/louisiana-board" },
+    { name: "Technical Support", href: "/technical-support" },
+    { name: "System Status", href: "/system-status" },
   ];
 
   const legalLinks = [
@@ -80,37 +80,17 @@ export default function Footer() {
                   Help Center
                 </a>
               </li>
-              <li>
-                <button 
-                  onClick={() => {
-                    console.log('Contact Us clicked');
-                    // Try opening in new window if direct mailto doesn't work
-                    const subject = 'Contact Us - LA Plumb Prep';
-                    const body = 'Hello LA Plumb Prep team,\n\nI would like to get in touch regarding:\n\n';
-                    const mailtoUrl = `mailto:support@laplumbprep.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-                    window.open(mailtoUrl, '_blank');
-                  }}
-                  className="hover:text-background transition-colors text-left block cursor-pointer" 
-                  data-testid="footer-support-link-1"
-                >
-                  Contact Us
-                </button>
-              </li>
-              <li>
-                <button className="hover:text-background transition-colors text-left block cursor-pointer" data-testid="footer-support-link-2">
-                  Louisiana State Board
-                </button>
-              </li>
-              <li>
-                <button className="hover:text-background transition-colors text-left block cursor-pointer" data-testid="footer-support-link-3">
-                  Technical Support
-                </button>
-              </li>
-              <li>
-                <button className="hover:text-background transition-colors text-left block cursor-pointer" data-testid="footer-support-link-4">
-                  System Status
-                </button>
-              </li>
+              {supportLinks.slice(1).map((link, index) => (
+                <li key={index + 1}>
+                  <a 
+                    href={link.href}
+                    className="hover:text-background transition-colors text-left block cursor-pointer" 
+                    data-testid={`footer-support-link-${index + 1}`}
+                  >
+                    {link.name}
+                  </a>
+                </li>
+              ))}
             </ul>
           </div>
         </div>
