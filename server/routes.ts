@@ -450,6 +450,101 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Employer job posting routes
+  app.post("/api/employers/register", async (req, res) => {
+    try {
+      const employerData = req.body;
+      
+      // Check if employer already exists
+      const existingEmployer = await storage.getEmployerByEmail(employerData.contactEmail);
+      if (existingEmployer) {
+        return res.status(400).json({ message: "Employer with this email already exists" });
+      }
+      
+      const employer = await storage.createEmployer(employerData);
+      
+      // Send confirmation email (you could add email service here)
+      res.status(201).json({ 
+        message: "Employer registration successful", 
+        employerId: employer.id 
+      });
+    } catch (error: any) {
+      console.error("Error registering employer:", error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.post("/api/employers/:employerId/jobs", async (req, res) => {
+    try {
+      const { employerId } = req.params;
+      const jobData = req.body;
+      
+      // Verify employer exists
+      const employer = await storage.getEmployer(employerId);
+      if (!employer) {
+        return res.status(404).json({ message: "Employer not found" });
+      }
+      
+      // Create job with pending status
+      const job = await storage.createJob({
+        ...jobData,
+        employerId,
+        company: employer.companyName,
+        contactEmail: employer.contactEmail
+      });
+      
+      res.status(201).json({ 
+        message: "Job posting submitted for review", 
+        jobId: job.id,
+        status: "pending" 
+      });
+    } catch (error: any) {
+      console.error("Error creating job:", error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Admin job approval routes (temporarily remove auth until implemented)
+  app.get("/api/admin/jobs/pending", async (req, res) => {
+    try {
+      // Check if user is admin (you might want to add an admin role check)
+      const jobs = await storage.getPendingJobs();
+      res.json(jobs);
+    } catch (error: any) {
+      console.error("Error fetching pending jobs:", error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.put("/api/admin/jobs/:jobId/approve", async (req, res) => {
+    try {
+      const { jobId } = req.params;
+      // TODO: Add admin authentication check
+      const job = await storage.approveJob(jobId, "admin");
+      
+      // Send approval email to employer (you could add email service here)
+      res.json({ message: "Job approved successfully", job });
+    } catch (error: any) {
+      console.error("Error approving job:", error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.put("/api/admin/jobs/:jobId/reject", async (req, res) => {
+    try {
+      const { jobId } = req.params;
+      const { rejectionReason } = req.body;
+      
+      const job = await storage.rejectJob(jobId, rejectionReason);
+      
+      // Send rejection email to employer (you could add email service here)
+      res.json({ message: "Job rejected", job });
+    } catch (error: any) {
+      console.error("Error rejecting job:", error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
   app.post("/api/jobs/:jobId/apply", requireStudentEnrollment, async (req, res) => {
     if (!req.isAuthenticated()) {
       return res.status(401).json({ message: "Not authenticated" });

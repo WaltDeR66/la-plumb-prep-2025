@@ -19,6 +19,7 @@ export const courseTypeEnum = pgEnum("course_type", ["journeyman", "backflow", "
 export const jobTypeEnum = pgEnum("job_type", ["full_time", "part_time", "contract", "temporary"]);
 export const paymentStatusEnum = pgEnum("payment_status", ["pending", "completed", "failed", "cancelled"]);
 export const productCategoryEnum = pgEnum("product_category", ["gas_detection", "pipe_tools", "measuring", "safety", "valves", "fittings", "books", "training_materials"]);
+export const jobStatusEnum = pgEnum("job_status", ["pending", "approved", "rejected", "expired"]);
 
 // Users table
 export const users = pgTable("users", {
@@ -67,9 +68,29 @@ export const courseEnrollments = pgTable("course_enrollments", {
   completedAt: timestamp("completed_at"),
 });
 
+// Employers table
+export const employers = pgTable("employers", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  companyName: text("company_name").notNull(),
+  contactName: text("contact_name").notNull(),
+  contactEmail: text("contact_email").notNull().unique(),
+  contactPhone: text("contact_phone"),
+  companyWebsite: text("company_website"),
+  companyDescription: text("company_description"),
+  address: text("address"),
+  city: text("city"),
+  state: text("state").default("Louisiana"),
+  zipCode: text("zip_code"),
+  isVerified: boolean("is_verified").default(false),
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
 // Jobs table
 export const jobs = pgTable("jobs", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  employerId: text("employer_id").notNull(),
   title: text("title").notNull(),
   company: text("company").notNull(),
   description: text("description").notNull(),
@@ -80,8 +101,12 @@ export const jobs = pgTable("jobs", {
   requirements: text("requirements").array(),
   benefits: text("benefits").array(),
   contactEmail: text("contact_email").notNull(),
+  status: jobStatusEnum("status").default("pending"),
   isFeatured: boolean("is_featured").default(false),
   isActive: boolean("is_active").default(true),
+  rejectionReason: text("rejection_reason"),
+  approvedBy: text("approved_by"),
+  approvedAt: timestamp("approved_at"),
   expiresAt: timestamp("expires_at"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
@@ -378,8 +403,16 @@ export const courseEnrollmentsRelations = relations(courseEnrollments, ({ one })
   }),
 }));
 
-export const jobsRelations = relations(jobs, ({ many }) => ({
+export const employersRelations = relations(employers, ({ many }) => ({
+  jobs: many(jobs),
+}));
+
+export const jobsRelations = relations(jobs, ({ many, one }) => ({
   applications: many(jobApplications),
+  employer: one(employers, {
+    fields: [jobs.employerId],
+    references: [employers.id],
+  }),
 }));
 
 export const jobApplicationsRelations = relations(jobApplications, ({ one }) => ({
@@ -409,8 +442,17 @@ export const insertCourseSchema = createInsertSchema(courses).omit({
   updatedAt: true,
 });
 
+export const insertEmployerSchema = createInsertSchema(employers).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
 export const insertJobSchema = createInsertSchema(jobs).omit({
   id: true,
+  status: true,
+  approvedBy: true,
+  approvedAt: true,
   createdAt: true,
   updatedAt: true,
 });
@@ -477,6 +519,8 @@ export type InsertUser = z.infer<typeof insertUserSchema>;
 export type Course = typeof courses.$inferSelect;
 export type InsertCourse = z.infer<typeof insertCourseSchema>;
 export type Job = typeof jobs.$inferSelect;
+export type Employer = typeof employers.$inferSelect;
+export type InsertEmployer = z.infer<typeof insertEmployerSchema>;
 export type InsertJob = z.infer<typeof insertJobSchema>;
 export type CourseEnrollment = typeof courseEnrollments.$inferSelect;
 export type JobApplication = typeof jobApplications.$inferSelect;

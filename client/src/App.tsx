@@ -18,6 +18,8 @@ import Login from "@/pages/auth/login";
 import Register from "@/pages/auth/register";
 import Store from "@/pages/store";
 import ProductDetail from "@/pages/product-detail";
+import EmployerPortal from "@/pages/employer-portal";
+import JobApproval from "@/pages/admin/job-approval";
 import Header from "@/components/layout/header";
 import Footer from "@/components/layout/footer";
 
@@ -41,6 +43,8 @@ function Router() {
           <Route path="/course/:courseId/content/:contentId" component={ContentView} />
           <Route path="/login" component={Login} />
           <Route path="/register" component={Register} />
+          <Route path="/employer-portal" component={EmployerPortal} />
+          <Route path="/admin/job-approval" component={JobApproval} />
           <Route component={NotFound} />
         </Switch>
       </main>

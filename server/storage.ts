@@ -2,6 +2,7 @@ import {
   users, 
   courses, 
   courseEnrollments,
+  employers,
   jobs,
   jobApplications,
   mentorConversations,
@@ -21,6 +22,8 @@ import {
   type InsertUser,
   type Course,
   type InsertCourse,
+  type Employer,
+  type InsertEmployer,
   type Job,
   type InsertJob,
   type JobApplication,
@@ -73,11 +76,21 @@ export interface IStorage {
   enrollUser(userId: string, courseId: string): Promise<CourseEnrollment>;
   updateEnrollmentProgress(enrollmentId: string, progress: number, completedLessons: number): Promise<CourseEnrollment>;
   
+  // Employer methods
+  createEmployer(employer: InsertEmployer): Promise<Employer>;
+  getEmployer(id: string): Promise<Employer | undefined>;
+  getEmployerByEmail(email: string): Promise<Employer | undefined>;
+  updateEmployer(id: string, updates: Partial<Employer>): Promise<Employer>;
+  getEmployers(page?: number, limit?: number): Promise<{ employers: Employer[], total: number }>;
+  
   // Job methods
-  getJobs(page?: number, limit?: number, search?: string): Promise<{ jobs: Job[], total: number }>;
+  getJobs(page?: number, limit?: number, search?: string, status?: string): Promise<{ jobs: Job[], total: number }>;
   getJob(id: string): Promise<Job | undefined>;
   createJob(job: InsertJob): Promise<Job>;
   updateJob(id: string, updates: Partial<Job>): Promise<Job>;
+  getPendingJobs(): Promise<Job[]>;
+  approveJob(id: string, approvedBy: string): Promise<Job>;
+  rejectJob(id: string, rejectionReason: string): Promise<Job>;
   
   // Job application methods
   createJobApplication(application: InsertJobApplication): Promise<JobApplication>;
@@ -294,11 +307,62 @@ export class DatabaseStorage implements IStorage {
     return enrollment;
   }
 
-  async getJobs(page = 1, limit = 10, search?: string): Promise<{ jobs: Job[], total: number }> {
+  // Employer methods
+  async createEmployer(employer: InsertEmployer): Promise<Employer> {
+    const [newEmployer] = await db
+      .insert(employers)
+      .values(employer)
+      .returning();
+    return newEmployer;
+  }
+
+  async getEmployer(id: string): Promise<Employer | undefined> {
+    const [employer] = await db.select().from(employers).where(eq(employers.id, id));
+    return employer || undefined;
+  }
+
+  async getEmployerByEmail(email: string): Promise<Employer | undefined> {
+    const [employer] = await db.select().from(employers).where(eq(employers.contactEmail, email));
+    return employer || undefined;
+  }
+
+  async updateEmployer(id: string, updates: Partial<Employer>): Promise<Employer> {
+    const [employer] = await db
+      .update(employers)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(employers.id, id))
+      .returning();
+    return employer;
+  }
+
+  async getEmployers(page = 1, limit = 10): Promise<{ employers: Employer[], total: number }> {
     const offset = (page - 1) * limit;
     
-    let query = db.select().from(jobs).where(eq(jobs.isActive, true));
-    let countQuery = db.select({ count: count() }).from(jobs).where(eq(jobs.isActive, true));
+    const employersResult = await db
+      .select()
+      .from(employers)
+      .orderBy(desc(employers.createdAt))
+      .limit(limit)
+      .offset(offset);
+    
+    const [{ count: total }] = await db.select({ count: count() }).from(employers);
+    
+    return { employers: employersResult, total };
+  }
+
+  async getJobs(page = 1, limit = 10, search?: string, status?: string): Promise<{ jobs: Job[], total: number }> {
+    const offset = (page - 1) * limit;
+    
+    // For students, only show approved jobs
+    let baseCondition = and(eq(jobs.isActive, true), eq(jobs.status, 'approved'));
+    
+    // If status filter is provided (for admin), use that instead
+    if (status) {
+      baseCondition = eq(jobs.status, status as any);
+    }
+    
+    let query = db.select().from(jobs).where(baseCondition);
+    let countQuery = db.select({ count: count() }).from(jobs).where(baseCondition);
     
     if (search) {
       const searchCondition = or(
@@ -306,8 +370,8 @@ export class DatabaseStorage implements IStorage {
         ilike(jobs.company, `%${search}%`),
         ilike(jobs.location, `%${search}%`)
       );
-      query = query.where(searchCondition);
-      countQuery = countQuery.where(searchCondition);
+      query = query.where(and(baseCondition, searchCondition));
+      countQuery = countQuery.where(and(baseCondition, searchCondition));
     }
     
     const jobsResult = await query
@@ -318,6 +382,41 @@ export class DatabaseStorage implements IStorage {
     const [{ count: total }] = await countQuery;
     
     return { jobs: jobsResult, total };
+  }
+
+  async getPendingJobs(): Promise<Job[]> {
+    return await db
+      .select()
+      .from(jobs)
+      .where(eq(jobs.status, 'pending'))
+      .orderBy(desc(jobs.createdAt));
+  }
+
+  async approveJob(id: string, approvedBy: string): Promise<Job> {
+    const [job] = await db
+      .update(jobs)
+      .set({ 
+        status: 'approved', 
+        approvedBy, 
+        approvedAt: new Date(),
+        updatedAt: new Date()
+      })
+      .where(eq(jobs.id, id))
+      .returning();
+    return job;
+  }
+
+  async rejectJob(id: string, rejectionReason: string): Promise<Job> {
+    const [job] = await db
+      .update(jobs)
+      .set({ 
+        status: 'rejected', 
+        rejectionReason,
+        updatedAt: new Date()
+      })
+      .where(eq(jobs.id, id))
+      .returning();
+    return job;
   }
 
   async getJob(id: string): Promise<Job | undefined> {

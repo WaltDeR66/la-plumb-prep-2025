@@ -63,6 +63,11 @@ export default function Header() {
           
           {/* Desktop Auth Buttons */}
           <div className="hidden md:flex items-center space-x-3">
+            <Link href="/employer-portal">
+              <Button variant="outline" size="sm" data-testid="button-employer-portal">
+                Hire Plumbers
+              </Button>
+            </Link>
             {user ? (
               <div className="flex items-center space-x-3">
                 <Link href="/dashboard">
@@ -138,6 +143,14 @@ export default function Header() {
                       </Link>
                     </div>
                   )}
+                </div>
+                <div className="border-t pt-4 mt-4">
+                  <p className="text-sm font-medium text-muted-foreground mb-3">For Employers</p>
+                  <Link href="/employer-portal">
+                    <Button variant="outline" className="w-full justify-start" onClick={() => setIsOpen(false)} data-testid="mobile-button-employer-portal">
+                      Post a Job
+                    </Button>
+                  </Link>
                 </div>
               </nav>
             </SheetContent>
