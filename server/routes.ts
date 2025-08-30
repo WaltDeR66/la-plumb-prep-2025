@@ -6,6 +6,7 @@ import { insertUserSchema, insertJobSchema, insertJobApplicationSchema, insertCo
 import { analyzePhoto, analyzePlans, getMentorResponse, calculatePipeSize } from "./openai";
 import { calculateReferralCommission, isValidSubscriptionTier } from "@shared/referral-utils";
 import { contentExtractor } from "./content-extractor";
+import { emailAutomation } from "./email-automation";
 import Stripe from "stripe";
 import bcrypt from "bcrypt";
 import session from "express-session";
@@ -464,7 +465,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       const employer = await storage.createEmployer(employerData);
       
-      // Send confirmation email (you could add email service here)
+      // Start automated email sequence for new employer
+      await emailAutomation.queueEmailSequence(
+        employer.contactEmail,
+        employer.contactName,
+        "employer_onboarding"
+      );
+      
       res.status(201).json({ 
         message: "Employer registration successful", 
         employerId: employer.id 
@@ -843,6 +850,60 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error listing code books:", error);
       res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  // Student interest/lead capture endpoint
+  app.post("/api/student-interest", async (req, res) => {
+    try {
+      const { email, firstName, lastName, phone } = req.body;
+      
+      if (!email || !firstName) {
+        return res.status(400).json({ message: "Email and first name are required" });
+      }
+      
+      // Check if user already exists
+      const existingUser = await storage.getUserByEmail(email);
+      if (existingUser) {
+        return res.status(400).json({ message: "User with this email already exists" });
+      }
+      
+      // Start automated email sequence for potential student
+      const fullName = `${firstName} ${lastName || ''}`.trim();
+      await emailAutomation.queueEmailSequence(
+        email,
+        fullName,
+        "student_enrollment"
+      );
+      
+      res.status(201).json({ 
+        message: "Interest recorded successfully! Check your email for course information.",
+        success: true
+      });
+    } catch (error: any) {
+      console.error("Error recording student interest:", error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Email unsubscribe endpoint
+  app.post("/api/unsubscribe", async (req, res) => {
+    try {
+      const { email, campaignType } = req.body;
+      
+      if (!email) {
+        return res.status(400).json({ message: "Email is required" });
+      }
+      
+      await emailAutomation.unsubscribe(email, campaignType);
+      
+      res.json({ 
+        message: "Successfully unsubscribed from email campaigns",
+        success: true
+      });
+    } catch (error: any) {
+      console.error("Error unsubscribing:", error);
+      res.status(500).json({ message: error.message });
     }
   });
 

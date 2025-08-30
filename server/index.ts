@@ -1,6 +1,7 @@
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
+import { emailAutomation } from "./email-automation";
 
 const app = express();
 app.use(express.json());
@@ -68,7 +69,21 @@ app.use((req, res, next) => {
     port,
     host: "0.0.0.0",
     reusePort: true,
-  }, () => {
+  }, async () => {
     log(`serving on port ${port}`);
+    
+    // Initialize email campaigns on startup
+    await emailAutomation.initializeCampaigns();
+    
+    // Start email queue processor (runs every 5 minutes)
+    setInterval(async () => {
+      try {
+        await emailAutomation.processEmailQueue();
+      } catch (error) {
+        console.error("Error processing email queue:", error);
+      }
+    }, 5 * 60 * 1000); // 5 minutes
+    
+    log("Email automation system initialized");
   });
 })();

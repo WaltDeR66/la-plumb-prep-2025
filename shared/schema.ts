@@ -20,6 +20,8 @@ export const jobTypeEnum = pgEnum("job_type", ["full_time", "part_time", "contra
 export const paymentStatusEnum = pgEnum("payment_status", ["pending", "completed", "failed", "cancelled"]);
 export const productCategoryEnum = pgEnum("product_category", ["gas_detection", "pipe_tools", "measuring", "safety", "valves", "fittings", "books", "training_materials"]);
 export const jobStatusEnum = pgEnum("job_status", ["pending", "approved", "rejected", "expired"]);
+export const emailCampaignTypeEnum = pgEnum("email_campaign_type", ["employer_onboarding", "student_enrollment"]);
+export const emailStatusEnum = pgEnum("email_status", ["pending", "sent", "failed", "cancelled"]);
 
 // Users table
 export const users = pgTable("users", {
@@ -539,6 +541,48 @@ export const insertReferralSchema = createInsertSchema(referrals).omit({
   paidAt: true,
 });
 
+// Email campaigns
+export const emailCampaigns = pgTable("email_campaigns", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  name: text("name").notNull(),
+  type: emailCampaignTypeEnum("type").notNull(),
+  subject: text("subject").notNull(),
+  content: text("content").notNull(),
+  sequenceOrder: integer("sequence_order").notNull(),
+  delayDays: integer("delay_days").notNull(),
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Email queue for scheduled sending
+export const emailQueue = pgTable("email_queue", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  recipientEmail: text("recipient_email").notNull(),
+  recipientName: text("recipient_name"),
+  campaignId: text("campaign_id").notNull(),
+  campaignType: emailCampaignTypeEnum("campaign_type").notNull(),
+  subject: text("subject").notNull(),
+  content: text("content").notNull(),
+  scheduledFor: timestamp("scheduled_for").notNull(),
+  status: emailStatusEnum("status").default("pending"),
+  sentAt: timestamp("sent_at"),
+  errorMessage: text("error_message"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Email unsubscribes
+export const emailUnsubscribes = pgTable("email_unsubscribes", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  email: text("email").notNull().unique(),
+  campaignType: emailCampaignTypeEnum("campaign_type"),
+  unsubscribedAt: timestamp("unsubscribed_at").defaultNow(),
+});
+
+// Create insert schemas
+export const insertEmailCampaignSchema = createInsertSchema(emailCampaigns);
+export const insertEmailQueueSchema = createInsertSchema(emailQueue);
+export const insertEmailUnsubscribeSchema = createInsertSchema(emailUnsubscribes);
+
 // Types
 export type User = typeof users.$inferSelect;
 export type InsertUser = z.infer<typeof insertUserSchema>;
@@ -574,3 +618,9 @@ export type InsertCartItem = z.infer<typeof insertCartItemSchema>;
 export type ProductReview = typeof productReviews.$inferSelect;
 export type InsertProductReview = z.infer<typeof insertProductReviewSchema>;
 export type InsertReferral = z.infer<typeof insertReferralSchema>;
+export type EmailCampaign = typeof emailCampaigns.$inferSelect;
+export type InsertEmailCampaign = z.infer<typeof insertEmailCampaignSchema>;
+export type EmailQueue = typeof emailQueue.$inferSelect;
+export type InsertEmailQueue = z.infer<typeof insertEmailQueueSchema>;
+export type EmailUnsubscribe = typeof emailUnsubscribes.$inferSelect;
+export type InsertEmailUnsubscribe = z.infer<typeof insertEmailUnsubscribeSchema>;
