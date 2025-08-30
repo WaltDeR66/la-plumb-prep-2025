@@ -2,7 +2,8 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { emailService } from "./email";
-import { insertUserSchema, insertJobSchema, insertJobApplicationSchema, insertCourseContentSchema, insertPrivateCodeBookSchema, insertCourseSchema, insertProductSchema, insertCartItemSchema, insertProductReviewSchema, insertReferralSchema } from "@shared/schema";
+import { insertUserSchema, insertJobSchema, insertJobApplicationSchema, insertCourseContentSchema, insertPrivateCodeBookSchema, insertCourseSchema, insertProductSchema, insertCartItemSchema, insertProductReviewSchema, insertReferralSchema, leadMagnetDownloads, studentLeadMagnetDownloads } from "@shared/schema";
+import { db } from "./db";
 import { analyzePhoto, analyzePlans, getMentorResponse, calculatePipeSize } from "./openai";
 import { calculateReferralCommission, isValidSubscriptionTier } from "@shared/referral-utils";
 import { contentExtractor } from "./content-extractor";
@@ -2265,6 +2266,94 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error: any) {
       console.error("Error processing student lead magnet download:", error);
       res.status(500).json({ message: "Failed to send career roadmap" });
+    }
+  });
+
+  // Test endpoint to send actual emails
+  app.post("/api/test-email-delivery", async (req, res) => {
+    const { type = "contractor", email = "laplumbprep@gmail.com" } = req.body;
+    
+    try {
+      console.log(`Testing email delivery for ${type} to ${email}`);
+      
+      if (type === "contractor") {
+        const emailHtml = `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+            <div style="background: linear-gradient(135deg, #1e40af 0%, #059669 100%); color: white; padding: 30px; text-align: center;">
+              <h1 style="margin: 0; font-size: 24px;">🎉 Your Louisiana Code Guide is Ready!</h1>
+            </div>
+            <div style="padding: 30px; background: #f9fafb;">
+              <p style="font-size: 18px; color: #374151;">Hi Louisiana Plumber,</p>
+              <p style="color: #6b7280; line-height: 1.6;">
+                Thank you for downloading our Louisiana Plumbing Code Quick Reference Guide! 
+                This comprehensive resource will help you avoid costly code violations and stay compliant on every job.
+              </p>
+              <div style="background: white; border: 2px solid #10b981; border-radius: 8px; padding: 20px; margin: 20px 0;">
+                <h2 style="color: #059669; margin-top: 0;">📥 Download Your Resources:</h2>
+                <div style="text-align: center; margin: 25px 0;">
+                  <a href="https://laplumbprep.com/downloads/louisiana-code-guide.pdf" 
+                     style="background: #059669; color: white; padding: 15px 30px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">
+                    📥 Download Guide & Tools
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+        
+        await emailService.sendEmail({
+          to: email,
+          subject: "🎉 Your Louisiana Code Guide is Ready for Download!",
+          html: emailHtml
+        });
+        
+      } else if (type === "student") {
+        const emailHtml = `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+            <div style="background: linear-gradient(135deg, #7c3aed 0%, #2563eb 100%); color: white; padding: 30px; text-align: center;">
+              <h1 style="margin: 0; font-size: 24px;">🎉 Your Career Roadmap is Ready!</h1>
+            </div>
+            <div style="padding: 30px; background: #f9fafb;">
+              <p style="font-size: 18px; color: #374151;">Hi Future Plumber,</p>
+              <p style="color: #6b7280; line-height: 1.6;">
+                Congratulations on taking the first step toward building a successful $75,000+ plumbing career in Louisiana! 
+                Your complete career roadmap and bonus study materials are ready for download.
+              </p>
+              <div style="background: white; border: 2px solid #7c3aed; border-radius: 8px; padding: 20px; margin: 20px 0;">
+                <h2 style="color: #7c3aed; margin-top: 0;">📥 Download Your Career Resources:</h2>
+                <div style="text-align: center; margin: 25px 0;">
+                  <a href="https://laplumbprep.com/downloads/louisiana-career-roadmap.pdf" 
+                     style="background: #7c3aed; color: white; padding: 15px 30px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">
+                    📥 Download Career Roadmap & Bonuses
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+        
+        await emailService.sendEmail({
+          to: email,
+          subject: "🎉 Your Louisiana Plumbing Career Roadmap is Ready!",
+          html: emailHtml
+        });
+      }
+      
+      console.log(`Email sent successfully to ${email}`);
+      res.json({ 
+        success: true, 
+        message: `Test ${type} email sent successfully to ${email}`,
+        type: type
+      });
+      
+    } catch (error: any) {
+      console.error("Email delivery test failed:", error);
+      res.status(500).json({ 
+        success: false, 
+        error: "Email delivery failed", 
+        details: error.message,
+        type: type
+      });
     }
   });
 
