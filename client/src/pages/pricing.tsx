@@ -26,12 +26,51 @@ export default function Pricing() {
     return Math.round(price);
   };
 
+  // Function to get the correct price ID based on plan, billing cycle, and beta status
+  const getPriceId = (planId: string, isAnnual: boolean, isBeta: boolean) => {
+    const priceMapping = {
+      basic: {
+        monthly: {
+          regular: "price_1S1xrhByFL1L8uV2JfKn5bqI",
+          beta: "price_1S1xuXByFL1L8uV2NYB05RYq"
+        },
+        annual: {
+          regular: "price_1S1xuoByFL1L8uV2rpDkL4wS",
+          beta: "price_1S1xv7ByFL1L8uV2EvZUX3Wg"
+        }
+      },
+      professional: {
+        monthly: {
+          regular: "price_1S1xriByFL1L8uV2cKXSxmwV",
+          beta: "price_1S1xuaByFL1L8uV2sfIJs3Hz"
+        },
+        annual: {
+          regular: "price_1S1xuqByFL1L8uV2vPEtWkmX",
+          beta: "price_1S1xv9ByFL1L8uV2F8u5czkc"
+        }
+      },
+      master: {
+        monthly: {
+          regular: "price_1S1xrjByFL1L8uV2iwBxqPG8",
+          beta: "price_1S1xucByFL1L8uV2axdk2dL9"
+        },
+        annual: {
+          regular: "price_1S1xurByFL1L8uV2IQuts2h2",
+          beta: "price_1S1xvAByFL1L8uV2iuNDyfN7"
+        }
+      }
+    };
+
+    const cycle = isAnnual ? 'annual' : 'monthly';
+    const type = isBeta ? 'beta' : 'regular';
+    return priceMapping[planId as keyof typeof priceMapping][cycle][type];
+  };
+
   const pricingPlans = [
     {
       id: "basic",
       name: "Basic",
       basePrice: 49,
-      priceId: "price_1S1xrhByFL1L8uV2JfKn5bqI",
       tier: "basic",
       description: "Perfect for getting started",
       features: [
@@ -46,7 +85,6 @@ export default function Pricing() {
       id: "professional",
       name: "Professional",
       basePrice: 79,
-      priceId: "price_1S1xriByFL1L8uV2cKXSxmwV",
       tier: "professional",
       description: "For serious professionals",
       popular: true,
@@ -63,7 +101,6 @@ export default function Pricing() {
       id: "master",
       name: "Master",
       basePrice: 99,
-      priceId: "price_1S1xrjByFL1L8uV2iwBxqPG8",
       tier: "master",
       description: "Complete mastery package",
       features: [
@@ -184,7 +221,7 @@ export default function Pricing() {
                     ))}
                   </div>
                   
-                  <Link href={`/subscribe?plan=${plan.id}&priceId=${plan.priceId}&tier=${plan.tier}`}>
+                  <Link href={`/subscribe?plan=${plan.id}&priceId=${getPriceId(plan.id, isAnnual, isBetaTester)}&tier=${plan.tier}&isAnnual=${isAnnual}&isBeta=${isBetaTester}`}>
                     <Button 
                       className={`w-full ${plan.popular ? 'bg-primary hover:bg-primary/90' : ''}`}
                       size="lg"
