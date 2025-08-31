@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useRoute } from "wouter";
 import { Button } from "@/components/ui/button";
@@ -57,6 +57,34 @@ export default function CourseContent() {
   
   const course = courses?.find(c => c.id === courseId);
 
+  // Direct fetch to test API
+  const [directContent, setDirectContent] = useState<any>(null);
+  const [directError, setDirectError] = useState<any>(null);
+  
+  useEffect(() => {
+    const testDirectFetch = async () => {
+      try {
+        console.log('Testing direct fetch to:', `/api/courses/${courseId}/content`);
+        const response = await fetch(`/api/courses/${courseId}/content`, {
+          credentials: 'include'
+        });
+        console.log('Direct fetch response status:', response.status);
+        console.log('Direct fetch response ok:', response.ok);
+        const data = await response.json();
+        console.log('Direct fetch data:', data);
+        console.log('Direct fetch data length:', data?.length);
+        setDirectContent(data);
+      } catch (err) {
+        console.error('Direct fetch error:', err);
+        setDirectError(err);
+      }
+    };
+    
+    if (courseId) {
+      testDirectFetch();
+    }
+  }, [courseId]);
+
   const { data: content, isLoading, error } = useQuery<CourseContent[]>({
     queryKey: ["/api/courses", courseId, "content"],
   });
@@ -70,6 +98,8 @@ export default function CourseContent() {
   console.log('Content length:', content?.length);
   console.log('IsLoading:', isLoading);
   console.log('Error:', error);
+  console.log('Direct content:', directContent);
+  console.log('Direct error:', directError);
   console.log('=== END DEBUG ===');
 
   const { data: sectionProgress } = useQuery<Array<{section: number, isUnlocked: boolean, isAdmin: boolean}>>({
