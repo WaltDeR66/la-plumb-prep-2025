@@ -265,6 +265,23 @@ const upload = multer({
 });
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  
+  // EMERGENCY FIX: Move course content route to the top to prevent interception
+  app.get("/api/courses/:courseId/content", async (req, res) => {
+    try {
+      const { courseId } = req.params;
+      console.log('🚨🚨🚨 EMERGENCY ROUTE CALLED (TOP OF FILE) 🚨🚨🚨');
+      console.log('CourseId:', courseId);
+      
+      const content = await storage.getCourseContent(courseId);
+      console.log('Found content items:', content?.length || 0);
+      
+      res.json(content);
+    } catch (error: any) {
+      console.error('Emergency route error:', error);
+      res.status(500).json({ message: error.message });
+    }
+  });
   // Session configuration
   app.use(session({
     secret: process.env.SESSION_SECRET || 'your-secret-key',
