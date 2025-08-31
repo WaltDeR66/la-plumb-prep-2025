@@ -28,6 +28,20 @@ interface ContentViewerProps {
   onComplete?: () => void;
 }
 
+interface ContentData {
+  id: string;
+  title: string;
+  type: string;
+  content?: {
+    extracted?: {
+      content?: string;
+      transcript?: string;
+      text?: string;
+    };
+    text?: string;
+  };
+}
+
 export default function ContentViewer(props?: ContentViewerProps) {
   if (!props || !props.contentId || !props.contentType) {
     return (
@@ -62,7 +76,7 @@ export default function ContentViewer(props?: ContentViewerProps) {
   }, []);
 
   // Fetch content
-  const { data: content, isLoading } = useQuery({
+  const { data: content, isLoading } = useQuery<ContentData>({
     queryKey: ["/api/course-content", contentId],
     enabled: !!contentId,
   });
@@ -135,7 +149,9 @@ export default function ContentViewer(props?: ContentViewerProps) {
   const shouldAutoStart = urlParams.get('autostart') === 'true';
 
   const renderPodcastContent = () => {
-    const extracted = content?.content?.extracted;
+    if (!content) return null;
+    
+    const extracted = content.content?.extracted;
     const podcastContent = extracted?.transcript || extracted?.content || extracted?.text || '';
     
     if (!podcastContent) {
@@ -158,7 +174,7 @@ export default function ContentViewer(props?: ContentViewerProps) {
             <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
               <span className="text-2xl">🎧</span>
             </div>
-            <CardTitle className="text-2xl">{content?.title || 'Podcast Lesson'}</CardTitle>
+            <CardTitle className="text-2xl">{content.title || 'Podcast Lesson'}</CardTitle>
             <p className="text-muted-foreground">
               Audio lesson with interactive transcript
             </p>
@@ -188,7 +204,9 @@ export default function ContentViewer(props?: ContentViewerProps) {
   };
 
   const renderTextContent = () => {
-    const text = content?.content?.extracted?.content || content?.content?.text || content?.title || '';
+    if (!content) return null;
+    
+    const text = content.content?.extracted?.content || content.content?.text || content.title;
     
     return (
       <div className="space-y-6">
@@ -239,7 +257,7 @@ export default function ContentViewer(props?: ContentViewerProps) {
         
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold">{content?.title || 'Content'}</h1>
+            <h1 className="text-2xl font-bold">{content.title}</h1>
             <Badge variant="secondary" className="mt-2">
               {contentType.charAt(0).toUpperCase() + contentType.slice(1)}
             </Badge>
