@@ -1,0 +1,148 @@
+2025-08-30 21:57:37.00
+764004fc
+User
+2:57:37 AM [express] Bulk pricing system initialized
+2025-08-30 21:57:37.05
+764004fc
+User
+2:57:37 AM [express] GET /api/courses 200 in 139ms :: [{"id":"5f02238b-afb2-4e7f-a488-96fb471fee56",…
+2025-08-30 21:57:37.06
+764004fc
+User
+Storage getCourseContent results count: 0
+2025-08-30 21:57:37.06
+764004fc
+User
+Storage getCourseContent sample result: none
+2025-08-30 21:57:37.06
+764004fc
+User
+Route returning content count: 0
+2025-08-30 21:57:37.06
+764004fc
+User
+First item: none
+2025-08-30 21:57:37.06
+764004fc
+User
+2:57:37 AM [express] GET /api/courses/5f02238b-afb2-4e7f-a488-96fb471fee56/content 200 in 144ms :: []
+2025-08-30 21:57:44.60
+764004fc
+User
+2:57:44 AM [express] POST /api/auth/login 200 in 114ms :: {"message":"Login successful","user":{"id"…
+2025-08-30 21:57:44.73
+764004fc
+User
+2:57:44 AM [express] GET /api/auth/me 200 in 33ms :: {"id":"admin-emergency-1756588393373","email":"…
+2025-08-30 21:57:44.81
+764004fc
+User
+2:57:44 AM [express] GET /api/enrollments 200 in 83ms :: [{"id":"0dfabef8-c346-43e8-8067-788964dd0e3…
+2025-08-30 21:57:44.83
+764004fc
+User
+2:57:44 AM [express] GET /api/job-applications 200 in 45ms
+2025-08-30 21:57:44.84
+764004fc
+User
+2:57:44 AM [express] GET /api/mentor/conversations 200 in 55ms :: []
+2025-08-30 22:02:12.44
+eb49b8cd
+System
+starting up user application
+2025-08-30 22:02:12.60
+eb49b8cd
+System
+forwarding local port 5000 to external port 80 (mapped as 1104)
+2025-08-30 22:02:14.59
+eb49b8cd
+User
+> rest-express@1.0.0 start
+2025-08-30 22:02:14.59
+eb49b8cd
+User
+> NODE_ENV=production node dist/index.js
+2025-08-30 22:02:16.69
+eb49b8cd
+User
+Warning: connect.session() MemoryStore is not
+2025-08-30 22:02:16.69
+eb49b8cd
+User
+designed for a production environment, as it will leak
+2025-08-30 22:02:16.69
+eb49b8cd
+User
+memory, and will not scale past a single process.
+2025-08-30 22:02:16.85
+eb49b8cd
+User
+3:02:16 AM [express] serving on port 5000
+2025-08-30 22:02:17.01
+eb49b8cd
+User
+Email campaigns already initialized
+2025-08-30 22:02:17.04
+eb49b8cd
+User
+3:02:17 AM [express] Email automation system initialized
+2025-08-30 22:02:17.04
+eb49b8cd
+User
+3:02:17 AM [express] Bulk pricing system initialized
+2025-08-30 22:02:29.20
+eb49b8cd
+User
+3:02:29 AM [express] GET /api/auth/me 401 in 4ms :: {"message":"Not authenticated"}
+2025-08-30 22:02:35.46
+eb49b8cd
+User
+3:02:35 AM [express] POST /api/auth/login 200 in 180ms :: {"message":"Login successful","user":{"id"…
+2025-08-30 22:02:35.59
+eb49b8cd
+User
+3:02:35 AM [express] GET /api/auth/me 304 in 31ms :: {"id":"admin-emergency-1756588393373","email":"…
+2025-08-30 22:02:35.66
+eb49b8cd
+User
+3:02:35 AM [express] GET /api/mentor/conversations 304 in 59ms :: []
+2025-08-30 22:02:35.69
+eb49b8cd
+User
+3:02:35 AM [express] GET /api/job-applications 200 in 114ms
+2025-08-30 22:02:35.71
+eb49b8cd
+User
+3:02:35 AM [express] GET /api/courses 304 in 133ms :: [{"id":"5f02238b-afb2-4e7f-a488-96fb471fee56",…
+2025-08-30 22:02:35.72
+eb49b8cd
+User
+3:02:35 AM [express] GET /api/enrollments 304 in 137ms :: [{"id":"0dfabef8-c346-43e8-8067-788964dd0e…
+2025-08-30 22:02:38.71
+764004fc
+User
+Processing 0 pending emails
+2025-08-30 22:03:16.26
+eb49b8cd
+User
+Fetching course content for courseId: 5f02238b-afb2-4e7f-a488-96fb471fee56
+2025-08-30 22:03:16.26
+eb49b8cd
+User
+3:03:16 AM [express] GET /api/section-progress/5f02238b-afb2-4e7f-a488-96fb471fee56 304 in 122ms :: …
+2025-08-30 22:03:16.28
+eb49b8cd
+User
+Found content items: 0
+2025-08-30 22:03:16.28
+eb49b8cd
+User
+Sample content: none
+2025-08-30 22:03:16.28
+eb49b8cd
+User
+3:03:16 AM [express] GET /api/courses/5f02238b-afb2-4e7f-a488-96fb471fee56/content 304 in 117ms :: []
+2025-08-30 22:04:07.00
+764004fc
+System
+system: received signal terminated

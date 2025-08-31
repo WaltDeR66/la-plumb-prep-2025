@@ -1921,8 +1921,8 @@ Start your journey at laplumbprep.com/courses
       console.log('Fetching course content for courseId:', courseId);
       
       const content = await storage.getCourseContent(courseId);
-      console.log('Found content items:', content?.length || 0);
-      console.log('Sample content:', content?.[0] ? { id: content[0].id, title: content[0].title, section: content[0].section } : 'none');
+      console.log('Route returning content count:', content?.length || 0);
+      console.log('First item:', content?.[0] ? { id: content[0].id, title: content[0].title, section: content[0].section } : 'none');
       
       res.json(content);
     } catch (error: any) {
