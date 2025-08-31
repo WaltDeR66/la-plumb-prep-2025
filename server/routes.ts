@@ -1908,7 +1908,7 @@ Start your journey at laplumbprep.com/courses
   });
 
   // Get extracted content for display
-  app.get("/api/content/:contentId/display", async (req, res) => {
+  app.get("/api/content/:contentId/display", isAuthenticated, async (req, res) => {
     try {
       const { contentId } = req.params;
       
