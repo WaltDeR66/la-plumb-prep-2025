@@ -219,6 +219,17 @@ export default function ContentViewer({ contentId, contentType, title, courseId,
           }
         }, 100);
       } else if (content?.content?.extracted?.transcript || content?.content?.extracted?.content || content?.content?.extracted?.text) {
+        // Stop any existing speech before starting new one
+        if (speechSynthesis) {
+          speechSynthesis.cancel();
+        }
+        
+        // Reset states
+        setIsPlaying(false);
+        setIsPaused(false);
+        setCurrentUtterance(null);
+        setCurrentSentence('');
+        
         // Otherwise use TTS with clean text
         const getCleanTextForAutoStart = () => {
           const extracted = content?.content?.extracted;
@@ -256,6 +267,17 @@ export default function ContentViewer({ contentId, contentType, title, courseId,
         }, 1000); // Small delay to let component render
       }
     }
+    
+    // Cleanup: stop audio when component unmounts or content type changes
+    return () => {
+      if (speechSynthesis) {
+        speechSynthesis.cancel();
+      }
+      setIsPlaying(false);
+      setIsPaused(false);
+      setCurrentUtterance(null);
+      setCurrentSentence('');
+    };
   }, [contentType, content?.content?.extracted?.transcript, content?.content?.extracted?.content, content?.content?.extracted?.text, content?.content?.extracted?.audioUrl, speechSynthesis]);
 
   const extractMutation = useMutation({
