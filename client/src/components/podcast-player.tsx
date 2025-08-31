@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Play, Pause, Square } from "lucide-react";
+import { Play, Pause, Square, RotateCcw } from "lucide-react";
 
 interface PodcastPlayerProps {
   content: string;
@@ -14,6 +14,8 @@ export default function PodcastPlayer({ content, autoStart = false }: PodcastPla
   const [currentSentence, setCurrentSentence] = useState('');
   const [currentUtterance, setCurrentUtterance] = useState<SpeechSynthesisUtterance | null>(null);
   const [speechSynthesis, setSpeechSynthesis] = useState<SpeechSynthesis | null>(null);
+  const [sentences, setSentences] = useState<string[]>([]);
+  const [currentIndex, setCurrentIndex] = useState(0);
 
   useEffect(() => {
     if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
@@ -48,60 +50,57 @@ export default function PodcastPlayer({ content, autoStart = false }: PodcastPla
       .trim();
   };
 
-  const startPodcast = () => {
-    if (!speechSynthesis || !content) return;
+  const speakSentence = (index: number) => {
+    if (!speechSynthesis || !sentences.length || index >= sentences.length) return;
 
-    const processedText = cleanText(content);
-    const sentences = processedText.split(/[.!?]+/).filter(s => s.trim().length > 0);
+    const sentence = sentences[index].trim();
+    if (!sentence) return;
+
+    setCurrentSentence(sentence);
+    setCurrentIndex(index);
+    console.log(`Speaking sentence ${index + 1}/${sentences.length}: "${sentence.substring(0, 50)}..."`);
     
-    console.log('Total sentences found:', sentences.length);
-    console.log('First few sentences:', sentences.slice(0, 3));
+    const utterance = new SpeechSynthesisUtterance(sentence);
+    utterance.rate = 0.85;
+    utterance.pitch = 1.05;
+    utterance.volume = 0.85;
 
-    let currentIndex = 0;
-
-    const speakNextSentence = () => {
-      if (currentIndex >= sentences.length) {
+    utterance.onend = () => {
+      console.log(`Moving to sentence ${index + 2}`);
+      if (index + 1 < sentences.length) {
+        setTimeout(() => speakSentence(index + 1), 300);
+      } else {
         console.log('Reached end of all sentences - podcast complete!');
         setIsPlaying(false);
         setIsPaused(false);
         setCurrentUtterance(null);
         setCurrentSentence('');
-        return;
       }
-
-      const sentence = sentences[currentIndex].trim();
-      if (!sentence) {
-        currentIndex++;
-        speakNextSentence();
-        return;
-      }
-
-      setCurrentSentence(sentence);
-      console.log(`Finished sentence ${currentIndex + 1}/${sentences.length}: "${sentence.substring(0, 50)}..."`);
-      
-      const utterance = new SpeechSynthesisUtterance(sentence);
-      utterance.rate = 0.85;
-      utterance.pitch = 1.05;
-      utterance.volume = 0.85;
-
-      utterance.onend = () => {
-        console.log(`Moving to sentence ${currentIndex + 2}`);
-        currentIndex++;
-        setTimeout(speakNextSentence, 300);
-      };
-
-      utterance.onerror = () => {
-        setIsPlaying(false);
-        setCurrentUtterance(null);
-      };
-
-      setCurrentUtterance(utterance);
-      speechSynthesis.speak(utterance);
     };
+
+    utterance.onerror = () => {
+      setIsPlaying(false);
+      setCurrentUtterance(null);
+    };
+
+    setCurrentUtterance(utterance);
+    speechSynthesis.speak(utterance);
+  };
+
+  const startPodcast = () => {
+    if (!speechSynthesis || !content) return;
+
+    const processedText = cleanText(content);
+    const sentenceArray = processedText.split(/[.!?]+/).filter(s => s.trim().length > 0);
+    
+    setSentences(sentenceArray);
+    setCurrentIndex(0);
+    console.log('Total sentences found:', sentenceArray.length);
+    console.log('First few sentences:', sentenceArray.slice(0, 3));
 
     setIsPlaying(true);
     setIsPaused(false);
-    speakNextSentence();
+    speakSentence(0);
   };
 
   const pausePodcast = () => {
@@ -127,6 +126,28 @@ export default function PodcastPlayer({ content, autoStart = false }: PodcastPla
       setIsPaused(false);
       setCurrentUtterance(null);
       setCurrentSentence('');
+      setCurrentIndex(0);
+    }
+  };
+
+  const rewindSentence = () => {
+    if (!speechSynthesis || !sentences.length) return;
+    
+    // Stop current playback
+    speechSynthesis.cancel();
+    
+    // Go back one sentence (or stay at 0 if already at beginning)
+    const newIndex = Math.max(0, currentIndex - 1);
+    
+    if (isPlaying) {
+      // If currently playing, start from the previous sentence
+      speakSentence(newIndex);
+    } else {
+      // If paused/stopped, just update the current sentence display
+      setCurrentIndex(newIndex);
+      if (sentences[newIndex]) {
+        setCurrentSentence(sentences[newIndex].trim());
+      }
     }
   };
 
@@ -182,6 +203,18 @@ export default function PodcastPlayer({ content, autoStart = false }: PodcastPla
                     <span>Pause</span>
                   </>
                 )}
+              </Button>
+              
+              <Button
+                onClick={rewindSentence}
+                variant="outline"
+                size="lg"
+                className="flex items-center space-x-2"
+                data-testid="button-rewind"
+                disabled={!sentences.length}
+              >
+                <RotateCcw className="w-5 h-5" />
+                <span>Rewind</span>
               </Button>
               
               <Button
