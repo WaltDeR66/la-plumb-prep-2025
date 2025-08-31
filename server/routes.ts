@@ -271,6 +271,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { courseId } = req.params;
       const content = await storage.getCourseContent(courseId);
+      console.log('Route returning content count:', content.length);
+      console.log('First item:', content[0] ? content[0].title : 'none');
       res.json(content);
     } catch (error: any) {
       console.error('Get course content error:', error);
