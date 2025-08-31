@@ -834,7 +834,7 @@ export default function ContentViewer({ contentId, contentType, title, courseId,
         <div className="text-center">
           <h3 className="text-xl font-semibold mb-4">🎧 Audio Lesson</h3>
           
-          {extracted?.audioUrl || podcastContent ? (
+          {podcastContent ? (
             <div className="space-y-4">
               {extracted?.audioUrl && extracted.audioUrl.trim() !== '' ? (
                 <div className="space-y-4">
