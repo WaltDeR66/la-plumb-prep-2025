@@ -57,9 +57,14 @@ export default function CourseContent() {
   
   const course = courses?.find(c => c.id === courseId);
 
-  const { data: content, isLoading } = useQuery<CourseContent[]>({
+  const { data: content, isLoading, error } = useQuery<CourseContent[]>({
     queryKey: [`/api/courses/${courseId}/content`],
   });
+
+  // Force debug logging
+  console.log('React Query - Content:', content);
+  console.log('React Query - IsLoading:', isLoading);
+  console.log('React Query - Error:', error);
 
   const { data: sectionProgress } = useQuery<Array<{section: number, isUnlocked: boolean, isAdmin: boolean}>>({
     queryKey: [`/api/section-progress/${courseId}`],
