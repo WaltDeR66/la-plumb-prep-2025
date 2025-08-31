@@ -25,48 +25,19 @@ export default function CourseContentPage() {
     queryKey: ["/api/courses"],
   });
 
-  const { data: content, isLoading, refetch, error } = useQuery<CourseContent[]>({
+  const { data: content = [], isLoading, error } = useQuery<CourseContent[]>({
     queryKey: [`/api/courses/${courseId}/content`],
     enabled: !!courseId,
+    retry: false,
+    staleTime: 5 * 60 * 1000, // 5 minutes
   });
-
-  // Clean up - no debug logging needed
 
   const course = courses?.find(c => c.id === courseId);
 
-  if (isLoading) {
+  if (isLoading || !course) {
     return (
       <div className="container mx-auto px-4 py-8">
         <h1>Loading course content...</h1>
-        <p>Course ID: {courseId}</p>
-        <p>Query status: {isLoading ? 'Loading' : 'Complete'}</p>
-      </div>
-    );
-  }
-
-  if (!course) {
-    return <div>Course not found</div>;
-  }
-
-  // Show empty state properly
-  if (!content) {
-    return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold">{course?.title || 'Course'}</h1>
-          <p className="text-gray-600">Loading course content...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (content.length === 0) {
-    return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold">{course.title}</h1>
-          <p className="text-gray-600">No course content available yet.</p>
-        </div>
       </div>
     );
   }
