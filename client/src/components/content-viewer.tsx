@@ -1066,21 +1066,7 @@ export default function ContentViewer({ contentId, contentType, title, courseId,
                     </Button>
                   </div>
 
-                  {!isPlaying && !isPaused && !currentSentence && !currentUtterance && (
-                    <div className="text-center p-6">
-                      <div className="text-gray-600 mb-4">
-                        🎧 Click to start the podcast
-                      </div>
-                      <Button
-                        onClick={handlePlayAudio}
-                        size="lg"
-                        className="flex items-center space-x-2"
-                      >
-                        <Play className="w-5 h-5" />
-                        <span>Start Podcast</span>
-                      </Button>
-                    </div>
-                  )}
+                  {/* Auto-start is enabled, no manual start button needed */}
                 </div>
               ) : null}
               
