@@ -1919,6 +1919,14 @@ Start your journey at laplumbprep.com/courses
     try {
       const { courseId } = req.params;
       const content = await storage.getCourseContent(courseId);
+      
+      // Add cache-busting headers to ensure fresh data
+      res.set({
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0'
+      });
+      
       res.json(content);
     } catch (error: any) {
       console.error('Get course content error:', error);

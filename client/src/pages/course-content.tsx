@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useState, useEffect } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRoute } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -46,6 +46,14 @@ interface Course {
 export default function CourseContent() {
   const [match, params] = useRoute("/course/:courseId");
   const courseId = params?.courseId;
+  const queryClient = useQueryClient();
+
+  // Force cache invalidation on component mount to get fresh data
+  useEffect(() => {
+    if (courseId) {
+      queryClient.invalidateQueries({ queryKey: [`/api/courses/${courseId}/content`] });
+    }
+  }, [courseId, queryClient]);
 
   if (!courseId) {
     return <div>Course not found</div>;
