@@ -88,13 +88,20 @@ export default function CourseContent() {
 
   // Group content by section
   const contentBySection = content.reduce((acc, item) => {
-    if (!acc[item.section]) acc[item.section] = [];
-    acc[item.section].push(item);
+    // Handle null/undefined sections by defaulting to section number
+    const sectionKey = item.section?.toString() || '101';
+    if (!acc[sectionKey]) acc[sectionKey] = [];
+    acc[sectionKey].push(item);
     return acc;
   }, {} as Record<string, CourseContent[]>);
   
   // Get unique sections sorted
   const sections = Object.keys(contentBySection).sort((a, b) => Number(a) - Number(b));
+
+  // Debug logging
+  console.log('Content data:', content);
+  console.log('Content by section:', contentBySection);
+  console.log('Sections:', sections);
 
   const getTypeIcon = (type: string) => {
     switch (type) {
