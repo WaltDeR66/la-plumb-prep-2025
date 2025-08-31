@@ -30,9 +30,7 @@ export default function CourseContentPage() {
     enabled: !!courseId,
   });
 
-  // Debug logging
-  console.log('Content query result:', { content, isLoading, error, courseId });
-  console.log('Content length:', content?.length);
+  // Clean up - no debug logging needed
 
   const course = courses?.find(c => c.id === courseId);
 
@@ -50,13 +48,24 @@ export default function CourseContentPage() {
     return <div>Course not found</div>;
   }
 
-  // If no content, show the loading message
-  if (!content || content.length === 0) {
+  // Show empty state properly
+  if (!content) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold">{course?.title || 'Course'}</h1>
+          <p className="text-gray-600">Loading course content...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (content.length === 0) {
     return (
       <div className="container mx-auto px-4 py-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold">{course.title}</h1>
-          <p className="text-gray-600">Loading course content...</p>
+          <p className="text-gray-600">No course content available yet.</p>
         </div>
       </div>
     );
@@ -119,11 +128,6 @@ export default function CourseContentPage() {
           Course Lessons
         </h2>
         
-        <div className="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-          <p className="text-sm text-blue-800">
-            <strong>Debug Info:</strong> Found {content.length} content items across {sections.length} sections: {sections.join(', ')}
-          </p>
-        </div>
 
         {sections.map((section) => {
           const sectionItems = contentBySection[section];
