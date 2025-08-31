@@ -44,7 +44,7 @@ export default function ContentViewer(props?: ContentViewerProps) {
   const [location, navigate] = useLocation();
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const { startSession, updateProgress, completeSession } = useStudySession();
+  const { startSession, endSession } = useStudySession();
 
   // Stop any existing audio when component loads
   useEffect(() => {
@@ -87,7 +87,7 @@ export default function ContentViewer(props?: ContentViewerProps) {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/course-content"] });
-      completeSession();
+      endSession();
       toast({ title: "Content completed!" });
       navigate("/courses");
     },
@@ -112,7 +112,7 @@ export default function ContentViewer(props?: ContentViewerProps) {
     );
   }
 
-  if (!content) {
+  if (!content || !content.title) {
     return (
       <div className="text-center p-8">
         <p>Content not found</p>
@@ -151,7 +151,7 @@ export default function ContentViewer(props?: ContentViewerProps) {
             <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
               <span className="text-2xl">🎧</span>
             </div>
-            <CardTitle className="text-2xl">{content.title}</CardTitle>
+            <CardTitle className="text-2xl">{content?.title || 'Podcast Lesson'}</CardTitle>
             <p className="text-muted-foreground">
               Audio lesson with interactive transcript
             </p>
@@ -181,7 +181,7 @@ export default function ContentViewer(props?: ContentViewerProps) {
   };
 
   const renderTextContent = () => {
-    const text = content.content?.extracted?.content || content.content?.text || content.title;
+    const text = content?.content?.extracted?.content || content?.content?.text || content?.title || '';
     
     return (
       <div className="space-y-6">
@@ -232,7 +232,7 @@ export default function ContentViewer(props?: ContentViewerProps) {
         
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold">{content.title}</h1>
+            <h1 className="text-2xl font-bold">{content?.title || 'Content'}</h1>
             <Badge variant="secondary" className="mt-2">
               {contentType.charAt(0).toUpperCase() + contentType.slice(1)}
             </Badge>

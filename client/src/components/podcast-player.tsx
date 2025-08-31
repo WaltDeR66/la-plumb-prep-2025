@@ -16,6 +16,7 @@ export default function PodcastPlayer({ content, autoStart = false }: PodcastPla
   const [speechSynthesis, setSpeechSynthesis] = useState<SpeechSynthesis | null>(null);
   const [sentences, setSentences] = useState<string[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [hasAutoStarted, setHasAutoStarted] = useState(false);
 
   useEffect(() => {
     if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
@@ -26,11 +27,12 @@ export default function PodcastPlayer({ content, autoStart = false }: PodcastPla
   // Auto-start only when autoStart prop is true (when user clicked Review)
   useEffect(() => {
     if (autoStart && content && speechSynthesis && !isPlaying) {
+      console.log('Auto-starting podcast because autoStart=true from Review button');
       setTimeout(() => {
         startPodcast();
       }, 500);
     }
-  }, [autoStart, content, speechSynthesis]);
+  }, [autoStart]); // Only depend on autoStart to prevent unwanted re-runs
 
   const cleanText = (text: string) => {
     return text

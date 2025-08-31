@@ -1,0 +1,152 @@
+2025-08-31 12:47:11.51
+0478d0ed
+User
+servername: 'ep-small-dawn-aee6toqc.c-2.us-east-2.aws.neon.tech',
+2025-08-31 12:47:11.51
+0478d0ed
+User
+alpnProtocol: false,
+2025-08-31 12:47:11.51
+0478d0ed
+User
+authorizationError: null,
+2025-08-31 12:47:11.51
+0478d0ed
+User
+connecting: false,
+2025-08-31 12:47:11.51
+0478d0ed
+User
+_hadError: false,
+2025-08-31 12:47:11.51
+0478d0ed
+User
+_parent: null,
+2025-08-31 12:47:11.51
+0478d0ed
+User
+_host: 'ep-small-dawn-aee6toqc.c-2.us-east-2.aws.neon.tech',
+2025-08-31 12:47:11.51
+0478d0ed
+User
+_closeAfterHandlingError: false,
+2025-08-31 12:47:11.51
+0478d0ed
+User
+_readableState: [ReadableState],
+2025-08-31 12:47:11.51
+0478d0ed
+User
+_writableState: [WritableState],
+2025-08-31 12:47:11.51
+0478d0ed
+User
+allowHalfOpen: false,
+2025-08-31 12:47:11.51
+0478d0ed
+User
+_maxListeners: undefined,
+2025-08-31 12:47:11.51
+0478d0ed
+User
+_sockname: null,
+2025-08-31 12:47:11.51
+0478d0ed
+User
+_pendingData: null,
+2025-08-31 12:47:11.51
+0478d0ed
+User
+_server: null,
+2025-08-31 12:47:11.51
+0478d0ed
+User
+ssl: [TLSWrap],
+2025-08-31 12:47:11.51
+0478d0ed
+User
+_rejectUnauthorized: true,
+2025-08-31 12:47:11.51
+0478d0ed
+User
+parser: null,
+2025-08-31 12:47:11.51
+0478d0ed
+User
+[Symbol(verified)]: true,
+2025-08-31 12:47:11.51
+0478d0ed
+User
+[Symbol(kBuffer)]: null,
+2025-08-31 12:47:12.79
+0478d0ed
+User
+Warning: connect.session() MemoryStore is not
+2025-08-31 12:47:12.79
+0478d0ed
+User
+designed for a production environment, as it will leak
+2025-08-31 12:47:12.79
+0478d0ed
+User
+memory, and will not scale past a single process.
+2025-08-31 12:47:12.82
+0478d0ed
+User
+5:47:12 PM [express] serving on port 5000
+2025-08-31 12:47:15.76
+0478d0ed
+User
+Email campaigns already initialized
+2025-08-31 12:47:16.06
+0478d0ed
+User
+5:47:16 PM [express] Email automation system initialized
+2025-08-31 12:47:16.06
+0478d0ed
+User
+5:47:16 PM [express] Bulk pricing system initialized
+2025-08-31 12:47:27.41
+0478d0ed
+User
+5:47:27 PM [express] GET /api/auth/me 401 in 7ms :: {"message":"Not authenticated"}
+2025-08-31 12:47:35.09
+0478d0ed
+User
+5:47:35 PM [express] POST /api/auth/login 200 in 210ms :: {"message":"Login successful","user":{"id"…
+2025-08-31 12:47:35.22
+0478d0ed
+User
+5:47:35 PM [express] GET /api/auth/me 304 in 35ms :: {"id":"admin-emergency-1756588393373","email":"…
+2025-08-31 12:47:35.31
+0478d0ed
+User
+5:47:35 PM [express] GET /api/job-applications 200 in 95ms
+2025-08-31 12:47:35.34
+0478d0ed
+User
+5:47:35 PM [express] GET /api/courses 304 in 130ms :: [{"id":"5f02238b-afb2-4e7f-a488-96fb471fee56",…
+2025-08-31 12:47:37.34
+0478d0ed
+User
+5:47:37 PM [express] GET /api/enrollments 304 in 2136ms :: [{"id":"0dfabef8-c346-43e8-8067-788964dd0…
+2025-08-31 12:47:37.35
+0478d0ed
+User
+5:47:37 PM [express] GET /api/mentor/conversations 304 in 2139ms :: []
+2025-08-31 12:47:39.65
+0478d0ed
+User
+5:47:39 PM [express] GET /api/courses/5f02238b-afb2-4e7f-a488-96fb471fee56/content 200 in 57ms :: [{…
+2025-08-31 12:47:39.67
+0478d0ed
+User
+5:47:39 PM [express] GET /api/section-progress/5f02238b-afb2-4e7f-a488-96fb471fee56 304 in 53ms :: […
+2025-08-31 12:47:44.53
+0478d0ed
+User
+5:47:44 PM [express] GET /api/content/56240fe9-043f-4885-ade7-e73678295ef0/display 304 in 47ms :: {"…
+2025-08-31 12:48:23.14
+15370f6d
+User
+Processing 0 pending emails
