@@ -67,6 +67,9 @@ export default function CourseContent() {
 
   const { data: content, isLoading } = useQuery<CourseContent[]>({
     queryKey: [`/api/courses/${courseId}/content`],
+    staleTime: 0,
+    gcTime: 0,
+    refetchOnMount: 'always',
   });
 
   const { data: sectionProgress } = useQuery<Array<{section: number, isUnlocked: boolean, isAdmin: boolean}>>({
@@ -94,12 +97,27 @@ export default function CourseContent() {
     return <div>Course not found</div>;
   }
 
+  // Debug logging to see what React Query is providing
+  console.log('CourseContent Debug:', {
+    content,
+    isArray: Array.isArray(content),
+    length: content?.length,
+    isLoading,
+    firstItem: content?.[0]
+  });
+
   if (!content || !Array.isArray(content) || content.length === 0) {
     return (
       <div className="container mx-auto px-4 py-8">
         <div className="text-center">
           <h1 className="text-2xl font-bold mb-4">Course Content</h1>
           <p>No lessons available yet. Content is being prepared.</p>
+          <p className="text-sm text-gray-500 mt-2">
+            Debug: content={content ? 'exists' : 'null'}, 
+            isArray={Array.isArray(content)}, 
+            length={content?.length || 0}, 
+            isLoading={isLoading}
+          </p>
         </div>
       </div>
     );
