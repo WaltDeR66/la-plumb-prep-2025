@@ -1,0 +1,152 @@
+2025-08-30 22:04:07.00
+764004fc
+System
+system: received signal terminated
+2025-08-30 22:07:20.35
+eb49b8cd
+User
+Processing 0 pending emails
+2025-08-30 22:08:55.06
+eb49b8cd
+User
+3:08:55 AM [express] POST /api/auth/logout 200 in 462ms :: {"message":"Logout successful"}
+2025-08-30 22:08:55.91
+eb49b8cd
+User
+3:08:55 AM [express] GET /api/auth/me 401 in 3ms :: {"message":"Not authenticated"}
+2025-08-30 22:09:01.38
+eb49b8cd
+User
+3:09:01 AM [express] GET /api/auth/me 401 in 1ms :: {"message":"Not authenticated"}
+2025-08-30 22:09:10.70
+eb49b8cd
+User
+3:09:10 AM [express] POST /api/auth/login 200 in 2166ms :: {"message":"Login successful","user":{"id…
+2025-08-30 22:09:10.83
+eb49b8cd
+User
+3:09:10 AM [express] GET /api/auth/me 200 in 25ms :: {"id":"admin-emergency-1756588393373","email":"…
+2025-08-30 22:09:10.89
+eb49b8cd
+User
+3:09:10 AM [express] GET /api/enrollments 200 in 53ms :: [{"id":"0dfabef8-c346-43e8-8067-788964dd0e3…
+2025-08-30 22:09:10.94
+eb49b8cd
+User
+3:09:10 AM [express] GET /api/job-applications 200 in 105ms
+2025-08-30 22:09:10.97
+eb49b8cd
+User
+3:09:10 AM [express] GET /api/mentor/conversations 200 in 127ms :: []
+2025-08-30 22:09:10.97
+eb49b8cd
+User
+3:09:10 AM [express] GET /api/courses 200 in 131ms :: [{"id":"5f02238b-afb2-4e7f-a488-96fb471fee56",…
+2025-08-30 22:09:18.27
+eb49b8cd
+User
+Fetching course content for courseId: 5f02238b-afb2-4e7f-a488-96fb471fee56
+2025-08-30 22:09:18.29
+eb49b8cd
+User
+3:09:18 AM [express] GET /api/section-progress/5f02238b-afb2-4e7f-a488-96fb471fee56 200 in 45ms :: []
+2025-08-30 22:09:18.29
+eb49b8cd
+User
+Found content items: 0
+2025-08-30 22:09:18.29
+eb49b8cd
+User
+Sample content: none
+2025-08-30 22:09:18.29
+eb49b8cd
+User
+3:09:18 AM [express] GET /api/courses/5f02238b-afb2-4e7f-a488-96fb471fee56/content 200 in 48ms :: []
+2025-08-30 22:12:20.14
+eb49b8cd
+User
+Processing 0 pending emails
+2025-08-30 22:16:15.60
+a70b0c30
+System
+starting up user application
+2025-08-30 22:16:15.88
+a70b0c30
+System
+forwarding local port 5000 to external port 80 (mapped as 1104)
+2025-08-30 22:16:17.69
+a70b0c30
+User
+> rest-express@1.0.0 start
+2025-08-30 22:16:17.69
+a70b0c30
+User
+> NODE_ENV=production node dist/index.js
+2025-08-30 22:16:20.04
+a70b0c30
+User
+Warning: connect.session() MemoryStore is not
+2025-08-30 22:16:20.04
+a70b0c30
+User
+designed for a production environment, as it will leak
+2025-08-30 22:16:20.04
+a70b0c30
+User
+memory, and will not scale past a single process.
+2025-08-30 22:16:20.21
+a70b0c30
+User
+3:16:20 AM [express] serving on port 5000
+2025-08-30 22:16:20.37
+a70b0c30
+User
+Email campaigns already initialized
+2025-08-30 22:16:20.40
+a70b0c30
+User
+3:16:20 AM [express] Email automation system initialized
+2025-08-30 22:16:20.40
+a70b0c30
+User
+3:16:20 AM [express] Bulk pricing system initialized
+2025-08-30 22:16:36.98
+a70b0c30
+User
+3:16:36 AM [express] GET /api/auth/me 401 in 3ms :: {"message":"Not authenticated"}
+2025-08-30 22:17:10.07
+a70b0c30
+User
+3:17:10 AM [express] POST /api/auth/login 200 in 179ms :: {"message":"Login successful","user":{"id"…
+2025-08-30 22:17:10.20
+a70b0c30
+User
+3:17:10 AM [express] GET /api/auth/me 304 in 27ms :: {"id":"admin-emergency-1756588393373","email":"…
+2025-08-30 22:17:10.26
+a70b0c30
+User
+3:17:10 AM [express] GET /api/courses 304 in 53ms :: [{"id":"5f02238b-afb2-4e7f-a488-96fb471fee56","…
+2025-08-30 22:17:10.33
+a70b0c30
+User
+3:17:10 AM [express] GET /api/job-applications 200 in 105ms
+2025-08-30 22:17:10.36
+a70b0c30
+User
+3:17:10 AM [express] GET /api/mentor/conversations 304 in 133ms :: []
+2025-08-30 22:17:10.36
+a70b0c30
+User
+3:17:10 AM [express] GET /api/enrollments 304 in 134ms :: [{"id":"0dfabef8-c346-43e8-8067-788964dd0e…
+2025-08-30 22:17:16.91
+a70b0c30
+User
+3:17:16 AM [express] GET /api/section-progress/5f02238b-afb2-4e7f-a488-96fb471fee56 304 in 46ms :: []
+2025-08-30 22:17:16.92
+a70b0c30
+User
+3:17:16 AM [express] GET /api/courses/5f02238b-afb2-4e7f-a488-96fb471fee56/content 304 in 48ms :: []
+2025-08-30 22:17:17.78
+eb49b8cd
+User
+Processing 0 pending emails
