@@ -1918,11 +1918,17 @@ Start your journey at laplumbprep.com/courses
   app.get("/api/courses/:courseId/content", async (req, res) => {
     try {
       const { courseId } = req.params;
+      console.log('🚨🚨🚨 MAIN ROUTE CALLED 🚨🚨🚨');
       console.log('=== COURSE CONTENT API CALLED ===');
       console.log('CourseId:', courseId);
       console.log('User-Agent:', req.get('User-Agent')?.substring(0, 50));
       console.log('Is authenticated:', req.isAuthenticated?.());
       console.log('Session ID:', req.sessionID);
+      
+      // FORCE return test data to see if this route is reached
+      console.log('🚨 FORCING TEST RESPONSE 🚨');
+      res.json([{ test: "MAIN_ROUTE_REACHED", courseId }]);
+      return;
       
       const content = await storage.getCourseContent(courseId);
       console.log('Found content items:', content?.length || 0);
