@@ -58,12 +58,16 @@ export default function ContentViewer(props?: ContentViewerProps) {
   const [location, navigate] = useLocation();
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const { startSession, endSession } = useStudySession();
+  const { startSession, endSession } = useStudySession({ 
+    contentId, 
+    contentType: contentType as any,
+    autoStart: false  // We'll control when to start
+  });
   
   // Start session when component loads
   useEffect(() => {
     if (contentId) {
-      startSession(contentId);
+      startSession();
     }
   }, [contentId, startSession]);
 
