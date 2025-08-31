@@ -592,23 +592,13 @@ export class DatabaseStorage implements IStorage {
 
   // Course content methods
   async getCourseContent(courseId: string): Promise<CourseContent[]> {
-    console.log('Storage getCourseContent called with courseId:', courseId);
+    const results = await db
+      .select()
+      .from(courseContent)
+      .where(eq(courseContent.courseId, courseId))
+      .orderBy(courseContent.chapter, courseContent.section, courseContent.sortOrder);
     
-    try {
-      const results = await db
-        .select()
-        .from(courseContent)
-        .where(eq(courseContent.courseId, courseId))
-        .orderBy(courseContent.chapter, courseContent.section, courseContent.sortOrder);
-      
-      console.log('Storage getCourseContent results count:', results.length);
-      console.log('Storage getCourseContent first item:', results[0] ? { id: results[0].id, courseId: results[0].courseId, title: results[0].title } : 'none');
-      
-      return results;
-    } catch (error) {
-      console.error('Storage getCourseContent error:', error);
-      return [];
-    }
+    return results;
   }
 
   async getCourseContentById(id: string): Promise<CourseContent | null> {
