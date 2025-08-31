@@ -58,7 +58,7 @@ export default function CourseContent() {
   const course = courses?.find(c => c.id === courseId);
 
   const { data: content, isLoading, error } = useQuery<CourseContent[]>({
-    queryKey: [`/api/courses/${courseId}/content`],
+    queryKey: ["/api/courses", courseId, "content"],
   });
 
   // Force debug logging
