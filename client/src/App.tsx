@@ -14,6 +14,7 @@ import Dashboard from "@/pages/dashboard";
 import CourseContent from "@/pages/course-content";
 import Lesson from "@/pages/lesson";
 import ContentView from "@/pages/content-view";
+import PodcastView from "@/pages/podcast-view";
 import Login from "@/pages/auth/login";
 import Register from "@/pages/auth/register";
 import Store from "@/pages/store";
@@ -54,6 +55,7 @@ function Router() {
           <Route path="/course/:courseId" component={CourseContent} />
           <Route path="/course/:courseId/lesson/:section" component={Lesson} />
           <Route path="/course/:courseId/content/:contentId" component={ContentView} />
+          <Route path="/course/:courseId/podcast/:contentId" component={PodcastView} />
           <Route path="/login" component={Login} />
           <Route path="/register" component={Register} />
           <Route path="/employer-portal" component={EmployerPortal} />
