@@ -780,16 +780,25 @@ export default function ContentViewer({ contentId, contentType, title, courseId,
       utterance.volume = 1;
       
       utterance.onend = () => {
-        // Clear sentence after a brief pause
-        setTimeout(() => {
-          setCurrentSentence('');
-        }, 500);
+        console.log(`Finished sentence ${currentSentenceIndex + 1}/${sentences.length}: "${sentence.substring(0, 50)}..."`);
+        currentSentenceIndex++;
         
-        // Move to next sentence after clearing
-        setTimeout(() => {
-          currentSentenceIndex++;
-          speakNextSentence();
-        }, 800);
+        if (currentSentenceIndex < sentences.length) {
+          console.log(`Moving to sentence ${currentSentenceIndex + 1}`);
+          // Clear current sentence and move to next
+          setTimeout(() => {
+            setCurrentSentence('');
+            setTimeout(() => speakNextSentence(), 300);
+          }, 500);
+        } else {
+          console.log('Reached end of all sentences - podcast complete!');
+          setTimeout(() => {
+            setCurrentSentence('');
+            setIsPlaying(false);
+            setIsPaused(false);
+            setCurrentUtterance(null);
+          }, 500);
+        }
       };
       
       utterance.onerror = () => {
