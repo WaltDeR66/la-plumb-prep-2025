@@ -276,6 +276,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use(passport.initialize());
   app.use(passport.session());
 
+  // Endpoint to trigger course content seeding (useful for production)
+  app.post("/api/seed-course-content", async (req, res) => {
+    try {
+      await seedCourseContent();
+      res.json({ message: "Course content seeding completed successfully" });
+    } catch (error: any) {
+      console.error("Course content seeding error:", error);
+      res.status(500).json({ message: "Error seeding course content: " + error.message });
+    }
+  });
+
   // Serve downloadable PDFs for lead magnets - MUST BE FIRST TO AVOID CONFLICTS
   app.get("/downloads/louisiana-code-guide.pdf", async (req, res) => {
     try {
