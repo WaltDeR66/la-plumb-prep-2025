@@ -20,8 +20,8 @@ import { useToast } from "@/hooks/use-toast";
 import PodcastPlayer from "@/components/podcast-player";
 
 interface ContentViewerProps {
-  contentId?: string;
-  contentType?: string;
+  contentId: string;
+  contentType: string;
   title?: string;
   courseId?: string;
   sectionId?: string;
@@ -42,39 +42,18 @@ interface ContentData {
   };
 }
 
-export default function ContentViewer(props?: ContentViewerProps) {
-  // Early return if props are not properly provided
-  if (!props) {
-    return (
-      <div className="flex items-center justify-center p-8">
-        <div className="text-center">
-          <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full mx-auto mb-4"></div>
-          <p>Loading content...</p>
-        </div>
-      </div>
-    );
-  }
-  
-  const { contentId = '', contentType = 'lesson', title = '', courseId = '', sectionId = '', onComplete } = props;
-  
-  // Return loading if essential props are missing
-  if (!contentId || !contentType) {
-    return (
-      <div className="flex items-center justify-center p-8">
-        <div className="text-center">
-          <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full mx-auto mb-4"></div>
-          <p>Loading content...</p>
-        </div>
-      </div>
-    );
-  }
+export default function ContentViewer(props: ContentViewerProps) {
   const [location, navigate] = useLocation();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  
+  const { contentId, contentType, title, courseId, sectionId, onComplete } = props;
+  
+  // Initialize study session with valid props
   const { startSession, endSession } = useStudySession({ 
-    contentId, 
-    contentType: contentType as any,
-    autoStart: false  // We'll control when to start
+    contentId: contentId || 'unknown', 
+    contentType: (contentType || 'lesson') as any,
+    autoStart: false
   });
   
   // Start session when component loads
@@ -82,13 +61,12 @@ export default function ContentViewer(props?: ContentViewerProps) {
     if (contentId) {
       startSession();
     }
-  }, [contentId, startSession]);
+  }, [contentId]);
 
   // Stop any existing audio when component loads
   useEffect(() => {
     if (typeof window !== 'undefined' && window.speechSynthesis) {
       window.speechSynthesis.cancel();
-      console.log('Stopped any existing audio playback');
     }
   }, []);
 
