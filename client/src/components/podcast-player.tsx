@@ -26,14 +26,25 @@ export default function PodcastPlayer({ content, autoStart = false }: PodcastPla
 
   // Auto-start only when autoStart prop is true (when user clicked Review)
   useEffect(() => {
-    if (autoStart && content && speechSynthesis && !isPlaying && !hasAutoStarted) {
+    if (autoStart && content && speechSynthesis && !hasAutoStarted) {
       console.log('Auto-starting podcast because autoStart=true from Review button');
       setHasAutoStarted(true);
+      // Give time for component to mount and speech synthesis to initialize
       setTimeout(() => {
-        startPodcast();
-      }, 500);
+        const processedText = cleanText(content);
+        const sentenceArray = processedText
+          .split(/(?<=[.!?])\s+/)
+          .map(s => s.trim())
+          .filter(s => s.length > 10);
+        
+        setSentences(sentenceArray);
+        setCurrentIndex(0);
+        setIsPlaying(true);
+        setIsPaused(false);
+        speakSentence(0);
+      }, 1000);
     }
-  }, [autoStart, content, speechSynthesis, isPlaying, hasAutoStarted]); // Controlled dependencies
+  }, [autoStart, content, speechSynthesis]); // Simplified dependencies
 
   const cleanText = (text: string) => {
     return text
