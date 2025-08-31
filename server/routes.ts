@@ -1918,12 +1918,20 @@ Start your journey at laplumbprep.com/courses
   app.get("/api/courses/:courseId/content", async (req, res) => {
     try {
       const { courseId } = req.params;
-      console.log('Fetching course content for courseId:', courseId);
+      console.log('=== COURSE CONTENT API CALLED ===');
+      console.log('CourseId:', courseId);
+      console.log('User-Agent:', req.get('User-Agent')?.substring(0, 50));
+      console.log('Is authenticated:', req.isAuthenticated?.());
+      console.log('Session ID:', req.sessionID);
       
       const content = await storage.getCourseContent(courseId);
       console.log('Found content items:', content?.length || 0);
-      console.log('Sample content:', content?.[0] ? { id: content[0].id, title: content[0].title, section: content[0].section } : 'none');
       
+      if (content.length === 0) {
+        console.log('*** WARNING: Empty content array returned! ***');
+      }
+      
+      console.log('=== END COURSE CONTENT API ===');
       res.json(content);
     } catch (error: any) {
       console.error('Get course content error:', error);
