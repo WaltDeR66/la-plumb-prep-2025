@@ -27,6 +27,7 @@ import { apiRequest } from "@/lib/queryClient";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useStudySession } from "@/hooks/use-study-session";
 import { useToast } from "@/hooks/use-toast";
+import PodcastPlayer from "@/components/podcast-player";
 
 interface ContentViewerProps {
   contentId: string;
@@ -860,6 +861,36 @@ export default function ContentViewer({ contentId, contentType, title, courseId,
   // Rewind functionality will be implemented with proper sentence tracking
 
   const renderPodcastContent = () => {
+    const extracted = content.content?.extracted;
+    const podcastContent = extracted?.transcript || extracted?.content || extracted?.text || '';
+    
+    if (!podcastContent) {
+      return (
+        <div className="text-center p-6">
+          <p className="mb-4">No podcast content available.</p>
+          <Button onClick={() => extractMutation.mutate()} disabled={extractMutation.isPending}>
+            {extractMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <RefreshCw className="w-4 h-4 mr-2" />}
+            Generate Podcast
+          </Button>
+        </div>
+      );
+    }
+
+    return (
+      <div className="space-y-6">
+        <PodcastPlayer 
+          content={podcastContent} 
+          autoStart={false} 
+        />
+        
+        <Button onClick={handleComplete} className="w-full">
+          Complete Podcast
+        </Button>
+      </div>
+    );
+  };
+
+  const renderPodcastContent_OLD_DISABLED = () => {
     const extracted = content.content?.extracted;
     const podcastContent = getContentText();
 
