@@ -266,19 +266,14 @@ const upload = multer({
 
 export async function registerRoutes(app: Express): Promise<Server> {
   
-  // EMERGENCY FIX: Move course content route to the top to prevent interception
+  // Get course content for display (moved to top to prevent route interception)
   app.get("/api/courses/:courseId/content", async (req, res) => {
     try {
       const { courseId } = req.params;
-      console.log('🚨🚨🚨 EMERGENCY ROUTE CALLED (TOP OF FILE) 🚨🚨🚨');
-      console.log('CourseId:', courseId);
-      
       const content = await storage.getCourseContent(courseId);
-      console.log('Found content items:', content?.length || 0);
-      
       res.json(content);
     } catch (error: any) {
-      console.error('Emergency route error:', error);
+      console.error('Get course content error:', error);
       res.status(500).json({ message: error.message });
     }
   });
@@ -1931,36 +1926,7 @@ Start your journey at laplumbprep.com/courses
     }
   });
 
-  // Get course content for display
-  app.get("/api/courses/:courseId/content", async (req, res) => {
-    try {
-      const { courseId } = req.params;
-      console.log('🚨🚨🚨 MAIN ROUTE CALLED 🚨🚨🚨');
-      console.log('=== COURSE CONTENT API CALLED ===');
-      console.log('CourseId:', courseId);
-      console.log('User-Agent:', req.get('User-Agent')?.substring(0, 50));
-      console.log('Is authenticated:', req.isAuthenticated?.());
-      console.log('Session ID:', req.sessionID);
-      
-      // FORCE return test data to see if this route is reached
-      console.log('🚨 FORCING TEST RESPONSE 🚨');
-      res.json([{ test: "MAIN_ROUTE_REACHED", courseId }]);
-      return;
-      
-      const content = await storage.getCourseContent(courseId);
-      console.log('Found content items:', content?.length || 0);
-      
-      if (content.length === 0) {
-        console.log('*** WARNING: Empty content array returned! ***');
-      }
-      
-      console.log('=== END COURSE CONTENT API ===');
-      res.json(content);
-    } catch (error: any) {
-      console.error('Get course content error:', error);
-      res.status(400).json({ message: error.message });
-    }
-  });
+  // DUPLICATE ROUTE REMOVED - Course content route moved to top of file
 
   // Generate AI audio for podcast content
   app.post("/api/generate-audio/:id", requireActiveSubscription, async (req, res) => {
