@@ -836,7 +836,7 @@ export default function ContentViewer({ contentId, contentType, title, courseId,
           
           {extracted?.audioUrl || podcastContent ? (
             <div className="space-y-4">
-              {extracted?.audioUrl ? (
+              {extracted?.audioUrl && extracted.audioUrl.trim() !== '' ? (
                 <div className="space-y-4">
                   <Card className="bg-gradient-to-r from-green-50 to-emerald-50">
                     <CardContent className="p-6">
