@@ -894,7 +894,7 @@ export default function ContentViewer({ contentId, contentType, title, courseId,
                 </Card>
               )}
 
-              {/* Audio controls - always show when content is available */}
+              {/* Audio controls - simplified for auto-start experience */}
               <div className="flex justify-center space-x-4">
                 <Button
                   onClick={isPaused ? () => {
@@ -909,7 +909,7 @@ export default function ContentViewer({ contentId, contentType, title, courseId,
                   className="flex items-center gap-2"
                 >
                   {isPlaying && !isPaused ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}
-                  {isPlaying && !isPaused ? 'Pause' : 'Play'}
+                  {isPlaying && !isPaused ? 'Pause' : 'Resume'}
                 </Button>
                 
                 <Button
@@ -920,16 +920,6 @@ export default function ContentViewer({ contentId, contentType, title, courseId,
                 >
                   <Square className="w-5 h-5" />
                   Stop
-                </Button>
-                
-                <Button
-                  onClick={handlePlayAudio}
-                  disabled={!speechSynthesis}
-                  variant="default"
-                  className="bg-blue-600 hover:bg-blue-700 flex items-center gap-2"
-                >
-                  <Play className="w-5 h-5" />
-                  Start Podcast
                 </Button>
               </div>
 
