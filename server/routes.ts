@@ -2154,7 +2154,8 @@ Start your journey at laplumbprep.com/courses
       }
 
       // Get the text content from the extracted field
-      const textContent = content.content?.extracted?.content || '';
+      const contentData = content.content as any;
+      const textContent = contentData?.extracted?.content || '';
       
       if (textContent) {
         // Use our improved quiz parser
