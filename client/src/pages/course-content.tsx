@@ -82,19 +82,19 @@ export default function CourseContent() {
     );
   }
 
-  // Debug what we're getting
-  console.log('Course:', course);
-  console.log('Content:', content);
-  console.log('Content type:', typeof content);
-  console.log('Content length:', content?.length);
-  console.log('IsLoading:', isLoading);
-
   if (!course) {
     return <div>Course not found</div>;
   }
 
-  if (!content) {
-    return <div>No content data received</div>;
+  if (!content || !Array.isArray(content) || content.length === 0) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold mb-4">Course Content</h1>
+          <p>No lessons available yet. Content is being prepared.</p>
+        </div>
+      </div>
+    );
   }
 
   // Group content by section
@@ -108,11 +108,6 @@ export default function CourseContent() {
   
   // Get unique sections sorted
   const sections = Object.keys(contentBySection).sort((a, b) => Number(a) - Number(b));
-
-  // Debug logging
-  console.log('Content data:', content);
-  console.log('Content by section:', contentBySection);
-  console.log('Sections:', sections);
 
   const getTypeIcon = (type: string) => {
     switch (type) {
