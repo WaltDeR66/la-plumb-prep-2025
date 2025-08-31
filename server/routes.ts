@@ -101,8 +101,27 @@ async function seedCourseContent() {
       section: 101,
       content: {
         "extracted": {
-          "audioUrl": "https://quizgecko.com/audio/lspc-101-admin-podcast.mp3",
-          "transcript": "Welcome to the Louisiana State Plumbing Code podcast series. In this episode, we'll explore Section 101 Administration, covering the adoption authority, legal framework, and key terminology that forms the foundation of Louisiana's plumbing regulations."
+          "transcript": `Welcome to Louisiana Plumber Prep - your comprehensive guide to mastering the Louisiana State Plumbing Code. I'm your instructor, and today we're diving deep into Section 101: Administration, Subchapter A - General.
+
+This section is absolutely critical for every plumbing professional in Louisiana because it establishes the legal foundation for everything we do. Let's break this down step by step.
+
+First, let's talk about authority. The Department of Health and Hospitals, Office of Public Health, has adopted Part XIV - that's Part Fourteen - of the Sanitary Code, State of Louisiana. This is found in Louisiana Administrative Code 51:XIV. This is your official Louisiana State Plumbing Code.
+
+Here's something important to remember: whenever you see references to 'this code,' 'this Part,' or 'Louisiana State Plumbing Code' - they're all talking about the same thing: Part XIV of the Sanitary Code, State of Louisiana. Think of it like different names for the same person.
+
+Why does this matter? In your daily work, you'll encounter citations, violations, and documentation that use these terms interchangeably. Knowing they're synonymous helps you navigate legal documents, permits, and inspections with confidence.
+
+Now, let's discuss the practical impact. This code gives legal authority to local jurisdictions to enforce plumbing standards. It's not just suggestions - it's law. When an inspector cites Section 101, they're referencing the fundamental authority that governs all plumbing work in Louisiana.
+
+For journeymen preparing for certification, understanding this administrative foundation is crucial. Questions about authority, jurisdiction, and legal references frequently appear on certification exams.
+
+Key takeaways for today: One - The Department of Health and Hospitals has ultimate authority over plumbing codes in Louisiana. Two - Part XIV and Louisiana State Plumbing Code are the same thing. Three - All references to 'this code' or 'this Part' refer to Part XIV.
+
+Remember, mastering the administrative foundation sets you up for success in all other code sections. In our next lesson, we'll explore specific permit requirements and inspection procedures.
+
+Keep studying, stay safe on the job, and we'll see you in the next Louisiana Plumber Prep lesson.`,
+          "title": "LSPC 101 Administration Subchapter A. General - Educational Podcast",
+          "extractedAt": "2025-01-30T22:15:00Z"
         }
       },
       isActive: true,
@@ -1952,7 +1971,8 @@ Start your journey at laplumbprep.com/courses
     }
   });
 
-  // Generate AI audio for podcast content
+
+  // Generate AI audio for podcast content  
   app.post("/api/generate-audio/:id", async (req, res) => {
     // Check authentication
     if (!req.isAuthenticated()) {

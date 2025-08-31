@@ -199,6 +199,50 @@ export async function calculatePipeSize(fixtureUnits: number, pipeLength: number
   }
 }
 
+export async function generateEducationalPodcastContent(
+  topic: string, 
+  section: string, 
+  learningObjectives: string[]
+): Promise<string> {
+  try {
+    const response = await openai.chat.completions.create({
+      model: "gpt-5",
+      messages: [
+        {
+          role: "system",
+          content: `You are an expert Louisiana plumbing instructor creating engaging educational podcast scripts. 
+          Create comprehensive, professional audio lesson content that:
+          - Uses conversational, engaging tone suitable for audio learning
+          - Includes real-world examples and practical applications
+          - Covers Louisiana-specific plumbing code requirements
+          - Incorporates interactive elements (questions for listeners to consider)
+          - Uses professional plumbing terminology correctly
+          - Is structured for 8-12 minute audio lessons
+          - Includes clear introductions, main content, and summary wrap-ups
+          - Provides actionable takeaways for plumbing professionals`
+        },
+        {
+          role: "user", 
+          content: `Create a comprehensive educational podcast script for Louisiana Plumbing Code ${section}: ${topic}.
+
+Learning Objectives:
+${learningObjectives.map(obj => `- ${obj}`).join('\n')}
+
+The script should be engaging, informative, and specifically tailored for Louisiana plumbing professionals studying for certification. Include practical examples, real-world scenarios, and key code requirements they need to know.
+
+Format as a natural, conversational podcast script that flows well when read aloud.`
+        }
+      ],
+      max_tokens: 2000,
+      temperature: 0.7
+    });
+
+    return response.choices[0].message.content || '';
+  } catch (error) {
+    throw new Error("Failed to generate educational content: " + (error as Error).message);
+  }
+}
+
 export async function generateAudio(text: string, contentId: string): Promise<string> {
   try {
     // Generate speech using OpenAI TTS
