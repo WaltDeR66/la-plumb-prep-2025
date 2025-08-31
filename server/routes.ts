@@ -2146,7 +2146,8 @@ Start your journey at laplumbprep.com/courses
   app.post("/api/content/:id/reextract-quiz", async (req, res) => {
     try {
       const contentId = req.params.id;
-      const content = await storage.getCourseContent(contentId);
+      const contentItems = await storage.getCourseContent(contentId);
+      const content = Array.isArray(contentItems) ? contentItems[0] : contentItems;
       
       if (!content || content.type !== 'quiz') {
         return res.status(404).json({ message: "Quiz content not found" });
