@@ -1929,7 +1929,14 @@ Start your journey at laplumbprep.com/courses
   app.get("/api/courses/:courseId/content", async (req, res) => {
     try {
       const { courseId } = req.params;
-      const content = await storage.getCourseContent(courseId);
+      let content = await storage.getCourseContent(courseId);
+      
+      // If content is empty for the Louisiana Journeyman Prep course, auto-seed it
+      if (content.length === 0 && courseId === "5f02238b-afb2-4e7f-a488-96fb471fee56") {
+        console.log("Course content empty, auto-seeding...");
+        await seedCourseContent();
+        content = await storage.getCourseContent(courseId);
+      }
       
       // Add cache-busting headers to ensure fresh data
       res.set({
