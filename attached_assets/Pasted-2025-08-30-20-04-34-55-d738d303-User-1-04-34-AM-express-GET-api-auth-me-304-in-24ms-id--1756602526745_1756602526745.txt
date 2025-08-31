@@ -1,0 +1,104 @@
+2025-08-30 20:04:34.55
+d738d303
+User
+1:04:34 AM [express] GET /api/auth/me 304 in 24ms :: {"id":"admin-emergency-1756588393373","email":"…
+2025-08-30 20:04:34.59
+d738d303
+User
+1:04:34 AM [express] GET /api/job-applications 200 in 27ms
+2025-08-30 20:04:34.64
+d738d303
+User
+1:04:34 AM [express] GET /api/mentor/conversations 304 in 49ms :: []
+2025-08-30 20:04:34.69
+d738d303
+User
+1:04:34 AM [express] GET /api/courses 304 in 123ms :: [{"id":"5f02238b-afb2-4e7f-a488-96fb471fee56",…
+2025-08-30 20:04:34.71
+d738d303
+User
+1:04:34 AM [express] GET /api/enrollments 304 in 122ms :: [{"id":"0dfabef8-c346-43e8-8067-788964dd0e…
+2025-08-30 20:04:39.97
+d738d303
+User
+Storage getCourseContent called with courseId: 5f02238b-afb2-4e7f-a488-96fb471fee56
+2025-08-30 20:04:40.00
+d738d303
+User
+Storage getCourseContent results count: 0
+2025-08-30 20:04:40.00
+d738d303
+User
+Storage getCourseContent sample result: none
+2025-08-30 20:04:40.00
+d738d303
+User
+Route returning content count: 0
+2025-08-30 20:04:40.00
+d738d303
+User
+First item: none
+2025-08-30 20:04:40.00
+d738d303
+User
+1:04:40 AM [express] GET /api/courses/5f02238b-afb2-4e7f-a488-96fb471fee56/content 304 in 30ms :: []
+2025-08-30 20:05:20.98
+7be7997a
+System
+system: received signal terminated
+2025-08-30 20:07:55.27
+d738d303
+User
+Storage getCourseContent called with courseId: 5f02238b-afb2-4e7f-a488-96fb471fee56
+2025-08-30 20:07:57.71
+d738d303
+User
+Storage getCourseContent results count: 0
+2025-08-30 20:07:57.71
+d738d303
+User
+Storage getCourseContent sample result: none
+2025-08-30 20:07:57.71
+d738d303
+User
+Route returning content count: 0
+2025-08-30 20:07:57.71
+d738d303
+User
+First item: none
+2025-08-30 20:07:57.71
+d738d303
+User
+1:07:57 AM [express] GET /api/courses/5f02238b-afb2-4e7f-a488-96fb471fee56/content 200 in 2440ms :: …
+2025-08-30 20:08:00.19
+d738d303
+User
+Storage getCourseContent called with courseId: 5f02238b-afb2-4e7f-a488-96fb471fee56
+2025-08-30 20:08:00.19
+d738d303
+User
+1:08:00 AM [express] GET /api/courses 200 in 47ms :: [{"id":"5f02238b-afb2-4e7f-a488-96fb471fee56","…
+2025-08-30 20:08:02.30
+d738d303
+User
+Storage getCourseContent results count: 0
+2025-08-30 20:08:02.30
+d738d303
+User
+Storage getCourseContent sample result: none
+2025-08-30 20:08:02.30
+d738d303
+User
+Route returning content count: 0
+2025-08-30 20:08:02.30
+d738d303
+User
+First item: none
+2025-08-30 20:08:02.30
+d738d303
+User
+1:08:02 AM [express] GET /api/courses/5f02238b-afb2-4e7f-a488-96fb471fee56/content 200 in 2116ms :: …
+2025-08-30 20:08:02.32
+d738d303
+User
+1:08:02 AM [express] GET /api/auth/me 200 in 2136ms :: {"id":"admin-emergency-1756588393373","email"…
