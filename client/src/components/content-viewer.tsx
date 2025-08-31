@@ -144,15 +144,38 @@ export default function ContentViewer(props?: ContentViewerProps) {
     }
 
     return (
-      <div className="space-y-6">
+      <div className="max-w-4xl mx-auto">
+        {/* Podcast Header */}
+        <Card className="mb-6">
+          <CardHeader className="text-center">
+            <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
+              <span className="text-2xl">🎧</span>
+            </div>
+            <CardTitle className="text-2xl">{content.title}</CardTitle>
+            <p className="text-muted-foreground">
+              Audio lesson with interactive transcript
+            </p>
+          </CardHeader>
+        </Card>
+
+        {/* Podcast Player - Clean Interface */}
         <PodcastPlayer 
           content={podcastContent} 
           autoStart={shouldAutoStart} 
         />
         
-        <Button onClick={handleComplete} className="w-full">
-          Complete Podcast
-        </Button>
+        {/* Complete Button */}
+        <Card className="mt-6">
+          <CardContent className="p-6 text-center">
+            <p className="text-muted-foreground mb-4">
+              Listen to the complete audio lesson to mark as completed
+            </p>
+            <Button onClick={handleComplete} className="w-full max-w-sm mx-auto">
+              <CheckCircle className="w-4 h-4 mr-2" />
+              Complete Podcast
+            </Button>
+          </CardContent>
+        </Card>
       </div>
     );
   };
