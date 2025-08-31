@@ -839,7 +839,34 @@ export default function ContentViewer({ contentId, contentType, title, courseId,
     const podcastContent = getContentText();
 
     const handlePlayAudio = () => {
-      const cleanText = getCleanTextForAudio();
+      // Use the same text processing as auto-start to ensure consistency
+      const getCleanTextForManualStart = () => {
+        const extracted = content?.content?.extracted;
+        let text = extracted?.transcript || extracted?.content || extracted?.html || extracted?.text || '';
+        
+        if (text) {
+          text = text
+            .replace(/\*\[This would be.*?\]\*/g, '')
+            .replace(/\\n\\n/g, '. ')
+            .replace(/\\n/g, '. ')
+            .replace(/\*\*(.*?)\*\*/g, '$1')
+            .replace(/### (.*$)/gm, '$1. ')
+            .replace(/## (.*$)/gm, '$1. ')
+            .replace(/# (.*$)/gm, '$1. ')
+            .replace(/\(\d{1,2}:\d{2}-\d{1,2}:\d{2}\)/g, '')
+            .replace(/###\s*/g, '')
+            .replace(/\?\s+/g, '? ')
+            .replace(/\.\s*\./g, '.')
+            .replace(/\s+/g, ' ')
+            .replace(/([a-z])([A-Z])/g, '$1. $2')
+            .trim();
+        }
+        
+        return text;
+      };
+      
+      const cleanText = getCleanTextForManualStart();
+      console.log('Manual start - cleanText length:', cleanText?.length);
       if (cleanText) {
         playAudio(cleanText);
       }
