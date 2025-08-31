@@ -94,7 +94,11 @@ export default function PodcastPlayer({ content, autoStart = false }: PodcastPla
     if (!speechSynthesis || !content) return;
 
     const processedText = cleanText(content);
-    const sentenceArray = processedText.split(/[.!?]+/).filter(s => s.trim().length > 0);
+    // Better sentence splitting that preserves meaningful content
+    const sentenceArray = processedText
+      .split(/(?<=[.!?])\s+/)
+      .map(s => s.trim())
+      .filter(s => s.length > 10); // Filter out very short fragments
     
     setSentences(sentenceArray);
     setCurrentIndex(0);
@@ -173,6 +177,13 @@ export default function PodcastPlayer({ content, autoStart = false }: PodcastPla
           </Card>
         )}
 
+        {/* Progress indicator */}
+        {sentences.length > 0 && (
+          <div className="text-sm text-gray-600 mb-4">
+            Progress: {currentIndex + 1} of {sentences.length} sentences
+          </div>
+        )}
+
         {/* Audio controls */}
         <div className="flex justify-center space-x-4 mt-6">
           {!isPlaying && !isPaused && (
@@ -234,15 +245,6 @@ export default function PodcastPlayer({ content, autoStart = false }: PodcastPla
           )}
         </div>
 
-        {/* Content text for reference */}
-        <Card className="mt-6">
-          <CardContent className="p-6">
-            <div 
-              className="prose prose-sm max-w-none text-gray-700"
-              dangerouslySetInnerHTML={{ __html: content.replace(/\n/g, '<br/>') }}
-            />
-          </CardContent>
-        </Card>
       </div>
     </div>
   );

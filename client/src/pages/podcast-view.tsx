@@ -81,7 +81,10 @@ export default function PodcastView() {
             <p className="text-muted-foreground mb-4">
               Listen to the complete audio lesson
             </p>
-            <Button className="w-full max-w-sm mx-auto">
+            <Button 
+              className="w-full max-w-sm mx-auto"
+              onClick={() => window.location.href = `/course/${params?.courseId}`}
+            >
               Complete Podcast
             </Button>
           </CardContent>
