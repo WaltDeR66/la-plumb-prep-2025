@@ -10,6 +10,14 @@ interface Course {
   description: string;
 }
 
+interface ContentData {
+  id: string;
+  title: string;
+  type: string;
+  section?: number;
+  content?: any;
+}
+
 export default function ContentView() {
   const [match, params] = useRoute("/course/:courseId/content/:contentId");
   const courseId = params?.courseId;
@@ -25,7 +33,7 @@ export default function ContentView() {
   
   const course = courses?.find(c => c.id === courseId);
 
-  const { data: content } = useQuery({
+  const { data: content } = useQuery<ContentData>({
     queryKey: [`/api/content/${contentId}/display`],
   });
 
@@ -35,7 +43,7 @@ export default function ContentView() {
       <div className="border-b bg-white">
         <div className="container mx-auto px-4 py-4">
           <Button variant="ghost" asChild data-testid="button-back-lesson">
-            <Link href={`/course/${courseId}/lesson/${content?.section || ''}`}>
+            <Link href={`/course/${courseId}/lesson/${content?.section?.toString() || ''}`}>
               <ArrowLeft className="w-4 h-4 mr-2" />
               Back to Lesson
             </Link>
@@ -45,7 +53,7 @@ export default function ContentView() {
 
       {/* Content Viewer */}
       <div className="container mx-auto px-4 py-8">
-        {content ? (
+        {content && content.type ? (
           <ContentViewer
             contentId={contentId}
             contentType={content.type}
