@@ -246,13 +246,16 @@ export default function ContentViewer({ contentId, contentType, title, courseId,
         
         setTimeout(() => {
           const cleanText = getCleanTextForAutoStart();
-          if (cleanText) {
+          console.log('Auto-starting podcast with text:', cleanText?.substring(0, 100));
+          if (cleanText && speechSynthesis) {
             playAudio(cleanText);
+          } else {
+            console.log('Cannot auto-start: cleanText=', !!cleanText, 'speechSynthesis=', !!speechSynthesis);
           }
         }, 1000); // Small delay to let component render
       }
     }
-  }, [contentType, content?.content?.extracted?.content, content?.content?.extracted?.text, content?.content?.extracted?.audioUrl]);
+  }, [contentType, content?.content?.extracted?.transcript, content?.content?.extracted?.content, content?.content?.extracted?.text, content?.content?.extracted?.audioUrl, speechSynthesis]);
 
   const extractMutation = useMutation({
     mutationFn: () => fetch(`/api/extract-content/${contentId}`, { 
