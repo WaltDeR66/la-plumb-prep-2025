@@ -57,9 +57,20 @@ export default function CourseContent() {
   
   const course = courses?.find(c => c.id === courseId);
 
-  const { data: content, isLoading } = useQuery<CourseContent[]>({
+  const { data: content, isLoading, refetch } = useQuery<CourseContent[]>({
     queryKey: ["/api/courses", courseId, "content"],
+    staleTime: 0,
+    gcTime: 0,
+    refetchOnMount: true,
+    refetchOnWindowFocus: true,
   });
+
+  // Force refetch when courseId changes
+  useEffect(() => {
+    if (courseId) {
+      refetch();
+    }
+  }, [courseId, refetch]);
 
   const { data: sectionProgress } = useQuery<Array<{section: number, isUnlocked: boolean, isAdmin: boolean}>>({
     queryKey: [`/api/section-progress/${courseId}`],
