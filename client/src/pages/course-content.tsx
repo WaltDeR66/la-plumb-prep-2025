@@ -62,9 +62,15 @@ export default function CourseContent() {
   });
 
   // Force debug logging
-  console.log('React Query - Content:', content);
-  console.log('React Query - IsLoading:', isLoading);
-  console.log('React Query - Error:', error);
+  console.log('=== REACT QUERY DEBUG ===');
+  console.log('QueryKey constructed as:', ["/api/courses", courseId, "content"]);
+  console.log('Content received:', content);
+  console.log('Content type:', typeof content);
+  console.log('Content array?:', Array.isArray(content));
+  console.log('Content length:', content?.length);
+  console.log('IsLoading:', isLoading);
+  console.log('Error:', error);
+  console.log('=== END DEBUG ===');
 
   const { data: sectionProgress } = useQuery<Array<{section: number, isUnlocked: boolean, isAdmin: boolean}>>({
     queryKey: [`/api/section-progress/${courseId}`],
