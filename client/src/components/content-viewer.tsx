@@ -20,7 +20,8 @@ import {
   Loader2,
   Settings,
   Clock,
-  Timer
+  Timer,
+  RotateCcw
 } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -834,6 +835,90 @@ export default function ContentViewer({ contentId, contentType, title, courseId,
     }
   };
 
+  const rewindOneSentence = () => {
+    if (currentSentenceIndex > 0) {
+      // Cancel current speech
+      if (speechSynthesis) {
+        speechSynthesis.cancel();
+      }
+      
+      // Go back one sentence
+      const newIndex = currentSentenceIndex - 1;
+      setCurrentSentenceIndex(newIndex);
+      
+      console.log(`Rewinding to sentence ${newIndex + 1}/${sentences.length}`);
+      
+      // Start speaking from the previous sentence
+      if (sentences && sentences[newIndex]) {
+        const sentence = sentences[newIndex].trim();
+        setCurrentSentence(sentence);
+        
+        const utterance = new SpeechSynthesisUtterance(sentence);
+        utterance.rate = 0.9;
+        utterance.pitch = 1.0;
+        utterance.volume = 1.0;
+        
+        utterance.onend = () => {
+          console.log(`Finished sentence ${newIndex + 1}/${sentences.length}: "${sentence.substring(0, 50)}..."`);
+          
+          // Continue to next sentence after rewind
+          if (newIndex + 1 < sentences.length) {
+            console.log(`Moving to sentence ${newIndex + 2}`);
+            setTimeout(() => {
+              setCurrentSentenceIndex(newIndex + 1);
+              const nextSentence = sentences[newIndex + 1].trim();
+              setCurrentSentence(nextSentence);
+              
+              const nextUtterance = new SpeechSynthesisUtterance(nextSentence);
+              nextUtterance.rate = 0.9;
+              nextUtterance.pitch = 1.0;
+              nextUtterance.volume = 1.0;
+              
+              // Set up the chain to continue from here
+              const speakNextSentence = () => {
+                if (newIndex + 2 < sentences.length) {
+                  setTimeout(() => {
+                    const idx = newIndex + 2;
+                    setCurrentSentenceIndex(idx);
+                    const sent = sentences[idx].trim();
+                    setCurrentSentence(sent);
+                    
+                    const utt = new SpeechSynthesisUtterance(sent);
+                    utt.rate = 0.9;
+                    utt.pitch = 1.0;
+                    utt.volume = 1.0;
+                    utt.onend = speakNextSentence;
+                    setCurrentUtterance(utt);
+                    speechSynthesis.speak(utt);
+                  }, 500);
+                } else {
+                  setIsPlaying(false);
+                  setIsPaused(false);
+                  setCurrentUtterance(null);
+                  setCurrentSentence('');
+                }
+              };
+              
+              nextUtterance.onend = speakNextSentence;
+              setCurrentUtterance(nextUtterance);
+              speechSynthesis.speak(nextUtterance);
+            }, 500);
+          } else {
+            setIsPlaying(false);
+            setIsPaused(false);
+            setCurrentUtterance(null);
+            setCurrentSentence('');
+          }
+        };
+        
+        setCurrentUtterance(utterance);
+        speechSynthesis.speak(utterance);
+        setIsPlaying(true);
+        setIsPaused(false);
+      }
+    }
+  };
+
   const renderPodcastContent = () => {
     const extracted = content.content?.extracted;
     const podcastContent = getContentText();
@@ -896,6 +981,16 @@ export default function ContentViewer({ contentId, contentType, title, courseId,
 
               {/* Audio controls - simplified for auto-start experience */}
               <div className="flex justify-center space-x-4">
+                <Button
+                  onClick={rewindOneSentence}
+                  disabled={!speechSynthesis || currentSentenceIndex <= 0}
+                  variant="outline"
+                  className="flex items-center gap-2"
+                >
+                  <RotateCcw className="w-5 h-5" />
+                  Rewind
+                </Button>
+                
                 <Button
                   onClick={isPaused ? () => {
                     if (speechSynthesis && currentUtterance) {
