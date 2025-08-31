@@ -816,6 +816,10 @@ export default function ContentViewer({ contentId, contentType, title, courseId,
   const renderPodcastContent = () => {
     const extracted = content.content?.extracted;
     const podcastContent = getContentText();
+    
+    console.log('Podcast Debug - extracted?.audioUrl:', extracted?.audioUrl);
+    console.log('Podcast Debug - typeof audioUrl:', typeof extracted?.audioUrl);
+    console.log('Podcast Debug - podcastContent length:', podcastContent?.length);
 
     const handlePlayAudio = () => {
       const cleanText = getCleanTextForAudio();
