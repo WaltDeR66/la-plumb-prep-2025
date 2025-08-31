@@ -272,7 +272,7 @@ export default function Lesson() {
                       asChild
                       data-testid={`button-study-${item.type}-${index}`}
                     >
-                      <Link href={`/course/${courseId}/content/${item.id}`}>
+                      <Link href={`/course/${courseId}/content/${item.id}${item.type === 'podcast' && isCompleted ? '?autostart=true' : ''}`}>
                         <Play className="w-4 h-4 mr-2" />
                         {isCompleted ? "Review" : isCurrent ? "Continue" : "Start"}
                       </Link>

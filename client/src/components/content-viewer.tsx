@@ -20,17 +20,24 @@ import { useToast } from "@/hooks/use-toast";
 import PodcastPlayer from "@/components/podcast-player";
 
 interface ContentViewerProps {
-  contentId: string;
-  contentType: string;
+  contentId?: string;
+  contentType?: string;
   title?: string;
   courseId?: string;
   sectionId?: string;
   onComplete?: () => void;
 }
 
-export default function ContentViewer(props: ContentViewerProps) {
-  if (!props) {
-    return <div>Loading...</div>;
+export default function ContentViewer(props?: ContentViewerProps) {
+  if (!props || !props.contentId || !props.contentType) {
+    return (
+      <div className="flex items-center justify-center p-8">
+        <div className="text-center">
+          <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full mx-auto mb-4"></div>
+          <p>Loading content...</p>
+        </div>
+      </div>
+    );
   }
   
   const { contentId, contentType, title, courseId, sectionId, onComplete } = props;
