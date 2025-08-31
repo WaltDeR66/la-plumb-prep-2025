@@ -25,35 +25,23 @@ export default function CourseContentPage() {
     queryKey: ["/api/courses"],
   });
 
-  const { data: content, isLoading, refetch } = useQuery<CourseContent[]>({
-    queryKey: ["/api/courses", courseId, "content"],
-    staleTime: 0,
-    gcTime: 0,
-    refetchOnMount: true,
-    refetchOnWindowFocus: true,
+  const { data: content, isLoading, refetch, error } = useQuery<CourseContent[]>({
+    queryKey: [`/api/courses/${courseId}/content`],
+    enabled: !!courseId,
   });
 
-  // Force refetch when courseId changes
-  useEffect(() => {
-    if (courseId) {
-      refetch();
-    }
-  }, [courseId, refetch]);
+  // Debug logging
+  console.log('Content query result:', { content, isLoading, error, courseId });
+  console.log('Content length:', content?.length);
 
   const course = courses?.find(c => c.id === courseId);
 
   if (isLoading) {
     return (
       <div className="container mx-auto px-4 py-8">
-        <div className="animate-pulse space-y-4">
-          <div className="h-8 bg-gray-200 rounded w-1/2"></div>
-          <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-          <div className="space-y-2">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="h-20 bg-gray-200 rounded"></div>
-            ))}
-          </div>
-        </div>
+        <h1>Loading course content...</h1>
+        <p>Course ID: {courseId}</p>
+        <p>Query status: {isLoading ? 'Loading' : 'Complete'}</p>
       </div>
     );
   }
