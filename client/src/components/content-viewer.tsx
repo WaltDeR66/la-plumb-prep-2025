@@ -704,8 +704,20 @@ export default function ContentViewer({ contentId, contentType, title, courseId,
     speechSynthesis.cancel();
     setCurrentSentence('');
     
-    // Split transcript into sentences
-    const sentences = transcript.split(/[.!?]+/).filter(s => s.trim().length > 0);
+    // Split transcript into sentences - improved parsing
+    console.log('Full transcript length:', transcript.length);
+    console.log('Transcript preview:', transcript.substring(0, 200));
+    
+    // More comprehensive sentence splitting
+    const sentences = transcript
+      .split(/[.!?]+(?:\s|$)/) // Split on punctuation followed by space or end
+      .map(s => s.trim())
+      .filter(s => s.length > 10) // Filter out very short fragments
+      .map(s => s.replace(/^\W+/, '')) // Remove leading punctuation
+      .filter(s => s.length > 0);
+    
+    console.log('Total sentences found:', sentences.length);
+    console.log('First few sentences:', sentences.slice(0, 3));
     let currentSentenceIndex = 0;
 
     const speakNextSentence = () => {
