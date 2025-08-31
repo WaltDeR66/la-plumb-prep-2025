@@ -985,8 +985,8 @@ export default function ContentViewer({ contentId, contentType, title, courseId,
     );
   };
 
-  // Skip the old renderPodcastContent completely and go to the end
-  const renderOldPodcastContent = () => {
+  // REMOVED: Old podcast content function - delete this entire function
+  const renderOldPodcastContent_DELETED = () => {
     const extracted = content.content?.extracted;
     const podcastContent = getContentText();
 
