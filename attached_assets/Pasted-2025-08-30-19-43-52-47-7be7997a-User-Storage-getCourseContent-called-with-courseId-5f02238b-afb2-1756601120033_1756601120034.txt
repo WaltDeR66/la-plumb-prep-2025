@@ -1,0 +1,104 @@
+2025-08-30 19:43:52.47
+7be7997a
+User
+Storage getCourseContent called with courseId: 5f02238b-afb2-4e7f-a488-96fb471fee56
+2025-08-30 19:43:52.49
+7be7997a
+User
+Storage getCourseContent called with courseId: 5f02238b-afb2-4e7f-a488-96fb471fee56
+2025-08-30 19:43:52.52
+7be7997a
+User
+12:43:52 AM [express] GET /api/courses 200 in 59ms :: [{"id":"5f02238b-afb2-4e7f-a488-96fb471fee56","…
+2025-08-30 19:43:52.52
+7be7997a
+User
+Storage getCourseContent results count: 0
+2025-08-30 19:43:52.52
+7be7997a
+User
+Storage getCourseContent sample result: none
+2025-08-30 19:43:52.52
+7be7997a
+User
+12:43:52 AM [express] GET /api/section-progress/5f02238b-afb2-4e7f-a488-96fb471fee56 200 in 58ms :: []
+2025-08-30 19:43:52.56
+7be7997a
+User
+Storage getCourseContent results count: 0
+2025-08-30 19:43:52.56
+7be7997a
+User
+Storage getCourseContent sample result: none
+2025-08-30 19:43:52.56
+7be7997a
+User
+12:43:52 AM [express] GET /api/courses/5f02238b-afb2-4e7f-a488-96fb471fee56/content 200 in 92ms :: []
+2025-08-30 19:43:52.56
+7be7997a
+User
+12:43:52 AM [express] GET /api/auth/me 200 in 100ms :: {"id":"admin-emergency-1756588393373","email":…
+2025-08-30 19:44:03.90
+7be7997a
+User
+12:44:03 AM [express] POST /api/auth/logout 200 in 101ms :: {"message":"Logout successful"}
+2025-08-30 19:44:04.55
+7be7997a
+User
+12:44:04 AM [express] GET /api/auth/me 401 in 2ms :: {"message":"Not authenticated"}
+2025-08-30 19:44:14.77
+7be7997a
+User
+12:44:14 AM [express] POST /api/auth/login 200 in 161ms :: {"message":"Login successful","user":{"id"…
+2025-08-30 19:44:14.90
+7be7997a
+User
+12:44:14 AM [express] GET /api/auth/me 200 in 24ms :: {"id":"admin-emergency-1756588393373","email":"…
+2025-08-30 19:44:15.06
+7be7997a
+User
+12:44:15 AM [express] GET /api/mentor/conversations 200 in 54ms :: []
+2025-08-30 19:44:15.11
+7be7997a
+User
+12:44:15 AM [express] GET /api/job-applications 200 in 99ms
+2025-08-30 19:44:15.12
+7be7997a
+User
+12:44:15 AM [express] GET /api/courses 200 in 115ms :: [{"id":"5f02238b-afb2-4e7f-a488-96fb471fee56",…
+2025-08-30 19:44:15.14
+7be7997a
+User
+12:44:15 AM [express] GET /api/enrollments 200 in 126ms :: [{"id":"0dfabef8-c346-43e8-8067-788964dd0e…
+2025-08-30 19:44:22.08
+7be7997a
+User
+Storage getCourseContent called with courseId: 5f02238b-afb2-4e7f-a488-96fb471fee56
+2025-08-30 19:44:22.11
+7be7997a
+User
+Storage getCourseContent called with courseId: 5f02238b-afb2-4e7f-a488-96fb471fee56
+2025-08-30 19:44:22.11
+7be7997a
+User
+Storage getCourseContent results count: 0
+2025-08-30 19:44:22.11
+7be7997a
+User
+Storage getCourseContent sample result: none
+2025-08-30 19:44:22.11
+7be7997a
+User
+12:44:22 AM [express] GET /api/courses/5f02238b-afb2-4e7f-a488-96fb471fee56/content 200 in 35ms :: []
+2025-08-30 19:44:22.14
+7be7997a
+User
+Storage getCourseContent results count: 0
+2025-08-30 19:44:22.14
+7be7997a
+User
+Storage getCourseContent sample result: none
+2025-08-30 19:44:22.14
+7be7997a
+User
+12:44:22 AM [express] GET /api/section-progress/5f02238b-afb2-4e7f-a488-96fb471fee56 200 in 52ms :: []
