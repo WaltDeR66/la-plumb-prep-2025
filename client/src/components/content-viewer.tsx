@@ -217,11 +217,11 @@ export default function ContentViewer({ contentId, contentType, title, courseId,
             });
           }
         }, 100);
-      } else if (content?.content?.extracted?.content || content?.content?.extracted?.text) {
+      } else if (content?.content?.extracted?.transcript || content?.content?.extracted?.content || content?.content?.extracted?.text) {
         // Otherwise use TTS with clean text
         const getCleanTextForAutoStart = () => {
           const extracted = content?.content?.extracted;
-          let text = extracted?.content || extracted?.html || extracted?.text || '';
+          let text = extracted?.transcript || extracted?.content || extracted?.html || extracted?.text || '';
           
           if (text) {
             text = text
@@ -304,7 +304,7 @@ export default function ContentViewer({ contentId, contentType, title, courseId,
   // Helper function to get content text from various possible locations
   const getContentText = () => {
     const extracted = content?.content?.extracted;
-    let text = extracted?.content || extracted?.html || extracted?.text || '';
+    let text = extracted?.transcript || extracted?.content || extracted?.html || extracted?.text || '';
     
     // Convert literal \n characters to actual HTML formatting
     if (text) {
@@ -328,7 +328,7 @@ export default function ContentViewer({ contentId, contentType, title, courseId,
   // Helper function to get clean text for audio (no HTML/markdown)
   const getCleanTextForAudio = () => {
     const extracted = content?.content?.extracted;
-    let text = extracted?.content || extracted?.html || extracted?.text || '';
+    let text = extracted?.transcript || extracted?.content || extracted?.html || extracted?.text || '';
     
     // Clean up all formatting for audio reading and display
     if (text) {
