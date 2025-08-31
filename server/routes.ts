@@ -1953,7 +1953,23 @@ Start your journey at laplumbprep.com/courses
   });
 
   // Generate AI audio for podcast content
-  app.post("/api/generate-audio/:id", requireActiveSubscription, async (req, res) => {
+  app.post("/api/generate-audio/:id", async (req, res) => {
+    // Check authentication
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ error: 'Authentication required' });
+    }
+
+    // Check subscription for non-admin users
+    const user = req.user as any;
+    const isAdmin = user.email?.includes('admin') || user.email === 'admin@latrainer.com' || user.email === 'admin@laplumbprep.com';
+    
+    if (!isAdmin) {
+      // Apply subscription requirement for regular users
+      const hasActiveSubscription = user.subscriptionTier && user.subscriptionTier !== 'free' && user.subscriptionStatus === 'active';
+      if (!hasActiveSubscription) {
+        return res.status(402).json({ error: 'Active subscription required for audio generation' });
+      }
+    }
     try {
       const { id } = req.params;
       const content = await storage.getCourseContentById(id);
@@ -1963,12 +1979,32 @@ Start your journey at laplumbprep.com/courses
       }
 
       const contentData = content.content as any;
-      if (!contentData?.extracted?.transcript) {
-        return res.status(400).json({ error: 'No transcript available for audio generation' });
+      
+      // Get text for audio generation from multiple sources
+      let textForAudio = '';
+      if (contentData?.extracted?.transcript) {
+        textForAudio = contentData.extracted.transcript;
+      } else if (contentData?.extracted?.content) {
+        textForAudio = contentData.extracted.content;
+      } else if (contentData?.extracted?.text) {
+        textForAudio = contentData.extracted.text;
       }
+      
+      if (!textForAudio || textForAudio.trim().length === 0) {
+        return res.status(400).json({ error: 'No content available for audio generation' });
+      }
+      
+      // Clean up text for audio (remove markdown/HTML)
+      textForAudio = textForAudio
+        .replace(/#+\s*/g, '') // Remove markdown headers
+        .replace(/\*\*(.*?)\*\*/g, '$1') // Remove bold markdown
+        .replace(/\*(.*?)\*/g, '$1') // Remove italic markdown
+        .replace(/<[^>]*>/g, '') // Remove HTML tags
+        .replace(/\n+/g, ' ') // Replace newlines with spaces
+        .trim();
 
       const { generateAudio } = await import('./openai');
-      const audioUrl = await generateAudio(contentData.extracted.transcript, id);
+      const audioUrl = await generateAudio(textForAudio, id);
       
       // Update content with audio URL
       await storage.updateContentAudio(id, audioUrl);
