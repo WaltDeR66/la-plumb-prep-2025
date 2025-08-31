@@ -45,6 +45,13 @@ export default function ContentViewer(props?: ContentViewerProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const { startSession, endSession } = useStudySession();
+  
+  // Start session when component loads
+  useEffect(() => {
+    if (contentId) {
+      startSession(contentId);
+    }
+  }, [contentId, startSession]);
 
   // Stop any existing audio when component loads
   useEffect(() => {
@@ -112,7 +119,7 @@ export default function ContentViewer(props?: ContentViewerProps) {
     );
   }
 
-  if (!content || !content.title) {
+  if (!content) {
     return (
       <div className="text-center p-8">
         <p>Content not found</p>
@@ -128,7 +135,7 @@ export default function ContentViewer(props?: ContentViewerProps) {
   const shouldAutoStart = urlParams.get('autostart') === 'true';
 
   const renderPodcastContent = () => {
-    const extracted = content.content?.extracted;
+    const extracted = content?.content?.extracted;
     const podcastContent = extracted?.transcript || extracted?.content || extracted?.text || '';
     
     if (!podcastContent) {
