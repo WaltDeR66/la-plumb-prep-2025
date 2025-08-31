@@ -816,10 +816,6 @@ export default function ContentViewer({ contentId, contentType, title, courseId,
   const renderPodcastContent = () => {
     const extracted = content.content?.extracted;
     const podcastContent = getContentText();
-    
-    console.log('Podcast Debug - extracted?.audioUrl:', extracted?.audioUrl);
-    console.log('Podcast Debug - typeof audioUrl:', typeof extracted?.audioUrl);
-    console.log('Podcast Debug - podcastContent length:', podcastContent?.length);
 
     const handlePlayAudio = () => {
       const cleanText = getCleanTextForAudio();
@@ -828,7 +824,116 @@ export default function ContentViewer({ contentId, contentType, title, courseId,
       }
     };
 
-    
+    // Force TTS path - skip audio player completely for now
+    return (
+      <div className="space-y-6">
+        <div className="text-center">
+          <h3 className="text-xl font-semibold mb-4">🎧 Audio Lesson</h3>
+          
+          {podcastContent ? (
+            <div className="space-y-6">
+              {/* Scrolling sentence display */}
+              {currentSentence && (
+                <Card className="bg-gradient-to-r from-yellow-50 to-orange-50 border-2 border-yellow-200">
+                  <CardContent className="p-8">
+                    <div className="text-center">
+                      <div className="text-sm text-gray-600 mb-4">📖 Now Reading:</div>
+                      <div className="text-xl font-medium text-gray-800 leading-relaxed animate-in slide-in-from-bottom-4 duration-500">
+                        {currentSentence}
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Audio controls - always show when content is available */}
+              <div className="flex justify-center space-x-4">
+                <Button
+                  onClick={isPaused ? () => {
+                    if (speechSynthesis && currentUtterance) {
+                      speechSynthesis.resume();
+                      setIsPaused(false);
+                      setIsPlaying(true);
+                    }
+                  } : pauseAudio}
+                  disabled={!speechSynthesis}
+                  variant={isPlaying && !isPaused ? "outline" : "default"}
+                  className="flex items-center gap-2"
+                >
+                  {isPlaying && !isPaused ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}
+                  {isPlaying && !isPaused ? 'Pause' : 'Play'}
+                </Button>
+                
+                <Button
+                  onClick={stopAudio}
+                  disabled={!speechSynthesis || (!isPlaying && !isPaused)}
+                  variant="outline"
+                  className="flex items-center gap-2"
+                >
+                  <Square className="w-5 h-5" />
+                  Stop
+                </Button>
+                
+                <Button
+                  onClick={handlePlayAudio}
+                  disabled={!speechSynthesis}
+                  variant="default"
+                  className="bg-blue-600 hover:bg-blue-700 flex items-center gap-2"
+                >
+                  <Play className="w-5 h-5" />
+                  Start Podcast
+                </Button>
+              </div>
+
+              {/* Display content text for reference */}
+              <Card>
+                <CardContent className="p-6">
+                  <div 
+                    className="prose prose-sm max-w-none text-gray-700"
+                    dangerouslySetInnerHTML={{ __html: podcastContent }}
+                  />
+                </CardContent>
+              </Card>
+            </div>
+          ) : (
+            <div className="text-center py-12">
+              <p className="text-gray-500 mb-4">No podcast content available</p>
+              <Button
+                onClick={() => extractMutation.mutate()}
+                disabled={extractMutation.isPending}
+                variant="outline"
+              >
+                {extractMutation.isPending ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Generating...
+                  </>
+                ) : (
+                  <>
+                    <RefreshCw className="w-4 h-4 mr-2" />
+                    Generate Content
+                  </>
+                )}
+              </Button>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  };
+
+  // Skip the old renderPodcastContent completely and go to the end
+  const renderOldPodcastContent = () => {
+    const extracted = content.content?.extracted;
+    const podcastContent = getContentText();
+
+    const handlePlayAudio = () => {
+      const cleanText = getCleanTextForAudio();
+      if (cleanText) {
+        playAudio(cleanText);
+      }
+    };
+
     return (
       <div className="space-y-6">
         <div className="text-center">
@@ -836,7 +941,7 @@ export default function ContentViewer({ contentId, contentType, title, courseId,
           
           {podcastContent ? (
             <div className="space-y-4">
-              {extracted?.audioUrl && extracted.audioUrl.trim() !== '' ? (
+              {false ? (
                 <div className="space-y-4">
                   <Card className="bg-gradient-to-r from-green-50 to-emerald-50">
                     <CardContent className="p-6">
