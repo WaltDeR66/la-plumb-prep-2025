@@ -1918,7 +1918,11 @@ Start your journey at laplumbprep.com/courses
   app.get("/api/courses/:courseId/content", async (req, res) => {
     try {
       const { courseId } = req.params;
+      console.log('Fetching course content for courseId:', courseId);
+      
       const content = await storage.getCourseContent(courseId);
+      console.log('Found content items:', content?.length || 0);
+      console.log('Sample content:', content?.[0] ? { id: content[0].id, title: content[0].title, section: content[0].section } : 'none');
       
       res.json(content);
     } catch (error: any) {
