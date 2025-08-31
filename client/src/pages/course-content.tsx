@@ -213,18 +213,7 @@ export default function CourseContent() {
           Course Lessons
         </h2>
         
-        {!content || content.length === 0 ? (
-          <Card>
-            <CardContent className="p-8 text-center">
-              <BookOpen className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
-              <h3 className="text-lg font-medium mb-2">No Lessons Available</h3>
-              <p className="text-muted-foreground">
-                This course doesn't have any lessons yet. Check back later!
-              </p>
-            </CardContent>
-          </Card>
-        ) : (
-          sections.map((section) => {
+        {sections.map((section) => {
             const sectionItems = contentBySection[section];
             const sectionTitle = sectionItems[0]?.title.split(' - ')[0] || `Section ${section}`;
             
@@ -342,11 +331,10 @@ export default function CourseContent() {
                 </CardContent>
               </Card>
             );
-          })
-        )}
+          })}
       </div>
 
-      {content.length === 0 && (
+      {(!content || content.length === 0) && (
         <Card>
           <CardContent className="p-8 text-center">
             <BookOpen className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
