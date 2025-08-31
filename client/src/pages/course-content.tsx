@@ -1,18 +1,15 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Link, useParams } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
 import {
   BookOpen,
   Clock,
   Star,
   Play,
-  Lock,
   Headphones,
-  MessageSquare,
   Bookmark,
   NotebookPen,
 } from "lucide-react";
@@ -20,24 +17,50 @@ import type { Course, CourseContent } from "@shared/schema";
 
 export default function CourseContentPage() {
   const { courseId } = useParams<{ courseId: string }>();
+  const [content, setContent] = useState<CourseContent[]>([]);
+  const [loading, setLoading] = useState(true);
 
   const { data: courses } = useQuery<Course[]>({
     queryKey: ["/api/courses"],
   });
 
-  const { data: content = [], isLoading, error } = useQuery<CourseContent[]>({
-    queryKey: [`/api/courses/${courseId}/content`],
-    enabled: !!courseId,
-    retry: false,
-    staleTime: 5 * 60 * 1000, // 5 minutes
-  });
+  // Direct fetch to bypass React Query caching issues
+  useEffect(() => {
+    if (!courseId) return;
+    
+    setLoading(true);
+    fetch(`/api/courses/${courseId}/content`, {
+      credentials: 'include'
+    })
+    .then(res => res.json())
+    .then(data => {
+      setContent(Array.isArray(data) ? data : []);
+      setLoading(false);
+    })
+    .catch(err => {
+      console.error('Failed to load content:', err);
+      setContent([]);
+      setLoading(false);
+    });
+  }, [courseId]);
 
   const course = courses?.find(c => c.id === courseId);
 
-  if (isLoading || !course) {
+  if (loading || !course) {
     return (
       <div className="container mx-auto px-4 py-8">
         <h1>Loading course content...</h1>
+      </div>
+    );
+  }
+
+  if (content.length === 0) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold">{course.title}</h1>
+          <p className="text-gray-600">No course content available yet.</p>
+        </div>
       </div>
     );
   }
@@ -98,7 +121,6 @@ export default function CourseContentPage() {
         <h2 className="text-xl font-semibold mb-4" data-testid="lessons-header">
           Course Lessons
         </h2>
-        
 
         {sections.map((section) => {
           const sectionItems = contentBySection[section];
