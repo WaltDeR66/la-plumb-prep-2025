@@ -82,12 +82,16 @@ export default function CourseContent() {
     );
   }
 
-  // Debug what we're getting
+  // Enhanced debug logging
+  console.log('=== FRONTEND DEBUG ===');
   console.log('Course:', course);
-  console.log('Content:', content);
+  console.log('Content received:', content);
   console.log('Content type:', typeof content);
+  console.log('Is array:', Array.isArray(content));
   console.log('Content length:', content?.length);
   console.log('IsLoading:', isLoading);
+  console.log('First content item:', content?.[0]);
+  console.log('=== END DEBUG ===');
 
   if (!course) {
     return <div>Course not found</div>;
