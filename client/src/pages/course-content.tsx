@@ -212,7 +212,7 @@ export default function CourseContent() {
           Course Lessons
         </h2>
         
-        {sections.length === 0 ? (
+        {!content || content.length === 0 ? (
           <Card>
             <CardContent className="p-8 text-center">
               <BookOpen className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
