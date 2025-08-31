@@ -1,0 +1,104 @@
+2025-08-30 20:11:09.95
+d738d303
+User
+1:11:09 AM [express] Email automation system initialized
+2025-08-30 20:11:09.95
+d738d303
+User
+1:11:09 AM [express] Bulk pricing system initialized
+2025-08-30 20:13:40.86
+764004fc
+System
+starting up user application
+2025-08-30 20:13:41.37
+764004fc
+System
+forwarding local port 5000 to external port 80 (mapped as 1104)
+2025-08-30 20:13:44.49
+764004fc
+User
+> rest-express@1.0.0 start
+2025-08-30 20:13:44.49
+764004fc
+User
+> NODE_ENV=production node dist/index.js
+2025-08-30 20:13:48.18
+764004fc
+User
+Warning: connect.session() MemoryStore is not
+2025-08-30 20:13:48.18
+764004fc
+User
+designed for a production environment, as it will leak
+2025-08-30 20:13:48.18
+764004fc
+User
+memory, and will not scale past a single process.
+2025-08-30 20:13:48.30
+764004fc
+User
+1:13:48 AM [express] serving on port 5000
+2025-08-30 20:13:48.50
+764004fc
+User
+Email campaigns already initialized
+2025-08-30 20:13:48.53
+764004fc
+User
+1:13:48 AM [express] Email automation system initialized
+2025-08-30 20:13:48.53
+764004fc
+User
+1:13:48 AM [express] Bulk pricing system initialized
+2025-08-30 20:14:08.80
+764004fc
+User
+1:14:08 AM [express] GET /api/auth/me 401 in 4ms :: {"message":"Not authenticated"}
+2025-08-30 20:14:15.34
+764004fc
+User
+1:14:15 AM [express] POST /api/auth/login 200 in 185ms :: {"message":"Login successful","user":{"id"…
+2025-08-30 20:14:15.49
+764004fc
+User
+1:14:15 AM [express] GET /api/auth/me 304 in 28ms :: {"id":"admin-emergency-1756588393373","email":"…
+2025-08-30 20:14:15.54
+764004fc
+User
+1:14:15 AM [express] GET /api/enrollments 304 in 52ms :: [{"id":"0dfabef8-c346-43e8-8067-788964dd0e3…
+2025-08-30 20:14:15.61
+764004fc
+User
+1:14:15 AM [express] GET /api/courses 304 in 132ms :: [{"id":"5f02238b-afb2-4e7f-a488-96fb471fee56",…
+2025-08-30 20:14:15.61
+764004fc
+User
+1:14:15 AM [express] GET /api/job-applications 200 in 108ms
+2025-08-30 20:14:15.64
+764004fc
+User
+1:14:15 AM [express] GET /api/mentor/conversations 304 in 139ms :: []
+2025-08-30 20:14:20.14
+764004fc
+User
+Storage getCourseContent called with courseId: 5f02238b-afb2-4e7f-a488-96fb471fee56
+2025-08-30 20:14:20.17
+764004fc
+User
+Storage getCourseContent results count: 0
+2025-08-30 20:14:20.17
+764004fc
+User
+Storage getCourseContent sample result: none
+2025-08-30 20:14:20.17
+764004fc
+User
+Route returning content count: 0
+2025-08-30 20:14:20.17
+764004fc
+User
+First item: none
+2025-08-30 20:14:20.17
+764004fc
+User
+1:14:20 AM [express] GET /api/courses/5f02238b-afb2-4e7f-a488-96fb471fee56/content 304 in 27ms :: []
