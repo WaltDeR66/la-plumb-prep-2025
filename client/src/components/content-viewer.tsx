@@ -43,7 +43,8 @@ interface ContentData {
 }
 
 export default function ContentViewer(props?: ContentViewerProps) {
-  if (!props || !props.contentId || !props.contentType) {
+  // Early return if props are not properly provided
+  if (!props) {
     return (
       <div className="flex items-center justify-center p-8">
         <div className="text-center">
@@ -54,7 +55,19 @@ export default function ContentViewer(props?: ContentViewerProps) {
     );
   }
   
-  const { contentId, contentType, title, courseId, sectionId, onComplete } = props;
+  const { contentId = '', contentType = 'lesson', title = '', courseId = '', sectionId = '', onComplete } = props;
+  
+  // Return loading if essential props are missing
+  if (!contentId || !contentType) {
+    return (
+      <div className="flex items-center justify-center p-8">
+        <div className="text-center">
+          <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full mx-auto mb-4"></div>
+          <p>Loading content...</p>
+        </div>
+      </div>
+    );
+  }
   const [location, navigate] = useLocation();
   const { toast } = useToast();
   const queryClient = useQueryClient();

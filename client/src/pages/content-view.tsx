@@ -53,13 +53,13 @@ export default function ContentView() {
 
       {/* Content Viewer */}
       <div className="container mx-auto px-4 py-8">
-        {content && content.type ? (
+        {content && content.type && contentId ? (
           <ContentViewer
             contentId={contentId}
-            contentType={content.type}
-            title={content.title}
-            courseId={courseId}
-            sectionId={content.section?.toString()}
+            contentType={content.type || 'lesson'}
+            title={content.title || ''}
+            courseId={courseId || ''}
+            sectionId={content.section?.toString() || ''}
             onComplete={() => {
               console.log('Content completed');
             }}
