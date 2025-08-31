@@ -265,20 +265,6 @@ const upload = multer({
 });
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  
-  // Get course content for display (moved to top to prevent route interception)
-  app.get("/api/courses/:courseId/content", async (req, res) => {
-    try {
-      const { courseId } = req.params;
-      const content = await storage.getCourseContent(courseId);
-      console.log('Route returning content count:', content.length);
-      console.log('First item:', content[0] ? content[0].title : 'none');
-      res.json(content);
-    } catch (error: any) {
-      console.error('Get course content error:', error);
-      res.status(500).json({ message: error.message });
-    }
-  });
   // Session configuration
   app.use(session({
     secret: process.env.SESSION_SECRET || 'your-secret-key',
@@ -1928,7 +1914,22 @@ Start your journey at laplumbprep.com/courses
     }
   });
 
-  // DUPLICATE ROUTE REMOVED - Course content route moved to top of file
+  // Get course content for display
+  app.get("/api/courses/:courseId/content", async (req, res) => {
+    try {
+      const { courseId } = req.params;
+      console.log('Fetching course content for courseId:', courseId);
+      
+      const content = await storage.getCourseContent(courseId);
+      console.log('Found content items:', content?.length || 0);
+      console.log('Sample content:', content?.[0] ? { id: content[0].id, title: content[0].title, section: content[0].section } : 'none');
+      
+      res.json(content);
+    } catch (error: any) {
+      console.error('Get course content error:', error);
+      res.status(400).json({ message: error.message });
+    }
+  });
 
   // Generate AI audio for podcast content
   app.post("/api/generate-audio/:id", requireActiveSubscription, async (req, res) => {
