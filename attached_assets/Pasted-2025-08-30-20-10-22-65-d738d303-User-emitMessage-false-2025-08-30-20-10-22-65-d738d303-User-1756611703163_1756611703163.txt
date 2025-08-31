@@ -1,0 +1,147 @@
+2025-08-30 20:10:22.65
+d738d303
+User
+_emitMessage: false,
+2025-08-30 20:10:22.65
+d738d303
+User
+_connecting: true
+2025-08-30 20:10:22.65
+d738d303
+User
+},
+2025-08-30 20:10:22.65
+d738d303
+User
+queryQueue: [],
+2025-08-30 20:10:22.65
+d738d303
+User
+binary: false,
+2025-08-30 20:10:22.65
+d738d303
+User
+processID: 1920098244,
+2025-08-30 20:10:22.65
+d738d303
+User
+secretKey: 519085920,
+2025-08-30 20:10:22.65
+d738d303
+User
+ssl: false,
+2025-08-30 20:10:22.65
+d738d303
+User
+_connectionTimeoutMillis: 0,
+2025-08-30 20:10:22.65
+d738d303
+User
+config: {
+2025-08-30 20:10:22.65
+d738d303
+User
+connectionString: 'postgresql://neondb_owner:npg_MqWRHeFLD72y@ep-small-dawn-aee6toqc.c-2.us-east-2.aws.neon.tech/neondb?sslmode=require',
+2025-08-30 20:10:22.65
+d738d303
+User
+max: 10,
+2025-08-30 20:10:22.65
+d738d303
+User
+maxUses: Infinity,
+2025-08-30 20:10:22.65
+d738d303
+User
+allowExitOnIdle: false,
+2025-08-30 20:10:22.65
+d738d303
+User
+maxLifetimeSeconds: 0,
+2025-08-30 20:10:22.65
+d738d303
+User
+idleTimeoutMillis: 10000
+2025-08-30 20:10:22.65
+d738d303
+User
+},
+2025-08-30 20:10:22.65
+d738d303
+User
+_connectionCallback: null,
+2025-08-30 20:10:22.65
+d738d303
+User
+release: [Function (anonymous)],
+2025-08-30 20:10:22.65
+d738d303
+User
+activeQuery: null,
+2025-08-30 20:10:22.65
+d738d303
+User
+readyForQuery: true,
+2025-08-30 20:10:22.65
+d738d303
+User
+hasExecuted: true,
+2025-08-30 20:10:22.65
+d738d303
+User
+_poolUseCount: 1
+2025-08-30 20:10:22.65
+d738d303
+User
+}
+2025-08-30 20:10:22.65
+d738d303
+User
+}
+2025-08-30 20:10:22.65
+d738d303
+User
+2025-08-30 20:10:22.65
+d738d303
+User
+Node.js v20.19.3
+2025-08-30 20:10:25.37
+d738d303
+User
+npm notice
+2025-08-30 20:10:25.37
+d738d303
+User
+npm notice New major version of npm available! 10.8.2 -> 11.5.2
+2025-08-30 20:10:25.37
+d738d303
+User
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v11.5.2
+2025-08-30 20:10:25.37
+d738d303
+User
+npm notice To update run: npm install -g npm@11.5.2
+2025-08-30 20:10:25.37
+d738d303
+User
+npm notice
+2025-08-30 20:10:25.38
+d738d303
+System
+command finished with error [npm run start]: exit status 1
+2025-08-30 20:10:25.58
+d738d303
+User
+> rest-express@1.0.0 start
+2025-08-30 20:10:25.58
+d738d303
+User
+> NODE_ENV=production node dist/index.js
+2025-08-30 20:10:52.75
+d738d303
+User
+Warning: connect.session() MemoryStore is not
+2025-08-30 20:10:52.75
+d738d303
+User
+designed for a production environment, as it will leak

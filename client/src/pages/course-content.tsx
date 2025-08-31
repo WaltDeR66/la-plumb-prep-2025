@@ -97,20 +97,12 @@ export default function CourseContent() {
     return <div>Course not found</div>;
   }
 
-  // Temporary debug info to see what we're receiving
-  console.log('Final Check - content:', content, 'length:', content?.length, 'isArray:', Array.isArray(content));
-
   if (!content || !Array.isArray(content) || content.length === 0) {
     return (
       <div className="container mx-auto px-4 py-8">
         <div className="text-center">
           <h1 className="text-2xl font-bold mb-4">Course Content</h1>
           <p>No lessons available yet. Content is being prepared.</p>
-          <div className="text-xs text-gray-400 mt-4 p-2 bg-gray-50 rounded">
-            Debug: content={content ? 'exists' : 'null'}, 
-            length={content?.length || 0}, 
-            isArray={Array.isArray(content)}
-          </div>
         </div>
       </div>
     );
