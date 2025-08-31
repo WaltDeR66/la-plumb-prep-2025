@@ -93,16 +93,17 @@ export default function CourseContent() {
     );
   }
 
-  // Enhanced debug logging
-  console.log('=== FRONTEND DEBUG ===');
-  console.log('Course:', course);
-  console.log('Content received:', content);
-  console.log('Content type:', typeof content);
-  console.log('Is array:', Array.isArray(content));
-  console.log('Content length:', content?.length);
-  console.log('IsLoading:', isLoading);
-  console.log('First content item:', content?.[0]);
-  console.log('=== END DEBUG ===');
+  // Debug: Force content to display
+  if (!content || content.length === 0) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold">Course Content Loading...</h1>
+          <p>Data status: {JSON.stringify({ content: !!content, length: content?.length, loading: isLoading })}</p>
+        </div>
+      </div>
+    );
+  }
 
   if (!course) {
     return <div>Course not found</div>;
