@@ -1,0 +1,72 @@
+Cloning from https://github.com/WaltDeR66/la-plumb-prep-2025
+==> Checking out commit 9e526ffb998056cb2092b53ceb91d6e601297cdb in branch main
+==> Downloading cache...
+==> Transferred 414MB in 8s. Extraction took 7s.
+==> Using Node.js version 20.18.0 via environment variable NODE_VERSION
+==> Docs on specifying a Node.js version: https://render.com/docs/node-version
+==> Running build command 'npm install --include=dev && npm run build'...
+added 93 packages, and audited 727 packages in 3s
+95 packages are looking for funding
+  run `npm fund` for details
+11 vulnerabilities (3 low, 8 moderate)
+To address issues that do not require attention, run:
+  npm audit fix
+To address all issues (including breaking changes), run:
+  npm audit fix --force
+Run `npm audit` for details.
+> rest-express@1.0.0 build
+> vite build && esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist
+vite v5.4.19 building for production...
+transforming...
+Browserslist: browsers data (caniuse-lite) is 11 months old. Please run:
+  npx update-browserslist-db@latest
+  Why you should do it regularly: https://github.com/browserslist/update-db#readme
+✓ 1779 modules transformed.
+rendering chunks...
+computing gzip size...
+../dist/public/index.html                                                           2.20 kB │ gzip:   0.86 kB
+../dist/public/assets/Louisiana_plumbing_prep_hero_image_70473180-Dl_4-iaL.png  1,108.96 kB
+../dist/public/assets/Louisiana_plumbing_prep_interface_dd5de1e1-Ck90H5Ap.png   1,214.85 kB
+../dist/public/assets/index-BbAEDs2l.css                                           99.02 kB │ gzip:  16.09 kB
+../dist/public/assets/index-CobN3Y0r.js                                           787.15 kB │ gzip: 210.55 kB
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 4.74s
+  dist/index.js  250.7kb
+⚡ Done in 13ms
+==> Uploading build...
+==> Uploaded in 22.3s. Compression took 4.6s
+==> Build successful 🎉
+==> Deploying...
+==> Running 'npm start'
+> rest-express@1.0.0 start
+> NODE_ENV=production node dist/index.js
+file:///opt/render/project/src/dist/index.js:250
+      throw new Error("OPENAI_API_KEY environment variable is required");
+            ^
+Error: OPENAI_API_KEY environment variable is required
+    at server/openai.ts (file:///opt/render/project/src/dist/index.js:250:13)
+    at __init (file:///opt/render/project/src/dist/index.js:6:56)
+    at file:///opt/render/project/src/dist/index.js:2651:1
+    at ModuleJob.run (node:internal/modules/esm/module_job:234:25)
+    at async ModuleLoader.import (node:internal/modules/esm/loader:473:24)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:123:5)
+Node.js v20.18.0
+==> Exited with status 1
+==> Common ways to troubleshoot your deploy: https://render.com/docs/troubleshooting-deploys
+==> Running 'npm start'
+> rest-express@1.0.0 start
+> NODE_ENV=production node dist/index.js
+file:///opt/render/project/src/dist/index.js:250
+      throw new Error("OPENAI_API_KEY environment variable is required");
+            ^
+Error: OPENAI_API_KEY environment variable is required
+    at server/openai.ts (file:///opt/render/project/src/dist/index.js:250:13)
+    at __init (file:///opt/render/project/src/dist/index.js:6:56)
+    at file:///opt/render/project/src/dist/index.js:2651:1
+    at ModuleJob.run (node:internal/modules/esm/module_job:234:25)
+    at async ModuleLoader.import (node:internal/modules/esm/loader:473:24)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:123:5)
+Node.js v20.18.0
