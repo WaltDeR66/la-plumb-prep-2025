@@ -37,7 +37,7 @@ export const pricingPlans = {
     id: 'basic',
     name: 'Basic',
     price: 49,
-    priceId: process.env.STRIPE_BASIC_PRICE_ID || 'price_basic_monthly',
+    priceId: process.env.STRIPE_PRICE_ID_BASIC || 'prod_S4GP4J4nyeZ6HM',
     tier: 'basic',
     description: 'Perfect for getting started',
     features: [
@@ -53,7 +53,7 @@ export const pricingPlans = {
     id: 'professional',
     name: 'Professional',
     price: 79,
-    priceId: process.env.STRIPE_PROFESSIONAL_PRICE_ID || 'price_professional_monthly',
+    priceId: process.env.STRIPE_PRICE_ID_PREMIUM || 'prod_S46S37J6VZCn2x',
     tier: 'professional',
     description: 'For serious professionals',
     features: [
@@ -70,7 +70,7 @@ export const pricingPlans = {
     id: 'master',
     name: 'Master',
     price: 99,
-    priceId: process.env.STRIPE_MASTER_PRICE_ID || 'price_master_monthly',
+    priceId: process.env.STRIPE_PRICE_ID_STANDARD || 'prod_S4GR4A08xBTUZ4',
     tier: 'master',
     description: 'Complete mastery package',
     features: [
