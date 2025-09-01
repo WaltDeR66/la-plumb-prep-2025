@@ -1,0 +1,63 @@
+PS C:\Developerfiles\laplumbprep> # Check if everything looks good
+PS C:\Developerfiles\laplumbprep> dir
+
+
+    Directory: C:\Developerfiles\laplumbprep
+
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+d-----          3/9/2025   2:30 PM                .github
+d-----         7/28/2025   1:44 PM                backup-lessons-2025-07-28-1320
+d-----         7/23/2025   7:54 PM                backup-scripts
+d-----         7/12/2025   7:28 PM                BACKUP_ORIGINAL
+d-----         8/20/2025   6:43 PM                client
+d-----         7/20/2025  11:03 AM                logs
+d-----         7/24/2025   5:04 PM                louisiana-code-scripts
+d-----         8/10/2025   3:17 PM                migrations
+d-----         7/26/2025  12:28 PM                node_modules
+d-----         8/24/2025   3:53 PM                server
+d-----         7/26/2025  10:17 AM                src
+-a----         4/27/2025   1:04 PM            279 .env
+-a----         6/22/2025   6:55 PM           1011 .gitignore
+-a----         6/19/2025   8:49 PM              7 .nvmrc
+-a----         5/23/2025   5:49 AM            265 .sequelizerc.js
+-a----         7/30/2025   8:30 PM           3016 api-endpoints-summary.md
+-a----          8/1/2025   6:08 AM          19413 api-test.html
+-a----          8/2/2025   3:57 PM         214617 chapter1_complete.csv
+-a----          8/2/2025   3:50 PM         142830 chapter1_questions.csv
+-a----          8/2/2025  11:26 AM         585256 chapter1_questions.sql
+-a----          8/7/2025   4:02 PM           2763 CHAPTER2_INTEGRATION.md
+-a----         7/27/2025  11:53 AM           1234 check-all-lessons.js
+-a----         7/28/2025   1:18 PM           4967 clean-lessons.ps1
+-a----         7/26/2025  10:10 AM           9106 cleanup-analysis.js
+-a----          8/2/2025   3:38 PM         585256 clean_chapter1_questions.sql
+-a----          8/2/2025   3:41 PM         585256 clean_chapter1_questions_utf8.sql
+-a----          8/7/2025   4:01 PM          63207 complete-chapter2-setup-fixed.js
+-a----         7/26/2025   1:53 PM          52658 ComprehensiveDashboard_recovered.jsx
+-a----          4/3/2025   7:10 PM           7561 direct-fix.sh
+-a----         7/30/2025   8:30 PM          14268 fix-api-endpoints.js
+-a----         5/23/2025   5:49 AM           1072 fix-auth-imports.sh
+-a----          4/3/2025   7:10 PM           9116 fix-build.sh.disabled
+-a----         7/30/2025   8:34 PM           1926 fix-entrance-exam.js
+-a----         7/31/2025   5:49 AM           7193 fix-eslint-warnings.js
+-a----         7/30/2025   8:56 PM           4003 fix-lesson-import.js
+-a----         7/31/2025   5:52 AM           3013 fix-lesson-syntax.js
+-a----         4/11/2025   6:41 PM           6066 install-standardized-chapters.sh
+-a----         8/23/2025   3:03 PM          17856 LessonPage.jsx
+-a----          9/1/2025  11:35 AM          27843 package-lock.json
+-a----         7/26/2025  12:28 PM            818 package.json
+-a----         7/26/2025  12:35 PM           1940 quick-test.js
+-a----         8/19/2025   8:17 PM              0 QuizPage.jsx
+-a----         4/11/2025   6:41 PM           2635 README-Chapter-Definition-Standardization.md
+-a----          4/3/2025   7:10 PM           2107 README.md
+-a----          8/2/2025   4:12 PM         137258 remaining_questions.csv
+-a----         8/17/2025   5:18 PM            304 setup.sh
+-a----         7/26/2025   4:38 PM          13215 test-api-native.js
+-a----         7/26/2025   4:22 PM          11635 test-api-node.js
+-a----         7/23/2025   8:08 PM            385 test-env.js
+-a----          8/2/2025   4:04 PM           3708 test_10_questions.csv
+-a----         7/30/2025   8:30 PM           2705 verify-api-endpoints.js
+
+
+PS C:\Developerfiles\laplumbprep>
