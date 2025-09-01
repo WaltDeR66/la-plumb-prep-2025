@@ -13,13 +13,14 @@ import PipeSizingCalculator from "@/components/calculator/pipe-sizing";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { useStudySession } from "@/hooks/use-study-session";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import ProductManager from "./admin/product-manager";
 
 export default function Tools() {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisResult, setAnalysisResult] = useState<any>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [, setLocation] = useLocation();
   const { toast } = useToast();
   
   // Initialize study session tracking for tools
@@ -364,12 +365,33 @@ export default function Tools() {
                           {isAnalyzing ? "Analyzing..." : "Upload Photo"}
                         </Button>
                       ) : (
-                        <Link href="/tools/ai-pricing" className="w-full">
-                          <Button className="w-full" variant="outline" data-testid="get-ai-tools-button">
-                            <Lock className="w-4 h-4 mr-2" />
-                            Get AI Tools Access
+                        <div className="space-y-2">
+                          <Button
+                            onClick={() => {
+                              const file = fileInputRef.current?.files?.[0];
+                              if (file) {
+                                const reader = new FileReader();
+                                reader.onload = (e) => {
+                                  const imageData = e.target?.result as string;
+                                  setLocation(`/pay-per-use?service=photo-analysis&data=${encodeURIComponent(imageData)}`);
+                                };
+                                reader.readAsDataURL(file);
+                              } else {
+                                fileInputRef.current?.click();
+                              }
+                            }}
+                            className="w-full"
+                            variant="outline"
+                            data-testid="pay-per-use-photo-button"
+                          >
+                            Pay $2.99 to Analyze
                           </Button>
-                        </Link>
+                          <Link href="/tools/ai-pricing" className="w-full">
+                            <Button className="w-full" variant="ghost" size="sm" data-testid="get-ai-tools-button">
+                              Or get unlimited access
+                            </Button>
+                          </Link>
+                        </div>
                       )}
 
                       {analysisResult?.analysis && (
@@ -450,12 +472,34 @@ export default function Tools() {
                           {isAnalyzing ? "Analyzing..." : "Upload Plans"}
                         </Button>
                       ) : (
-                        <Link href="/tools/ai-pricing" className="w-full">
-                          <Button className="w-full" variant="outline" data-testid="get-ai-plan-tools-button">
-                            <Lock className="w-4 h-4 mr-2" />
-                            Get AI Tools Access
+                        <div className="space-y-2">
+                          <Button
+                            onClick={() => {
+                              const fileInput = document.querySelector('input[data-testid="plan-input"]') as HTMLInputElement;
+                              const file = fileInput?.files?.[0];
+                              if (file) {
+                                const reader = new FileReader();
+                                reader.onload = (e) => {
+                                  const planData = e.target?.result as string;
+                                  setLocation(`/pay-per-use?service=plan-analysis&data=${encodeURIComponent(planData)}`);
+                                };
+                                reader.readAsDataURL(file);
+                              } else {
+                                fileInput?.click();
+                              }
+                            }}
+                            className="w-full"
+                            variant="outline"
+                            data-testid="pay-per-use-plan-button"
+                          >
+                            Pay $9.99 to Analyze
                           </Button>
-                        </Link>
+                          <Link href="/tools/ai-pricing" className="w-full">
+                            <Button className="w-full" variant="ghost" size="sm" data-testid="get-ai-plan-tools-button">
+                              Or get unlimited access
+                            </Button>
+                          </Link>
+                        </div>
                       )}
 
                       {analysisResult?.materialList && (

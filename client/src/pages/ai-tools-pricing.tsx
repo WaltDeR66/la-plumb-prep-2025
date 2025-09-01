@@ -72,12 +72,52 @@ export default function AIToolsPricing() {
 
   const pricingPlans = [
     {
+      id: "pay-per-use",
+      name: "Pay Per Use",
+      basePrice: 0,
+      tier: "pay_per_use",
+      description: "Perfect for occasional use",
+      payPerUse: true,
+      aiFeatures: [
+        "Photo Analysis: $2.99 per photo",
+        "Plan Analysis: $9.99 per plan",
+        "AI Mentor: $0.99 per question",
+        "No subscription required"
+      ],
+      additionalFeatures: [
+        "Instant results",
+        "No monthly commitment",
+        "Pay only for what you use",
+        "Perfect for contractors"
+      ]
+    },
+    {
+      id: "ai-tools-only",
+      name: "AI Tools Only",
+      basePrice: 29,
+      tier: "ai_tools_only",
+      description: "AI tools without courses",
+      popular: true,
+      aiFeatures: [
+        "Photo Code Checker",
+        "Plan Analysis Tool", 
+        "AI Mentor Support",
+        "Unlimited AI analysis",
+        "Business-focused support"
+      ],
+      additionalFeatures: [
+        "Perfect for businesses",
+        "No course content",
+        "API access available",
+        "Bulk analysis discounts"
+      ]
+    },
+    {
       id: "professional",
       name: "Professional",
       basePrice: 79,
       tier: "professional",
-      description: "Perfect for working professionals",
-      popular: true,
+      description: "AI tools + courses",
       aiFeatures: [
         "Photo Code Checker",
         "AI Mentor Support", 
@@ -85,6 +125,7 @@ export default function AIToolsPricing() {
         "Priority support"
       ],
       additionalFeatures: [
+        "Journeyman Prep Course",
         "Complete Calculator Suite",
         "Resume Builder", 
         "Job Board Access",
@@ -96,7 +137,7 @@ export default function AIToolsPricing() {
       name: "Master",
       basePrice: 99,
       tier: "master",
-      description: "Complete AI mastery package",
+      description: "Complete package",
       aiFeatures: [
         "Photo Code Checker",
         "Plan Analysis Tool",
@@ -105,6 +146,7 @@ export default function AIToolsPricing() {
         "White-glove support"
       ],
       additionalFeatures: [
+        "Journeyman Prep Course",
         "Material List Generator",
         "Book Store Access",
         "Advanced Plan Tools",
@@ -115,6 +157,16 @@ export default function AIToolsPricing() {
 
   const getPriceId = (planId: string, isAnnual: boolean, isBeta: boolean) => {
     const priceMapping = {
+      "ai-tools-only": {
+        monthly: {
+          regular: "price_ai_tools_monthly_reg",
+          beta: "price_ai_tools_monthly_beta"
+        },
+        annual: {
+          regular: "price_ai_tools_annual_reg", 
+          beta: "price_ai_tools_annual_beta"
+        }
+      },
       professional: {
         monthly: {
           regular: "price_1S1xriByFL1L8uV2cKXSxmwV",
@@ -139,7 +191,7 @@ export default function AIToolsPricing() {
 
     const cycle = isAnnual ? 'annual' : 'monthly';
     const type = isBeta ? 'beta' : 'regular';
-    return priceMapping[planId as keyof typeof priceMapping][cycle][type];
+    return priceMapping[planId as keyof typeof priceMapping]?.[cycle]?.[type] || "";
   };
 
   return (
@@ -250,7 +302,7 @@ export default function AIToolsPricing() {
             </p>
           </div>
           
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-5xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
             {pricingPlans.map((plan) => (
               <Card 
                 key={plan.id}
@@ -271,7 +323,14 @@ export default function AIToolsPricing() {
                       {plan.name}
                     </h3>
                     <div className="text-4xl font-bold text-primary mb-2">
-                      {isAnnual ? (
+                      {plan.payPerUse ? (
+                        <>
+                          <span className="text-2xl">Pay Per Use</span>
+                          <div className="text-base font-normal text-muted-foreground mt-2">
+                            Starting at $0.99
+                          </div>
+                        </>
+                      ) : isAnnual ? (
                         <>
                           ${calculatePrice(plan.basePrice, isAnnual, isBetaTester) * 12}
                           <span className="text-xl font-normal text-muted-foreground">/year</span>
@@ -282,7 +341,7 @@ export default function AIToolsPricing() {
                           <span className="text-xl font-normal text-muted-foreground">/month</span>
                         </>
                       )}
-                      {(isAnnual || isBetaTester) && (
+                      {!plan.payPerUse && (isAnnual || isBetaTester) && (
                         <div className="text-sm space-y-1">
                           {plan.basePrice !== calculatePrice(plan.basePrice, isAnnual, isBetaTester) && (
                             <div className="text-muted-foreground line-through">
@@ -336,15 +395,28 @@ export default function AIToolsPricing() {
                     </div>
                   </div>
                   
-                  <Link href={`/subscribe?plan=${plan.id}&priceId=${getPriceId(plan.id, isAnnual, isBetaTester)}&tier=${plan.tier}&isAnnual=${isAnnual}&isBeta=${isBetaTester}`}>
-                    <Button 
-                      className={`w-full ${plan.popular ? 'bg-primary hover:bg-primary/90' : ''}`}
-                      size="lg"
-                    >
-                      Get AI Tools Now
-                      <ArrowRight className="w-4 h-4 ml-2" />
-                    </Button>
-                  </Link>
+                  {plan.payPerUse ? (
+                    <Link href="/tools">
+                      <Button 
+                        className="w-full"
+                        size="lg"
+                        variant="outline"
+                      >
+                        Start Using Tools
+                        <ArrowRight className="w-4 h-4 ml-2" />
+                      </Button>
+                    </Link>
+                  ) : (
+                    <Link href={`/subscribe?plan=${plan.id}&priceId=${getPriceId(plan.id, isAnnual, isBetaTester)}&tier=${plan.tier}&isAnnual=${isAnnual}&isBeta=${isBetaTester}`}>
+                      <Button 
+                        className={`w-full ${plan.popular ? 'bg-primary hover:bg-primary/90' : ''}`}
+                        size="lg"
+                      >
+                        Get AI Tools Now
+                        <ArrowRight className="w-4 h-4 ml-2" />
+                      </Button>
+                    </Link>
+                  )}
                 </CardContent>
               </Card>
             ))}

@@ -693,6 +693,137 @@ Start your journey at laplumbprep.com/courses
     }
   });
 
+  // Pay-per-use AI tools endpoints
+  app.post('/api/pay-per-use/photo-analysis', async (req, res) => {
+    try {
+      const { imageData } = req.body;
+      
+      if (!imageData) {
+        return res.status(400).json({ message: "Image data required" });
+      }
+
+      // Create a one-time payment intent for photo analysis ($2.99)
+      const paymentIntent = await stripe.paymentIntents.create({
+        amount: 299, // $2.99 in cents
+        currency: 'usd',
+        metadata: {
+          service: 'photo-analysis',
+          type: 'pay-per-use'
+        }
+      });
+
+      res.json({
+        clientSecret: paymentIntent.client_secret,
+        amount: 2.99,
+        service: 'photo-analysis'
+      });
+    } catch (error: any) {
+      console.error('Pay-per-use photo analysis error:', error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.post('/api/pay-per-use/plan-analysis', async (req, res) => {
+    try {
+      const { planData } = req.body;
+      
+      if (!planData) {
+        return res.status(400).json({ message: "Plan data required" });
+      }
+
+      // Create a one-time payment intent for plan analysis ($9.99)
+      const paymentIntent = await stripe.paymentIntents.create({
+        amount: 999, // $9.99 in cents
+        currency: 'usd',
+        metadata: {
+          service: 'plan-analysis',
+          type: 'pay-per-use'
+        }
+      });
+
+      res.json({
+        clientSecret: paymentIntent.client_secret,
+        amount: 9.99,
+        service: 'plan-analysis'
+      });
+    } catch (error: any) {
+      console.error('Pay-per-use plan analysis error:', error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.post('/api/pay-per-use/mentor-question', async (req, res) => {
+    try {
+      const { question } = req.body;
+      
+      if (!question) {
+        return res.status(400).json({ message: "Question required" });
+      }
+
+      // Create a one-time payment intent for mentor question ($0.99)
+      const paymentIntent = await stripe.paymentIntents.create({
+        amount: 99, // $0.99 in cents
+        currency: 'usd',
+        metadata: {
+          service: 'mentor-question',
+          type: 'pay-per-use'
+        }
+      });
+
+      res.json({
+        clientSecret: paymentIntent.client_secret,
+        amount: 0.99,
+        service: 'mentor-question'
+      });
+    } catch (error: any) {
+      console.error('Pay-per-use mentor question error:', error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Process pay-per-use service after payment confirmation
+  app.post('/api/pay-per-use/process', async (req, res) => {
+    try {
+      const { paymentIntentId, service, data } = req.body;
+      
+      if (!paymentIntentId || !service || !data) {
+        return res.status(400).json({ message: "Payment intent ID, service type, and data required" });
+      }
+
+      // Verify payment was successful
+      const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
+      
+      if (paymentIntent.status !== 'succeeded') {
+        return res.status(400).json({ message: "Payment not completed" });
+      }
+
+      let result;
+      
+      switch (service) {
+        case 'photo-analysis':
+          result = await analyzePhoto(data.imageData);
+          break;
+        case 'plan-analysis':
+          result = await analyzePlans(data.planData);
+          break;
+        case 'mentor-question':
+          result = await getMentorResponse(data.question);
+          break;
+        default:
+          return res.status(400).json({ message: "Unknown service type" });
+      }
+
+      res.json({
+        service,
+        result,
+        paymentIntentId
+      });
+    } catch (error: any) {
+      console.error('Process pay-per-use service error:', error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
   // Seed courses endpoint (temporary for production setup)
   app.post("/api/seed-courses", async (req, res) => {
     try {
