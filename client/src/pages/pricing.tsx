@@ -187,13 +187,22 @@ export default function Pricing() {
                       {plan.name}
                     </h3>
                     <div className="text-4xl font-bold text-primary mb-2" data-testid={`plan-price-${plan.id}`}>
-                      ${calculatePrice(plan.basePrice, isAnnual, isBetaTester)}
-                      <span className="text-xl font-normal text-muted-foreground">/month</span>
+                      {isAnnual ? (
+                        <>
+                          ${calculatePrice(plan.basePrice, isAnnual, isBetaTester) * 12}
+                          <span className="text-xl font-normal text-muted-foreground">/year</span>
+                        </>
+                      ) : (
+                        <>
+                          ${calculatePrice(plan.basePrice, isAnnual, isBetaTester)}
+                          <span className="text-xl font-normal text-muted-foreground">/month</span>
+                        </>
+                      )}
                       {(isAnnual || isBetaTester) && (
                         <div className="text-sm space-y-1">
                           {plan.basePrice !== calculatePrice(plan.basePrice, isAnnual, isBetaTester) && (
                             <div className="text-muted-foreground line-through">
-                              ${plan.basePrice}/month
+                              {isAnnual ? `$${plan.basePrice * 12}/year` : `$${plan.basePrice}/month`}
                             </div>
                           )}
                           {isBetaTester && (
@@ -203,7 +212,7 @@ export default function Pricing() {
                           )}
                           {isAnnual && (
                             <div className="text-green-600 font-normal">
-                              Annual discount: 20% off
+                              Save ${(plan.basePrice * 12) - (calculatePrice(plan.basePrice, isAnnual, isBetaTester) * 12)} per year (20% off)
                             </div>
                           )}
                         </div>
