@@ -1,0 +1,33 @@
+PS C:\Users\Walter.DESKTOP-K65EKH2> # Navigate to your project directory (if not already there)
++ cd C:\workspace\files\plumbprep
+ 
+PS C:\Users\Walter.DESKTOP-K65EKH2>
+PS C:\Users\Walter.DESKTOP-K65EKH2> # Install dependencies
+PS C:\Users\Walter.DESKTOP-K65EKH2> npm install
+npm error path C:\Users\Walter.DESKTOP-K65EKH2\package.json
+npm error enoent This is related to npm not being able to find a file.
+PS C:\Users\Walter.DESKTOP-K65EKH2> # Initialize Git repository
+PS C:\Users\Walter.DESKTOP-K65EKH2> git init
+Initialized empty Git repository in C:/Users/Walter.DESKTOP-K65EKH2/.git/
+PS C:\Users\Walter.DESKTOP-K65EKH2>
+PS C:\Users\Walter.DESKTOP-K65EKH2> # Add all files
+PS C:\Users\Walter.DESKTOP-K65EKH2> git add .
+warning: could not open directory '.gradle/wrapper/dists/gradle-8.10.2-all/7iv73wktx1xtkvlq19urqw1wm/gradle-8.10.2/docs/kotlin-dsl/gradle/org.gradle.tooling.events.task.java/-java-compile-task-operation-result/-annotation-processor-result/-type/-a-g-g-r-e-g-a-t-i-n-g/': Filename too long
+warning: could not open directory '.gradle/wrapper/dists/gradle-8.10.2-all/7iv73wktx1xtkvlq19urqw1wm/gradle-8.10.2/docs/kotlin-dsl/gradle/org.gradle.tooling.events.task.java/-java-compile-task-operation-result/-annotation-processor-result/-type/-i-s-o-l-a-t-i-n-g/': Filename too long
+PS C:\Users\Walter.DESKTOP-K65EKH2>
+PS C:\Users\Walter.DESKTOP-K65EKH2> # Make initial commit
+PS C:\Users\Walter.DESKTOP-K65EKH2> git commit -m "Initial commit - LA Plumb Prep platform"^C
+PS C:\Users\Walter.DESKTOP-K65EKH2> # Check if the directory exists
+PS C:\Users\Walter.DESKTOP-K65EKH2> Test-Path "C:\workspace\files\plumbprep"
+False
+PS C:\Users\Walter.DESKTOP-K65EKH2>
+PS C:\Users\Walter.DESKTOP-K65EKH2> # If it returns False, find where your files actually are:
+PS C:\Users\Walter.DESKTOP-K65EKH2> Get-ChildItem C:\workspace -Recurse -Name "package.json" | Select-Object -First 5
+Get-ChildItem : Cannot find path 'C:\workspace' because it does not exist.
+At line:1 char:1
++ Get-ChildItem C:\workspace -Recurse -Name "package.json" | Select-Obj ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (C:\workspace:String) [Get-ChildItem], ItemNotFoundException
+    + FullyQualifiedErrorId : PathNotFound,Microsoft.PowerShell.Commands.GetChildItemCommand
+ 
+PS C:\Users\Walter.DESKTOP-K65EKH2> 
