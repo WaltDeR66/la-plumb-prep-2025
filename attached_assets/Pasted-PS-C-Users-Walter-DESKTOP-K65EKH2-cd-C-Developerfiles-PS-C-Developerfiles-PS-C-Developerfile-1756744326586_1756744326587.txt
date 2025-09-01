@@ -1,0 +1,54 @@
+PS C:\Users\Walter.DESKTOP-K65EKH2> cd C:\Developerfiles
+PS C:\Developerfiles>
+PS C:\Developerfiles> # Verify you're in the right place (should show package.json and other files)
+PS C:\Developerfiles> dir
+
+
+    Directory: C:\Developerfiles
+
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+d-----         2/28/2025   4:15 PM                .github
+d-----         2/28/2025   4:13 PM                backup
+d-----          3/2/2025  11:58 AM                client
+d-----         8/23/2025   3:03 PM                laplumbprep
+d-----          3/2/2025  10:51 AM                laplumbprep-new
+d-----          3/1/2025   5:11 PM                logs
+d-----          3/5/2025  10:30 AM                node_modules
+d-----         2/15/2025   5:55 PM                uploads
+-a----          3/2/2025   1:40 PM            925 .env
+-a----          3/2/2025  11:32 AM            457 .gitignore
+-a----         2/20/2025   5:47 AM            263 .sequelizerc.js
+-a----         4/19/2025   8:17 PM            564 .svg file.xml
+-a----          3/9/2025  12:00 PM           7075 Backend Application Structure.txt
+-a----         3/14/2025  10:39 AM           3506 Clear Instructions for New Chat.txt
+-a----          3/9/2025  11:26 AM           4846 connecting frontend to backend Instructions.txt
+-a----          3/9/2025  12:17 PM          10549 Frontend Application Structure.txt
+-a----          3/9/2025  12:07 PM           3632 Frontend files.txt
+-a----          3/8/2025  11:22 AM             48 laplumbprep slogan.txt
+-a----          3/5/2025  11:07 AM          46103 package-lock.json
+
+
+  run `npm fund` for details
+
+3 vulnerabilities (2 low, 1 moderate)
+
+To address all issues, run:
+  npm audit fix
+
+Run `npm audit` for details.
+PS C:\Developerfiles>
+PS C:\Developerfiles> # Initialize Git repository (if not already done)
+PS C:\Developerfiles> git init
+Reinitialized existing Git repository in C:/Developerfiles/.git/
+PS C:\Developerfiles>
+PS C:\Developerfiles> # Add all files
+PS C:\Developerfiles> git add .
+warning: in the working copy of 'package-lock.json', LF will be replaced by CRLF the next time Git touches it
+PS C:\Developerfiles>
+PS C:\Developerfiles> # Make initial commit
+PS C:\Developerfiles> git commit -m "Initial commit - LA Plumb Prep platform"
+[restructure-project 4d51482] Initial commit - LA Plumb Prep platform
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+PS C:\Developerfiles> 
