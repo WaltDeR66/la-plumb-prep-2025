@@ -1,0 +1,85 @@
+S C:\Users\Walter.DESKTOP-K65EKH2\la-plumb-prep-replit> # Remove the existing remote and add the correct one
+PS C:\Users\Walter.DESKTOP-K65EKH2\la-plumb-prep-replit> git remote remove origin
+PS C:\Users\Walter.DESKTOP-K65EKH2\la-plumb-prep-replit> git remote add origin https://github.com/WaltDeR66/la-plumb-prep-2025.git
+PS C:\Users\Walter.DESKTOP-K65EKH2\la-plumb-prep-replit> 
+PS C:\Users\Walter.DESKTOP-K65EKH2\la-plumb-prep-replit> # Check if you have any commits
+PS C:\Users\Walter.DESKTOP-K65EKH2\la-plumb-prep-replit> git status
+warning: could not open directory 'Application Data/': Permission denied
+warning: could not open directory 'Cookies/': Permission denied
+warning: could not open directory 'Local Settings/': Permission denied
+warning: could not open directory 'My Documents/': Permission denied
+warning: could not open directory 'NetHood/': Permission denied
+warning: could not open directory 'PrintHood/': Permission denied
+warning: could not open directory 'Recent/': Permission denied
+warning: could not open directory 'SendTo/': Permission denied
+warning: could not open directory 'Start Menu/': Permission denied
+warning: could not open directory 'Templates/': Permission denied
+On branch master
+
+No commits yet
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+        ../.android/
+        ../.bash_history
+        ../.dotnet/
+        ../.emulator_console_auth_token
+        ../.gitconfig
+        ../.gradle/
+        ../.lesshst
+        ../.th-client/
+        ../.viminfo
+        ../.vscode/
+        ../3D Objects/
+        ../AndroidStudioProjects/
+        ../AppData/
+        ../BITA573.tmp
+        ../Contacts/
+        ../Desktop/
+        ../Documents/
+        ../Downloads/
+        ../Favorites/
+        ../Links/
+        ../Music/
+        ../NTUSER.DAT
+        ../NTUSER.DAT{6dabdb8e-30fa-11ee-8fcd-cd2583c81779}.TM.blf
+        ../PDFEditor/
+        ../Pictures/
+        ../Saved Games/
+        ../Searches/
+        ../Videos/
+        ../edb_pgagent_pg16.exe
+        ../edb_pgjdbc.exe
+        ./
+        ../laplumbprep/
+        ../ntuser.dat.LOG1
+        ../ntuser.dat.LOG2
+        ../ntuser.ini
+        ../package-lock.json
+        ../postgresql_16.exe
+
+PS C:\Users\Walter.DESKTOP-K65EKH2\la-plumb-prep-replit>
+PS C:\Users\Walter.DESKTOP-K65EKH2\la-plumb-prep-replit> # If you haven't made commits yet, let's do that first
+PS C:\Users\Walter.DESKTOP-K65EKH2\la-plumb-prep-replit> git add .
+hint: the embedded repository and will not know how to obtain it.
+hint: If you meant to add a submodule, use:
+hint:
+hint:   git submodule add <url> la-plumb-prep-replit/PlumbingPrep
+hint:
+hint: If you added this path by mistake, you can remove it from the
+hint: index with:
+hint:
+hint:   git rm --cached la-plumb-prep-replit/PlumbingPrep
+hint:
+hint: See "git help submodule" for more information.
+hint: Disable this message with "git config advice.addEmbeddedRepo false"
+PS C:\Users\Walter.DESKTOP-K65EKH2\la-plumb-prep-replit> git commit -m "Initial commit - LA Plumb Prep platform from Replit"
+[master (root-commit) ad26e04] Initial commit - LA Plumb Prep platform from Replit
+ 1 file changed, 1 insertion(+)
+ create mode 160000 la-plumb-prep-replit/PlumbingPrep
+PS C:\Users\Walter.DESKTOP-K65EKH2\la-plumb-prep-replit>
+PS C:\Users\Walter.DESKTOP-K65EKH2\la-plumb-prep-replit> # Now push to GitHub
+PS C:\Users\Walter.DESKTOP-K65EKH2\la-plumb-prep-replit> git push -u origin main
+error: src refspec main does not match any
+error: failed to push some refs to 'https://github.com/WaltDeR66/la-plumb-prep-2025.git'
+PS C:\Users\Walter.DESKTOP-K65EKH2\la-plumb-prep-replit> 
