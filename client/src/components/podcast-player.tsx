@@ -6,16 +6,18 @@ import { Play, Pause, Square, RotateCcw } from "lucide-react";
 interface PodcastPlayerProps {
   content: string;
   autoStart?: boolean;
+  initialProgress?: number;
+  onProgressUpdate?: (sentenceIndex: number, totalSentences: number) => void;
 }
 
-export default function PodcastPlayer({ content, autoStart = false }: PodcastPlayerProps) {
+export default function PodcastPlayer({ content, autoStart = false, initialProgress = 0, onProgressUpdate }: PodcastPlayerProps) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
   const [currentSentence, setCurrentSentence] = useState('');
   const [currentUtterance, setCurrentUtterance] = useState<SpeechSynthesisUtterance | null>(null);
   const [speechSynthesis, setSpeechSynthesis] = useState<SpeechSynthesis | null>(null);
   const [sentences, setSentences] = useState<string[]>([]);
-  const [currentIndex, setCurrentIndex] = useState(0);
+  const [currentIndex, setCurrentIndex] = useState(initialProgress);
   const [hasAutoStarted, setHasAutoStarted] = useState(false);
 
   useEffect(() => {
@@ -38,10 +40,11 @@ export default function PodcastPlayer({ content, autoStart = false }: PodcastPla
           .filter(s => s.length > 10);
         
         setSentences(sentenceArray);
-        setCurrentIndex(0);
+        const startIndex = initialProgress < sentenceArray.length ? initialProgress : 0;
+        setCurrentIndex(startIndex);
         setIsPlaying(true);
         setIsPaused(false);
-        speakSentence(0);
+        speakSentence(startIndex);
       }, 1000);
     }
   }, [autoStart, content, speechSynthesis]); // Simplified dependencies
@@ -73,6 +76,11 @@ export default function PodcastPlayer({ content, autoStart = false }: PodcastPla
     setCurrentSentence(sentence);
     setCurrentIndex(index);
     console.log(`Speaking sentence ${index + 1}/${sentences.length}: "${sentence.substring(0, 50)}..."`);
+    
+    // Report progress to parent component
+    if (onProgressUpdate) {
+      onProgressUpdate(index, sentences.length);
+    }
     
     const utterance = new SpeechSynthesisUtterance(sentence);
     utterance.rate = 0.85;
@@ -112,13 +120,14 @@ export default function PodcastPlayer({ content, autoStart = false }: PodcastPla
       .filter(s => s.length > 10); // Filter out very short fragments
     
     setSentences(sentenceArray);
-    setCurrentIndex(0);
+    const startIndex = initialProgress < sentenceArray.length ? initialProgress : 0;
+    setCurrentIndex(startIndex);
     console.log('Total sentences found:', sentenceArray.length);
-    console.log('First few sentences:', sentenceArray.slice(0, 3));
+    console.log('Starting from sentence:', startIndex + 1);
 
     setIsPlaying(true);
     setIsPaused(false);
-    speakSentence(0);
+    speakSentence(startIndex);
   };
 
   const pausePodcast = () => {

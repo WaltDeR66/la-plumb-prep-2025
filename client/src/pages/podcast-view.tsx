@@ -1,5 +1,6 @@
 import { useRoute } from "wouter";
 import { useQuery } from "@tanstack/react-query";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowLeft, Loader2 } from "lucide-react";
@@ -9,11 +10,26 @@ import PodcastPlayer from "@/components/podcast-player";
 export default function PodcastView() {
   const [match, params] = useRoute("/course/:courseId/podcast/:contentId");
   const contentId = params?.contentId;
+  const courseId = params?.courseId;
+  const [podcastProgress, setPodcastProgress] = useState(0);
+  const [isCompleted, setIsCompleted] = useState(false);
   
   const { data: content, isLoading, error } = useQuery({
     queryKey: [`/api/content/${contentId}/display`],
     enabled: !!contentId,
   });
+
+  // Load saved progress from localStorage
+  useEffect(() => {
+    if (contentId) {
+      const savedProgress = localStorage.getItem(`podcast-progress-${contentId}`);
+      if (savedProgress) {
+        const progress = JSON.parse(savedProgress);
+        setPodcastProgress(progress.sentenceIndex || 0);
+        setIsCompleted(progress.completed || false);
+      }
+    }
+  }, [contentId]);
 
   if (isLoading) {
     return (
@@ -47,6 +63,29 @@ export default function PodcastView() {
   const urlParams = new URLSearchParams(window.location.search);
   const shouldAutoStart = urlParams.get('autostart') === 'true';
 
+  const handleProgressUpdate = (sentenceIndex: number, totalSentences: number) => {
+    const progress = (sentenceIndex / totalSentences) * 100;
+    setPodcastProgress(sentenceIndex);
+    
+    // Save progress to localStorage
+    localStorage.setItem(`podcast-progress-${contentId}`, JSON.stringify({
+      sentenceIndex,
+      totalSentences,
+      completed: sentenceIndex >= totalSentences - 1,
+      timestamp: Date.now()
+    }));
+
+    // Mark as completed if finished
+    if (sentenceIndex >= totalSentences - 1) {
+      setIsCompleted(true);
+    }
+  };
+
+  const handleReturnToLesson = () => {
+    // Navigate back to lesson page
+    window.location.href = `/course/${courseId}/lesson/${content?.section || ''}`;
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-8">
@@ -73,19 +112,19 @@ export default function PodcastView() {
 
         <PodcastPlayer 
           content={podcastContent} 
-          autoStart={shouldAutoStart} 
+          autoStart={shouldAutoStart}
+          initialProgress={podcastProgress}
+          onProgressUpdate={handleProgressUpdate}
         />
 
         <Card className="mt-6">
           <CardContent className="p-6 text-center">
-            <p className="text-muted-foreground mb-4">
-              Listen to the complete audio lesson
-            </p>
             <Button 
               className="w-full max-w-sm mx-auto"
-              onClick={() => window.location.href = `/course/${params?.courseId}`}
+              onClick={handleReturnToLesson}
             >
-              Complete Podcast
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Return to Lesson {isCompleted && '(Completed)'}
             </Button>
           </CardContent>
         </Card>
