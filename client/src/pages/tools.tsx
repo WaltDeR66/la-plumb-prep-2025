@@ -313,13 +313,13 @@ export default function Tools() {
 
             <TabsContent value="ai-tools" className="space-y-8">
               {!hasActiveSubscription && (
-                <Alert className="border-amber-200 bg-amber-50 dark:bg-amber-900/20" data-testid="subscription-notice">
-                  <CreditCard className="h-4 w-4" />
+                <Alert className="border-primary/20 bg-primary/5 dark:bg-primary/10" data-testid="subscription-notice">
+                  <Wand2 className="h-4 w-4" />
                   <AlertDescription>
-                    AI-powered tools require an active subscription. 
-                    <Link href="/pricing" className="text-primary hover:underline ml-1">
-                      Upgrade now
-                    </Link> to access photo analysis, plan review, and AI mentor features.
+                    Unlock powerful AI-powered plumbing tools with advanced photo analysis, plan review, and AI mentor features.
+                    <Link href="/tools/ai-pricing" className="text-primary hover:underline ml-1 font-semibold">
+                      View AI Tools Pricing →
+                    </Link>
                   </AlertDescription>
                 </Alert>
               )}
@@ -338,7 +338,7 @@ export default function Tools() {
                   <CardContent>
                     <div className="space-y-4">
                       <p className="text-muted-foreground text-sm">
-                        Upload photos of plumbing installations for instant AI-powered code compliance analysis.
+                        <strong>Advanced Photo Analysis:</strong> Upload photos of plumbing installations and get instant AI-powered Louisiana code compliance analysis. Our GPT-5 powered system identifies violations, safety hazards, pipe sizing issues, joint problems, and clearance violations with 95% accuracy. Get detailed violation reports and corrective recommendations within seconds.
                       </p>
                       
                       <input
@@ -353,15 +353,24 @@ export default function Tools() {
                         data-testid="photo-input"
                       />
                       
-                      <Button
-                        onClick={() => fileInputRef.current?.click()}
-                        disabled={isAnalyzing || !hasActiveSubscription}
-                        className="w-full"
-                        data-testid="upload-photo-button"
-                      >
-                        <Upload className="w-4 h-4 mr-2" />
-                        {!hasActiveSubscription ? "Subscription Required" : isAnalyzing ? "Analyzing..." : "Upload Photo"}
-                      </Button>
+                      {hasActiveSubscription ? (
+                        <Button
+                          onClick={() => fileInputRef.current?.click()}
+                          disabled={isAnalyzing}
+                          className="w-full"
+                          data-testid="upload-photo-button"
+                        >
+                          <Upload className="w-4 h-4 mr-2" />
+                          {isAnalyzing ? "Analyzing..." : "Upload Photo"}
+                        </Button>
+                      ) : (
+                        <Link href="/tools/ai-pricing" className="w-full">
+                          <Button className="w-full" variant="outline" data-testid="get-ai-tools-button">
+                            <Lock className="w-4 h-4 mr-2" />
+                            Get AI Tools Access
+                          </Button>
+                        </Link>
+                      )}
 
                       {analysisResult?.analysis && (
                         <div className="space-y-4 mt-6">
@@ -416,7 +425,7 @@ export default function Tools() {
                   <CardContent>
                     <div className="space-y-4">
                       <p className="text-muted-foreground text-sm">
-                        Upload construction plans to generate material lists and code compliance checks.
+                        <strong>Intelligent Plan Review:</strong> Upload construction plans and blueprints to automatically generate comprehensive material lists, accurate cost estimates, and complete Louisiana code compliance checks. Our AI system analyzes drawings, identifies all plumbing fixtures, calculates pipe runs, and produces professional-grade reports. Perfect for contractors, estimators, and project planning.
                       </p>
                       
                       <input
@@ -430,15 +439,24 @@ export default function Tools() {
                         data-testid="plan-input"
                       />
                       
-                      <Button
-                        onClick={() => (document.querySelector('input[data-testid="plan-input"]') as HTMLInputElement)?.click()}
-                        disabled={isAnalyzing || !hasActiveSubscription}
-                        className="w-full"
-                        data-testid="upload-plan-button"
-                      >
-                        <FileText className="w-4 h-4 mr-2" />
-                        {!hasActiveSubscription ? "Subscription Required" : isAnalyzing ? "Analyzing..." : "Upload Plans"}
-                      </Button>
+                      {hasActiveSubscription ? (
+                        <Button
+                          onClick={() => (document.querySelector('input[data-testid="plan-input"]') as HTMLInputElement)?.click()}
+                          disabled={isAnalyzing}
+                          className="w-full"
+                          data-testid="upload-plan-button"
+                        >
+                          <FileText className="w-4 h-4 mr-2" />
+                          {isAnalyzing ? "Analyzing..." : "Upload Plans"}
+                        </Button>
+                      ) : (
+                        <Link href="/tools/ai-pricing" className="w-full">
+                          <Button className="w-full" variant="outline" data-testid="get-ai-plan-tools-button">
+                            <Lock className="w-4 h-4 mr-2" />
+                            Get AI Tools Access
+                          </Button>
+                        </Link>
+                      )}
 
                       {analysisResult?.materialList && (
                         <div className="space-y-4 mt-6">
