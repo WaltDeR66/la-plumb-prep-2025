@@ -16,11 +16,11 @@ export default function Courses() {
   const [sortBy, setSortBy] = useState("popular");
   const { toast } = useToast();
 
-  const { data: courses, isLoading } = useQuery({
+  const { data: courses = [], isLoading } = useQuery({
     queryKey: ["/api/courses"],
   });
 
-  const { data: enrollments } = useQuery({
+  const { data: enrollments = [] } = useQuery({
     queryKey: ["/api/enrollments"],
     retry: false,
   });
@@ -34,7 +34,7 @@ export default function Courses() {
     { value: "master", label: "Master Plumber" },
   ];
 
-  const filteredCourses = courses?.filter((course: any) => {
+  const filteredCourses = (courses as any[]).filter((course: any) => {
     const matchesSearch = course.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          course.description.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = selectedCategory === "all" || course.type === selectedCategory;
@@ -42,11 +42,11 @@ export default function Courses() {
   }) || [];
 
   const isEnrolled = (courseId: string) => {
-    return enrollments?.some((enrollment: any) => enrollment.courseId === courseId);
+    return (enrollments as any[]).some((enrollment: any) => enrollment.courseId === courseId);
   };
 
   const getEnrollmentProgress = (courseId: string) => {
-    const enrollment = enrollments?.find((e: any) => e.courseId === courseId);
+    const enrollment = (enrollments as any[]).find((e: any) => e.courseId === courseId);
     return enrollment ? parseFloat(enrollment.progress) : 0;
   };
 
@@ -173,7 +173,7 @@ export default function Courses() {
             </TabsContent>
 
             <TabsContent value="enrolled" className="space-y-8">
-              {enrollments && enrollments.length > 0 ? (
+              {(enrollments as any[]).length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                   {enrollments.map((enrollment: any) => {
                     const course = courses?.find((c: any) => c.id === enrollment.courseId);

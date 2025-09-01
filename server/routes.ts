@@ -202,16 +202,8 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
 
 // Middleware to check if user has active subscription for professional tools
 const requireActiveSubscription = async (req: any, res: any, next: any) => {
-  // Temporary admin bypass for testing
   if (!req.isAuthenticated()) {
-    // For admin testing, create a mock user and bypass
-    const mockAdminUser = {
-      id: "admin-test-user",
-      email: "admin@latrainer.com",
-      subscriptionTier: "master"
-    };
-    req.user = mockAdminUser;
-    return next();
+    return res.status(401).json({ message: "Not authenticated" });
   }
 
   const user = req.user as any;
@@ -1223,16 +1215,9 @@ Start your journey at laplumbprep.com/courses
   });
 
   // AI Mentor routes
-  app.post("/api/mentor/chat", async (req, res) => {
-    // Temporary fix: Skip auth check for testing
+  app.post("/api/mentor/chat", requireActiveSubscription, async (req, res) => {
     if (!req.isAuthenticated()) {
-      // For admin testing, create a mock user
-      const mockAdminUser = {
-        id: "admin-test-user",
-        email: "admin@latrainer.com",
-        subscriptionTier: "master"
-      };
-      req.user = mockAdminUser;
+      return res.status(401).json({ message: "Not authenticated" });
     }
 
     try {
@@ -1264,16 +1249,9 @@ Start your journey at laplumbprep.com/courses
   });
 
   // Generate TTS for chat responses
-  app.post("/api/mentor/tts", async (req, res) => {
-    // Temporary fix: Skip auth check for testing
+  app.post("/api/mentor/tts", requireActiveSubscription, async (req, res) => {
     if (!req.isAuthenticated()) {
-      // For admin testing, create a mock user
-      const mockAdminUser = {
-        id: "admin-test-user",
-        email: "admin@latrainer.com",
-        subscriptionTier: "master"
-      };
-      req.user = mockAdminUser;
+      return res.status(401).json({ message: "Not authenticated" });
     }
 
     try {
@@ -1293,16 +1271,9 @@ Start your journey at laplumbprep.com/courses
     }
   });
 
-  app.get("/api/mentor/conversations", async (req, res) => {
-    // Temporary fix: Skip auth check for testing
+  app.get("/api/mentor/conversations", requireActiveSubscription, async (req, res) => {
     if (!req.isAuthenticated()) {
-      // For admin testing, create a mock user
-      const mockAdminUser = {
-        id: "admin-test-user",
-        email: "admin@latrainer.com",
-        subscriptionTier: "master"
-      };
-      req.user = mockAdminUser;
+      return res.status(401).json({ message: "Not authenticated" });
     }
 
     try {

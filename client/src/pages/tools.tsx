@@ -35,7 +35,7 @@ export default function Tools() {
     retry: false,
   });
 
-  const hasActiveSubscription = subscriptionStatus?.hasActiveSubscription;
+  const hasActiveSubscription = (subscriptionStatus as any)?.hasActiveSubscription;
 
   const handlePhotoUpload = async (file: File) => {
     if (!file) return;
