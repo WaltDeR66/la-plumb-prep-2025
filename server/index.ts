@@ -3,6 +3,7 @@ import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import { emailAutomation } from "./email-automation";
 import { bulkPricingService } from "./bulk-pricing";
+import { seedDatabase } from "./seed-data";
 
 const app = express();
 app.use(express.json());
@@ -72,6 +73,9 @@ app.use((req, res, next) => {
     reusePort: true,
   }, async () => {
     log(`serving on port ${port}`);
+    
+    // Seed database with initial course data
+    await seedDatabase();
     
     // Initialize email campaigns on startup
     await emailAutomation.initializeCampaigns();
