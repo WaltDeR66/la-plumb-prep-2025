@@ -1,0 +1,41 @@
+PS C:\Users\Walter.DESKTOP-K65EKH2\la-plumb-prep-replit> cd PlumbingPrep
+PS C:\Users\Walter.DESKTOP-K65EKH2\la-plumb-prep-replit\PlumbingPrep>
+PS C:\Users\Walter.DESKTOP-K65EKH2\la-plumb-prep-replit\PlumbingPrep> # Check what's in there
+PS C:\Users\Walter.DESKTOP-K65EKH2\la-plumb-prep-replit\PlumbingPrep> dir
+
+
+    Directory: C:\Users\Walter.DESKTOP-K65EKH2\la-plumb-prep-replit\PlumbingPrep
+
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+d-----          9/1/2025  12:18 PM                .git
+d-----          9/1/2025  12:16 PM                .local
+d-----          9/1/2025  12:17 PM                attached_assets
+d-----          9/1/2025  12:17 PM                client
+d-----          9/1/2025  12:17 PM                dist
+d-----          9/1/2025  12:17 PM                public
+d-----          9/1/2025  12:17 PM                server
+d-----          9/1/2025  12:17 PM                shared
+d-----         8/31/2025   3:00 AM                uploads
+-a----          9/1/2025  12:13 PM            604 .gitignore
+-a----          9/1/2025  12:13 PM            131 cookies.txt
+-a----          9/1/2025  12:13 PM           2245 courses_export.json
+-a----          9/1/2025  12:13 PM            325 drizzle.config.ts
+-a----          9/1/2025  12:13 PM            203 emergency-stop.js
+-a----          9/1/2025  12:13 PM         443388 package-lock.json
+-a----          9/1/2025  12:13 PM           4076 package.json
+-a----          9/1/2025  12:13 PM             80 postcss.config.js
+-a----          9/1/2025  12:13 PM           1751 production_courses_fix.sql
+-a----          9/1/2025  12:13 PM           3010 README.md
+-a----          9/1/2025  12:13 PM            545 render.yaml
+-a----          9/1/2025  12:13 PM           5632 replit.md
+-a----          9/1/2025  12:13 PM            133 stop-audio.js
+-a----          9/1/2025  12:13 PM           2755 tailwind.config.ts
+-a----          9/1/2025  12:13 PM            657 tsconfig.json
+-a----          9/1/2025  12:13 PM            971 vite.config.ts
+
+
+PS C:\Users\Walter.DESKTOP-K65EKH2\la-plumb-prep-replit\PlumbingPrep>
+PS C:\Users\Walter.DESKTOP-K65EKH2\la-plumb-prep-replit\PlumbingPrep> # This should show your package.json, client/, server/, etc.
+PS C:\Users\Walter.DESKTOP-K65EKH2\la-plumb-prep-replit\PlumbingPrep> 
