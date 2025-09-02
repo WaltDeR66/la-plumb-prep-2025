@@ -202,12 +202,21 @@ export default function EmployerPortal() {
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Button 
                   size="lg" 
+                  onClick={() => window.location.href = "/employer/dashboard"} 
+                  data-testid="manage-jobs"
+                  className="bg-blue-600 hover:bg-blue-700"
+                >
+                  <Edit className="w-5 h-5 mr-2" />
+                  Manage Job Listings
+                </Button>
+                <Button 
+                  size="lg" 
                   onClick={() => window.location.href = "/employer/analytics"} 
                   data-testid="view-analytics"
                   className="bg-green-600 hover:bg-green-700"
                 >
                   <BarChart3 className="w-5 h-5 mr-2" />
-                  View Application Analytics
+                  View Analytics
                 </Button>
                 <Button 
                   size="lg" 

@@ -89,9 +89,13 @@ export interface IStorage {
   getJob(id: string): Promise<Job | undefined>;
   createJob(job: InsertJob): Promise<Job>;
   updateJob(id: string, updates: Partial<Job>): Promise<Job>;
+  updateJobStatus(id: string, status: string): Promise<Job>;
   getPendingJobs(): Promise<Job[]>;
   approveJob(id: string, approvedBy: string): Promise<Job>;
   rejectJob(id: string, rejectionReason: string): Promise<Job>;
+  getAllJobsWithDetails(): Promise<Job[]>;
+  getEmployerJobsWithApplications(employerId: string): Promise<any[]>;
+  getJobApplicationsWithUserDetails(jobId: string): Promise<any[]>;
   
   // Job application methods
   createJobApplication(application: InsertJobApplication): Promise<JobApplication>;
@@ -481,6 +485,64 @@ export class DatabaseStorage implements IStorage {
       .where(eq(jobs.id, id))
       .returning();
     return job;
+  }
+
+  async updateJobStatus(id: string, status: string): Promise<Job> {
+    const [job] = await db
+      .update(jobs)
+      .set({ status: status as any, updatedAt: new Date() })
+      .where(eq(jobs.id, id))
+      .returning();
+    return job;
+  }
+
+  async getAllJobsWithDetails(): Promise<Job[]> {
+    return await db
+      .select()
+      .from(jobs)
+      .orderBy(desc(jobs.createdAt));
+  }
+
+  async getEmployerJobsWithApplications(employerId: string): Promise<any[]> {
+    // Get jobs for this employer with application counts
+    return await db
+      .select({
+        id: jobs.id,
+        title: jobs.title,
+        description: jobs.description,
+        location: jobs.location,
+        type: jobs.type,
+        salaryMin: jobs.salaryMin,
+        salaryMax: jobs.salaryMax,
+        requirements: jobs.requirements,
+        benefits: jobs.benefits,
+        status: jobs.status,
+        planType: jobs.planType,
+        createdAt: jobs.createdAt,
+        daysRemaining: sql<number>`GREATEST(0, EXTRACT(DAY FROM (${jobs.expiresAt} - NOW())))`,
+        applicationsCount: sql<number>`(SELECT COUNT(*) FROM ${jobApplications} WHERE ${jobApplications.jobId} = ${jobs.id})`
+      })
+      .from(jobs)
+      .where(eq(jobs.employerId, employerId))
+      .orderBy(desc(jobs.createdAt));
+  }
+
+  async getJobApplicationsWithUserDetails(jobId: string): Promise<any[]> {
+    return await db
+      .select({
+        id: jobApplications.id,
+        userId: jobApplications.userId,
+        name: users.name,
+        email: users.email,
+        phone: jobApplications.phone,
+        resumeUrl: jobApplications.resumeUrl,
+        coverLetter: jobApplications.coverLetter,
+        appliedAt: jobApplications.appliedAt
+      })
+      .from(jobApplications)
+      .innerJoin(users, eq(jobApplications.userId, users.id))
+      .where(eq(jobApplications.jobId, jobId))
+      .orderBy(desc(jobApplications.appliedAt));
   }
 
   async createJobApplication(application: InsertJobApplication): Promise<JobApplication> {

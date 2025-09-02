@@ -1350,6 +1350,47 @@ Start your journey at laplumbprep.com/courses
     }
   });
 
+  // Job Management Routes
+  app.get("/api/employer/jobs", async (req, res) => {
+    // TODO: Add authentication check when employer auth is implemented
+    try {
+      // For now, return all jobs - in production this would be filtered by employer
+      const jobs = await storage.getAllJobsWithDetails();
+      res.json(jobs);
+    } catch (error: any) {
+      console.error("Error fetching employer jobs:", error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.put("/api/jobs/:jobId", async (req, res) => {
+    // TODO: Add authentication check when employer auth is implemented
+    try {
+      const { jobId } = req.params;
+      const updateData = req.body;
+      
+      const updatedJob = await storage.updateJob(jobId, updateData);
+      res.json(updatedJob);
+    } catch (error: any) {
+      console.error("Error updating job:", error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.patch("/api/jobs/:jobId/status", async (req, res) => {
+    // TODO: Add authentication check when employer auth is implemented
+    try {
+      const { jobId } = req.params;
+      const { status } = req.body;
+      
+      const updatedJob = await storage.updateJobStatus(jobId, status);
+      res.json(updatedJob);
+    } catch (error: any) {
+      console.error("Error updating job status:", error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
   // AI Mentor routes
   app.post("/api/mentor/chat", requireActiveSubscription, async (req, res) => {
     if (!req.isAuthenticated()) {

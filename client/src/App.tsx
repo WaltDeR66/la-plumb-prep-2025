@@ -22,6 +22,7 @@ import ProductDetail from "@/pages/product-detail";
 import AIToolsPricing from "@/pages/ai-tools-pricing";
 import PayPerUseCheckout from "@/pages/pay-per-use-checkout";
 import EmployerPortal from "@/pages/employer-portal";
+import EmployerDashboard from "@/pages/employer-dashboard";
 import JobApproval from "@/pages/admin/job-approval";
 import JobAnalytics from "@/pages/employer/job-analytics";
 import Privacy from "@/pages/privacy";
@@ -63,6 +64,7 @@ function Router() {
           <Route path="/login" component={Login} />
           <Route path="/register" component={Register} />
           <Route path="/employer-portal" component={EmployerPortal} />
+          <Route path="/employer/dashboard" component={EmployerDashboard} />
           <Route path="/employer/analytics" component={JobAnalytics} />
           <Route path="/admin/job-approval" component={JobApproval} />
           <Route path="/privacy" component={Privacy} />
