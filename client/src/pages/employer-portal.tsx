@@ -46,7 +46,7 @@ type EmployerData = z.infer<typeof employerSchema>;
 type JobData = z.infer<typeof jobSchema>;
 
 export default function EmployerPortal() {
-  const [step, setStep] = useState<'employer' | 'pricing' | 'job' | 'success'>('employer');
+  const [step, setStep] = useState<'pricing' | 'employer' | 'job' | 'success'>('pricing');
   const [employerId, setEmployerId] = useState<string>("");
   const { toast } = useToast();
 
@@ -66,10 +66,10 @@ export default function EmployerPortal() {
       apiRequest("POST", "/api/employers/register", data),
     onSuccess: (response) => {
       setEmployerId(response.employerId);
-      setStep('pricing');
+      setStep('job');
       toast({
         title: "Registration Successful",
-        description: "Your company has been registered. Now let's select your job posting plan.",
+        description: "Your company has been registered. Now let's create your job posting.",
       });
     },
     onError: (error: any) => {
@@ -200,22 +200,22 @@ export default function EmployerPortal() {
       <section className="py-8 bg-white border-b">
         <div className="max-w-4xl mx-auto px-4">
           <div className="flex items-center justify-center space-x-2">
-            <div className={`flex items-center space-x-2 ${step === 'employer' ? 'text-primary' : 'text-muted-foreground'}`}>
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold ${
-                step === 'employer' ? 'bg-primary text-primary-foreground' : 'bg-muted'
-              }`}>
-                1
-              </div>
-              <span className="font-medium hidden sm:block">Company Info</span>
-            </div>
-            <div className="w-8 h-px bg-muted"></div>
             <div className={`flex items-center space-x-2 ${step === 'pricing' ? 'text-primary' : 'text-muted-foreground'}`}>
               <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold ${
                 step === 'pricing' ? 'bg-primary text-primary-foreground' : 'bg-muted'
               }`}>
-                2
+                1
               </div>
               <span className="font-medium hidden sm:block">Pricing</span>
+            </div>
+            <div className="w-8 h-px bg-muted"></div>
+            <div className={`flex items-center space-x-2 ${step === 'employer' ? 'text-primary' : 'text-muted-foreground'}`}>
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold ${
+                step === 'employer' ? 'bg-primary text-primary-foreground' : 'bg-muted'
+              }`}>
+                2
+              </div>
+              <span className="font-medium hidden sm:block">Company Info</span>
             </div>
             <div className="w-8 h-px bg-muted"></div>
             <div className={`flex items-center space-x-2 ${step === 'job' ? 'text-primary' : 'text-muted-foreground'}`}>
@@ -454,7 +454,7 @@ export default function EmployerPortal() {
                       </ul>
                       <Button 
                         className="w-full bg-primary hover:bg-primary/90 text-white" 
-                        onClick={() => setStep('job')}
+                        onClick={() => setStep('employer')}
                         data-testid="select-basic-plan"
                       >
                         Select Basic Plan
@@ -499,7 +499,7 @@ export default function EmployerPortal() {
                       </ul>
                       <Button 
                         className="w-full bg-primary hover:bg-primary/90" 
-                        onClick={() => setStep('job')}
+                        onClick={() => setStep('employer')}
                         data-testid="select-premium-plan"
                       >
                         Select Premium Plan
