@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Building2, MapPin, DollarSign, Clock, CheckCircle, Mail, Phone, BarChart3 } from "lucide-react";
+import { Building2, MapPin, DollarSign, Clock, CheckCircle, Mail, Phone, BarChart3, Edit, Star, RefreshCw, Settings } from "lucide-react";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
