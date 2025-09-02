@@ -1,0 +1,44 @@
+> Cloning from https://github.com/WaltDeR66/la-plumb-prep-2025
+==> Checking out commit ea8f54f08f8e340e5258c8cd66fa4bd324ef4f28 in branch main
+==> Using Node.js version 20.18.0 via environment variable NODE_VERSION
+==> Docs on specifying a Node.js version: https://render.com/docs/node-version
+==> Running build command 'npm install --include=dev && npm run build'...
+added 726 packages, and audited 727 packages in 22s
+95 packages are looking for funding
+  run `npm fund` for details
+11 vulnerabilities (3 low, 8 moderate)
+To address issues that do not require attention, run:
+  npm audit fix
+To address all issues (including breaking changes), run:
+  npm audit fix --force
+Run `npm audit` for details.
+> rest-express@1.0.0 build
+> vite build && esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist
+vite v5.4.19 building for production...
+transforming...
+Browserslist: browsers data (caniuse-lite) is 11 months old. Please run:
+  npx update-browserslist-db@latest
+  Why you should do it regularly: https://github.com/browserslist/update-db#readme
+✓ 1782 modules transformed.
+x Build failed in 4.45s
+error during build:
+client/src/pages/employer-dashboard.tsx (26:32): "queryClient" is not exported by "node_modules/@tanstack/react-query/build/modern/index.js", imported by "client/src/pages/employer-dashboard.tsx".
+file: /opt/render/project/src/client/src/pages/employer-dashboard.tsx:26:32
+24:   AlertTriangle
+25: } from "lucide-react";
+26: import { useQuery, useMutation, queryClient } from "@tanstack/react-query";
+                                    ^
+27: import { apiRequest } from "@/lib/queryClient";
+28: import { useToast } from "@/hooks/use-toast";
+    at getRollupError (file:///opt/render/project/src/node_modules/rollup/dist/es/shared/parseAst.js:396:41)
+    at error (file:///opt/render/project/src/node_modules/rollup/dist/es/shared/parseAst.js:392:42)
+    at Module.error (file:///opt/render/project/src/node_modules/rollup/dist/es/shared/node-entry.js:15588:16)
+    at Module.traceVariable (file:///opt/render/project/src/node_modules/rollup/dist/es/shared/node-entry.js:16037:29)
+    at ModuleScope.findVariable (file:///opt/render/project/src/node_modules/rollup/dist/es/shared/node-entry.js:13820:39)
+    at FunctionScope.findVariable (file:///opt/render/project/src/node_modules/rollup/dist/es/shared/node-entry.js:5283:38)
+    at FunctionBodyScope.findVariable (file:///opt/render/project/src/node_modules/rollup/dist/es/shared/node-entry.js:5283:38)
+    at ReturnValueScope.findVariable (file:///opt/render/project/src/node_modules/rollup/dist/es/shared/node-entry.js:5283:38)
+    at FunctionBodyScope.findVariable (file:///opt/render/project/src/node_modules/rollup/dist/es/shared/node-entry.js:5283:38)
+    at MemberExpression.bind (file:///opt/render/project/src/node_modules/rollup/dist/es/shared/node-entry.js:6922:49)
+==> Build failed 😞
+==> Common ways to troubleshoot your deploy: https://render.com/docs/troubleshooting-deploys
