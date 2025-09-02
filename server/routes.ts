@@ -504,7 +504,6 @@ Start your journey at laplumbprep.com/courses
       } else {
         // Create new admin user
         const adminUser = await storage.createUser({
-          id: "admin-emergency-" + Date.now(),
           email: "admin@latrainer.com",
           username: "admin",
           password: hashedPassword,
@@ -606,7 +605,13 @@ Start your journey at laplumbprep.com/courses
           const subscriptionPrice = planPrices[priceId as keyof typeof planPrices] || 39.99;
           const commissionAmount = subscriptionPrice * 0.10; // 10% commission
           
-          await storage.createReferral(user.referredBy, user.id, commissionAmount);
+          await storage.createReferral({
+            referrerId: user.referredBy,
+            referredUserId: user.id,
+            commissionAmount: commissionAmount.toString(),
+            subscriptionTier: tier,
+            status: 'pending'
+          });
         } catch (error) {
           console.error('Referral commission creation failed:', error);
         }
@@ -661,7 +666,7 @@ Start your journey at laplumbprep.com/courses
         hasActiveSubscription,
         subscriptionTier: user.subscriptionTier || 'basic',
         subscriptionStatus: subscription.status,
-        currentPeriodEnd: subscription.current_period_end,
+        currentPeriodEnd: (subscription as any).current_period_end,
       });
     } catch (error: any) {
       console.error('Subscription status error:', error);

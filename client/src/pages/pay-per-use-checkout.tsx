@@ -129,8 +129,9 @@ export default function PayPerUseCheckout() {
            serviceType === 'plan-analysis' ? 'planData' : 'question']: data
         });
 
-        setClientSecret(response.clientSecret);
-        setAmount(response.amount);
+        const result = await response.json();
+        setClientSecret(result.clientSecret);
+        setAmount(result.amount);
         setService(serviceDisplayName);
       } catch (error: any) {
         console.error('Failed to initialize payment:', error);
@@ -158,7 +159,8 @@ export default function PayPerUseCheckout() {
         }
       });
 
-      setResult(response.result);
+      const result = await response.json();
+      setResult(result.result);
       setPaymentStatus('succeeded');
     } catch (error: any) {
       console.error('Failed to process service:', error);
