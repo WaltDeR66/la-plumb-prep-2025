@@ -263,6 +263,71 @@ export default function EmployerPortal() {
         </div>
       </section>
 
+      {/* Unique Selling Point */}
+      <section className="py-12 bg-gradient-to-r from-blue-50 to-green-50">
+        <div className="max-w-5xl mx-auto px-4">
+          <div className="text-center mb-8">
+            <div className="inline-flex items-center bg-blue-600 text-white px-4 py-2 rounded-full text-sm font-semibold mb-4">
+              <Star className="w-4 h-4 mr-2" />
+              EXCLUSIVE FEATURE - No Other Job Board Offers This
+            </div>
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">
+              The Only Job Board That Adapts With Your Business
+            </h2>
+            <p className="text-lg text-gray-700 max-w-3xl mx-auto mb-8">
+              <strong>Pay once, post smart.</strong> Unlike Indeed, LinkedIn, or ZipRecruiter, you can completely modify your listings without additional fees.
+            </p>
+          </div>
+          
+          <div className="grid md:grid-cols-3 gap-6">
+            <div className="bg-white rounded-xl p-6 border border-blue-100 shadow-lg">
+              <div className="flex items-center mb-4">
+                <Edit className="text-blue-600 w-8 h-8 mr-3" />
+                <h3 className="font-bold text-lg">Change Position Types</h3>
+              </div>
+              <p className="text-gray-600 mb-4">
+                Switch from "Master Plumber Needed" to "Journeyman Plumber" based on budget or application response
+              </p>
+              <div className="text-sm text-blue-600 font-medium">
+                ✓ No extra payment required
+              </div>
+            </div>
+            
+            <div className="bg-white rounded-xl p-6 border border-green-100 shadow-lg">
+              <div className="flex items-center mb-4">
+                <RefreshCw className="text-green-600 w-8 h-8 mr-3" />
+                <h3 className="font-bold text-lg">Pause & Reactivate</h3>
+              </div>
+              <p className="text-gray-600 mb-4">
+                Stop applications while interviewing candidates, then reactivate when you need more applicants
+              </p>
+              <div className="text-sm text-green-600 font-medium">
+                ✓ Preserve your original posting
+              </div>
+            </div>
+            
+            <div className="bg-white rounded-xl p-6 border border-purple-100 shadow-lg">
+              <div className="flex items-center mb-4">
+                <Settings className="text-purple-600 w-8 h-8 mr-3" />
+                <h3 className="font-bold text-lg">Update Everything</h3>
+              </div>
+              <p className="text-gray-600 mb-4">
+                Modify salary ranges, requirements, location, or job description based on market response
+              </p>
+              <div className="text-sm text-purple-600 font-medium">
+                ✓ Unlimited edits included
+              </div>
+            </div>
+          </div>
+          
+          <div className="text-center mt-8">
+            <p className="text-sm text-gray-600">
+              <strong>Why we're different:</strong> Other platforms charge you again for every change. We believe you should get full value from your investment.
+            </p>
+          </div>
+        </div>
+      </section>
+
       {/* Progress Steps */}
       <section className="py-8 bg-white border-b">
         <div className="max-w-4xl mx-auto px-4">
