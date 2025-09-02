@@ -240,20 +240,20 @@ export default function EmployerPortal() {
       <section className="gradient-hero text-white py-16" data-testid="employer-hero">
         <div className="max-w-4xl mx-auto px-4 text-center">
           <h1 className="text-4xl lg:text-5xl font-bold mb-6" data-testid="hero-title">
-            Hire Apprentice Plumbers in Training
+            Hire Certified Louisiana Plumbers
           </h1>
           <p className="text-xl text-blue-100 max-w-3xl mx-auto mb-8">
-            Connect with qualified apprentice plumbers who are actively enrolled in our comprehensive 
-            Louisiana Plumbing Code training program. Get detailed analytics on student applications to your job postings.
+            Connect with certified plumbers, journeymen, apprentices, and plumbing professionals across Louisiana. 
+            Access a comprehensive database of qualified candidates and get detailed analytics on all applications.
           </p>
           <div className="flex items-center justify-center space-x-8 text-blue-100">
             <div className="flex items-center space-x-2">
               <Building2 className="w-5 h-5" />
-              <span>Apprentices in Training</span>
+              <span>Certified Professionals</span>
             </div>
             <div className="flex items-center space-x-2">
               <MapPin className="w-5 h-5" />
-              <span>Louisiana Code Specialists</span>
+              <span>All Skill Levels</span>
             </div>
             <div className="flex items-center space-x-2">
               <CheckCircle className="w-5 h-5" />
