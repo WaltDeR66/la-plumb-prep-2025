@@ -48,7 +48,29 @@ type JobData = z.infer<typeof jobSchema>;
 export default function EmployerPortal() {
   const [step, setStep] = useState<'pricing' | 'employer' | 'job' | 'success'>('pricing');
   const [employerId, setEmployerId] = useState<string>("");
+  const [selectedPlan, setSelectedPlan] = useState<'basic' | 'premium'>('basic');
+  const [quantity, setQuantity] = useState<number>(1);
   const { toast } = useToast();
+
+  // Bulk pricing logic with progressive discounts
+  const calculatePricing = (basePrice: number, qty: number) => {
+    let discount = 0;
+    if (qty >= 10) discount = 0.25; // 25% off for 10+
+    else if (qty >= 5) discount = 0.15; // 15% off for 5+
+    else if (qty >= 3) discount = 0.10; // 10% off for 3+
+    
+    const unitPrice = basePrice * (1 - discount);
+    const totalPrice = unitPrice * qty;
+    const totalSavings = (basePrice * qty) - totalPrice;
+    
+    return { unitPrice, totalPrice, totalSavings, discount };
+  };
+
+  const basicPrice = 49;
+  const premiumPrice = 89;
+  
+  const basicPricing = calculatePricing(basicPrice, quantity);
+  const premiumPricing = calculatePricing(premiumPrice, quantity);
 
   const employerForm = useForm<EmployerData>({
     resolver: zodResolver(employerSchema),
@@ -82,13 +104,21 @@ export default function EmployerPortal() {
   });
 
   const createJobMutation = useMutation({
-    mutationFn: (data: JobData & { requirements: string[]; benefits?: string[] }) => 
+    mutationFn: (data: JobData & { 
+      requirements: string[]; 
+      benefits?: string[]; 
+      planType: 'basic' | 'premium';
+      quantity: number;
+      unitPrice: number;
+      totalPrice: number;
+      discount: number;
+    }) => 
       apiRequest("POST", `/api/employers/${employerId}/jobs`, data),
     onSuccess: () => {
       setStep('success');
       toast({
         title: "Job Posted Successfully",
-        description: "Your job posting has been submitted for review.",
+        description: `Your ${quantity} job posting${quantity > 1 ? 's have' : ' has'} been submitted for review.`,
       });
     },
     onError: (error: any) => {
@@ -105,10 +135,16 @@ export default function EmployerPortal() {
   };
 
   const onSubmitJob = (data: JobData) => {
+    const pricing = selectedPlan === 'basic' ? basicPricing : premiumPricing;
     const processedData = {
       ...data,
       requirements: data.requirements.split('\n').filter(req => req.trim()),
       benefits: data.benefits ? data.benefits.split('\n').filter(benefit => benefit.trim()) : undefined,
+      planType: selectedPlan,
+      quantity: quantity,
+      unitPrice: pricing.unitPrice,
+      totalPrice: pricing.totalPrice,
+      discount: pricing.discount,
     };
     createJobMutation.mutate(processedData);
   };
@@ -128,9 +164,31 @@ export default function EmployerPortal() {
                 Job Posted Successfully!
               </h1>
               <p className="text-muted-foreground text-lg mb-8 max-w-2xl mx-auto">
-                Your job posting has been submitted and is pending review by our team. 
-                We'll notify you via email once it's approved and live on our platform.
+                Your {quantity} {selectedPlan} job posting{quantity > 1 ? 's have' : ' has'} been submitted and {quantity > 1 ? 'are' : 'is'} pending review by our team. 
+                We'll notify you via email once {quantity > 1 ? 'they\'re' : 'it\'s'} approved and live on our platform.
               </p>
+              
+              {/* Pricing Summary */}
+              <div className="bg-gray-50 rounded-lg p-6 mb-8 max-w-2xl mx-auto">
+                <h3 className="font-semibold mb-4">Order Summary</h3>
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between">
+                    <span>{quantity}x {selectedPlan.charAt(0).toUpperCase() + selectedPlan.slice(1)} Job Post{quantity > 1 ? 's' : ''}</span>
+                    <span>${((selectedPlan === 'basic' ? basicPrice : premiumPrice) * quantity).toFixed(2)}</span>
+                  </div>
+                  {(selectedPlan === 'basic' ? basicPricing : premiumPricing).discount > 0 && (
+                    <div className="flex justify-between text-green-600">
+                      <span>Volume Discount ({Math.round((selectedPlan === 'basic' ? basicPricing : premiumPricing).discount * 100)}% off)</span>
+                      <span>-${(selectedPlan === 'basic' ? basicPricing : premiumPricing).totalSavings.toFixed(2)}</span>
+                    </div>
+                  )}
+                  <hr className="my-2" />
+                  <div className="flex justify-between font-semibold">
+                    <span>Total</span>
+                    <span>${(selectedPlan === 'basic' ? basicPricing : premiumPricing).totalPrice.toFixed(2)}</span>
+                  </div>
+                </div>
+              </div>
               <div className="bg-blue-50 rounded-lg p-6 mb-8 max-w-2xl mx-auto">
                 <h3 className="font-semibold mb-2">What happens next?</h3>
                 <ul className="text-sm text-muted-foreground space-y-2 text-left">
@@ -425,14 +483,74 @@ export default function EmployerPortal() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
+                {/* Quantity Selector */}
+                <div className="mb-8 text-center">
+                  <h3 className="text-lg font-semibold mb-4">How many job postings do you need?</h3>
+                  <div className="flex items-center justify-center space-x-4">
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                      disabled={quantity <= 1}
+                      data-testid="quantity-decrease"
+                    >
+                      -
+                    </Button>
+                    <div className="w-16 text-center">
+                      <Input 
+                        type="number" 
+                        value={quantity} 
+                        onChange={(e) => setQuantity(Math.max(1, parseInt(e.target.value) || 1))}
+                        className="text-center"
+                        min="1"
+                        data-testid="quantity-input"
+                      />
+                    </div>
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => setQuantity(quantity + 1)}
+                      data-testid="quantity-increase"
+                    >
+                      +
+                    </Button>
+                  </div>
+                  {quantity >= 3 && (
+                    <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg">
+                      <p className="text-green-700 font-medium">
+                        🎉 Bulk Discount Applied! 
+                        {quantity >= 10 ? " Save 25%" : quantity >= 5 ? " Save 15%" : " Save 10%"}
+                      </p>
+                    </div>
+                  )}
+                </div>
+
                 <div className="grid md:grid-cols-2 gap-6 mb-8">
                   {/* Basic Job Posting */}
-                  <Card className="border-2 hover:border-primary transition-colors cursor-pointer">
+                  <Card className={`border-2 hover:border-primary transition-colors cursor-pointer ${
+                    selectedPlan === 'basic' ? 'border-primary bg-primary/5' : ''
+                  }`}>
                     <CardContent className="p-6">
                       <div className="text-center mb-6">
                         <h3 className="text-2xl font-bold">Basic Job Post</h3>
-                        <div className="text-3xl font-bold text-primary mt-2">$49</div>
-                        <p className="text-muted-foreground">60-day listing</p>
+                        <div className="space-y-2">
+                          {basicPricing.discount > 0 && (
+                            <div className="text-lg text-muted-foreground line-through">
+                              ${(basicPrice * quantity).toFixed(2)}
+                            </div>
+                          )}
+                          <div className="text-3xl font-bold text-primary">
+                            ${basicPricing.totalPrice.toFixed(2)}
+                          </div>
+                          <p className="text-muted-foreground">
+                            ${basicPricing.unitPrice.toFixed(2)} per 60-day listing
+                          </p>
+                          {basicPricing.totalSavings > 0 && (
+                            <Badge variant="secondary" className="bg-green-100 text-green-700">
+                              Save ${basicPricing.totalSavings.toFixed(2)}!
+                            </Badge>
+                          )}
+                        </div>
                       </div>
                       <ul className="space-y-3 mb-6">
                         <li className="flex items-center space-x-2">
@@ -454,7 +572,10 @@ export default function EmployerPortal() {
                       </ul>
                       <Button 
                         className="w-full bg-primary hover:bg-primary/90 text-white" 
-                        onClick={() => setStep('employer')}
+                        onClick={() => {
+                          setSelectedPlan('basic');
+                          setStep('employer');
+                        }}
                         data-testid="select-basic-plan"
                       >
                         Select Basic Plan
@@ -463,13 +584,31 @@ export default function EmployerPortal() {
                   </Card>
 
                   {/* Premium Job Posting */}
-                  <Card className="border-2 border-primary bg-primary/5">
+                  <Card className={`border-2 hover:border-primary transition-colors cursor-pointer ${
+                    selectedPlan === 'premium' ? 'border-primary bg-primary/5' : ''
+                  }`}>
                     <CardContent className="p-6">
                       <div className="text-center mb-6">
                         <Badge className="mb-2">Most Popular</Badge>
                         <h3 className="text-2xl font-bold">Premium Job Post</h3>
-                        <div className="text-3xl font-bold text-primary mt-2">$89</div>
-                        <p className="text-muted-foreground">120-day listing + features</p>
+                        <div className="space-y-2">
+                          {premiumPricing.discount > 0 && (
+                            <div className="text-lg text-muted-foreground line-through">
+                              ${(premiumPrice * quantity).toFixed(2)}
+                            </div>
+                          )}
+                          <div className="text-3xl font-bold text-primary">
+                            ${premiumPricing.totalPrice.toFixed(2)}
+                          </div>
+                          <p className="text-muted-foreground">
+                            ${premiumPricing.unitPrice.toFixed(2)} per 120-day listing
+                          </p>
+                          {premiumPricing.totalSavings > 0 && (
+                            <Badge variant="secondary" className="bg-green-100 text-green-700">
+                              Save ${premiumPricing.totalSavings.toFixed(2)}!
+                            </Badge>
+                          )}
+                        </div>
                       </div>
                       <ul className="space-y-3 mb-6">
                         <li className="flex items-center space-x-2">
@@ -499,13 +638,26 @@ export default function EmployerPortal() {
                       </ul>
                       <Button 
                         className="w-full bg-primary hover:bg-primary/90" 
-                        onClick={() => setStep('employer')}
+                        onClick={() => {
+                          setSelectedPlan('premium');
+                          setStep('employer');
+                        }}
                         data-testid="select-premium-plan"
                       >
                         Select Premium Plan
                       </Button>
                     </CardContent>
                   </Card>
+                </div>
+
+                {/* Bulk Discount Information */}
+                <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                  <h4 className="font-semibold text-blue-900 mb-2">💰 Volume Discounts Available</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-2 text-sm text-blue-700">
+                    <div>📦 3-4 postings: <strong>10% off</strong></div>
+                    <div>📦 5-9 postings: <strong>15% off</strong></div>
+                    <div>📦 10+ postings: <strong>25% off</strong></div>
+                  </div>
                 </div>
 
                 <div className="text-center text-sm text-muted-foreground">
