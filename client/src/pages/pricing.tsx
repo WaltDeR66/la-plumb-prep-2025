@@ -196,7 +196,7 @@ export default function Pricing() {
                     <div className="text-4xl font-bold text-primary mb-2" data-testid={`plan-price-${plan.id}`}>
                       {isAnnual ? (
                         <>
-                          ${calculatePrice(plan.basePrice, isAnnual, isBetaTester) * 12}
+                          ${calculatePrice(plan.basePrice, isAnnual, isBetaTester)}
                           <span className="text-xl font-normal text-muted-foreground">/year</span>
                         </>
                       ) : (
@@ -219,7 +219,7 @@ export default function Pricing() {
                           )}
                           {isAnnual && (
                             <div className="text-green-600 font-normal">
-                              Save ${(plan.basePrice * 12) - (calculatePrice(plan.basePrice, isAnnual, isBetaTester) * 12)} per year (20% off)
+                              Save ${Math.round(((plan.basePrice * 12) - calculatePrice(plan.basePrice, isAnnual, isBetaTester)) * 100) / 100} per year (20% off)
                             </div>
                           )}
                         </div>
