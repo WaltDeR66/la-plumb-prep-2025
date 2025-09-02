@@ -17,7 +17,7 @@ export default function Pricing() {
       // Beta annual: 50% off first month + 25% off remaining 11 months
       const firstMonth = basePrice * 0.5;
       const remainingMonths = basePrice * 0.75 * 11;
-      return Math.round((firstMonth + remainingMonths) * 100) / 100; // Round to 2 decimals
+      return parseFloat((firstMonth + remainingMonths).toFixed(2)); // Round to 2 decimals
     }
     
     let price = basePrice;
@@ -30,7 +30,7 @@ export default function Pricing() {
       price = price * 0.75; // 25% off for beta testers (monthly only)
     }
     
-    return Math.round(price * 100) / 100; // Round to 2 decimals
+    return parseFloat(price.toFixed(2)); // Round to 2 decimals
   };
 
   // Function to get the correct price ID based on plan, billing cycle, and beta status
