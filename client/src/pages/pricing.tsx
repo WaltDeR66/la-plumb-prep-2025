@@ -13,17 +13,24 @@ export default function Pricing() {
   const [isBetaTester] = useState(true); // Would come from user session/API in real app
 
   const calculatePrice = (basePrice: number, isAnnual: boolean, isBeta: boolean) => {
+    if (isAnnual && isBeta) {
+      // Beta annual: 50% off first month + 25% off remaining 11 months
+      const firstMonth = basePrice * 0.5;
+      const remainingMonths = basePrice * 0.75 * 11;
+      return Math.round((firstMonth + remainingMonths) * 100) / 100; // Round to 2 decimals
+    }
+    
     let price = basePrice;
     
     if (isAnnual) {
-      price = price * 0.8; // 20% annual discount
+      price = price * 12 * 0.8; // 20% annual discount on 12 months
     }
     
-    if (isBeta) {
-      price = price * 0.75; // Additional 25% off for beta testers
+    if (isBeta && !isAnnual) {
+      price = price * 0.75; // 25% off for beta testers (monthly only)
     }
     
-    return Math.round(price);
+    return Math.round(price * 100) / 100; // Round to 2 decimals
   };
 
   // Function to get the correct price ID based on plan, billing cycle, and beta status
@@ -70,7 +77,7 @@ export default function Pricing() {
     {
       id: "basic",
       name: "Basic",
-      basePrice: 49,
+      basePrice: 49.99,
       tier: "basic",
       description: "Perfect for getting started",
       features: [
@@ -85,7 +92,7 @@ export default function Pricing() {
     {
       id: "professional",
       name: "Professional",
-      basePrice: 79,
+      basePrice: 79.99,
       tier: "professional",
       description: "For serious professionals",
       popular: true,
@@ -102,7 +109,7 @@ export default function Pricing() {
     {
       id: "master",
       name: "Master",
-      basePrice: 99,
+      basePrice: 99.99,
       tier: "master",
       description: "Complete mastery package",
       features: [

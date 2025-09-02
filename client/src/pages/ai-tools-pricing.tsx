@@ -12,17 +12,24 @@ export default function AIToolsPricing() {
   const [isBetaTester] = useState(true); // Would come from user session/API in real app
 
   const calculatePrice = (basePrice: number, isAnnual: boolean, isBeta: boolean) => {
+    if (isAnnual && isBeta) {
+      // Beta annual: 50% off first month + 25% off remaining 11 months
+      const firstMonth = basePrice * 0.5;
+      const remainingMonths = basePrice * 0.75 * 11;
+      return Math.round((firstMonth + remainingMonths) * 100) / 100; // Round to 2 decimals
+    }
+    
     let price = basePrice;
     
     if (isAnnual) {
-      price = price * 0.8; // 20% annual discount
+      price = price * 12 * 0.8; // 20% annual discount on 12 months
     }
     
-    if (isBeta) {
-      price = price * 0.75; // Additional 25% off for beta testers
+    if (isBeta && !isAnnual) {
+      price = price * 0.75; // 25% off for beta testers (monthly only)
     }
     
-    return Math.round(price);
+    return Math.round(price * 100) / 100; // Round to 2 decimals
   };
 
   const aiToolsFeatures = [
@@ -94,7 +101,7 @@ export default function AIToolsPricing() {
     {
       id: "ai-tools-only",
       name: "AI Tools Only",
-      basePrice: 29,
+      basePrice: 29.00,
       tier: "ai_tools_only",
       description: "AI tools without courses",
       popular: true,
@@ -115,7 +122,7 @@ export default function AIToolsPricing() {
     {
       id: "professional",
       name: "Professional",
-      basePrice: 79,
+      basePrice: 79.99,
       tier: "professional",
       description: "AI tools + courses",
       aiFeatures: [
@@ -135,7 +142,7 @@ export default function AIToolsPricing() {
     {
       id: "master",
       name: "Master",
-      basePrice: 99,
+      basePrice: 99.99,
       tier: "master",
       description: "Complete package",
       aiFeatures: [
