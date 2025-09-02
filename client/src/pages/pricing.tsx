@@ -209,7 +209,7 @@ export default function Pricing() {
                         <div className="text-sm space-y-1">
                           {plan.basePrice !== calculatePrice(plan.basePrice, isAnnual, isBetaTester) && (
                             <div className="text-muted-foreground line-through">
-                              {isAnnual ? `$${plan.basePrice * 12}/year` : `$${plan.basePrice}/month`}
+                              {isAnnual ? `$${(plan.basePrice * 12).toFixed(2)}/year` : `$${plan.basePrice.toFixed(2)}/month`}
                             </div>
                           )}
                           {isBetaTester && (
@@ -219,7 +219,7 @@ export default function Pricing() {
                           )}
                           {isAnnual && (
                             <div className="text-green-600 font-normal">
-                              Save ${Math.round(((plan.basePrice * 12) - calculatePrice(plan.basePrice, isAnnual, isBetaTester)) * 100) / 100} per year (20% off)
+                              Save ${((plan.basePrice * 12) - calculatePrice(plan.basePrice, isAnnual, isBetaTester)).toFixed(2)} per year (20% off)
                             </div>
                           )}
                         </div>
