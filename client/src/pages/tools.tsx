@@ -366,26 +366,16 @@ export default function Tools() {
                         </Button>
                       ) : (
                         <div className="space-y-2">
-                          <Button
-                            onClick={() => {
-                              const file = fileInputRef.current?.files?.[0];
-                              if (file) {
-                                const reader = new FileReader();
-                                reader.onload = (e) => {
-                                  const imageData = e.target?.result as string;
-                                  setLocation(`/pay-per-use?service=photo-analysis&data=${encodeURIComponent(imageData)}`);
-                                };
-                                reader.readAsDataURL(file);
-                              } else {
-                                fileInputRef.current?.click();
-                              }
-                            }}
-                            className="w-full"
-                            variant="outline"
-                            data-testid="pay-per-use-photo-button"
-                          >
-                            Pay $2.99 to Analyze
-                          </Button>
+                          <Link href="/tools/ai-pricing" className="w-full">
+                            <Button
+                              className="w-full"
+                              variant="outline"
+                              data-testid="pay-per-use-photo-button"
+                            >
+                              <Camera className="w-4 h-4 mr-2" />
+                              Pay $2.99 to Analyze
+                            </Button>
+                          </Link>
                           <Link href="/tools/ai-pricing" className="w-full">
                             <Button className="w-full" variant="ghost" size="sm" data-testid="get-ai-tools-button">
                               Or get unlimited access
@@ -473,27 +463,16 @@ export default function Tools() {
                         </Button>
                       ) : (
                         <div className="space-y-2">
-                          <Button
-                            onClick={() => {
-                              const fileInput = document.querySelector('input[data-testid="plan-input"]') as HTMLInputElement;
-                              const file = fileInput?.files?.[0];
-                              if (file) {
-                                const reader = new FileReader();
-                                reader.onload = (e) => {
-                                  const planData = e.target?.result as string;
-                                  setLocation(`/pay-per-use?service=plan-analysis&data=${encodeURIComponent(planData)}`);
-                                };
-                                reader.readAsDataURL(file);
-                              } else {
-                                fileInput?.click();
-                              }
-                            }}
-                            className="w-full"
-                            variant="outline"
-                            data-testid="pay-per-use-plan-button"
-                          >
-                            Pay $9.99 to Analyze
-                          </Button>
+                          <Link href="/tools/ai-pricing" className="w-full">
+                            <Button
+                              className="w-full"
+                              variant="outline"
+                              data-testid="pay-per-use-plan-button"
+                            >
+                              <FileEdit className="w-4 h-4 mr-2" />
+                              Pay $9.99 to Analyze
+                            </Button>
+                          </Link>
                           <Link href="/tools/ai-pricing" className="w-full">
                             <Button className="w-full" variant="ghost" size="sm" data-testid="get-ai-plan-tools-button">
                               Or get unlimited access
