@@ -87,7 +87,7 @@ export default function AIToolsPricing() {
       payPerUse: true,
       aiFeatures: [
         "Photo Analysis: $2.99 per photo",
-        "Plan Analysis: $9.99 per plan",
+        "Plan Analysis: $9.99 per plan", 
         "AI Mentor: $0.99 per question",
         "No subscription required"
       ],
@@ -99,65 +99,44 @@ export default function AIToolsPricing() {
       ]
     },
     {
-      id: "ai-tools-only",
-      name: "AI Tools Only",
-      basePrice: 29.00,
-      tier: "ai_tools_only",
-      description: "AI tools without courses",
+      id: "ai-tools-monthly",
+      name: "Monthly",
+      basePrice: 29.99,
+      tier: "ai_tools_monthly",
+      description: "AI tools subscription",
       popular: true,
       aiFeatures: [
         "Photo Code Checker",
-        "Plan Analysis Tool", 
-        "AI Mentor Support",
-        "Unlimited AI analysis",
-        "Business-focused support"
-      ],
-      additionalFeatures: [
-        "Perfect for businesses",
-        "No course content",
-        "API access available",
-        "Bulk analysis discounts"
-      ]
-    },
-    {
-      id: "professional",
-      name: "Professional",
-      basePrice: 79.99,
-      tier: "professional",
-      description: "AI tools + courses",
-      aiFeatures: [
-        "Photo Code Checker",
+        "Plan Analysis Tool",
         "AI Mentor Support", 
         "Unlimited AI analysis",
         "Priority support"
       ],
       additionalFeatures: [
-        "Journeyman Prep Course",
-        "Complete Calculator Suite",
-        "Resume Builder", 
-        "Job Board Access",
-        "Referral Commissions (10%)"
+        "Cancel anytime",
+        "No course content",
+        "API access available",
+        "Business support"
       ]
     },
     {
-      id: "master",
-      name: "Master",
-      basePrice: 99.99,
-      tier: "master",
-      description: "Complete package",
+      id: "ai-tools-annual",
+      name: "Annual",
+      basePrice: 29.99,
+      tier: "ai_tools_annual", 
+      description: "AI tools yearly plan",
       aiFeatures: [
         "Photo Code Checker",
         "Plan Analysis Tool",
         "AI Mentor Support",
         "Unlimited AI analysis",
-        "White-glove support"
+        "Priority support"
       ],
       additionalFeatures: [
-        "Journeyman Prep Course",
-        "Material List Generator",
-        "Book Store Access",
-        "Advanced Plan Tools",
-        "Referral Commissions (10%)"
+        "20% annual savings",
+        "No course content",
+        "API access available", 
+        "Business support"
       ]
     }
   ];
@@ -239,12 +218,6 @@ export default function AIToolsPricing() {
                 <span>95% Accuracy Rate</span>
               </div>
             </div>
-            <div className="flex items-center space-x-4 bg-card p-3 rounded-lg border">
-              <span className={`text-sm font-medium ${!isAnnual ? 'text-primary' : 'text-muted-foreground'}`}>Monthly</span>
-              <Switch checked={isAnnual} onCheckedChange={setIsAnnual} />
-              <span className={`text-sm font-medium ${isAnnual ? 'text-primary' : 'text-muted-foreground'}`}>Annual</span>
-              {isAnnual && <Badge className="bg-green-100 text-green-800 text-xs">Save 20%</Badge>}
-            </div>
           </div>
         </div>
       </section>
@@ -309,7 +282,7 @@ export default function AIToolsPricing() {
             </p>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
             {pricingPlans.map((plan) => (
               <Card 
                 key={plan.id}
@@ -337,22 +310,22 @@ export default function AIToolsPricing() {
                             Starting at $0.99
                           </div>
                         </>
-                      ) : isAnnual ? (
+                      ) : plan.id === "ai-tools-annual" ? (
                         <>
-                          ${calculatePrice(plan.basePrice, isAnnual, isBetaTester)}
+                          ${calculatePrice(plan.basePrice, true, isBetaTester)}
                           <span className="text-xl font-normal text-muted-foreground">/year</span>
                         </>
                       ) : (
                         <>
-                          ${calculatePrice(plan.basePrice, isAnnual, isBetaTester)}
+                          ${calculatePrice(plan.basePrice, false, isBetaTester)}
                           <span className="text-xl font-normal text-muted-foreground">/month</span>
                         </>
                       )}
-                      {!plan.payPerUse && (isAnnual || isBetaTester) && (
+                      {!plan.payPerUse && (plan.id === "ai-tools-annual" || isBetaTester) && (
                         <div className="text-sm space-y-1">
-                          {plan.basePrice !== calculatePrice(plan.basePrice, isAnnual, isBetaTester) && (
+                          {plan.basePrice !== calculatePrice(plan.basePrice, plan.id === "ai-tools-annual", isBetaTester) && (
                             <div className="text-muted-foreground line-through">
-                              {isAnnual ? `$${(plan.basePrice * 12).toFixed(2)}/year` : `$${plan.basePrice.toFixed(2)}/month`}
+                              {plan.id === "ai-tools-annual" ? `$${(plan.basePrice * 12).toFixed(2)}/year` : `$${plan.basePrice.toFixed(2)}/month`}
                             </div>
                           )}
                           {isBetaTester && (
@@ -360,9 +333,9 @@ export default function AIToolsPricing() {
                               🎉 Beta: Extra 25% off + 50% off first month
                             </div>
                           )}
-                          {isAnnual && (
+                          {plan.id === "ai-tools-annual" && (
                             <div className="text-green-600 font-normal">
-                              Save ${((plan.basePrice * 12) - calculatePrice(plan.basePrice, isAnnual, isBetaTester)).toFixed(2)} per year (20% off)
+                              Save ${((plan.basePrice * 12) - calculatePrice(plan.basePrice, true, isBetaTester)).toFixed(2)} per year (20% off)
                             </div>
                           )}
                         </div>
@@ -414,7 +387,7 @@ export default function AIToolsPricing() {
                       </Button>
                     </Link>
                   ) : (
-                    <Link href={`/subscribe?plan=${plan.id}&priceId=${getPriceId(plan.id, isAnnual, isBetaTester)}&tier=${plan.tier}&isAnnual=${isAnnual}&isBeta=${isBetaTester}`}>
+                    <Link href={`/subscribe?plan=${plan.id}&priceId=${getPriceId(plan.id, plan.id === "ai-tools-annual", isBetaTester)}&tier=${plan.tier}&isAnnual=${plan.id === "ai-tools-annual"}&isBeta=${isBetaTester}`}>
                       <Button 
                         className={`w-full ${plan.popular ? 'bg-primary hover:bg-primary/90' : ''}`}
                         size="lg"
@@ -431,11 +404,11 @@ export default function AIToolsPricing() {
           
           <div className="text-center mt-12">
             <p className="text-muted-foreground mb-4">
-              Already have a Basic plan? You can upgrade anytime to unlock AI tools.
+              Need course materials? Check out our learning plans with AI tools included.
             </p>
             <Link href="/pricing">
               <Button variant="outline">
-                View All Plans
+                View Learning Plans
               </Button>
             </Link>
           </div>
