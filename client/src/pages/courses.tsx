@@ -16,12 +16,9 @@ export default function Courses() {
   const [sortBy, setSortBy] = useState("popular");
   const { toast } = useToast();
 
-  const { data: courses = [], isLoading, error } = useQuery({
+  const { data: courses = [], isLoading } = useQuery({
     queryKey: ["/api/courses"],
   });
-
-  // Debug logging
-  console.log("Courses query:", { courses, isLoading, error, coursesLength: courses?.length });
 
   const { data: enrollments = [] } = useQuery({
     queryKey: ["/api/enrollments"],
