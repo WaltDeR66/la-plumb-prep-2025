@@ -156,15 +156,14 @@ export default function Courses() {
                   ))}
                 </div>
               ) : filteredCourses.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" style={{minHeight: '200px', backgroundColor: '#f0f0f0'}}>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                   {filteredCourses.map((course: any) => (
-                    <div key={course.id} style={{border: '2px solid red', minHeight: '300px'}}>
-                      <CourseCard
-                        course={course}
-                        isEnrolled={isEnrolled(course.id)}
-                        progress={getEnrollmentProgress(course.id)}
-                      />
-                    </div>
+                    <CourseCard
+                      key={course.id}
+                      course={course}
+                      isEnrolled={isEnrolled(course.id)}
+                      progress={getEnrollmentProgress(course.id)}
+                    />
                   ))}
                 </div>
               ) : (
