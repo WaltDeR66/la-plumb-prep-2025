@@ -11,22 +11,11 @@ export default function AIToolsPricing() {
   const [isAnnual, setIsAnnual] = useState(false);
   const [isBetaTester] = useState(true); // Would come from user session/API in real app
 
-  const calculatePrice = (basePrice: number, isAnnual: boolean, isBeta: boolean) => {
-    if (isAnnual && isBeta) {
-      // Beta annual: 50% off first month + 25% off remaining 11 months
-      const firstMonth = basePrice * 0.5;
-      const remainingMonths = basePrice * 0.75 * 11;
-      return parseFloat((firstMonth + remainingMonths).toFixed(2)); // Round to 2 decimals
-    }
-    
+  const calculatePrice = (basePrice: number, isAnnual: boolean) => {
     let price = basePrice;
     
     if (isAnnual) {
       price = price * 12 * 0.8; // 20% annual discount on 12 months
-    }
-    
-    if (isBeta && !isAnnual) {
-      price = price * 0.75; // 25% off for beta testers (monthly only)
     }
     
     return parseFloat(price.toFixed(2)); // Round to 2 decimals
@@ -312,32 +301,23 @@ export default function AIToolsPricing() {
                         </>
                       ) : plan.id === "ai-tools-annual" ? (
                         <>
-                          ${calculatePrice(plan.basePrice, true, isBetaTester)}
+                          ${calculatePrice(plan.basePrice, true)}
                           <span className="text-xl font-normal text-muted-foreground">/year</span>
                         </>
                       ) : (
                         <>
-                          ${calculatePrice(plan.basePrice, false, isBetaTester)}
+                          ${calculatePrice(plan.basePrice, false)}
                           <span className="text-xl font-normal text-muted-foreground">/month</span>
                         </>
                       )}
-                      {!plan.payPerUse && (plan.id === "ai-tools-annual" || isBetaTester) && (
+                      {!plan.payPerUse && plan.id === "ai-tools-annual" && (
                         <div className="text-sm space-y-1">
-                          {plan.basePrice !== calculatePrice(plan.basePrice, plan.id === "ai-tools-annual", isBetaTester) && (
-                            <div className="text-muted-foreground line-through">
-                              {plan.id === "ai-tools-annual" ? `$${(plan.basePrice * 12).toFixed(2)}/year` : `$${plan.basePrice.toFixed(2)}/month`}
-                            </div>
-                          )}
-                          {isBetaTester && (
-                            <div className="text-orange-600 font-semibold">
-                              🎉 Beta: Extra 25% off + 50% off first month
-                            </div>
-                          )}
-                          {plan.id === "ai-tools-annual" && (
-                            <div className="text-green-600 font-normal">
-                              Save ${((plan.basePrice * 12) - calculatePrice(plan.basePrice, true, isBetaTester)).toFixed(2)} per year (20% off)
-                            </div>
-                          )}
+                          <div className="text-muted-foreground line-through">
+                            ${(plan.basePrice * 12).toFixed(2)}/year
+                          </div>
+                          <div className="text-green-600 font-normal">
+                            Save ${((plan.basePrice * 12) - calculatePrice(plan.basePrice, true)).toFixed(2)} per year (20% off)
+                          </div>
                         </div>
                       )}
                     </div>
@@ -387,7 +367,7 @@ export default function AIToolsPricing() {
                       </Button>
                     </Link>
                   ) : (
-                    <Link href={`/subscribe?plan=${plan.id}&priceId=${getPriceId(plan.id, plan.id === "ai-tools-annual", isBetaTester)}&tier=${plan.tier}&isAnnual=${plan.id === "ai-tools-annual"}&isBeta=${isBetaTester}`}>
+                    <Link href={`/subscribe?plan=${plan.id}&priceId=${getPriceId(plan.id, plan.id === "ai-tools-annual", false)}&tier=${plan.tier}&isAnnual=${plan.id === "ai-tools-annual"}&isBeta=false`}>
                       <Button 
                         className={`w-full ${plan.popular ? 'bg-primary hover:bg-primary/90' : ''}`}
                         size="lg"
