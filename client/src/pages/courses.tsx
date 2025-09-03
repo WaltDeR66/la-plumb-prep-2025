@@ -42,12 +42,14 @@ export default function Courses() {
     return matchesSearch && matchesCategory;
   }) : [];
 
+
   const isEnrolled = (courseId: string) => {
-    return (enrollments as any[]).some((enrollment: any) => enrollment.courseId === courseId);
+    return Array.isArray(enrollments) && enrollments.some((enrollment: any) => enrollment.courseId === courseId);
   };
 
   const getEnrollmentProgress = (courseId: string) => {
-    const enrollment = (enrollments as any[]).find((e: any) => e.courseId === courseId);
+    if (!Array.isArray(enrollments)) return 0;
+    const enrollment = enrollments.find((e: any) => e.courseId === courseId);
     return enrollment ? parseFloat(enrollment.progress) : 0;
   };
 

@@ -95,7 +95,7 @@ export default function CourseCard({ course, isEnrolled = false, progress = 0, i
   const hasActiveSubscription = () => {
     if (!user) return false;
     const validTiers = ['basic', 'professional', 'master'];
-    return validTiers.includes(user.subscriptionTier?.toLowerCase());
+    return validTiers.includes((user as any)?.subscriptionTier?.toLowerCase());
   };
 
   const IconComponent = getCourseIcon();
