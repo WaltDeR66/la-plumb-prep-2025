@@ -923,9 +923,19 @@ Start your journey at laplumbprep.com/courses
     }
   });
 
-  // Course routes
+  // Course routes - with caching for performance
+  let coursesCache: any[] | null = null;
+  let cacheTime: number = 0;
+  const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+
   app.get("/api/courses", async (req, res) => {
     try {
+      // Check cache first
+      const now = Date.now();
+      if (coursesCache && (now - cacheTime) < CACHE_DURATION) {
+        return res.json(coursesCache);
+      }
+
       const courses = await storage.getCourses();
       
       // If database is empty, automatically seed it
@@ -1004,6 +1014,10 @@ Start your journey at laplumbprep.com/courses
         const seededCourses = await storage.getCourses();
         return res.json(seededCourses);
       }
+      
+      // Update cache
+      coursesCache = courses;
+      cacheTime = now;
       
       res.json(courses);
     } catch (error: any) {

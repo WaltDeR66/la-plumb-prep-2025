@@ -173,10 +173,10 @@ export default function Courses() {
             </TabsContent>
 
             <TabsContent value="enrolled" className="space-y-8">
-              {(enrollments as any[]).length > 0 ? (
+              {Array.isArray(enrollments) && enrollments.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                   {enrollments.map((enrollment: any) => {
-                    const course = courses?.find((c: any) => c.id === enrollment.courseId);
+                    const course = Array.isArray(courses) ? courses.find((c: any) => c.id === enrollment.courseId) : null;
                     if (!course) return null;
                     
                     return (
