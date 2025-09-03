@@ -43,6 +43,7 @@ export default function Courses() {
   }) : [];
 
 
+
   const isEnrolled = (courseId: string) => {
     return Array.isArray(enrollments) && enrollments.some((enrollment: any) => enrollment.courseId === courseId);
   };
