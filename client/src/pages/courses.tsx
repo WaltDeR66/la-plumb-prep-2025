@@ -154,9 +154,9 @@ export default function Courses() {
                     </Card>
                   ))}
                 </div>
-              ) : Array.isArray(courses) && courses.length > 0 ? (
+              ) : filteredCourses.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                  {courses.map((course: any) => (
+                  {filteredCourses.map((course: any) => (
                     <CourseCard
                       key={course.id}
                       course={course}
@@ -206,12 +206,12 @@ export default function Courses() {
             </TabsContent>
 
             <TabsContent value="completed" className="space-y-8">
-              {enrollments?.filter((e: any) => e.isCompleted).length > 0 ? (
+              {Array.isArray(enrollments) && enrollments.filter((e: any) => e.isCompleted).length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                   {enrollments
                     .filter((enrollment: any) => enrollment.isCompleted)
                     .map((enrollment: any) => {
-                      const course = courses?.find((c: any) => c.id === enrollment.courseId);
+                      const course = Array.isArray(courses) ? courses.find((c: any) => c.id === enrollment.courseId) : null;
                       if (!course) return null;
                       
                       return (
