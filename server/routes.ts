@@ -1217,6 +1217,63 @@ Start your journey at laplumbprep.com/courses
     }
   });
 
+  // Create payment intent for job postings with bulk discount pricing
+  app.post("/api/employers/payment-intent", async (req, res) => {
+    try {
+      const { quantity, planType } = req.body;
+      
+      if (!quantity || !planType) {
+        return res.status(400).json({ message: "Quantity and plan type are required" });
+      }
+      
+      // Base pricing
+      const basePrice = planType === 'premium' ? 89 : 49;
+      
+      // Calculate bulk discount
+      let discount = 0;
+      if (quantity >= 10) discount = 0.25; // 25% off for 10+
+      else if (quantity >= 5) discount = 0.15; // 15% off for 5+
+      else if (quantity >= 3) discount = 0.10; // 10% off for 3+
+      
+      const unitPrice = basePrice * (1 - discount);
+      const totalAmount = unitPrice * quantity;
+      const totalSavings = (basePrice * quantity) - totalAmount;
+      
+      // Create payment intent with calculated amount
+      const paymentIntent = await stripe.paymentIntents.create({
+        amount: Math.round(totalAmount * 100), // Convert to cents
+        currency: "usd",
+        metadata: {
+          service: 'job-postings',
+          planType,
+          quantity: quantity.toString(),
+          unitPrice: unitPrice.toFixed(2),
+          originalPrice: basePrice.toString(),
+          discount: (discount * 100).toFixed(0) + '%',
+          totalSavings: totalSavings.toFixed(2)
+        }
+      });
+      
+      res.json({
+        clientSecret: paymentIntent.client_secret,
+        amount: totalAmount,
+        unitPrice,
+        totalSavings,
+        discount: discount * 100,
+        metadata: {
+          planType,
+          quantity,
+          unitPrice: unitPrice.toFixed(2),
+          originalPrice: basePrice,
+          discountPercent: discount * 100
+        }
+      });
+    } catch (error: any) {
+      console.error("Error creating payment intent for job postings:", error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
   app.post("/api/employers/:employerId/jobs", async (req, res) => {
     try {
       const { employerId } = req.params;

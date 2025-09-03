@@ -46,10 +46,12 @@ type EmployerData = z.infer<typeof employerSchema>;
 type JobData = z.infer<typeof jobSchema>;
 
 export default function EmployerPortal() {
-  const [step, setStep] = useState<'pricing' | 'employer' | 'job' | 'success'>('pricing');
+  const [step, setStep] = useState<'pricing' | 'employer' | 'job' | 'payment' | 'success'>('pricing');
   const [employerId, setEmployerId] = useState<string>("");
   const [selectedPlan, setSelectedPlan] = useState<'basic' | 'premium'>('basic');
   const [quantity, setQuantity] = useState<number>(1);
+  const [clientSecret, setClientSecret] = useState<string>("");
+  const [paymentData, setPaymentData] = useState<any>(null);
   const { toast } = useToast();
 
   // Bulk pricing logic with progressive discounts
@@ -103,6 +105,27 @@ export default function EmployerPortal() {
     },
   });
 
+  const createPaymentIntentMutation = useMutation({
+    mutationFn: ({ quantity, planType }: { quantity: number; planType: string }) => 
+      apiRequest("POST", "/api/employers/payment-intent", { quantity, planType }),
+    onSuccess: (response: any) => {
+      setClientSecret(response.clientSecret);
+      setPaymentData(response);
+      setStep('payment');
+      toast({
+        title: "Payment Ready",
+        description: "Please complete your payment to post your job(s).",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Payment Error",
+        description: error.message || "Failed to create payment",
+        variant: "destructive",
+      });
+    },
+  });
+
   const createJobMutation = useMutation({
     mutationFn: (data: JobData & { 
       requirements: string[]; 
@@ -135,18 +158,27 @@ export default function EmployerPortal() {
   };
 
   const onSubmitJob = (data: JobData) => {
+    // Store job data for after payment
     const pricing = selectedPlan === 'basic' ? basicPricing : premiumPricing;
     const processedData = {
       ...data,
-      requirements: data.requirements.split('\n').filter(req => req.trim()),
-      benefits: data.benefits ? data.benefits.split('\n').filter(benefit => benefit.trim()) : undefined,
+      requirements: data.requirements,
+      benefits: data.benefits,
       planType: selectedPlan,
       quantity: quantity,
       unitPrice: pricing.unitPrice,
       totalPrice: pricing.totalPrice,
       discount: pricing.discount,
     };
-    createJobMutation.mutate(processedData);
+    
+    // Store job data in state for after payment
+    setPaymentData({ ...paymentData, jobData: processedData });
+    
+    // Create payment intent first
+    createPaymentIntentMutation.mutate({ 
+      quantity, 
+      planType: selectedPlan 
+    });
   };
 
   const formatJobType = (type: string) => {
