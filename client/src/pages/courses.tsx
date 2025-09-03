@@ -145,12 +145,6 @@ export default function Courses() {
             </TabsList>
             
             <TabsContent value="all" className="space-y-8">
-              {/* Debug info */}
-              <div style={{display: 'none'}}>
-                Loading: {isLoading.toString()}, 
-                Courses count: {coursesArray.length}, 
-                Filtered count: {filteredCourses.length}
-              </div>
               {isLoading ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                   {[...Array(6)].map((_, i) => (
@@ -164,7 +158,7 @@ export default function Courses() {
                     </Card>
                   ))}
                 </div>
-              ) : coursesArray.length > 0 ? (
+              ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                   {filteredCourses.map((course: any) => (
                     <CourseCard
@@ -174,12 +168,13 @@ export default function Courses() {
                       progress={getEnrollmentProgress(course.id)}
                     />
                   ))}
-                </div>
-              ) : (
-                <div className="text-center py-16" data-testid="no-courses">
-                  <BookOpen className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
-                  <h3 className="text-lg font-semibold text-foreground mb-2">No courses found</h3>
-                  <p className="text-muted-foreground">Try adjusting your search or filter criteria.</p>
+                  {filteredCourses.length === 0 && !isLoading && (
+                    <div className="col-span-full text-center py-16" data-testid="no-courses">
+                      <BookOpen className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
+                      <h3 className="text-lg font-semibold text-foreground mb-2">No courses found</h3>
+                      <p className="text-muted-foreground">Try adjusting your search or filter criteria.</p>
+                    </div>
+                  )}
                 </div>
               )}
             </TabsContent>
