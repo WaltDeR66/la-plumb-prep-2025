@@ -21,7 +21,6 @@ export default function Header() {
     { name: "Tools", href: "/ai-tools-pricing" },
     { name: "Store", href: "/store" },
     { name: "Jobs", href: "/jobs" },
-    { name: "Pricing", href: "/pricing" },
   ];
 
   const handleLogout = async () => {
