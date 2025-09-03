@@ -20,6 +20,7 @@ export default function Courses() {
     queryKey: ["/api/courses"],
   });
 
+
   const { data: enrollments = [] } = useQuery({
     queryKey: ["/api/enrollments"],
     retry: false,
@@ -34,12 +35,12 @@ export default function Courses() {
     { value: "master", label: "Master Plumber" },
   ];
 
-  const filteredCourses = (courses as any[]).filter((course: any) => {
+  const filteredCourses = Array.isArray(courses) ? courses.filter((course: any) => {
     const matchesSearch = course.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          course.description.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = selectedCategory === "all" || course.type === selectedCategory;
     return matchesSearch && matchesCategory;
-  }) || [];
+  }) : [];
 
   const isEnrolled = (courseId: string) => {
     return (enrollments as any[]).some((enrollment: any) => enrollment.courseId === courseId);
