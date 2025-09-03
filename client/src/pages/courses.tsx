@@ -145,45 +145,42 @@ export default function Courses() {
             </TabsList>
             
             <TabsContent value="all" className="space-y-8">
-              {isLoading ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                  {[...Array(6)].map((_, i) => (
-                    <Card key={i} className="p-6">
-                      <div className="animate-pulse space-y-4">
-                        <div className="w-12 h-12 bg-muted rounded-lg"></div>
-                        <div className="h-6 bg-muted rounded"></div>
-                        <div className="h-4 bg-muted rounded w-3/4"></div>
-                        <div className="h-8 bg-muted rounded"></div>
-                      </div>
-                    </Card>
-                  ))}
-                </div>
-              ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                  {filteredCourses.map((course: any) => (
-                    <CourseCard
-                      key={course.id}
-                      course={course}
-                      isEnrolled={isEnrolled(course.id)}
-                      progress={getEnrollmentProgress(course.id)}
-                    />
-                  ))}
-                  {filteredCourses.length === 0 && !isLoading && (
-                    <div className="col-span-full text-center py-16" data-testid="no-courses">
-                      <BookOpen className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
-                      <h3 className="text-lg font-semibold text-foreground mb-2">No courses found</h3>
-                      <p className="text-muted-foreground">Try adjusting your search or filter criteria.</p>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {isLoading && [...Array(6)].map((_, i) => (
+                  <Card key={`skeleton-${i}`} className="p-6">
+                    <div className="animate-pulse space-y-4">
+                      <div className="w-12 h-12 bg-muted rounded-lg"></div>
+                      <div className="h-6 bg-muted rounded"></div>
+                      <div className="h-4 bg-muted rounded w-3/4"></div>
+                      <div className="h-8 bg-muted rounded"></div>
                     </div>
-                  )}
-                </div>
-              )}
+                  </Card>
+                ))}
+                
+                {!isLoading && filteredCourses.map((course: any) => (
+                  <CourseCard
+                    key={course.id}
+                    course={course}
+                    isEnrolled={isEnrolled(course.id)}
+                    progress={getEnrollmentProgress(course.id)}
+                  />
+                ))}
+                
+                {!isLoading && filteredCourses.length === 0 && (
+                  <div className="col-span-full text-center py-16" data-testid="no-courses">
+                    <BookOpen className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
+                    <h3 className="text-lg font-semibold text-foreground mb-2">No courses found</h3>
+                    <p className="text-muted-foreground">Try adjusting your search or filter criteria.</p>
+                  </div>
+                )}
+              </div>
             </TabsContent>
 
             <TabsContent value="enrolled" className="space-y-8">
-              {Array.isArray(enrollments) && enrollments.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                  {enrollments.map((enrollment: any) => {
-                    const course = Array.isArray(courses) ? courses.find((c: any) => c.id === enrollment.courseId) : null;
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {Array.isArray(enrollments) && enrollments.length > 0 ? (
+                  enrollments.map((enrollment: any) => {
+                    const course = coursesArray.find((c: any) => c.id === enrollment.courseId);
                     if (!course) return null;
                     
                     return (
@@ -194,18 +191,18 @@ export default function Courses() {
                         progress={parseFloat(enrollment.progress)}
                       />
                     );
-                  })}
-                </div>
-              ) : (
-                <div className="text-center py-16" data-testid="no-enrolled-courses">
-                  <BookOpen className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
-                  <h3 className="text-lg font-semibold text-foreground mb-2">No enrolled courses</h3>
-                  <p className="text-muted-foreground mb-4">Start your learning journey by enrolling in a course.</p>
-                  <Button onClick={() => document.getElementById('all')?.click()} data-testid="browse-courses">
-                    Browse Courses
-                  </Button>
-                </div>
-              )}
+                  })
+                ) : (
+                  <div className="col-span-full text-center py-16" data-testid="no-enrolled-courses">
+                    <BookOpen className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
+                    <h3 className="text-lg font-semibold text-foreground mb-2">No enrolled courses</h3>
+                    <p className="text-muted-foreground mb-4">Start your learning journey by enrolling in a course.</p>
+                    <Button onClick={() => document.getElementById('all')?.click()} data-testid="browse-courses">
+                      Browse Courses
+                    </Button>
+                  </div>
+                )}
+              </div>
             </TabsContent>
 
             <TabsContent value="completed" className="space-y-8">
