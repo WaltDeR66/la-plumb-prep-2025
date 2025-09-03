@@ -35,12 +35,15 @@ export default function Courses() {
     { value: "master", label: "Master Plumber" },
   ];
 
-  const filteredCourses = Array.isArray(courses) ? courses.filter((course: any) => {
+  // Ensure courses is always an array and filter properly
+  const coursesArray = Array.isArray(courses) ? courses : [];
+  const filteredCourses = coursesArray.filter((course: any) => {
+    if (!course || !course.title || !course.description) return false;
     const matchesSearch = course.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          course.description.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = selectedCategory === "all" || course.type === selectedCategory;
     return matchesSearch && matchesCategory;
-  }) : [];
+  });
 
 
 
@@ -142,6 +145,12 @@ export default function Courses() {
             </TabsList>
             
             <TabsContent value="all" className="space-y-8">
+              {/* Debug info */}
+              <div style={{display: 'none'}}>
+                Loading: {isLoading.toString()}, 
+                Courses count: {coursesArray.length}, 
+                Filtered count: {filteredCourses.length}
+              </div>
               {isLoading ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                   {[...Array(6)].map((_, i) => (
@@ -155,7 +164,7 @@ export default function Courses() {
                     </Card>
                   ))}
                 </div>
-              ) : filteredCourses.length > 0 ? (
+              ) : coursesArray.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                   {filteredCourses.map((course: any) => (
                     <CourseCard
