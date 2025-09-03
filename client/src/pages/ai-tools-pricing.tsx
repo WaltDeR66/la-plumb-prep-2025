@@ -171,14 +171,6 @@ export default function AIToolsPricing() {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Beta Banner */}
-      {isBetaTester && (
-        <section className="py-6 bg-background">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <BetaBanner showCTA={false} />
-          </div>
-        </section>
-      )}
 
       {/* Hero Section */}
       <section className="py-20 bg-gradient-to-br from-primary/10 to-accent/10" data-testid="ai-tools-hero">
@@ -404,18 +396,6 @@ export default function AIToolsPricing() {
           <p className="text-xl text-blue-100 mb-8">
             Join hundreds of Louisiana plumbers already using AI to improve their work quality, speed up inspections, and reduce code violations.
           </p>
-          <div className="flex justify-center gap-4">
-            <Link href="#ai-pricing-plans">
-              <Button size="lg" className="bg-white text-primary hover:bg-gray-50 text-lg px-8 py-4">
-                Start Free Trial
-              </Button>
-            </Link>
-            <Link href="/tools">
-              <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/10 text-lg px-8 py-4">
-                View Tools Demo
-              </Button>
-            </Link>
-          </div>
         </div>
       </section>
     </div>
