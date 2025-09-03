@@ -18,7 +18,7 @@ export default function Header() {
 
   const navigation = [
     { name: "Courses", href: "/courses" },
-    { name: "Tools", href: "/pricing" },
+    { name: "Tools", href: "/ai-tools-pricing" },
     { name: "Store", href: "/store" },
     { name: "Jobs", href: "/jobs" },
     { name: "Pricing", href: "/pricing" },
