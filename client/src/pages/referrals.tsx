@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery } from "@tanstack/react-query";
-import { DollarSign, Users, Copy, Share2, TrendingUp, Info } from "lucide-react";
+import { DollarSign, Users, Copy, Share2, TrendingUp, Info, MessageSquare, Instagram, Facebook, Twitter } from "lucide-react";
 import { Link } from "wouter";
 
 interface ReferralStats {
@@ -104,6 +104,86 @@ export default function Referrals() {
 
   const getTierDisplayName = (tier: string) => {
     return tier.charAt(0).toUpperCase() + tier.slice(1);
+  };
+
+  // Social media post templates
+  const getPostTemplates = (referralCode: string, referralUrl: string) => [
+    {
+      id: "success-story",
+      title: "Success Story",
+      platform: "General",
+      icon: MessageSquare,
+      text: `🔧 Just passed my Louisiana plumbing exam with LA Plumb Prep! Their practice tests and AI mentor were game-changers. \n\nIf you're studying for your Louisiana plumbing certification, check them out: ${referralUrl} \n\n#LouisianaPlumber #PlumbingCertification #StudySuccess`,
+      hashtags: "#LouisianaPlumber #PlumbingCertification #StudySuccess"
+    },
+    {
+      id: "professional-tip",
+      title: "Professional Tip",
+      platform: "LinkedIn",
+      icon: MessageSquare,
+      text: `💡 Pro tip for Louisiana plumbers: LA Plumb Prep's AI-powered tools have revolutionized how I prepare for certifications and handle code compliance on job sites.\n\nTheir platform covers everything from Journeyman prep to specialized certifications. Worth checking out: ${referralUrl}\n\n#PlumbingProfessional #LouisianaPlumbing #ContinuingEducation`,
+      hashtags: "#PlumbingProfessional #LouisianaPlumbing #ContinuingEducation"
+    },
+    {
+      id: "recommendation",
+      title: "Colleague Recommendation",
+      platform: "Facebook",
+      icon: MessageSquare,
+      text: `🚰 Fellow plumbers! I've been using LA Plumb Prep for my Louisiana certifications and it's been incredible. The practice tests mirror the real exams perfectly, and their AI mentor answers any code questions instantly.\n\nDefinitely recommend checking it out if you're serious about advancing your plumbing career: ${referralUrl}`,
+      hashtags: ""
+    },
+    {
+      id: "quick-tip",
+      title: "Quick Study Tip",
+      platform: "Twitter/X",
+      icon: MessageSquare,
+      text: `🔧 Louisiana plumbers: LA Plumb Prep's AI mentor is like having a master plumber available 24/7 for code questions! Game changer for exam prep 💯\n\n${referralUrl}\n\n#PlumbingLife #LouisianaPlumber #ExamPrep`,
+      hashtags: "#PlumbingLife #LouisianaPlumber #ExamPrep"
+    }
+  ];
+
+  const shareToSocialMedia = (template: any, platform: string) => {
+    const baseUrls = {
+      facebook: 'https://www.facebook.com/sharer/sharer.php?u=',
+      twitter: 'https://twitter.com/intent/tweet?text=',
+      linkedin: 'https://www.linkedin.com/sharing/share-offsite/?url=',
+      whatsapp: 'https://wa.me/?text='
+    };
+
+    let shareUrl = '';
+    
+    switch (platform.toLowerCase()) {
+      case 'facebook':
+        shareUrl = `${baseUrls.facebook}${encodeURIComponent(referralUrl)}&quote=${encodeURIComponent(template.text)}`;
+        break;
+      case 'twitter':
+        shareUrl = `${baseUrls.twitter}${encodeURIComponent(template.text)}`;
+        break;
+      case 'linkedin':
+        shareUrl = `${baseUrls.linkedin}${encodeURIComponent(referralUrl)}&summary=${encodeURIComponent(template.text)}`;
+        break;
+      case 'whatsapp':
+        shareUrl = `${baseUrls.whatsapp}${encodeURIComponent(template.text)}`;
+        break;
+      default:
+        // Copy to clipboard as fallback
+        navigator.clipboard.writeText(template.text);
+        toast({
+          title: "Copied!",
+          description: "Post template copied to clipboard",
+        });
+        return;
+    }
+
+    window.open(shareUrl, '_blank', 'width=600,height=400');
+  };
+
+  const copyTemplate = (text: string) => {
+    navigator.clipboard.writeText(text);
+    toast({
+      title: "Copied!",
+      description: "Post template copied to clipboard",
+    });
   };
 
   if (statsLoading || previewLoading || monthlyLoading) {
@@ -366,6 +446,87 @@ export default function Referrals() {
                       <Share2 className="h-4 w-4 mr-2" />
                       Share
                     </Button>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Social Media Post Templates */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Share2 className="h-5 w-5" />
+                    Social Media Templates
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <p className="text-sm text-muted-foreground">
+                      Ready-to-share posts with your referral link embedded. Click to share or copy!
+                    </p>
+                    
+                    {stats?.referralCode && getPostTemplates(stats.referralCode, referralUrl).map((template) => (
+                      <div key={template.id} className="border rounded-lg p-4 space-y-3">
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <h4 className="font-medium text-sm">{template.title}</h4>
+                            <p className="text-xs text-muted-foreground">{template.platform}</p>
+                          </div>
+                          <template.icon className="h-4 w-4 text-muted-foreground" />
+                        </div>
+                        
+                        <div className="bg-gray-50 p-3 rounded text-xs">
+                          <div className="whitespace-pre-wrap line-clamp-4">{template.text}</div>
+                        </div>
+                        
+                        <div className="flex gap-2">
+                          <Button 
+                            size="sm" 
+                            variant="outline" 
+                            onClick={() => copyTemplate(template.text)}
+                            className="flex-1"
+                            data-testid={`copy-template-${template.id}`}
+                          >
+                            <Copy className="h-3 w-3 mr-1" />
+                            Copy
+                          </Button>
+                          
+                          <div className="flex gap-1">
+                            <Button 
+                              size="sm" 
+                              onClick={() => shareToSocialMedia(template, 'facebook')}
+                              className="px-2"
+                              data-testid={`share-facebook-${template.id}`}
+                            >
+                              <Facebook className="h-3 w-3" />
+                            </Button>
+                            <Button 
+                              size="sm" 
+                              onClick={() => shareToSocialMedia(template, 'twitter')}
+                              className="px-2"
+                              data-testid={`share-twitter-${template.id}`}
+                            >
+                              <Twitter className="h-3 w-3" />
+                            </Button>
+                            <Button 
+                              size="sm" 
+                              onClick={() => shareToSocialMedia(template, 'linkedin')}
+                              className="px-2"
+                              data-testid={`share-linkedin-${template.id}`}
+                            >
+                              <MessageSquare className="h-3 w-3" />
+                            </Button>
+                            <Button 
+                              size="sm" 
+                              onClick={() => shareToSocialMedia(template, 'whatsapp')}
+                              className="px-2"
+                              data-testid={`share-whatsapp-${template.id}`}
+                            >
+                              <MessageSquare className="h-3 w-3" />
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 </CardContent>
               </Card>
