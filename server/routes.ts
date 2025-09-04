@@ -928,7 +928,16 @@ Start your journey at laplumbprep.com/courses
   let cacheTime: number = 0;
   const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
 
+  // PUBLIC ENDPOINT - No authentication required for viewing courses
   app.get("/api/courses", async (req, res) => {
+    // Set CORS headers to ensure cross-origin access works
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Methods', 'GET');
+    res.header('Access-Control-Allow-Headers', 'Content-Type');
+    
+    // This endpoint should always work regardless of authentication state
+    console.log("Courses API called - this is a public endpoint");
+    
     try {
       // Check cache first
       const now = Date.now();
