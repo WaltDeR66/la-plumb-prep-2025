@@ -3695,7 +3695,11 @@ Start your journey at laplumbprep.com/courses
   });
 
   // Get user's achievements
-  app.get("/api/achievements/user", requireAuth, async (req: any, res) => {
+  app.get("/api/achievements/user", async (req: any, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+    
     try {
       const userId = req.user.id;
       const achievements = await storage.getUserAchievements(userId);
@@ -3719,7 +3723,11 @@ Start your journey at laplumbprep.com/courses
   });
 
   // Start competition attempt
-  app.post("/api/competitions/:competitionId/start", requireAuth, async (req: any, res) => {
+  app.post("/api/competitions/:competitionId/start", async (req: any, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+    
     try {
       const { competitionId } = req.params;
       const userId = req.user.id;
@@ -3733,7 +3741,11 @@ Start your journey at laplumbprep.com/courses
   });
 
   // Submit competition attempt
-  app.post("/api/competitions/:competitionId/submit", requireAuth, async (req: any, res) => {
+  app.post("/api/competitions/:competitionId/submit", async (req: any, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+    
     try {
       const { competitionId } = req.params;
       const userId = req.user.id;
@@ -3748,7 +3760,11 @@ Start your journey at laplumbprep.com/courses
   });
 
   // Get user's competition history
-  app.get("/api/competitions/history", requireAuth, async (req: any, res) => {
+  app.get("/api/competitions/history", async (req: any, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+    
     try {
       const userId = req.user.id;
       const history = await storage.getUserCompetitionHistory(userId);
@@ -3760,7 +3776,11 @@ Start your journey at laplumbprep.com/courses
   });
 
   // Award achievement (admin only)
-  app.post("/api/achievements/award", requireAuth, async (req: any, res) => {
+  app.post("/api/achievements/award", async (req: any, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+    
     try {
       // Check if user is admin
       if (!req.user.email?.includes('admin') && req.user.subscriptionTier !== 'master') {
@@ -3777,7 +3797,11 @@ Start your journey at laplumbprep.com/courses
   });
 
   // Get user points summary
-  app.get("/api/points/summary", requireAuth, async (req: any, res) => {
+  app.get("/api/points/summary", async (req: any, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+    
     try {
       const userId = req.user.id;
       const summary = await storage.getUserPointsSummary(userId);

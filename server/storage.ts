@@ -1488,7 +1488,7 @@ export class DatabaseStorage implements IStorage {
         questions,
         totalQuestions: questions.length,
         correctAnswers: 0,
-        score: 0,
+        score: "0",
       })
       .returning();
 
