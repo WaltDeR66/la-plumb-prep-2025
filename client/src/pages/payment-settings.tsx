@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
@@ -43,6 +44,8 @@ export default function PaymentSettings() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [isUpdating, setIsUpdating] = useState(false);
+  const [payoutType, setPayoutType] = useState<"full" | "custom">("full");
+  const [customAmount, setCustomAmount] = useState<string>("");
 
   // Fetch payment settings
   const { data: settings, isLoading: settingsLoading } = useQuery({
@@ -118,9 +121,31 @@ export default function PaymentSettings() {
   };
 
   const handleRequestPayout = () => {
-    if (!settings?.eligibleForPayout || settings.unpaidEarnings < settings.minimumPayout) {
+    let requestAmount = settings?.unpaidEarnings || 0;
+    
+    if (payoutType === "custom") {
+      requestAmount = parseFloat(customAmount);
+      if (isNaN(requestAmount) || requestAmount <= 0) {
+        toast({
+          title: "Invalid Amount",
+          description: "Please enter a valid payout amount",
+          variant: "destructive",
+        });
+        return;
+      }
+      if (requestAmount > (settings?.unpaidEarnings || 0)) {
+        toast({
+          title: "Amount Too High",
+          description: `Maximum available: $${settings?.unpaidEarnings?.toFixed(2)}`,
+          variant: "destructive",
+        });
+        return;
+      }
+    }
+
+    if (requestAmount < (settings?.minimumPayout || 25)) {
       toast({
-        title: "Payout Not Available",
+        title: "Amount Too Low",
         description: `Minimum payout amount is $${settings?.minimumPayout || 25}`,
         variant: "destructive",
       });
@@ -129,6 +154,7 @@ export default function PaymentSettings() {
 
     requestPayoutMutation.mutate({
       paymentMethod: settings.preferredPaymentMethod,
+      amount: requestAmount,
     });
   };
 
@@ -292,18 +318,59 @@ export default function PaymentSettings() {
                 <CardContent>
                   <div className="space-y-4">
                     <div className="text-sm text-green-700">
-                      {settings?.eligibleForPayout 
-                        ? `You can request a payout of $${settings.unpaidEarnings?.toFixed(2)}`
-                        : `Need $${settings?.minimumPayout?.toFixed(2)} minimum to request payout`
+                      Available for payout: <strong>${settings?.unpaidEarnings?.toFixed(2) || "0.00"}</strong>
+                    </div>
+
+                    <RadioGroup value={payoutType} onValueChange={(value: "full" | "custom") => setPayoutType(value)}>
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="full" id="full" />
+                        <Label htmlFor="full" className="text-sm">
+                          Request full amount (${settings?.unpaidEarnings?.toFixed(2) || "0.00"})
+                        </Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="custom" id="custom" />
+                        <Label htmlFor="custom" className="text-sm">
+                          Custom amount
+                        </Label>
+                      </div>
+                    </RadioGroup>
+
+                    {payoutType === "custom" && (
+                      <div>
+                        <Label htmlFor="customAmount" className="text-sm">Custom Payout Amount</Label>
+                        <Input
+                          id="customAmount"
+                          type="number"
+                          min="0"
+                          max={settings?.unpaidEarnings || 0}
+                          step="0.01"
+                          value={customAmount}
+                          onChange={(e) => setCustomAmount(e.target.value)}
+                          placeholder={`Min: $${settings?.minimumPayout || 25}, Max: $${settings?.unpaidEarnings?.toFixed(2) || "0.00"}`}
+                          className="mt-1"
+                          data-testid="custom-payout-amount"
+                        />
+                      </div>
+                    )}
+
+                    <div className="text-xs text-green-600">
+                      {payoutType === "full" 
+                        ? "You'll receive the full available amount"
+                        : "Specify how much you want to withdraw"
                       }
                     </div>
+
                     <Button
                       onClick={handleRequestPayout}
-                      disabled={!settings?.eligibleForPayout || requestPayoutMutation.isPending}
+                      disabled={!settings?.unpaidEarnings || (settings?.unpaidEarnings < (settings?.minimumPayout || 25)) || requestPayoutMutation.isPending}
                       className="w-full bg-green-600 hover:bg-green-700"
                       data-testid="request-payout"
                     >
-                      {requestPayoutMutation.isPending ? "Processing..." : "Request Payout"}
+                      {requestPayoutMutation.isPending 
+                        ? "Processing..." 
+                        : `Request ${payoutType === "full" ? "Full" : "Custom"} Payout`
+                      }
                     </Button>
                   </div>
                 </CardContent>
