@@ -14,6 +14,8 @@ export default function Header() {
   const { data: user } = useQuery<User>({
     queryKey: ["/api/auth/me"],
     retry: false,
+    staleTime: 30000, // 30 seconds
+    enabled: true, // Always enabled but non-blocking
   });
 
   const navigation = [

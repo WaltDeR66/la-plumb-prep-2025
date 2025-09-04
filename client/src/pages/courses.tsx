@@ -16,11 +16,10 @@ export default function Courses() {
   const [sortBy, setSortBy] = useState("popular");
   const { toast } = useToast();
 
-  const { data: courses = [], isLoading, error, isFetching } = useQuery({
+  const { data: courses = [], isLoading } = useQuery({
     queryKey: ["/api/courses"],
-    staleTime: 5 * 60 * 1000, // 5 minutes
-    retry: 3,
-    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+    staleTime: 5 * 60 * 1000,
+    retry: false,
   });
 
 
@@ -48,28 +47,6 @@ export default function Courses() {
     return matchesSearch && matchesCategory;
   });
 
-  // Debug logging for the delayed loading issue
-  React.useEffect(() => {
-    console.log('📊 Courses Query State:', {
-      courses: courses?.length || 0,
-      isLoading,
-      isFetching,
-      error: error?.message,
-      filteredCount: filteredCourses.length,
-      timestamp: new Date().toISOString()
-    });
-  }, [courses, isLoading, isFetching, error, filteredCourses]);
-
-  // Force refresh if courses array is empty after 3 seconds
-  React.useEffect(() => {
-    if (!isLoading && !isFetching && coursesArray.length === 0 && !error) {
-      const timer = setTimeout(() => {
-        console.log('🔄 No courses loaded, forcing refetch...');
-        window.location.reload();
-      }, 3000);
-      return () => clearTimeout(timer);
-    }
-  }, [isLoading, isFetching, coursesArray.length, error]);
 
 
 
@@ -183,7 +160,7 @@ export default function Courses() {
                   </Card>
                 ))}
                 
-                {!isLoading && !isFetching && filteredCourses.map((course: any) => (
+                {!isLoading && filteredCourses.map((course: any) => (
                   <CourseCard
                     key={course.id}
                     course={course}
@@ -192,7 +169,7 @@ export default function Courses() {
                   />
                 ))}
                 
-                {(isLoading || isFetching) && coursesArray.length === 0 && [...Array(6)].map((_, i) => (
+                {isLoading && [...Array(6)].map((_, i) => (
                   <Card key={`loading-${i}`} className="p-6">
                     <div className="animate-pulse space-y-4">
                       <div className="w-12 h-12 bg-muted rounded-lg"></div>
@@ -203,22 +180,11 @@ export default function Courses() {
                   </Card>
                 ))}
                 
-                {!isLoading && !isFetching && filteredCourses.length === 0 && coursesArray.length > 0 && (
+                {!isLoading && filteredCourses.length === 0 && coursesArray.length > 0 && (
                   <div className="col-span-full text-center py-16" data-testid="no-courses">
                     <BookOpen className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
                     <h3 className="text-lg font-semibold text-foreground mb-2">No courses found</h3>
                     <p className="text-muted-foreground">Try adjusting your search or filter criteria.</p>
-                  </div>
-                )}
-                
-                {!isLoading && !isFetching && coursesArray.length === 0 && (
-                  <div className="col-span-full text-center py-16" data-testid="no-courses-loaded">
-                    <BookOpen className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
-                    <h3 className="text-lg font-semibold text-foreground mb-2">Loading courses...</h3>
-                    <p className="text-muted-foreground">Please wait while we load the course catalog.</p>
-                    {error && (
-                      <p className="text-destructive mt-2">Error: {error.message}</p>
-                    )}
                   </div>
                 )}
               </div>
