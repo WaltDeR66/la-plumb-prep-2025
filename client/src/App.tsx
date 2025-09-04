@@ -47,7 +47,11 @@ function Router() {
       <main className="flex-1">
         <Switch>
           <Route path="/" component={Home} />
-          <Route path="/courses" component={Courses} />
+          <Route path="/courses" component={() => {
+            // Force browser to bypass cache for courses page
+            window.location.reload();
+            return <Courses />;
+          }} />
           <Route path="/tools" component={Tools} />
           <Route path="/tools/ai-pricing" component={AIToolsPricing} />
           <Route path="/pay-per-use" component={PayPerUseCheckout} />
