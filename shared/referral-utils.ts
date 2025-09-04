@@ -33,11 +33,14 @@ export function calculateReferralCommission(
   eligiblePrice: number;
   commissionAmount: number;
 } {
-  // Determine the eligible tier (capped by referrer's tier)
+  // Commission logic: referrer gets commission based on the lower of:
+  // 1. Their own tier (cap)
+  // 2. The tier the referred user actually bought
   const referrerLevel = PLAN_TIER_LEVELS[referrerTier];
   const referredLevel = PLAN_TIER_LEVELS[referredTier];
   
-  // Use the lower of the two tiers
+  // If referred user buys lower tier, use that tier
+  // If referred user buys higher tier, cap at referrer's tier
   const eligibleLevel = Math.min(referrerLevel, referredLevel);
   
   // Map back to tier name
