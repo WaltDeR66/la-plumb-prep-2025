@@ -3027,7 +3027,16 @@ Start your journey at laplumbprep.com/courses
 
     try {
       const userId = (req.user as any).id;
-      const user = (req.user as any);
+      let user = (req.user as any);
+      
+      // Generate referral code if user doesn't have one
+      let referralCode = user.referralCode;
+      if (!referralCode) {
+        referralCode = Math.random().toString(36).substring(2, 8).toUpperCase();
+        await storage.updateUser(userId, { referralCode });
+        // Update the user object in the session
+        user.referralCode = referralCode;
+      }
       
       const [referrals, earnings] = await Promise.all([
         storage.getUserReferrals(userId),
@@ -3035,7 +3044,7 @@ Start your journey at laplumbprep.com/courses
       ]);
 
       res.json({
-        referralCode: user.referralCode,
+        referralCode,
         planTier: user.subscriptionTier,
         totalReferrals: referrals.length,
         earnings,
