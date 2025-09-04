@@ -266,3 +266,84 @@ export async function generateAudio(text: string, contentId: string): Promise<st
     throw new Error("Failed to generate audio: " + (error as Error).message);
   }
 }
+
+export async function reviewJobPosting(
+  title: string, 
+  description: string, 
+  requirements: string[], 
+  company: string
+): Promise<{
+  isApproved: boolean;
+  isPlumbingRelated: boolean;
+  qualityScore: number;
+  concerns: string[];
+  recommendations: string[];
+  reasoning: string;
+}> {
+  try {
+    const response = await openai.chat.completions.create({
+      model: "gpt-4o",
+      messages: [
+        {
+          role: "system",
+          content: `You are a job board moderator for Louisiana plumbing professionals. Your role is to review job postings to ensure they are:
+
+1. **Plumbing-related**: Jobs must be relevant to plumbers, pipe fitters, or plumbing contractors
+2. **Professional**: Legitimate business opportunities, not spam or inappropriate content
+3. **Complete**: Has clear job description, requirements, and company information
+4. **Appropriate**: Safe, legal, and suitable for professional plumbers
+
+APPROVAL CRITERIA:
+✅ APPROVE if job is:
+- Plumber, pipe fitter, plumbing technician, or plumbing contractor roles
+- Plumbing installation, repair, maintenance, or inspection work
+- Construction roles requiring plumbing expertise
+- Legitimate companies with real job opportunities
+- Clear job descriptions with reasonable requirements
+
+❌ REJECT if job is:
+- Not related to plumbing or pipe work
+- Spam, MLM schemes, or "get rich quick" offers
+- Inappropriate, illegal, or unsafe work
+- Vague descriptions or suspicious companies
+- Missing critical information
+
+Respond with JSON in this exact format: {
+  "isApproved": boolean,
+  "isPlumbingRelated": boolean,
+  "qualityScore": number (0-10),
+  "concerns": string[],
+  "recommendations": string[],
+  "reasoning": string
+}`
+        },
+        {
+          role: "user",
+          content: `Review this job posting:
+
+**Job Title:** ${title}
+**Company:** ${company}
+**Description:** ${description}
+**Requirements:** ${requirements.join(", ")}
+
+Determine if this job should be approved for Louisiana plumbing professionals.`
+        }
+      ],
+      response_format: { type: "json_object" },
+      max_tokens: 800,
+    });
+
+    return JSON.parse(response.choices[0].message.content || "{}");
+  } catch (error) {
+    console.error("Job review AI error:", error);
+    // Default to manual review if AI fails
+    return {
+      isApproved: false,
+      isPlumbingRelated: true,
+      qualityScore: 5,
+      concerns: ["AI review failed - requires manual approval"],
+      recommendations: ["Manual review recommended"],
+      reasoning: "AI analysis unavailable, defaulting to manual review for safety"
+    };
+  }
+}

@@ -137,12 +137,24 @@ export default function EmployerPortal() {
       discount: number;
     }) => 
       apiRequest("POST", `/api/employers/${employerId}/jobs`, data),
-    onSuccess: () => {
+    onSuccess: (response: any) => {
       setStep('success');
-      toast({
-        title: "Job Posted Successfully",
-        description: `Your ${quantity} job posting${quantity > 1 ? 's have' : ' has'} been submitted for review.`,
-      });
+      
+      // Show different messages based on AI approval
+      if (response.status === 'approved') {
+        toast({
+          title: "Job Posted Successfully! 🎉",
+          description: "Your job posting was automatically approved and is now live!",
+        });
+      } else {
+        toast({
+          title: "Job Posted for Review",
+          description: `Your ${quantity} job posting${quantity > 1 ? 's have' : ' has'} been submitted for manual review.`,
+        });
+      }
+      
+      // Store AI review data for display on success page
+      setPaymentData(prev => ({ ...prev, aiReview: response.aiReview }));
     },
     onError: (error: any) => {
       toast({
@@ -195,9 +207,37 @@ export default function EmployerPortal() {
               <h1 className="text-3xl font-bold mb-4" data-testid="success-title">
                 Job Posted Successfully!
               </h1>
+              
+              {/* AI Review Status */}
+              {paymentData?.aiReview && (
+                <div className="mb-6">
+                  {paymentData.aiReview.isPlumbingRelated ? (
+                    <div className="bg-green-50 border border-green-200 rounded-lg p-4 max-w-2xl mx-auto">
+                      <div className="flex items-center justify-center text-green-700 font-semibold mb-2">
+                        <CheckCircle className="w-5 h-5 mr-2" />
+                        AI Review: Approved for Plumbing Industry
+                      </div>
+                      <p className="text-sm text-green-600">
+                        Quality Score: {paymentData.aiReview.qualityScore}/10
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 max-w-2xl mx-auto">
+                      <div className="flex items-center justify-center text-yellow-700 font-semibold mb-2">
+                        <RefreshCw className="w-5 h-5 mr-2" />
+                        AI Review: Pending Manual Review
+                      </div>
+                      <p className="text-sm text-yellow-600">
+                        Quality Score: {paymentData.aiReview.qualityScore}/10
+                      </p>
+                    </div>
+                  )}
+                </div>
+              )}
+              
               <p className="text-muted-foreground text-lg mb-8 max-w-2xl mx-auto">
-                Your {quantity} {selectedPlan} job posting{quantity > 1 ? 's have' : ' has'} been submitted and {quantity > 1 ? 'are' : 'is'} pending review by our team. 
-                We'll notify you via email once {quantity > 1 ? 'they\'re' : 'it\'s'} approved and live on our platform.
+                Your {quantity} {selectedPlan} job posting{quantity > 1 ? 's have' : ' has'} been submitted and {quantity > 1 ? 'are' : 'is'} {paymentData?.aiReview?.isPlumbingRelated ? 'now live on our platform' : 'pending review by our team'}. 
+                {!paymentData?.aiReview?.isPlumbingRelated && `We'll notify you via email once ${quantity > 1 ? 'they\'re' : 'it\'s'} approved and live on our platform.`}
               </p>
               
               {/* Pricing Summary */}

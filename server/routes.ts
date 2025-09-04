@@ -5,7 +5,7 @@ import { emailService } from "./email";
 import { insertUserSchema, insertJobSchema, insertJobApplicationSchema, insertCourseContentSchema, insertPrivateCodeBookSchema, insertCourseSchema, insertProductSchema, insertCartItemSchema, insertProductReviewSchema, insertReferralSchema, leadMagnetDownloads, studentLeadMagnetDownloads } from "@shared/schema";
 import { eq, and, or, desc, sql, count } from "drizzle-orm";
 import { db } from "./db";
-import { analyzePhoto, analyzePlans, getMentorResponse, calculatePipeSize } from "./openai";
+import { analyzePhoto, analyzePlans, getMentorResponse, calculatePipeSize, reviewJobPosting } from "./openai";
 import { calculateReferralCommission, isValidSubscriptionTier } from "@shared/referral-utils";
 import { contentExtractor } from "./content-extractor";
 import { emailAutomation } from "./email-automation";
@@ -1308,24 +1308,50 @@ Start your journey at laplumbprep.com/courses
         return res.status(404).json({ message: "Employer not found" });
       }
       
-      // Create job with pending status
+      // Process requirements and benefits
+      const requirements = Array.isArray(jobData.requirements) 
+        ? jobData.requirements 
+        : (jobData.requirements ? [jobData.requirements] : []);
+      const benefits = Array.isArray(jobData.benefits) 
+        ? jobData.benefits 
+        : (jobData.benefits ? [jobData.benefits] : []);
+
+      // AI review for auto-approval
+      const aiReview = await reviewJobPosting(
+        jobData.title,
+        jobData.description,
+        requirements,
+        employer.companyName
+      );
+
+      // Auto-approve if AI determines it's a legitimate plumbing job
+      const status = aiReview.isApproved ? 'approved' : 'pending';
+
+      // Create job with AI-determined status
       const job = await storage.createJob({
         ...jobData,
         employerId,
         company: employer.companyName,
         contactEmail: employer.contactEmail,
-        requirements: Array.isArray(jobData.requirements) 
-          ? jobData.requirements 
-          : (jobData.requirements ? [jobData.requirements] : []),
-        benefits: Array.isArray(jobData.benefits) 
-          ? jobData.benefits 
-          : (jobData.benefits ? [jobData.benefits] : [])
+        requirements,
+        benefits,
+        status,
+        // Add AI review info as metadata if needed
+        rejectionReason: aiReview.isApproved ? null : `AI Review: ${aiReview.reasoning}`
       });
       
       res.status(201).json({ 
-        message: "Job posting submitted for review", 
+        message: aiReview.isApproved 
+          ? "Job posting approved and published!" 
+          : "Job posting submitted for manual review", 
         jobId: job.id,
-        status: "pending" 
+        status: status,
+        aiReview: {
+          isPlumbingRelated: aiReview.isPlumbingRelated,
+          qualityScore: aiReview.qualityScore,
+          concerns: aiReview.concerns,
+          recommendations: aiReview.recommendations
+        }
       });
     } catch (error: any) {
       console.error("Error creating job:", error);
