@@ -15,6 +15,9 @@ export default function Courses() {
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [sortBy, setSortBy] = useState("popular");
   const { toast } = useToast();
+  
+  // Force browser reload after fixing JavaScript error
+  console.log("Courses page loaded successfully");
 
   const { data: courses = [], isLoading } = useQuery({
     queryKey: ["/api/courses"],
