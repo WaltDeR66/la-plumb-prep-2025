@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -16,8 +16,11 @@ export default function Courses() {
   const [sortBy, setSortBy] = useState("popular");
   const { toast } = useToast();
 
-  const { data: courses = [], isLoading } = useQuery({
+  const { data: courses = [], isLoading, error, isFetching } = useQuery({
     queryKey: ["/api/courses"],
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    retry: 3,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
   });
 
 
@@ -44,6 +47,29 @@ export default function Courses() {
     const matchesCategory = selectedCategory === "all" || course.type === selectedCategory;
     return matchesSearch && matchesCategory;
   });
+
+  // Debug logging for the delayed loading issue
+  React.useEffect(() => {
+    console.log('📊 Courses Query State:', {
+      courses: courses?.length || 0,
+      isLoading,
+      isFetching,
+      error: error?.message,
+      filteredCount: filteredCourses.length,
+      timestamp: new Date().toISOString()
+    });
+  }, [courses, isLoading, isFetching, error, filteredCourses]);
+
+  // Force refresh if courses array is empty after 3 seconds
+  React.useEffect(() => {
+    if (!isLoading && !isFetching && coursesArray.length === 0 && !error) {
+      const timer = setTimeout(() => {
+        console.log('🔄 No courses loaded, forcing refetch...');
+        window.location.reload();
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [isLoading, isFetching, coursesArray.length, error]);
 
 
 
@@ -157,7 +183,7 @@ export default function Courses() {
                   </Card>
                 ))}
                 
-                {!isLoading && filteredCourses.map((course: any) => (
+                {!isLoading && !isFetching && filteredCourses.map((course: any) => (
                   <CourseCard
                     key={course.id}
                     course={course}
@@ -166,11 +192,33 @@ export default function Courses() {
                   />
                 ))}
                 
-                {!isLoading && filteredCourses.length === 0 && (
+                {(isLoading || isFetching) && coursesArray.length === 0 && [...Array(6)].map((_, i) => (
+                  <Card key={`loading-${i}`} className="p-6">
+                    <div className="animate-pulse space-y-4">
+                      <div className="w-12 h-12 bg-muted rounded-lg"></div>
+                      <div className="h-6 bg-muted rounded"></div>
+                      <div className="h-4 bg-muted rounded w-3/4"></div>
+                      <div className="h-8 bg-muted rounded"></div>
+                    </div>
+                  </Card>
+                ))}
+                
+                {!isLoading && !isFetching && filteredCourses.length === 0 && coursesArray.length > 0 && (
                   <div className="col-span-full text-center py-16" data-testid="no-courses">
                     <BookOpen className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
                     <h3 className="text-lg font-semibold text-foreground mb-2">No courses found</h3>
                     <p className="text-muted-foreground">Try adjusting your search or filter criteria.</p>
+                  </div>
+                )}
+                
+                {!isLoading && !isFetching && coursesArray.length === 0 && (
+                  <div className="col-span-full text-center py-16" data-testid="no-courses-loaded">
+                    <BookOpen className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
+                    <h3 className="text-lg font-semibold text-foreground mb-2">Loading courses...</h3>
+                    <p className="text-muted-foreground">Please wait while we load the course catalog.</p>
+                    {error && (
+                      <p className="text-destructive mt-2">Error: {error.message}</p>
+                    )}
                   </div>
                 )}
               </div>
