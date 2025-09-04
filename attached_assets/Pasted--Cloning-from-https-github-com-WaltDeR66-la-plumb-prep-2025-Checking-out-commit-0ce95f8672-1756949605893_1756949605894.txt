@@ -1,0 +1,72 @@
+==> Cloning from https://github.com/WaltDeR66/la-plumb-prep-2025
+==> Checking out commit 0ce95f8672a39f64bb8cce5077ca07298f6a1482 in branch main
+==> Using Node.js version 20.18.0 via environment variable NODE_VERSION
+==> Docs on specifying a Node.js version: https://render.com/docs/node-version
+==> Running build command 'npm install --include=dev && npm run build'...
+added 726 packages, and audited 727 packages in 18s
+95 packages are looking for funding
+  run `npm fund` for details
+11 vulnerabilities (3 low, 8 moderate)
+To address issues that do not require attention, run:
+  npm audit fix
+To address all issues (including breaking changes), run:
+  npm audit fix --force
+Run `npm audit` for details.
+> rest-express@1.0.0 build
+> vite build && esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist
+vite v5.4.19 building for production...
+transforming...
+Browserslist: browsers data (caniuse-lite) is 11 months old. Please run:
+  npx update-browserslist-db@latest
+  Why you should do it regularly: https://github.com/browserslist/update-db#readme
+✓ 1781 modules transformed.
+rendering chunks...
+computing gzip size...
+../dist/public/index.html                                                           2.20 kB │ gzip:   0.86 kB
+../dist/public/assets/Louisiana_plumbing_prep_hero_image_70473180-Dl_4-iaL.png  1,108.96 kB
+../dist/public/assets/Louisiana_plumbing_prep_interface_dd5de1e1-Ck90H5Ap.png   1,214.85 kB
+../dist/public/assets/index-COgcSuuZ.css                                          100.53 kB │ gzip:  16.24 kB
+../dist/public/assets/index-zt96Qq8s.js                                           814.08 kB │ gzip: 217.20 kB
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 5.61s
+▲ [WARNING] Duplicate member "getEmployerJobsWithApplications" in class body [duplicate-class-member]
+    server/storage.ts:506:8:
+      506 │   async getEmployerJobsWithApplications(employerId: string): Prom...
+          ╵         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  The original member "getEmployerJobsWithApplications" is here:
+    server/storage.ts:359:8:
+      359 │   async getEmployerJobsWithApplications(employerId: string): Prom...
+          ╵         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+▲ [WARNING] Duplicate member "getJobApplicationsWithUserDetails" in class body [duplicate-class-member]
+    server/storage.ts:530:8:
+      530 │   async getJobApplicationsWithUserDetails(jobId: string): Promise...
+          ╵         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  The original member "getJobApplicationsWithUserDetails" is here:
+    server/storage.ts:376:8:
+      376 │   async getJobApplicationsWithUserDetails(jobId: string): Promise...
+          ╵         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+2 warnings
+  dist/index.js  265.5kb
+⚡ Done in 18ms
+==> Uploading build...
+==> Uploaded in 23.5s. Compression took 5.2s
+==> Build successful 🎉
+==> Deploying...
+==> Running 'npm start'
+> rest-express@1.0.0 start
+> NODE_ENV=production node dist/index.js
+Warning: connect.session() MemoryStore is not
+designed for a production environment, as it will leak
+memory, and will not scale past a single process.
+1:32:53 AM [express] serving on port 10000
+Checking if database needs seeding...
+==> Your service is live 🎉
+==> 
+==> ///////////////////////////////////////////////////////////
+==> 
+==> Available at your primary URL https://www.laplumbprep.com + 2 more domains
+==> 
+==> ///////////////////////////////////////////////////////////
