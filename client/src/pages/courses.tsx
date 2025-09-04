@@ -1,6 +1,10 @@
-import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { useState, useEffect } from "react";
 import { Search, Users, BookOpen, CheckCircle } from "lucide-react";
+import { useLocation } from "wouter";
+import { AuthService, User } from "@/lib/auth";
+import { apiRequest, queryClient } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
 
 interface Course {
   id: number;
@@ -16,10 +20,101 @@ export default function Courses() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All Courses");
   const [selectedFilter, setSelectedFilter] = useState("Most Popular");
+  const [user, setUser] = useState<User | null>(null);
+  const [, setLocation] = useLocation();
+  const { toast } = useToast();
 
   const { data: courses = [], isLoading, error } = useQuery<Course[]>({
     queryKey: ["/api/courses"],
   });
+
+  const { data: enrollments = [] } = useQuery({
+    queryKey: ["/api/enrollments"],
+    enabled: !!user,
+  });
+
+  // Get current user
+  useEffect(() => {
+    AuthService.getCurrentUser().then(setUser);
+  }, []);
+
+  // Check if user has active subscription
+  const hasActiveSubscription = () => {
+    if (!user) return false;
+    const validTiers = ['basic', 'professional', 'master'];
+    return validTiers.includes(user.subscriptionTier?.toLowerCase());
+  };
+
+  // Check if user is enrolled in a course
+  const isEnrolledIn = (courseId: number) => {
+    if (!Array.isArray(enrollments)) return false;
+    return enrollments.some((enrollment: any) => enrollment.courseId === courseId.toString());
+  };
+
+  // Enrollment mutation
+  const enrollMutation = useMutation({
+    mutationFn: (courseId: number) => apiRequest("POST", `/api/courses/${courseId}/enroll`),
+    onSuccess: (_, courseId) => {
+      queryClient.invalidateQueries({ queryKey: ["/api/enrollments"] });
+      const course = courses.find(c => c.id === courseId);
+      toast({
+        title: "Enrollment Successful",
+        description: `You have been enrolled in ${course?.title}`,
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Enrollment Failed",
+        description: error.message || "Failed to enroll in course",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Handle enrollment button click
+  const handleEnrollClick = (course: Course) => {
+    if (!user) {
+      setLocation("/auth/login");
+      return;
+    }
+
+    if (isEnrolledIn(course.id)) {
+      setLocation(`/courses/${course.id}`);
+      return;
+    }
+
+    if (!hasActiveSubscription()) {
+      setLocation("/pricing");
+      return;
+    }
+
+    enrollMutation.mutate(course.id);
+  };
+
+  // Get button text and state
+  const getButtonState = (course: Course) => {
+    if (!course.isActive) {
+      return { text: "Coming Soon", disabled: true, variant: "disabled" };
+    }
+
+    if (!user) {
+      return { text: "Sign In to Enroll", disabled: false, variant: "primary" };
+    }
+
+    if (isEnrolledIn(course.id)) {
+      return { text: "Continue Course", disabled: false, variant: "success" };
+    }
+
+    if (!hasActiveSubscription()) {
+      return { text: "Upgrade to Enroll", disabled: false, variant: "primary" };
+    }
+
+    return { 
+      text: enrollMutation.isPending ? "Enrolling..." : "Enroll Now", 
+      disabled: enrollMutation.isPending, 
+      variant: "primary" 
+    };
+  };
 
   const filteredCourses = courses.filter(course =>
     course.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -192,16 +287,25 @@ export default function Courses() {
                   )}
                   
                   {/* Action Button */}
-                  <button
-                    disabled={!course.isActive}
-                    className={`w-full py-2 px-4 rounded-lg font-medium transition-colors ${
-                      course.isActive
-                        ? "bg-indigo-600 text-white hover:bg-indigo-700"
-                        : "bg-gray-100 text-gray-400 cursor-not-allowed"
-                    }`}
-                  >
-                    {course.isActive ? "Enroll Now" : "Coming Soon"}
-                  </button>
+                  {(() => {
+                    const buttonState = getButtonState(course);
+                    return (
+                      <button
+                        onClick={() => handleEnrollClick(course)}
+                        disabled={buttonState.disabled}
+                        className={`w-full py-2 px-4 rounded-lg font-medium transition-colors ${
+                          buttonState.variant === "disabled"
+                            ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                            : buttonState.variant === "success"
+                            ? "bg-green-600 text-white hover:bg-green-700"
+                            : "bg-indigo-600 text-white hover:bg-indigo-700"
+                        }`}
+                        data-testid={`button-enroll-${course.id}`}
+                      >
+                        {buttonState.text}
+                      </button>
+                    );
+                  })()}
                 </div>
               </div>
             ))}
