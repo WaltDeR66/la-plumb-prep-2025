@@ -38,6 +38,10 @@ import PaymentSettings from "@/pages/payment-settings";
 import BulkEnrollment from "@/pages/bulk-enrollment";
 import LeadMagnet from "@/pages/lead-magnet";
 import StudentLeadMagnet from "@/pages/student-lead-magnet";
+import Competitions from "@/pages/competitions";
+import CompetitionTest from "@/pages/competition-test";
+import Achievements from "@/pages/achievements";
+import Leaderboard from "@/pages/leaderboard";
 import Header from "@/components/layout/header";
 import Footer from "@/components/layout/footer";
 
@@ -81,6 +85,10 @@ function Router() {
           <Route path="/bulk-enrollment" component={BulkEnrollment} />
           <Route path="/lead-magnet" component={LeadMagnet} />
           <Route path="/student-lead-magnet" component={StudentLeadMagnet} />
+          <Route path="/competitions" component={Competitions} />
+          <Route path="/competition/:competitionId/test" component={CompetitionTest} />
+          <Route path="/achievements" component={Achievements} />
+          <Route path="/leaderboard" component={Leaderboard} />
           <Route component={NotFound} />
         </Switch>
       </main>
