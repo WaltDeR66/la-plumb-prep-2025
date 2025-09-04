@@ -413,8 +413,8 @@ export const monthlyCompetitions = pgTable("monthly_competitions", {
   startDate: timestamp("start_date").notNull(), // last day of month
   endDate: timestamp("end_date").notNull(), // end of last day
   timeLimit: integer("time_limit").notNull().default(120), // minutes
-  questionCount: integer("question_count").default(50),
-  difficultyCounts: jsonb("difficulty_counts"), // {medium: 20, hard: 20, very_hard: 10}
+  questionCount: integer("question_count").default(100),
+  difficultyCounts: jsonb("difficulty_counts"), // {medium: 40, hard: 40, very_hard: 20}
   firstPlaceReward: text("first_place_reward").default("free_month"),
   secondPlaceReward: text("second_place_reward").default("half_month"),
   participantPoints: integer("participant_points").default(100), // points for participating
