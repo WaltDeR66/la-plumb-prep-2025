@@ -464,7 +464,7 @@ export default function Referrals() {
                       Ready-to-share posts with your referral link embedded. Click to share or copy!
                     </p>
                     
-                    {stats?.referralCode && getPostTemplates(stats.referralCode, referralUrl).map((template) => (
+                    {getPostTemplates(stats?.referralCode || "DEMO123", referralUrl).map((template) => (
                       <div key={template.id} className="border rounded-lg p-4 space-y-3">
                         <div className="flex justify-between items-start">
                           <div>
