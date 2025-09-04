@@ -60,7 +60,13 @@ import {
   type AccountCreditTransaction,
   type InsertAccountCreditTransaction,
   type MonthlyCommission,
-  type InsertMonthlyCommission
+  type InsertMonthlyCommission,
+  achievements,
+  userAchievements,
+  monthlyCompetitions,
+  competitionAttempts,
+  competitionQuestions,
+  userPointsHistory
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, or, desc, sql, count, isNull, ilike } from "drizzle-orm";
@@ -204,6 +210,23 @@ export interface IStorage {
   createProductReview(review: InsertProductReview): Promise<ProductReview>;
   updateProductReview(id: string, updates: Partial<ProductReview>): Promise<ProductReview>;
   deleteProductReview(id: string): Promise<void>;
+
+  // Gamification methods
+  // Achievements
+  getUserAchievements(userId: string): Promise<any[]>;
+  awardAchievement(userId: string, achievementId: string): Promise<any>;
+  
+  // Points and Leaderboard
+  getUserPointsSummary(userId: string): Promise<any>;
+  getLeaderboard(period: string): Promise<any[]>;
+  addPoints(userId: string, points: number, action: string, description: string, referenceId?: string): Promise<void>;
+  
+  // Monthly Competitions
+  getCurrentCompetition(month: string): Promise<any>;
+  startCompetitionAttempt(competitionId: string, userId: string): Promise<any>;
+  submitCompetitionAttempt(competitionId: string, userId: string, answers: any[], timeSpent: number): Promise<any>;
+  getUserCompetitionHistory(userId: string): Promise<any[]>;
+  createMonthlyCompetition(competition: any): Promise<any>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -1230,6 +1253,361 @@ export class DatabaseStorage implements IStorage {
 
   async deleteProductReview(id: string): Promise<void> {
     await db.delete(productReviews).where(eq(productReviews.id, id));
+  }
+
+  // ===== GAMIFICATION METHODS =====
+
+  // Get user achievements with badge details
+  async getUserAchievements(userId: string): Promise<any[]> {
+    return await db
+      .select({
+        id: userAchievements.id,
+        earnedAt: userAchievements.earnedAt,
+        pointsEarned: userAchievements.pointsEarned,
+        achievement: {
+          id: achievements.id,
+          name: achievements.name,
+          description: achievements.description,
+          type: achievements.type,
+          icon: achievements.icon,
+          badgeColor: achievements.badgeColor,
+          pointValue: achievements.pointValue,
+        }
+      })
+      .from(userAchievements)
+      .innerJoin(achievements, eq(userAchievements.achievementId, achievements.id))
+      .where(eq(userAchievements.userId, userId))
+      .orderBy(desc(userAchievements.earnedAt));
+  }
+
+  // Award achievement to user (with duplicate check)
+  async awardAchievement(userId: string, achievementId: string): Promise<any> {
+    // Check if already earned
+    const existing = await db
+      .select()
+      .from(userAchievements)
+      .where(and(eq(userAchievements.userId, userId), eq(userAchievements.achievementId, achievementId)));
+
+    if (existing.length > 0) {
+      throw new Error("Achievement already earned");
+    }
+
+    // Get achievement details for points
+    const [achievement] = await db
+      .select()
+      .from(achievements)
+      .where(eq(achievements.id, achievementId));
+
+    if (!achievement) {
+      throw new Error("Achievement not found");
+    }
+
+    // Award the achievement
+    const [newAchievement] = await db
+      .insert(userAchievements)
+      .values({
+        userId,
+        achievementId,
+        pointsEarned: achievement.pointValue || 0,
+      })
+      .returning();
+
+    // Add points to user's total
+    if (achievement.pointValue && achievement.pointValue > 0) {
+      await this.addPoints(
+        userId,
+        achievement.pointValue,
+        "achievement_earned",
+        `Earned achievement: ${achievement.name}`,
+        achievementId
+      );
+    }
+
+    return newAchievement;
+  }
+
+  // Get user points summary
+  async getUserPointsSummary(userId: string): Promise<any> {
+    const [user] = await db
+      .select({
+        totalPoints: users.totalPoints,
+        currentStreak: users.currentStreak,
+        longestStreak: users.longestStreak,
+      })
+      .from(users)
+      .where(eq(users.id, userId));
+
+    const achievements = await this.getUserAchievements(userId);
+    
+    return {
+      totalPoints: user?.totalPoints || 0,
+      currentStreak: user?.currentStreak || 0,
+      longestStreak: user?.longestStreak || 0,
+      achievementCount: achievements.length,
+      recentAchievements: achievements.slice(0, 3),
+    };
+  }
+
+  // Get leaderboard based on period
+  async getLeaderboard(period: string): Promise<any[]> {
+    let query = db
+      .select({
+        userId: users.id,
+        username: users.username,
+        firstName: users.firstName,
+        lastName: users.lastName,
+        totalPoints: users.totalPoints,
+        currentStreak: users.currentStreak,
+        achievementCount: sql<number>`COUNT(${userAchievements.id})`,
+      })
+      .from(users)
+      .leftJoin(userAchievements, eq(users.id, userAchievements.userId))
+      .groupBy(users.id)
+      .orderBy(desc(users.totalPoints))
+      .limit(20);
+
+    return await query;
+  }
+
+  // Add points to user account
+  async addPoints(userId: string, points: number, action: string, description: string, referenceId?: string): Promise<void> {
+    // Get current balance
+    const [user] = await db
+      .select({ totalPoints: users.totalPoints })
+      .from(users)
+      .where(eq(users.id, userId));
+
+    const currentBalance = user?.totalPoints || 0;
+    const newBalance = currentBalance + points;
+
+    // Update user points
+    await db
+      .update(users)
+      .set({ 
+        totalPoints: newBalance,
+        updatedAt: new Date()
+      })
+      .where(eq(users.id, userId));
+
+    // Record points history
+    await db
+      .insert(userPointsHistory)
+      .values({
+        userId,
+        points,
+        action,
+        description,
+        referenceId,
+        balanceBefore: currentBalance,
+        balanceAfter: newBalance,
+      });
+  }
+
+  // Get current monthly competition
+  async getCurrentCompetition(month: string): Promise<any> {
+    const [competition] = await db
+      .select()
+      .from(monthlyCompetitions)
+      .where(eq(monthlyCompetitions.month, month))
+      .orderBy(desc(monthlyCompetitions.createdAt));
+
+    if (!competition) {
+      // Create this month's competition if it doesn't exist
+      const now = new Date();
+      const year = now.getFullYear();
+      const monthNum = now.getMonth();
+      
+      // Last day of current month
+      const lastDay = new Date(year, monthNum + 1, 0);
+      const startDate = new Date(lastDay.getFullYear(), lastDay.getMonth(), lastDay.getDate(), 0, 0, 0);
+      const endDate = new Date(lastDay.getFullYear(), lastDay.getMonth(), lastDay.getDate(), 23, 59, 59);
+
+      const [newCompetition] = await db
+        .insert(monthlyCompetitions)
+        .values({
+          title: `${lastDay.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })} Plumbing Code Challenge`,
+          description: "Test your knowledge of the complete Louisiana Plumbing Code in this month's competition!",
+          month,
+          year,
+          startDate,
+          endDate,
+          status: 'upcoming',
+          timeLimit: 120, // 2 hours
+          questionCount: 50,
+          difficultyCounts: {
+            medium: 20,
+            hard: 20,
+            very_hard: 10
+          }
+        })
+        .returning();
+
+      return newCompetition;
+    }
+
+    return competition;
+  }
+
+  // Start competition attempt
+  async startCompetitionAttempt(competitionId: string, userId: string): Promise<any> {
+    // Check if user already attempted this competition
+    const existing = await db
+      .select()
+      .from(competitionAttempts)
+      .where(and(eq(competitionAttempts.competitionId, competitionId), eq(competitionAttempts.userId, userId)));
+
+    if (existing.length > 0) {
+      throw new Error("You have already attempted this competition");
+    }
+
+    // Get competition details
+    const [competition] = await db
+      .select()
+      .from(monthlyCompetitions)
+      .where(eq(monthlyCompetitions.id, competitionId));
+
+    if (!competition) {
+      throw new Error("Competition not found");
+    }
+
+    // Check if competition is active (on last day of month)
+    const now = new Date();
+    if (now < competition.startDate || now > competition.endDate) {
+      throw new Error("Competition is not currently active");
+    }
+
+    // Get random questions based on difficulty
+    const questions = await this.getCompetitionQuestions(competition.difficultyCounts);
+
+    // Create attempt record
+    const [attempt] = await db
+      .insert(competitionAttempts)
+      .values({
+        competitionId,
+        userId,
+        questions,
+        totalQuestions: questions.length,
+        correctAnswers: 0,
+        score: 0,
+      })
+      .returning();
+
+    return {
+      ...attempt,
+      competition,
+      timeLimit: competition.timeLimit,
+    };
+  }
+
+  // Get random competition questions based on difficulty distribution
+  async getCompetitionQuestions(difficultyCounts: any): Promise<any[]> {
+    const questions: any[] = [];
+    
+    for (const [difficulty, count] of Object.entries(difficultyCounts)) {
+      const difficultyQuestions = await db
+        .select()
+        .from(competitionQuestions)
+        .where(and(
+          eq(competitionQuestions.difficulty, difficulty as any),
+          eq(competitionQuestions.isActive, true)
+        ))
+        .orderBy(sql`RANDOM()`)
+        .limit(count as number);
+
+      questions.push(...difficultyQuestions);
+    }
+
+    return questions;
+  }
+
+  // Submit competition attempt
+  async submitCompetitionAttempt(competitionId: string, userId: string, answers: any[], timeSpent: number): Promise<any> {
+    // Get the attempt
+    const [attempt] = await db
+      .select()
+      .from(competitionAttempts)
+      .where(and(eq(competitionAttempts.competitionId, competitionId), eq(competitionAttempts.userId, userId)));
+
+    if (!attempt) {
+      throw new Error("Competition attempt not found");
+    }
+
+    if (attempt.completedAt) {
+      throw new Error("Competition already completed");
+    }
+
+    // Calculate score
+    const questions = attempt.questions as any[];
+    let correctAnswers = 0;
+
+    for (let i = 0; i < questions.length; i++) {
+      const question = questions[i];
+      const userAnswer = answers[i];
+      
+      if (userAnswer === question.correctAnswer) {
+        correctAnswers++;
+      }
+    }
+
+    const score = (correctAnswers / questions.length) * 100;
+    const pointsEarned = Math.floor(score * 2); // 2 points per percentage point
+
+    // Update attempt
+    const [updatedAttempt] = await db
+      .update(competitionAttempts)
+      .set({
+        correctAnswers,
+        score,
+        timeSpent,
+        completedAt: new Date(),
+        pointsEarned,
+      })
+      .where(eq(competitionAttempts.id, attempt.id))
+      .returning();
+
+    // Award points
+    await this.addPoints(
+      userId,
+      pointsEarned,
+      "competition_completed",
+      `Completed monthly competition with ${score.toFixed(1)}% score`,
+      competitionId
+    );
+
+    return updatedAttempt;
+  }
+
+  // Get user's competition history
+  async getUserCompetitionHistory(userId: string): Promise<any[]> {
+    return await db
+      .select({
+        id: competitionAttempts.id,
+        score: competitionAttempts.score,
+        rank: competitionAttempts.rank,
+        timeSpent: competitionAttempts.timeSpent,
+        pointsEarned: competitionAttempts.pointsEarned,
+        completedAt: competitionAttempts.completedAt,
+        competition: {
+          id: monthlyCompetitions.id,
+          title: monthlyCompetitions.title,
+          month: monthlyCompetitions.month,
+          year: monthlyCompetitions.year,
+        }
+      })
+      .from(competitionAttempts)
+      .innerJoin(monthlyCompetitions, eq(competitionAttempts.competitionId, monthlyCompetitions.id))
+      .where(eq(competitionAttempts.userId, userId))
+      .orderBy(desc(competitionAttempts.completedAt));
+  }
+
+  // Create monthly competition (admin only)
+  async createMonthlyCompetition(competition: any): Promise<any> {
+    const [newCompetition] = await db
+      .insert(monthlyCompetitions)
+      .values(competition)
+      .returning();
+
+    return newCompetition;
   }
 }
 

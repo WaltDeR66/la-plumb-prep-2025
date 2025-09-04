@@ -3678,6 +3678,116 @@ Start your journey at laplumbprep.com/courses
     }
   });
 
+  // ===== GAMIFICATION API ROUTES =====
+
+  // Get current monthly competition
+  app.get("/api/competitions/current", async (req, res) => {
+    try {
+      const now = new Date();
+      const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+      
+      const competition = await storage.getCurrentCompetition(currentMonth);
+      res.json(competition);
+    } catch (error: any) {
+      console.error("Error fetching current competition:", error);
+      res.status(500).json({ error: "Failed to fetch competition" });
+    }
+  });
+
+  // Get user's achievements
+  app.get("/api/achievements/user", requireAuth, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const achievements = await storage.getUserAchievements(userId);
+      res.json(achievements);
+    } catch (error: any) {
+      console.error("Error fetching user achievements:", error);
+      res.status(500).json({ error: "Failed to fetch achievements" });
+    }
+  });
+
+  // Get leaderboard
+  app.get("/api/leaderboard", async (req, res) => {
+    try {
+      const period = req.query.period as string || 'all_time'; // 'monthly', 'weekly', 'all_time'
+      const leaderboard = await storage.getLeaderboard(period);
+      res.json(leaderboard);
+    } catch (error: any) {
+      console.error("Error fetching leaderboard:", error);
+      res.status(500).json({ error: "Failed to fetch leaderboard" });
+    }
+  });
+
+  // Start competition attempt
+  app.post("/api/competitions/:competitionId/start", requireAuth, async (req: any, res) => {
+    try {
+      const { competitionId } = req.params;
+      const userId = req.user.id;
+      
+      const attempt = await storage.startCompetitionAttempt(competitionId, userId);
+      res.json(attempt);
+    } catch (error: any) {
+      console.error("Error starting competition attempt:", error);
+      res.status(500).json({ error: "Failed to start competition" });
+    }
+  });
+
+  // Submit competition attempt
+  app.post("/api/competitions/:competitionId/submit", requireAuth, async (req: any, res) => {
+    try {
+      const { competitionId } = req.params;
+      const userId = req.user.id;
+      const { answers, timeSpent } = req.body;
+      
+      const result = await storage.submitCompetitionAttempt(competitionId, userId, answers, timeSpent);
+      res.json(result);
+    } catch (error: any) {
+      console.error("Error submitting competition attempt:", error);
+      res.status(500).json({ error: "Failed to submit competition" });
+    }
+  });
+
+  // Get user's competition history
+  app.get("/api/competitions/history", requireAuth, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const history = await storage.getUserCompetitionHistory(userId);
+      res.json(history);
+    } catch (error: any) {
+      console.error("Error fetching competition history:", error);
+      res.status(500).json({ error: "Failed to fetch competition history" });
+    }
+  });
+
+  // Award achievement (admin only)
+  app.post("/api/achievements/award", requireAuth, async (req: any, res) => {
+    try {
+      // Check if user is admin
+      if (!req.user.email?.includes('admin') && req.user.subscriptionTier !== 'master') {
+        return res.status(403).json({ error: "Admin access required" });
+      }
+
+      const { userId, achievementId } = req.body;
+      const achievement = await storage.awardAchievement(userId, achievementId);
+      res.json(achievement);
+    } catch (error: any) {
+      console.error("Error awarding achievement:", error);
+      res.status(500).json({ error: "Failed to award achievement" });
+    }
+  });
+
+  // Get user points summary
+  app.get("/api/points/summary", requireAuth, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const summary = await storage.getUserPointsSummary(userId);
+      res.json(summary);
+    } catch (error: any) {
+      console.error("Error fetching points summary:", error);
+      res.status(500).json({ error: "Failed to fetch points summary" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

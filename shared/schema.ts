@@ -28,6 +28,9 @@ export const bulkEnrollmentStatusEnum = pgEnum("bulk_enrollment_status", ["pendi
 export const leadSourceEnum = pgEnum("lead_source", ["linkedin", "website", "referral", "google", "facebook", "other"]);
 export const paymentMethodEnum = pgEnum("payment_method", ["paypal", "stripe_transfer", "account_credit"]);
 export const payoutStatusEnum = pgEnum("payout_status", ["pending", "processing", "completed", "failed", "cancelled"]);
+export const achievementTypeEnum = pgEnum("achievement_type", ["course_completion", "quiz_mastery", "study_streak", "first_login", "perfect_score", "speed_demon", "social_sharer", "mentor_helper"]);
+export const questionDifficultyEnum = pgEnum("question_difficulty", ["easy", "medium", "hard", "very_hard"]);
+export const competitionStatusEnum = pgEnum("competition_status", ["upcoming", "active", "completed", "cancelled"]);
 
 // Users table
 export const users = pgTable("users", {
@@ -48,6 +51,11 @@ export const users = pgTable("users", {
   paypalEmail: text("paypal_email"),
   accountBalance: decimal("account_balance", { precision: 10, scale: 2 }).default("0.00"),
   minimumPayout: decimal("minimum_payout", { precision: 10, scale: 2 }).default("25.00"),
+  // Gamification fields
+  totalPoints: integer("total_points").default(0),
+  currentStreak: integer("current_streak").default(0),
+  longestStreak: integer("longest_streak").default(0),
+  lastLoginDate: timestamp("last_login_date"),
   isActive: boolean("is_active").default(true),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
@@ -369,6 +377,101 @@ export const productReviews = pgTable("product_reviews", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
+// Achievements table
+export const achievements = pgTable("achievements", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  name: text("name").notNull(),
+  description: text("description").notNull(),
+  type: achievementTypeEnum("type").notNull(),
+  icon: text("icon").notNull(), // Lucide icon name
+  pointValue: integer("point_value").default(0),
+  badgeColor: text("badge_color").default("blue"), // for UI styling
+  criteria: jsonb("criteria"), // conditions needed to earn this achievement
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// User achievements (earned badges)
+export const userAchievements = pgTable("user_achievements", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: text("user_id").notNull(),
+  achievementId: text("achievement_id").notNull(),
+  earnedAt: timestamp("earned_at").defaultNow(),
+  pointsEarned: integer("points_earned").default(0),
+}, (table) => ({
+  uniqueUserAchievement: unique("unique_user_achievement").on(table.userId, table.achievementId),
+}));
+
+// Monthly competitions
+export const monthlyCompetitions = pgTable("monthly_competitions", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  title: text("title").notNull(),
+  description: text("description").notNull(),
+  month: varchar("month").notNull(), // Format: "2025-01"
+  year: integer("year").notNull(),
+  status: competitionStatusEnum("status").default("upcoming"),
+  startDate: timestamp("start_date").notNull(), // last day of month
+  endDate: timestamp("end_date").notNull(), // end of last day
+  timeLimit: integer("time_limit").notNull().default(120), // minutes
+  questionCount: integer("question_count").default(50),
+  difficultyCounts: jsonb("difficulty_counts"), // {medium: 20, hard: 20, very_hard: 10}
+  firstPlaceReward: text("first_place_reward").default("free_month"),
+  secondPlaceReward: text("second_place_reward").default("half_month"),
+  participantPoints: integer("participant_points").default(100), // points for participating
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => ({
+  uniqueMonthlyCompetition: unique("unique_monthly_competition").on(table.month, table.year),
+}));
+
+// Competition attempts
+export const competitionAttempts = pgTable("competition_attempts", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  competitionId: text("competition_id").notNull(),
+  userId: text("user_id").notNull(),
+  questions: jsonb("questions").notNull(), // Array of questions with user answers
+  totalQuestions: integer("total_questions").notNull(),
+  correctAnswers: integer("correct_answers").notNull(),
+  score: decimal("score", { precision: 5, scale: 2 }).notNull(), // percentage score
+  rank: integer("rank"), // position in competition (calculated after competition ends)
+  timeSpent: integer("time_spent"), // seconds spent on test
+  startedAt: timestamp("started_at").defaultNow(),
+  completedAt: timestamp("completed_at"),
+  pointsEarned: integer("points_earned").default(0),
+}, (table) => ({
+  uniqueCompetitionAttempt: unique("unique_competition_attempt").on(table.competitionId, table.userId),
+}));
+
+// Competition questions (enhanced quiz system)
+export const competitionQuestions = pgTable("competition_questions", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  question: text("question").notNull(),
+  options: jsonb("options").notNull(), // Array of answer choices
+  correctAnswer: integer("correct_answer").notNull(), // index of correct option
+  explanation: text("explanation"),
+  difficulty: questionDifficultyEnum("difficulty").notNull(),
+  category: text("category"), // e.g. "water_supply", "drainage", "gas_piping"
+  codeReference: text("code_reference"), // chapter/section reference
+  pointValue: integer("point_value").default(1),
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// User points history
+export const userPointsHistory = pgTable("user_points_history", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: text("user_id").notNull(),
+  points: integer("points").notNull(), // can be positive or negative
+  action: text("action").notNull(), // e.g., "quiz_completion", "achievement_earned", "daily_login"
+  description: text("description"), // human-readable description
+  referenceId: text("reference_id"), // ID of related record (quiz, achievement, etc.)
+  balanceBefore: integer("balance_before").notNull(),
+  balanceAfter: integer("balance_after").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 
 // Relations
 export const usersRelations = relations(users, ({ many }) => ({
@@ -384,6 +487,9 @@ export const usersRelations = relations(users, ({ many }) => ({
   productReviews: many(productReviews),
   referralsMade: many(referrals, { relationName: "referrer" }),
   referralsReceived: many(referrals, { relationName: "referred" }),
+  userAchievements: many(userAchievements),
+  competitionAttempts: many(competitionAttempts),
+  pointsHistory: many(userPointsHistory),
 }));
 
 export const coursesRelations = relations(courses, ({ many }) => ({
@@ -509,6 +615,43 @@ export const jobApplicationsRelations = relations(jobApplications, ({ one }) => 
   }),
 }));
 
+export const achievementsRelations = relations(achievements, ({ many }) => ({
+  userAchievements: many(userAchievements),
+}));
+
+export const userAchievementsRelations = relations(userAchievements, ({ one }) => ({
+  user: one(users, {
+    fields: [userAchievements.userId],
+    references: [users.id],
+  }),
+  achievement: one(achievements, {
+    fields: [userAchievements.achievementId],
+    references: [achievements.id],
+  }),
+}));
+
+export const monthlyCompetitionsRelations = relations(monthlyCompetitions, ({ many }) => ({
+  attempts: many(competitionAttempts),
+}));
+
+export const competitionAttemptsRelations = relations(competitionAttempts, ({ one }) => ({
+  user: one(users, {
+    fields: [competitionAttempts.userId],
+    references: [users.id],
+  }),
+  competition: one(monthlyCompetitions, {
+    fields: [competitionAttempts.competitionId],
+    references: [monthlyCompetitions.id],
+  }),
+}));
+
+export const userPointsHistoryRelations = relations(userPointsHistory, ({ one }) => ({
+  user: one(users, {
+    fields: [userPointsHistory.userId],
+    references: [users.id],
+  }),
+}));
+
 // Insert schemas
 export const insertUserSchema = createInsertSchema(users).omit({
   id: true,
@@ -617,6 +760,39 @@ export const insertPayoutRequestSchema = createInsertSchema(payoutRequests).omit
 });
 
 export const insertAccountCreditTransactionSchema = createInsertSchema(accountCreditTransactions).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertAchievementSchema = createInsertSchema(achievements).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertUserAchievementSchema = createInsertSchema(userAchievements).omit({
+  id: true,
+  earnedAt: true,
+});
+
+export const insertMonthlyCompetitionSchema = createInsertSchema(monthlyCompetitions).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertCompetitionAttemptSchema = createInsertSchema(competitionAttempts).omit({
+  id: true,
+  startedAt: true,
+  completedAt: true,
+});
+
+export const insertCompetitionQuestionSchema = createInsertSchema(competitionQuestions).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertUserPointsHistorySchema = createInsertSchema(userPointsHistory).omit({
   id: true,
   createdAt: true,
 });
