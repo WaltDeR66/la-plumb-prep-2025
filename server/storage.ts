@@ -9,6 +9,7 @@ import {
   photoUploads,
   planUploads,
   referrals,
+  monthlyCommissions,
   courseContent,
   privateCodeBooks,
   chatAnswers,
@@ -55,6 +56,7 @@ import {
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, or, desc, sql, count, isNull, ilike } from "drizzle-orm";
+import { calculateReferralCommission } from "@shared/referral-utils";
 
 export interface IStorage {
   // User methods
@@ -118,6 +120,13 @@ export interface IStorage {
   createReferral(referralData: InsertReferral): Promise<Referral>;
   getUserReferrals(userId: string): Promise<Referral[]>;
   getUserReferralEarnings(userId: string): Promise<{ total: number; unpaid: number; paid: number }>;
+  
+  // Monthly commission methods for subscription upgrades
+  createMonthlyCommission(commission: any): Promise<any>;
+  getMonthlyCommissions(userId: string, month?: string): Promise<any[]>;
+  updateMonthlyCommission(commissionId: string, isPaid: boolean, paidAt?: Date): Promise<any>;
+  getAllUnpaidMonthlyCommissions(): Promise<any[]>;
+  processSubscriptionUpgrade(referredUserId: string, newTier: string, oldTier: string): Promise<void>;
   
   // Course content methods
   getCourseContent(courseId: string): Promise<CourseContent[]>;
@@ -650,6 +659,83 @@ export class DatabaseStorage implements IStorage {
       unpaid: Number(result?.unpaid || 0),
       paid: Number(result?.paid || 0)
     };
+  }
+
+  // Monthly commission methods for subscription upgrades
+  async createMonthlyCommission(commission: any): Promise<any> {
+    const [newCommission] = await db
+      .insert(monthlyCommissions)
+      .values(commission)
+      .returning();
+    return newCommission;
+  }
+
+  async getMonthlyCommissions(userId: string, month?: string): Promise<any[]> {
+    let query = db
+      .select()
+      .from(monthlyCommissions)
+      .where(eq(monthlyCommissions.referrerId, userId));
+
+    if (month) {
+      query = query.where(eq(monthlyCommissions.commissionMonth, month));
+    }
+
+    return await query;
+  }
+
+  async updateMonthlyCommission(commissionId: string, isPaid: boolean, paidAt?: Date): Promise<any> {
+    const [updated] = await db
+      .update(monthlyCommissions)
+      .set({
+        isPaid,
+        paidAt: paidAt || new Date()
+      })
+      .where(eq(monthlyCommissions.id, commissionId))
+      .returning();
+    return updated;
+  }
+
+  async getAllUnpaidMonthlyCommissions(): Promise<any[]> {
+    return await db
+      .select()
+      .from(monthlyCommissions)
+      .where(eq(monthlyCommissions.isPaid, false));
+  }
+
+  async processSubscriptionUpgrade(referredUserId: string, newTier: string, oldTier: string): Promise<void> {
+    // Find all referrals where this user was referred
+    const userReferrals = await db
+      .select()
+      .from(referrals)
+      .where(eq(referrals.referredId, referredUserId));
+
+    const currentMonth = new Date().toISOString().slice(0, 7); // Format: "2025-01"
+
+    for (const referral of userReferrals) {
+      // Get the current referrer's tier
+      const referrer = await this.getUser(referral.referrerId);
+      if (!referrer) continue;
+
+      // Calculate commission based on upgrade
+      const { commissionAmount, eligibleTier } = calculateReferralCommission(
+        referrer.subscriptionTier as any,
+        newTier as any
+      );
+
+      // Create monthly commission record
+      await this.createMonthlyCommission({
+        referralId: referral.id,
+        referrerId: referral.referrerId,
+        referredUserId: referredUserId,
+        commissionMonth: currentMonth,
+        referrerTierAtTime: referrer.subscriptionTier,
+        referredTierAtTime: newTier,
+        eligibleTier,
+        commissionAmount: commissionAmount.toString(),
+        commissionRate: "0.10",
+        isPaid: false
+      });
+    }
   }
 
   // Course content methods

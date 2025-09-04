@@ -9,7 +9,8 @@ import {
   boolean, 
   timestamp, 
   jsonb,
-  pgEnum
+  pgEnum,
+  unique
 } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
@@ -183,6 +184,25 @@ export const referrals = pgTable("referrals", {
   createdAt: timestamp("created_at").defaultNow(),
   paidAt: timestamp("paid_at"),
 });
+
+// Monthly recurring commissions from subscription upgrades/renewals
+export const monthlyCommissions = pgTable("monthly_commissions", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  referralId: text("referral_id").notNull().references(() => referrals.id),
+  referrerId: text("referrer_id").notNull(),
+  referredUserId: text("referred_user_id").notNull(),
+  commissionMonth: varchar("commission_month").notNull(), // Format: "2025-01" 
+  referrerTierAtTime: subscriptionTierEnum("referrer_tier_at_time").notNull(),
+  referredTierAtTime: subscriptionTierEnum("referred_tier_at_time").notNull(),
+  eligibleTier: subscriptionTierEnum("eligible_tier").notNull(),
+  commissionAmount: decimal("commission_amount", { precision: 10, scale: 2 }).notNull(),
+  commissionRate: decimal("commission_rate", { precision: 5, scale: 4 }).default("0.10"),
+  isPaid: boolean("is_paid").default(false),
+  createdAt: timestamp("created_at").defaultNow(),
+  paidAt: timestamp("paid_at"),
+}, (table) => ({
+  uniqueMonthlyCommission: unique("unique_monthly_commission").on(table.referralId, table.commissionMonth),
+}));
 
 // Course content (lessons, quizzes, etc.)
 export const courseContent = pgTable("course_content", {
@@ -539,6 +559,12 @@ export const insertProductReviewSchema = createInsertSchema(productReviews).omit
 });
 
 export const insertReferralSchema = createInsertSchema(referrals).omit({
+  id: true,
+  createdAt: true,
+  paidAt: true,
+});
+
+export const insertMonthlyCommissionSchema = createInsertSchema(monthlyCommissions).omit({
   id: true,
   createdAt: true,
   paidAt: true,

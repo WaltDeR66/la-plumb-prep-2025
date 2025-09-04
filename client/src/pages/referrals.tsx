@@ -46,6 +46,11 @@ export default function Referrals() {
     queryKey: ["/api/referrals/commission-preview"],
   });
 
+  // Fetch monthly earnings summary
+  const { data: monthlyEarnings, isLoading: monthlyLoading } = useQuery({
+    queryKey: ["/api/referrals/monthly-earnings-summary"],
+  });
+
   useEffect(() => {
     if (stats?.referralCode) {
       setReferralUrl(`${window.location.origin}?ref=${stats.referralCode}`);
@@ -101,7 +106,7 @@ export default function Referrals() {
     return tier.charAt(0).toUpperCase() + tier.slice(1);
   };
 
-  if (statsLoading || previewLoading) {
+  if (statsLoading || previewLoading || monthlyLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full" />
@@ -215,6 +220,72 @@ export default function Referrals() {
                         </div>
                       ))}
                     </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Monthly Recurring Earnings */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <TrendingUp className="h-5 w-5 text-green-600" />
+                    Monthly Recurring Earnings
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="p-4 bg-green-50 rounded-lg">
+                        <div className="text-sm text-muted-foreground">Total Monthly</div>
+                        <div className="text-2xl font-bold text-green-600">
+                          ${monthlyEarnings?.totalMonthlyEarnings?.toFixed(2) || "0.00"}
+                        </div>
+                      </div>
+                      <div className="p-4 bg-orange-50 rounded-lg">
+                        <div className="text-sm text-muted-foreground">Unpaid Monthly</div>
+                        <div className="text-2xl font-bold text-orange-600">
+                          ${monthlyEarnings?.unpaidMonthlyEarnings?.toFixed(2) || "0.00"}
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {monthlyEarnings?.monthlyBreakdown && monthlyEarnings.monthlyBreakdown.length > 0 ? (
+                      <div className="space-y-3">
+                        <div className="text-sm font-medium text-muted-foreground">Monthly Breakdown:</div>
+                        {monthlyEarnings.monthlyBreakdown.slice(0, 6).map((month: any) => (
+                          <div key={month.month} className="flex justify-between items-center p-3 border rounded-lg">
+                            <div>
+                              <div className="font-medium">
+                                {new Date(month.month + '-01').toLocaleDateString('en-US', { 
+                                  year: 'numeric', 
+                                  month: 'long' 
+                                })}
+                              </div>
+                              <div className="text-sm text-muted-foreground">
+                                {month.count} commission{month.count !== 1 ? 's' : ''}
+                              </div>
+                            </div>
+                            <div className="text-right">
+                              <div className="font-bold text-green-600">
+                                ${month.total.toFixed(2)}
+                              </div>
+                              <div className="text-xs text-muted-foreground">
+                                {month.unpaid > 0 ? `$${month.unpaid.toFixed(2)} unpaid` : 'All paid'}
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="text-center py-6 text-muted-foreground">
+                        <div className="text-sm">
+                          🚀 <strong>Recurring Monthly Earnings!</strong>
+                        </div>
+                        <div className="text-xs mt-1">
+                          When your referrals upgrade their plans, you earn monthly commissions based on your tier!
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </CardContent>
               </Card>

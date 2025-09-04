@@ -1,4 +1,5 @@
 import type { Express } from "express";
+import express from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { emailService } from "./email";
@@ -695,6 +696,134 @@ Start your journey at laplumbprep.com/courses
     } catch (error: any) {
       console.error('Cancel subscription error:', error);
       res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Upgrade subscription
+  app.post('/api/upgrade-subscription', async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+
+    const user = req.user as any;
+    const { newTier } = req.body;
+    
+    if (!['basic', 'professional', 'master'].includes(newTier)) {
+      return res.status(400).json({ message: "Invalid subscription tier" });
+    }
+
+    try {
+      if (!user.stripeSubscriptionId) {
+        return res.status(400).json({ message: "No active subscription found" });
+      }
+
+      // Get the current subscription
+      const subscription = await stripe.subscriptions.retrieve(user.stripeSubscriptionId);
+      const currentPriceId = subscription.items.data[0].price.id;
+      
+      // Map tiers to price IDs (you'll need to set these in environment variables)
+      const priceIds = {
+        basic: process.env.STRIPE_BASIC_PRICE_ID,
+        professional: process.env.STRIPE_PROFESSIONAL_PRICE_ID,
+        master: process.env.STRIPE_MASTER_PRICE_ID
+      };
+
+      const newPriceId = priceIds[newTier as keyof typeof priceIds];
+      if (!newPriceId) {
+        return res.status(400).json({ message: "Price ID not configured for tier" });
+      }
+
+      // Update the subscription
+      await stripe.subscriptions.update(user.stripeSubscriptionId, {
+        items: [{
+          id: subscription.items.data[0].id,
+          price: newPriceId,
+        }],
+        proration_behavior: 'create_prorations',
+      });
+
+      // Get old tier from current user
+      const oldTier = user.subscriptionTier;
+
+      // Update user's tier in database
+      await storage.updateUser(user.id, { subscriptionTier: newTier });
+
+      // Process referral commissions for the upgrade
+      await storage.processSubscriptionUpgrade(user.id, newTier, oldTier);
+
+      res.json({ 
+        message: `Subscription upgraded to ${newTier}`,
+        newTier,
+        oldTier
+      });
+    } catch (error: any) {
+      console.error('Upgrade subscription error:', error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Stripe webhook for handling subscription events
+  app.post('/api/stripe-webhook', express.raw({ type: 'application/json' }), async (req, res) => {
+    const sig = req.headers['stripe-signature'] as string;
+    let event;
+
+    try {
+      event = stripe.webhooks.constructEvent(req.body, sig, process.env.STRIPE_WEBHOOK_SECRET!);
+    } catch (err: any) {
+      console.error('Webhook signature verification failed:', err.message);
+      return res.status(400).send(`Webhook Error: ${err.message}`);
+    }
+
+    try {
+      switch (event.type) {
+        case 'customer.subscription.updated':
+          const subscription = event.data.object as any;
+          const customerId = subscription.customer;
+          
+          // Find user by Stripe customer ID
+          const usersResult = await db.select()
+            .from(users)
+            .where(eq(users.stripeCustomerId, customerId));
+            
+          if (usersResult.length > 0) {
+            const user = usersResult[0];
+            const oldTier = user.subscriptionTier;
+            
+            // Determine new tier from price ID
+            const priceId = subscription.items.data[0].price.id;
+            let newTier = 'basic';
+            
+            if (priceId === process.env.STRIPE_PROFESSIONAL_PRICE_ID) {
+              newTier = 'professional';
+            } else if (priceId === process.env.STRIPE_MASTER_PRICE_ID) {
+              newTier = 'master';
+            }
+            
+            // Only process if tier actually changed
+            if (oldTier !== newTier) {
+              await storage.updateUser(user.id, { subscriptionTier: newTier });
+              await storage.processSubscriptionUpgrade(user.id, newTier, oldTier);
+            }
+          }
+          break;
+          
+        case 'invoice.payment_succeeded':
+          // Handle monthly recurring payments - could trigger monthly commission calculations
+          const invoice = event.data.object as any;
+          if (invoice.subscription) {
+            // This is a recurring payment, could trigger monthly commission payouts
+            console.log('Monthly payment processed for subscription:', invoice.subscription);
+          }
+          break;
+          
+        default:
+          console.log(`Unhandled event type: ${event.type}`);
+      }
+
+      res.json({ received: true });
+    } catch (error: any) {
+      console.error('Webhook processing error:', error);
+      res.status(500).json({ error: error.message });
     }
   });
 
@@ -2994,6 +3123,79 @@ Start your journey at laplumbprep.com/courses
     } catch (error: any) {
       console.error('Error generating commission preview:', error);
       res.status(500).json({ message: "Error generating commission preview" });
+    }
+  });
+
+  // Monthly commission tracking endpoints
+  app.get("/api/referrals/monthly-commissions", async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+
+    try {
+      const userId = (req.user as any).id;
+      const { month } = req.query;
+      
+      const commissions = await storage.getMonthlyCommissions(userId, month as string);
+      
+      res.json({
+        commissions,
+        total: commissions.reduce((sum, c) => sum + Number(c.commissionAmount), 0),
+        unpaid: commissions.filter(c => !c.isPaid).reduce((sum, c) => sum + Number(c.commissionAmount), 0)
+      });
+    } catch (error: any) {
+      console.error('Error fetching monthly commissions:', error);
+      res.status(500).json({ message: "Error fetching monthly commissions" });
+    }
+  });
+
+  app.get("/api/referrals/monthly-earnings-summary", async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+
+    try {
+      const userId = (req.user as any).id;
+      
+      // Get all monthly commissions
+      const allCommissions = await storage.getMonthlyCommissions(userId);
+      
+      // Group by month and calculate totals
+      const monthlyBreakdown = allCommissions.reduce((acc, commission) => {
+        const month = commission.commissionMonth;
+        if (!acc[month]) {
+          acc[month] = {
+            month,
+            total: 0,
+            paid: 0,
+            unpaid: 0,
+            count: 0
+          };
+        }
+        
+        const amount = Number(commission.commissionAmount);
+        acc[month].total += amount;
+        acc[month].count += 1;
+        
+        if (commission.isPaid) {
+          acc[month].paid += amount;
+        } else {
+          acc[month].unpaid += amount;
+        }
+        
+        return acc;
+      }, {} as Record<string, any>);
+      
+      const summary = {
+        totalMonthlyEarnings: Object.values(monthlyBreakdown).reduce((sum: number, month: any) => sum + month.total, 0),
+        unpaidMonthlyEarnings: Object.values(monthlyBreakdown).reduce((sum: number, month: any) => sum + month.unpaid, 0),
+        monthlyBreakdown: Object.values(monthlyBreakdown).sort((a: any, b: any) => b.month.localeCompare(a.month))
+      };
+      
+      res.json(summary);
+    } catch (error: any) {
+      console.error('Error fetching monthly earnings summary:', error);
+      res.status(500).json({ message: "Error fetching monthly earnings summary" });
     }
   });
 
