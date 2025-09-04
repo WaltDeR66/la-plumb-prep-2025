@@ -3,7 +3,8 @@ import express from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { emailService } from "./email";
-import { insertUserSchema, insertJobSchema, insertJobApplicationSchema, insertCourseContentSchema, insertPrivateCodeBookSchema, insertCourseSchema, insertProductSchema, insertCartItemSchema, insertProductReviewSchema, insertReferralSchema, leadMagnetDownloads, studentLeadMagnetDownloads } from "@shared/schema";
+import { insertUserSchema, insertJobSchema, insertJobApplicationSchema, insertCourseContentSchema, insertPrivateCodeBookSchema, insertCourseSchema, insertProductSchema, insertCartItemSchema, insertProductReviewSchema, insertReferralSchema, leadMagnetDownloads, studentLeadMagnetDownloads, competitionNotifications } from "@shared/schema";
+import { competitionNotificationService } from "./competitionNotifications";
 import { eq, and, or, desc, sql, count } from "drizzle-orm";
 import { db } from "./db";
 import { analyzePhoto, analyzePlans, getMentorResponse, calculatePipeSize, reviewJobPosting } from "./openai";
@@ -3809,6 +3810,38 @@ Start your journey at laplumbprep.com/courses
     } catch (error: any) {
       console.error("Error fetching points summary:", error);
       res.status(500).json({ error: "Failed to fetch points summary" });
+    }
+  });
+
+  // Get user notifications
+  app.get("/api/notifications", async (req: any, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+    
+    try {
+      const userId = req.user.id;
+      const notifications = await competitionNotificationService.getUserNotifications(userId);
+      res.json(notifications);
+    } catch (error: any) {
+      console.error("Error fetching notifications:", error);
+      res.status(500).json({ error: "Failed to fetch notifications" });
+    }
+  });
+
+  // Mark notification as read
+  app.post("/api/notifications/:notificationId/read", async (req: any, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+    
+    try {
+      const { notificationId } = req.params;
+      await competitionNotificationService.markNotificationRead(notificationId);
+      res.json({ success: true });
+    } catch (error: any) {
+      console.error("Error marking notification as read:", error);
+      res.status(500).json({ error: "Failed to mark notification as read" });
     }
   });
 

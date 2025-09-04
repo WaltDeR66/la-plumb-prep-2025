@@ -5,6 +5,7 @@ import { Menu, Building2 } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
+import { NotificationsBell } from "@/components/notifications-bell";
 import type { User } from "@/../../shared/schema";
 
 export default function Header() {

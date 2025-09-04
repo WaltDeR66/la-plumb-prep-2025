@@ -906,6 +906,21 @@ export const studentLeadMagnetDownloads = pgTable("student_lead_magnet_downloads
   emailSent: boolean("email_sent").default(false),
 });
 
+// Competition notifications table
+export const competitionNotifications = pgTable("competition_notifications", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  competitionId: text("competition_id").notNull(),
+  userId: text("user_id").notNull(),
+  notificationType: text("notification_type").notNull(), // "advance_notice", "day_of", "results"
+  channel: text("channel").notNull(), // "email", "dashboard", "in_app"
+  title: text("title").notNull(),
+  message: text("message").notNull(),
+  sentAt: timestamp("sent_at"),
+  readAt: timestamp("read_at"),
+  isRead: boolean("is_read").default(false),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 // Create insert schemas
 export const insertEmailCampaignSchema = createInsertSchema(emailCampaigns);
 export const insertEmailQueueSchema = createInsertSchema(emailQueue);
