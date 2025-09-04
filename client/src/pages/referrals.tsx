@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery } from "@tanstack/react-query";
-import { DollarSign, Users, Copy, Share2, TrendingUp, Info, MessageSquare, Instagram, Facebook, Twitter } from "lucide-react";
+import { DollarSign, Users, Copy, Share2, TrendingUp, Info, MessageSquare, Instagram, Facebook, Twitter, Settings } from "lucide-react";
 import { Link } from "wouter";
 
 interface ReferralStats {
@@ -528,6 +528,26 @@ export default function Referrals() {
                       </div>
                     ))}
                   </div>
+                </CardContent>
+              </Card>
+
+              {/* Payment Settings */}
+              <Card className="border-blue-200 bg-blue-50">
+                <CardHeader>
+                  <CardTitle className="text-blue-800 flex items-center gap-2">
+                    <Settings className="h-5 w-5" />
+                    Payment Settings
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-blue-700 mb-4">
+                    Configure your payment method, set minimum payout amounts, and manage your earnings.
+                  </p>
+                  <Link href="/payment-settings">
+                    <Button className="w-full bg-blue-600 hover:bg-blue-700" data-testid="payment-settings">
+                      Manage Payments
+                    </Button>
+                  </Link>
                 </CardContent>
               </Card>
 

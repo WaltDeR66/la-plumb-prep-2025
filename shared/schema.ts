@@ -26,6 +26,8 @@ export const emailCampaignTypeEnum = pgEnum("email_campaign_type", ["employer_on
 export const emailStatusEnum = pgEnum("email_status", ["pending", "sent", "failed", "cancelled"]);
 export const bulkEnrollmentStatusEnum = pgEnum("bulk_enrollment_status", ["pending", "approved", "active", "cancelled"]);
 export const leadSourceEnum = pgEnum("lead_source", ["linkedin", "website", "referral", "google", "facebook", "other"]);
+export const paymentMethodEnum = pgEnum("payment_method", ["paypal", "stripe_transfer", "account_credit"]);
+export const payoutStatusEnum = pgEnum("payout_status", ["pending", "processing", "completed", "failed", "cancelled"]);
 
 // Users table
 export const users = pgTable("users", {
@@ -41,6 +43,11 @@ export const users = pgTable("users", {
   stripeSubscriptionId: text("stripe_subscription_id"),
   referralCode: text("referral_code").unique(),
   referredBy: text("referred_by"),
+  // Payment preferences
+  preferredPaymentMethod: paymentMethodEnum("preferred_payment_method").default("paypal"),
+  paypalEmail: text("paypal_email"),
+  accountBalance: decimal("account_balance", { precision: 10, scale: 2 }).default("0.00"),
+  minimumPayout: decimal("minimum_payout", { precision: 10, scale: 2 }).default("25.00"),
   isActive: boolean("is_active").default(true),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
@@ -203,6 +210,37 @@ export const monthlyCommissions = pgTable("monthly_commissions", {
 }, (table) => ({
   uniqueMonthlyCommission: unique("unique_monthly_commission").on(table.referralId, table.commissionMonth),
 }));
+
+// Payout requests
+export const payoutRequests = pgTable("payout_requests", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: text("user_id").notNull(),
+  amount: decimal("amount", { precision: 10, scale: 2 }).notNull(),
+  paymentMethod: paymentMethodEnum("payment_method").notNull(),
+  paymentDetails: jsonb("payment_details"), // PayPal email, Stripe details, etc.
+  status: payoutStatusEnum("status").default("pending"),
+  referralIds: text("referral_ids").array(), // Array of referral IDs included in this payout
+  monthlyCommissionIds: text("monthly_commission_ids").array(), // Array of monthly commission IDs
+  transactionId: text("transaction_id"), // External payment service transaction ID
+  failureReason: text("failure_reason"),
+  requestedAt: timestamp("requested_at").defaultNow(),
+  processedAt: timestamp("processed_at"),
+  completedAt: timestamp("completed_at"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Account credit transactions
+export const accountCreditTransactions = pgTable("account_credit_transactions", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: text("user_id").notNull(),
+  amount: decimal("amount", { precision: 10, scale: 2 }).notNull(),
+  type: varchar("type").notNull(), // "credit", "debit", "refund"
+  description: text("description").notNull(),
+  referenceId: text("reference_id"), // Reference to commission, refund, etc.
+  balanceBefore: decimal("balance_before", { precision: 10, scale: 2 }).notNull(),
+  balanceAfter: decimal("balance_after", { precision: 10, scale: 2 }).notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
 
 // Course content (lessons, quizzes, etc.)
 export const courseContent = pgTable("course_content", {
@@ -570,6 +608,19 @@ export const insertMonthlyCommissionSchema = createInsertSchema(monthlyCommissio
   paidAt: true,
 });
 
+export const insertPayoutRequestSchema = createInsertSchema(payoutRequests).omit({
+  id: true,
+  requestedAt: true,
+  processedAt: true,
+  completedAt: true,
+  createdAt: true,
+});
+
+export const insertAccountCreditTransactionSchema = createInsertSchema(accountCreditTransactions).omit({
+  id: true,
+  createdAt: true,
+});
+
 // Email campaigns
 export const emailCampaigns = pgTable("email_campaigns", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
@@ -748,3 +799,9 @@ export type LeadMagnetDownload = typeof leadMagnetDownloads.$inferSelect;
 export type InsertLeadMagnetDownload = z.infer<typeof insertLeadMagnetDownloadSchema>;
 export type StudentLeadMagnetDownload = typeof studentLeadMagnetDownloads.$inferSelect;
 export type InsertStudentLeadMagnetDownload = z.infer<typeof insertStudentLeadMagnetDownloadSchema>;
+export type PayoutRequest = typeof payoutRequests.$inferSelect;
+export type InsertPayoutRequest = z.infer<typeof insertPayoutRequestSchema>;
+export type AccountCreditTransaction = typeof accountCreditTransactions.$inferSelect;
+export type InsertAccountCreditTransaction = z.infer<typeof insertAccountCreditTransactionSchema>;
+export type MonthlyCommission = typeof monthlyCommissions.$inferSelect;
+export type InsertMonthlyCommission = z.infer<typeof insertMonthlyCommissionSchema>;

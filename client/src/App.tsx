@@ -34,6 +34,7 @@ import LouisianaBoard from "@/pages/louisiana-board";
 import TechnicalSupport from "@/pages/technical-support";
 import SystemStatus from "@/pages/system-status";
 import Referrals from "@/pages/referrals";
+import PaymentSettings from "@/pages/payment-settings";
 import BulkEnrollment from "@/pages/bulk-enrollment";
 import LeadMagnet from "@/pages/lead-magnet";
 import StudentLeadMagnet from "@/pages/student-lead-magnet";
@@ -76,6 +77,7 @@ function Router() {
           <Route path="/technical-support" component={TechnicalSupport} />
           <Route path="/system-status" component={SystemStatus} />
           <Route path="/referrals" component={Referrals} />
+          <Route path="/payment-settings" component={PaymentSettings} />
           <Route path="/bulk-enrollment" component={BulkEnrollment} />
           <Route path="/lead-magnet" component={LeadMagnet} />
           <Route path="/student-lead-magnet" component={StudentLeadMagnet} />

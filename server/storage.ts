@@ -10,6 +10,8 @@ import {
   planUploads,
   referrals,
   monthlyCommissions,
+  payoutRequests,
+  accountCreditTransactions,
   courseContent,
   privateCodeBooks,
   chatAnswers,
@@ -52,7 +54,13 @@ import {
   type CartItem,
   type InsertCartItem,
   type ProductReview,
-  type InsertProductReview
+  type InsertProductReview,
+  type PayoutRequest,
+  type InsertPayoutRequest,
+  type AccountCreditTransaction,
+  type InsertAccountCreditTransaction,
+  type MonthlyCommission,
+  type InsertMonthlyCommission
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, or, desc, sql, count, isNull, ilike } from "drizzle-orm";
@@ -127,6 +135,21 @@ export interface IStorage {
   updateMonthlyCommission(commissionId: string, isPaid: boolean, paidAt?: Date): Promise<any>;
   getAllUnpaidMonthlyCommissions(): Promise<any[]>;
   processSubscriptionUpgrade(referredUserId: string, newTier: string, oldTier: string): Promise<void>;
+  
+  // Payment methods
+  updateUserPaymentPreferences(userId: string, paymentMethod: string, paypalEmail?: string, minimumPayout?: number): Promise<User>;
+  getUserAccountBalance(userId: string): Promise<number>;
+  addAccountCredit(userId: string, amount: number, description: string, referenceId?: string): Promise<AccountCreditTransaction>;
+  deductAccountCredit(userId: string, amount: number, description: string, referenceId?: string): Promise<AccountCreditTransaction>;
+  getUserAccountTransactions(userId: string, page?: number, limit?: number): Promise<AccountCreditTransaction[]>;
+  
+  // Payout methods
+  createPayoutRequest(request: InsertPayoutRequest): Promise<PayoutRequest>;
+  getUserPayoutRequests(userId: string): Promise<PayoutRequest[]>;
+  getPendingPayoutRequests(): Promise<PayoutRequest[]>;
+  updatePayoutRequestStatus(payoutId: string, status: string, transactionId?: string, failureReason?: string): Promise<PayoutRequest>;
+  processAutomaticPayouts(): Promise<{ processed: number; total: number }>;
+  getUserEligibleCommissionsForPayout(userId: string): Promise<{ referrals: Referral[]; monthlyCommissions: MonthlyCommission[]; totalAmount: number }>;
   
   // Course content methods
   getCourseContent(courseId: string): Promise<CourseContent[]>;
