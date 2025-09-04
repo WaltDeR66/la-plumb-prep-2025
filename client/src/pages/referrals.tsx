@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery } from "@tanstack/react-query";
 import { DollarSign, Users, Copy, Share2, TrendingUp, Info, MessageSquare, Instagram, Facebook, Twitter, Settings } from "lucide-react";
+import { SiLinkedin, SiWhatsapp } from "react-icons/si";
 import { Link } from "wouter";
 
 interface ReferralStats {
@@ -513,7 +514,7 @@ export default function Referrals() {
                               className="px-2"
                               data-testid={`share-linkedin-${template.id}`}
                             >
-                              <MessageSquare className="h-3 w-3" />
+                              <SiLinkedin className="h-3 w-3" />
                             </Button>
                             <Button 
                               size="sm" 
@@ -521,7 +522,7 @@ export default function Referrals() {
                               className="px-2"
                               data-testid={`share-whatsapp-${template.id}`}
                             >
-                              <MessageSquare className="h-3 w-3" />
+                              <SiWhatsapp className="h-3 w-3" />
                             </Button>
                           </div>
                         </div>
