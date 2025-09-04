@@ -36,7 +36,7 @@ export default function Courses() {
   return (
     <div className="p-8">
       <h1 className="text-3xl font-bold mb-6">Louisiana Plumbing Courses</h1>
-      <p className="text-lg mb-8">Found {courses.length} courses</p>
+      <p className="text-lg mb-8">Displaying {courses.length} available courses</p>
       
       <div className="grid gap-6">
         {courses.map((course) => (
