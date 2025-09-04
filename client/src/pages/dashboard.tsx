@@ -21,7 +21,8 @@ import {
   Check,
   X,
   Crown,
-  Zap
+  Zap,
+  DollarSign
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
@@ -214,6 +215,12 @@ export default function Dashboard() {
                     <Download className="w-4 h-4 mr-2" />
                     Download Certificate
                   </Button>
+                  <Link href="/referrals">
+                    <Button className="w-full justify-start" variant="outline" data-testid="action-referral-program">
+                      <DollarSign className="w-4 h-4 mr-2" />
+                      Referral Program
+                    </Button>
+                  </Link>
                 </CardContent>
               </Card>
             </div>
