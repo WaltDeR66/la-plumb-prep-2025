@@ -6,7 +6,6 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/not-found";
 import Home from "@/pages/home";
 import Courses from "@/pages/courses";
-import CoursesTest from "@/pages/courses-test";
 import Tools from "@/pages/tools";
 import Jobs from "@/pages/jobs";
 import Pricing from "@/pages/pricing";
@@ -48,7 +47,7 @@ function Router() {
       <main className="flex-1">
         <Switch>
           <Route path="/" component={Home} />
-          <Route path="/courses" component={CoursesTest} />
+          <Route path="/courses" component={Courses} />
           <Route path="/tools" component={Tools} />
           <Route path="/tools/ai-pricing" component={AIToolsPricing} />
           <Route path="/pay-per-use" component={PayPerUseCheckout} />
