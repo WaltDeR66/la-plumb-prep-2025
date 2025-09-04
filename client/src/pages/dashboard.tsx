@@ -22,7 +22,8 @@ import {
   X,
   Crown,
   Zap,
-  DollarSign
+  DollarSign,
+  Settings
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
@@ -221,6 +222,14 @@ export default function Dashboard() {
                       Referral Program
                     </Button>
                   </Link>
+                  {user && (user.email?.includes('admin') || user.subscriptionTier === 'master') && (
+                    <Link href="/admin">
+                      <Button className="w-full justify-start" variant="outline" data-testid="action-admin-panel">
+                        <Settings className="w-4 h-4 mr-2" />
+                        Admin Panel
+                      </Button>
+                    </Link>
+                  )}
                 </CardContent>
               </Card>
             </div>
