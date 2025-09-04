@@ -1313,7 +1313,13 @@ Start your journey at laplumbprep.com/courses
         ...jobData,
         employerId,
         company: employer.companyName,
-        contactEmail: employer.contactEmail
+        contactEmail: employer.contactEmail,
+        requirements: Array.isArray(jobData.requirements) 
+          ? jobData.requirements 
+          : (jobData.requirements ? [jobData.requirements] : []),
+        benefits: Array.isArray(jobData.benefits) 
+          ? jobData.benefits 
+          : (jobData.benefits ? [jobData.benefits] : [])
       });
       
       res.status(201).json({ 
