@@ -17,6 +17,7 @@ export default function BulkQuestionImport() {
   const [questionsText, setQuestionsText] = useState("");
   const [previewQuestions, setPreviewQuestions] = useState<any[]>([]);
   const [importStatus, setImportStatus] = useState<"idle" | "parsing" | "previewing" | "importing" | "success">("idle");
+  const [selectedDifficulty, setSelectedDifficulty] = useState("medium");
 
   // Fetch courses
   const { data: courses } = useQuery({
@@ -100,51 +101,56 @@ export default function BulkQuestionImport() {
   const parseQuestionsFromText = (text: string) => {
     const questions: any[] = [];
     
-    // Split by question numbers (1., 2., etc.) or double newlines
-    const questionBlocks = text.split(/(?=\d+\.|^\d+\))/gm).filter(block => block.trim());
+    // Split by double newlines to separate questions
+    const questionBlocks = text.split(/\n\s*\n/).filter(block => block.trim());
     
     questionBlocks.forEach((block, index) => {
       const lines = block.trim().split('\n').filter(line => line.trim());
-      if (lines.length < 5) return; // Need at least question + 4 options
+      if (lines.length < 6) return; // Need question + 4 options + answer line
       
-      // Extract question text (first line, remove number)
-      const questionText = lines[0].replace(/^\d+[\.\)]\s*/, '').trim();
+      // Extract question text (first line)
+      const questionText = lines[0].trim();
       if (!questionText) return;
       
-      // Extract options (A., B., C., D. or similar)
+      // Extract options (A., B., C., D.)
       const options: string[] = [];
-      let correctAnswer = 0;
+      let answerLine = '';
       
       for (let i = 1; i < lines.length; i++) {
         const line = lines[i].trim();
         
-        // Match option patterns: A., A), (A), etc.
-        const optionMatch = line.match(/^[A-D][\.\)]\s*(.+)$/i) || 
-                           line.match(/^\([A-D]\)\s*(.+)$/i);
+        // Check if this is the ANSWER line
+        if (line.startsWith('ANSWER:')) {
+          answerLine = line;
+          break;
+        }
+        
+        // Match option patterns: A., B., C., D.
+        const optionMatch = line.match(/^([A-D])\. (.+)$/i);
         
         if (optionMatch) {
-          const optionLetter = optionMatch[0].charAt(optionMatch[0].search(/[A-D]/i)).toUpperCase();
-          const optionText = optionMatch[1].trim();
-          
-          // Check for correct answer indicators (✓, *, CORRECT, etc.)
-          if (optionText.includes('✓') || optionText.includes('*') || 
-              optionText.toUpperCase().includes('CORRECT') ||
-              line.includes('✓') || line.includes('*')) {
-            correctAnswer = options.length;
-          }
-          
-          // Clean the option text
-          options.push(optionText.replace(/[✓\*]/g, '').replace(/\s*\(?\s*correct\s*\)?\s*/gi, '').trim());
+          const optionText = optionMatch[2].trim();
+          options.push(optionText);
         }
       }
       
-      // Only add if we have 4 options
-      if (options.length >= 4) {
+      // Extract correct answer from ANSWER line
+      let correctAnswer = 0;
+      if (answerLine) {
+        const answerMatch = answerLine.match(/ANSWER:\s*([A-D])/i);
+        if (answerMatch) {
+          const answerLetter = answerMatch[1].toUpperCase();
+          correctAnswer = answerLetter.charCodeAt(0) - 65; // A=0, B=1, C=2, D=3
+        }
+      }
+      
+      // Only add if we have exactly 4 options
+      if (options.length === 4 && answerLine) {
         questions.push({
           questionText,
-          options: options.slice(0, 4), // Take first 4 options
+          options,
           correctAnswer,
-          difficulty: "medium",
+          difficulty: selectedDifficulty,
           explanation: `Explanation for question ${index + 1}`
         });
       }
@@ -163,25 +169,44 @@ export default function BulkQuestionImport() {
           </p>
         </div>
 
-        {/* Course Selection */}
+        {/* Course and Difficulty Selection */}
         <Card className="mb-6">
           <CardHeader>
-            <CardTitle>Select Course</CardTitle>
-            <CardDescription>Choose which course to add questions to</CardDescription>
+            <CardTitle>Course & Difficulty Settings</CardTitle>
+            <CardDescription>Choose course and set difficulty level for all questions in this batch</CardDescription>
           </CardHeader>
           <CardContent>
-            <Select value={selectedCourse} onValueChange={setSelectedCourse}>
-              <SelectTrigger className="w-full max-w-md">
-                <SelectValue placeholder="Select a course" />
-              </SelectTrigger>
-              <SelectContent>
-                {(courses as any[])?.map((course: any) => (
-                  <SelectItem key={course.id} value={course.id}>
-                    {course.title}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="course">Select Course</Label>
+                <Select value={selectedCourse} onValueChange={setSelectedCourse}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Select a course" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {(courses as any[])?.map((course: any) => (
+                      <SelectItem key={course.id} value={course.id}>
+                        {course.title}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label htmlFor="difficulty">Question Difficulty</Label>
+                <Select value={selectedDifficulty} onValueChange={setSelectedDifficulty}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="easy">Easy</SelectItem>
+                    <SelectItem value="medium">Medium</SelectItem>
+                    <SelectItem value="hard">Hard</SelectItem>
+                    <SelectItem value="very_hard">Very Hard</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
           </CardContent>
         </Card>
 
@@ -197,37 +222,28 @@ export default function BulkQuestionImport() {
           <CardContent>
             <div className="space-y-4 text-sm">
               <div>
-                <h4 className="font-semibold mb-2">Format 1: Numbered with letters</h4>
+                <h4 className="font-semibold mb-2">Your Format: Louisiana Plumbing Code Style</h4>
                 <pre className="bg-muted p-3 rounded text-xs">
-{`1. What is the primary purpose of a P-trap?
-A. To prevent sewer gases from entering the building ✓
-B. To increase water pressure
-C. To filter water
-D. To reduce noise
+{`Which specific statutory provision grants the primary authority for the promulgation of the Louisiana State Plumbing Code as outlined in the text?
+A. LAC 51:XIV
+B. R.S. 40:5(2)(3)(7)(9)(16)(17)(20)
+C. R.S. 36:258(B)
+D. R.S. 40:4(A)(7)
+ANSWER: C
 
-2. The minimum trap seal depth is:
-A. 1 inch
-B. 2 inches ✓
-C. 3 inches
-D. 4 inches`}
-                </pre>
-              </div>
-              
-              <div>
-                <h4 className="font-semibold mb-2">Format 2: With parentheses</h4>
-                <pre className="bg-muted p-3 rounded text-xs">
-{`1) Which pipe material is NOT approved for DWV systems?
-(A) PVC
-(B) Cast Iron
-(C) Galvanized Steel * CORRECT
-(D) ABS`}
+Under what precise regulatory nomenclature is the Louisiana State Plumbing Code initially adopted?
+A. Chapters 1 and 4 of Title 40 of the Louisiana Revised Statutes
+B. Louisiana Revised Statutes Title 40
+C. Part XIV (Plumbing) of the Sanitary Code, State of Louisiana (LAC 51:XIV)
+D. Louisiana State Plumbing Code (LSPC)
+ANSWER: C`}
                 </pre>
               </div>
 
               <Alert>
                 <AlertCircle className="h-4 w-4" />
                 <AlertDescription>
-                  <strong>Mark correct answers with:</strong> ✓, *, "CORRECT", or similar indicators
+                  <strong>Required format:</strong> Each question must end with "ANSWER: [letter]" (e.g., "ANSWER: C")
                 </AlertDescription>
               </Alert>
             </div>
@@ -252,17 +268,19 @@ D. 4 inches`}
                   placeholder="Paste your questions here...
 
 Example:
-1. What is the standard pipe size for a residential main drain?
-A. 2 inches
-B. 3 inches  
-C. 4 inches ✓
-D. 6 inches
+Which specific statutory provision grants the primary authority?
+A. LAC 51:XIV
+B. R.S. 40:5(2)(3)(7)(9)(16)(17)(20)
+C. R.S. 36:258(B)
+D. R.S. 40:4(A)(7)
+ANSWER: C
 
-2. The maximum length for a fixture drain is:
-A. 5 feet
-B. 8 feet ✓
-C. 10 feet
-D. 12 feet"
+Under what precise regulatory nomenclature is the code adopted?
+A. Chapters 1 and 4 of Title 40
+B. Louisiana Revised Statutes Title 40
+C. Part XIV (Plumbing) of the Sanitary Code
+D. Louisiana State Plumbing Code (LSPC)
+ANSWER: C"
                   className="font-mono text-sm"
                 />
               </div>
