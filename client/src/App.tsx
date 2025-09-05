@@ -12,6 +12,7 @@ import Pricing from "@/pages/pricing";
 import Subscribe from "@/pages/subscribe";
 import Checkout from "@/pages/checkout";
 import CheckoutSuccess from "@/pages/checkout/success";
+import BetaFeedback from "@/pages/beta-feedback";
 import Dashboard from "@/pages/dashboard";
 import CourseContent from "@/pages/course-content";
 import Lesson from "@/pages/lesson";
@@ -26,6 +27,7 @@ import PayPerUseCheckout from "@/pages/pay-per-use-checkout";
 import EmployerPortal from "@/pages/employer-portal";
 import EmployerDashboard from "@/pages/employer-dashboard";
 import JobApproval from "@/pages/admin/job-approval";
+import BetaFeedbackDashboard from "@/pages/admin/beta-feedback-dashboard";
 import JobAnalytics from "@/pages/employer/job-analytics";
 import Privacy from "@/pages/privacy";
 import Terms from "@/pages/terms";
@@ -63,6 +65,7 @@ function Router() {
           <Route path="/subscribe" component={Subscribe} />
           <Route path="/checkout" component={Checkout} />
           <Route path="/checkout/success" component={CheckoutSuccess} />
+          <Route path="/beta-feedback" component={BetaFeedback} />
           <Route path="/dashboard" component={Dashboard} />
           <Route path="/store" component={Store} />
           <Route path="/store/product/:id" component={ProductDetail} />
@@ -76,6 +79,7 @@ function Router() {
           <Route path="/employer/dashboard" component={EmployerDashboard} />
           <Route path="/employer/analytics" component={JobAnalytics} />
           <Route path="/admin/job-approval" component={JobApproval} />
+          <Route path="/admin/beta-feedback" component={BetaFeedbackDashboard} />
           <Route path="/privacy" component={Privacy} />
           <Route path="/terms" component={Terms} />
           <Route path="/accessibility" component={Accessibility} />

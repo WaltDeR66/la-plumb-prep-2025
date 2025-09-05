@@ -83,6 +83,10 @@ app.use((req, res, next) => {
     // Initialize bulk pricing tiers
     await bulkPricingService.initializeBulkTiers();
     
+    // Initialize beta feedback system
+    const { initializeBetaFeedbackSystem } = await import('./betaFeedbackSystem');
+    await initializeBetaFeedbackSystem();
+    
     // Start email queue processor (runs every 5 minutes)
     setInterval(async () => {
       try {
@@ -92,7 +96,31 @@ app.use((req, res, next) => {
       }
     }, 5 * 60 * 1000); // 5 minutes
     
+    // Check for monthly beta feedback sending (runs daily at 9 AM)
+    const checkBetaFeedback = async () => {
+      const now = new Date();
+      const isFirstOfMonth = now.getDate() === 1;
+      const isNineAM = now.getHours() === 9;
+      
+      if (isFirstOfMonth && isNineAM) {
+        try {
+          const { BetaFeedbackService } = await import('./betaFeedbackSystem');
+          const result = await BetaFeedbackService.sendMonthlyFeedbackEmails();
+          console.log(`Monthly beta feedback sent to ${result.emailsSent} testers`);
+        } catch (error) {
+          console.error("Error sending monthly beta feedback:", error);
+        }
+      }
+    };
+    
+    // Run beta feedback check every hour
+    setInterval(checkBetaFeedback, 60 * 60 * 1000); // 1 hour
+    
+    // Also run on startup if it's the first day of the month
+    setTimeout(checkBetaFeedback, 5000); // After 5 seconds
+    
     log("Email automation system initialized");
     log("Bulk pricing system initialized");
+    log("Beta feedback system initialized");
   });
 })();

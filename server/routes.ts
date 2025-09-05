@@ -873,6 +873,68 @@ Start your journey at laplumbprep.com/courses
     }
   });
 
+  // Beta feedback system routes
+  app.get('/api/beta-feedback/:token', async (req, res) => {
+    const { token } = req.params;
+    
+    try {
+      const { BetaFeedbackService } = await import('./betaFeedbackSystem');
+      const feedbackData = await BetaFeedbackService.getFeedbackByToken(token);
+      res.json(feedbackData);
+    } catch (error: any) {
+      console.error('Error getting feedback:', error);
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.post('/api/beta-feedback/:token/submit', async (req, res) => {
+    const { token } = req.params;
+    const { responses } = req.body;
+    
+    try {
+      const { BetaFeedbackService } = await import('./betaFeedbackSystem');
+      await BetaFeedbackService.submitFeedback(token, responses);
+      res.json({ success: true });
+    } catch (error: any) {
+      console.error('Error submitting feedback:', error);
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  // Admin route to get feedback analytics
+  app.get('/api/admin/beta-feedback/analytics', async (req, res) => {
+    if (!req.isAuthenticated() || (req.user as any)?.role !== 'admin') {
+      return res.status(401).json({ message: "Admin access required" });
+    }
+
+    const { monthYear } = req.query;
+    
+    try {
+      const { BetaFeedbackService } = await import('./betaFeedbackSystem');
+      const analytics = await BetaFeedbackService.getFeedbackAnalytics(monthYear as string);
+      res.json(analytics);
+    } catch (error: any) {
+      console.error('Error getting feedback analytics:', error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Admin route to manually trigger monthly feedback
+  app.post('/api/admin/beta-feedback/send-monthly', async (req, res) => {
+    if (!req.isAuthenticated() || (req.user as any)?.role !== 'admin') {
+      return res.status(401).json({ message: "Admin access required" });
+    }
+    
+    try {
+      const { BetaFeedbackService } = await import('./betaFeedbackSystem');
+      const result = await BetaFeedbackService.sendMonthlyFeedbackEmails();
+      res.json(result);
+    } catch (error: any) {
+      console.error('Error sending monthly feedback:', error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
   // Stripe webhook for handling subscription events
   app.post('/api/stripe-webhook', express.raw({ type: 'application/json' }), async (req, res) => {
     const sig = req.headers['stripe-signature'] as string;

@@ -56,6 +56,9 @@ export const users = pgTable("users", {
   currentStreak: integer("current_streak").default(0),
   longestStreak: integer("longest_streak").default(0),
   lastLoginDate: timestamp("last_login_date"),
+  // Beta testing fields
+  isBetaTester: boolean("is_beta_tester").default(false),
+  betaStartedAt: timestamp("beta_started_at"),
   isActive: boolean("is_active").default(true),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
@@ -921,6 +924,38 @@ export const competitionNotifications = pgTable("competition_notifications", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+// Beta feedback system
+export const betaFeedbackQuestions = pgTable("beta_feedback_questions", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  questionText: text("question_text").notNull(),
+  questionType: text("question_type").notNull(), // text, rating, multiple_choice, boolean
+  options: jsonb("options"), // For multiple choice questions
+  isRequired: boolean("is_required").default(true),
+  displayOrder: integer("display_order").notNull(),
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const betaFeedbackCampaigns = pgTable("beta_feedback_campaigns", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  title: text("title").notNull(),
+  description: text("description"),
+  monthYear: text("month_year").notNull(), // Format: "2025-01" 
+  emailSentAt: timestamp("email_sent_at"),
+  dueDate: timestamp("due_date").notNull(),
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const betaFeedbackResponses = pgTable("beta_feedback_responses", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  campaignId: text("campaign_id").notNull(),
+  userId: text("user_id").notNull(),
+  responses: jsonb("responses").notNull(), // {"questionId": "answer"}
+  completedAt: timestamp("completed_at").defaultNow(),
+  submissionToken: text("submission_token").unique(), // For email link access
+});
+
 // Create insert schemas
 export const insertEmailCampaignSchema = createInsertSchema(emailCampaigns);
 export const insertEmailQueueSchema = createInsertSchema(emailQueue);
@@ -937,6 +972,18 @@ export const insertStudentLeadMagnetDownloadSchema = createInsertSchema(studentL
   id: true,
   downloadedAt: true,
   emailSent: true
+});
+export const insertBetaFeedbackQuestionSchema = createInsertSchema(betaFeedbackQuestions).omit({
+  id: true,
+  createdAt: true
+});
+export const insertBetaFeedbackCampaignSchema = createInsertSchema(betaFeedbackCampaigns).omit({
+  id: true,
+  createdAt: true
+});
+export const insertBetaFeedbackResponseSchema = createInsertSchema(betaFeedbackResponses).omit({
+  id: true,
+  completedAt: true
 });
 
 // Types
@@ -996,3 +1043,9 @@ export type AccountCreditTransaction = typeof accountCreditTransactions.$inferSe
 export type InsertAccountCreditTransaction = z.infer<typeof insertAccountCreditTransactionSchema>;
 export type MonthlyCommission = typeof monthlyCommissions.$inferSelect;
 export type InsertMonthlyCommission = z.infer<typeof insertMonthlyCommissionSchema>;
+export type BetaFeedbackQuestion = typeof betaFeedbackQuestions.$inferSelect;
+export type InsertBetaFeedbackQuestion = z.infer<typeof insertBetaFeedbackQuestionSchema>;
+export type BetaFeedbackCampaign = typeof betaFeedbackCampaigns.$inferSelect;
+export type InsertBetaFeedbackCampaign = z.infer<typeof insertBetaFeedbackCampaignSchema>;
+export type BetaFeedbackResponse = typeof betaFeedbackResponses.$inferSelect;
+export type InsertBetaFeedbackResponse = z.infer<typeof insertBetaFeedbackResponseSchema>;
