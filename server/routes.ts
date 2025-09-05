@@ -4210,6 +4210,73 @@ Start your journey at laplumbprep.com/courses
     }
   });
 
+  // Bulk import flashcards with duplicate detection
+  app.post("/api/admin/flashcards/bulk-import", async (req: any, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+    
+    if (!req.user.email?.includes('admin') && req.user.subscriptionTier !== 'master') {
+      return res.status(403).json({ error: "Admin access required" });
+    }
+    
+    try {
+      const { courseId, flashcards } = req.body;
+      
+      if (!courseId || !flashcards || !Array.isArray(flashcards)) {
+        return res.status(400).json({ error: "courseId and flashcards array are required" });
+      }
+      
+      // Get existing flashcards for this course to check for duplicates
+      const existingFlashcards = await storage.getFlashcardsByCourse(courseId);
+      
+      // Create a set of existing flashcard fronts for faster lookup (normalized)
+      const existingFlashcardFronts = new Set(
+        existingFlashcards.map((f: any) => 
+          f.front.toLowerCase().trim().replace(/\s+/g, ' ')
+        )
+      );
+      
+      // Filter out duplicates and track them
+      const newFlashcards: any[] = [];
+      const duplicates: any[] = [];
+      
+      flashcards.forEach((f: any) => {
+        const normalizedFront = f.front.toLowerCase().trim().replace(/\s+/g, ' ');
+        
+        if (existingFlashcardFronts.has(normalizedFront)) {
+          duplicates.push(f);
+        } else {
+          newFlashcards.push({
+            ...f,
+            id: crypto.randomUUID(),
+            courseId,
+            createdAt: new Date(),
+          });
+          // Add to set to prevent duplicates within this batch too
+          existingFlashcardFronts.add(normalizedFront);
+        }
+      });
+      
+      // Create only new flashcards
+      const createdFlashcards = await Promise.all(
+        newFlashcards.map((f: any) => storage.createFlashcard(f))
+      );
+      
+      res.json({ 
+        success: true, 
+        imported: createdFlashcards.length,
+        duplicatesSkipped: duplicates.length,
+        totalSubmitted: flashcards.length,
+        flashcards: createdFlashcards,
+        duplicates: duplicates.map(d => d.front.substring(0, 100) + "...")
+      });
+    } catch (error: any) {
+      console.error("Error bulk importing flashcards:", error);
+      res.status(500).json({ error: "Failed to import flashcards" });
+    }
+  });
+
   // Bulk import questions with duplicate detection
   app.post("/api/admin/questions/bulk-import", async (req: any, res) => {
     if (!req.isAuthenticated()) {

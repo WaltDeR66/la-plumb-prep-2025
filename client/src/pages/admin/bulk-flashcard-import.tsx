@@ -1,0 +1,341 @@
+import { useState } from "react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { useToast } from "@/hooks/use-toast";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { apiRequest } from "@/lib/queryClient";
+import { Upload, FileText, CheckCircle, AlertCircle } from "lucide-react";
+
+export default function BulkFlashcardImport() {
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+  const [selectedCourse, setSelectedCourse] = useState("");
+  const [flashcardsText, setFlashcardsText] = useState("");
+  const [previewFlashcards, setPreviewFlashcards] = useState<any[]>([]);
+  const [importStatus, setImportStatus] = useState<"idle" | "parsing" | "previewing" | "importing" | "success">("idle");
+
+  // Fetch courses
+  const { data: courses } = useQuery({
+    queryKey: ["/api/courses"],
+  });
+
+  const bulkImportMutation = useMutation({
+    mutationFn: async (data: any) => await apiRequest("POST", "/api/admin/flashcards/bulk-import", data),
+    onSuccess: (result: any) => {
+      const { imported, duplicatesSkipped, totalSubmitted } = result;
+      
+      if (duplicatesSkipped > 0) {
+        toast({ 
+          title: "Import completed with duplicates detected", 
+          description: `Added ${imported} new flashcards. Skipped ${duplicatesSkipped} duplicates out of ${totalSubmitted} total.`,
+          variant: "default"
+        });
+      } else {
+        toast({ 
+          title: "All flashcards imported successfully!", 
+          description: `Added ${imported} new flashcards to the course.`
+        });
+      }
+      
+      setImportStatus("success");
+      setFlashcardsText("");
+      setPreviewFlashcards([]);
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/course-content"] });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Import failed",
+        description: error.message || "Failed to import flashcards",
+        variant: "destructive"
+      });
+      setImportStatus("idle");
+    }
+  });
+
+  const parseFlashcards = () => {
+    if (!flashcardsText.trim()) {
+      toast({
+        title: "No content",
+        description: "Please enter flashcards to parse",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setImportStatus("parsing");
+
+    try {
+      const parsed = parseFlashcardsFromText(flashcardsText);
+      if (parsed.length === 0) {
+        throw new Error("No valid flashcards found. Please check the format.");
+      }
+      
+      setPreviewFlashcards(parsed);
+      setImportStatus("previewing");
+      toast({
+        title: "Flashcards parsed successfully!",
+        description: `Found ${parsed.length} flashcards ready for import.`
+      });
+    } catch (error: any) {
+      toast({
+        title: "Parse error",
+        description: error.message,
+        variant: "destructive"
+      });
+      setImportStatus("idle");
+    }
+  };
+
+  const importFlashcards = () => {
+    if (!selectedCourse) {
+      toast({
+        title: "No course selected",
+        description: "Please select a course first",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setImportStatus("importing");
+    bulkImportMutation.mutate({
+      courseId: selectedCourse,
+      flashcards: previewFlashcards
+    });
+  };
+
+  const parseFlashcardsFromText = (text: string) => {
+    const flashcards: any[] = [];
+    
+    // Split by double newlines to separate flashcard blocks
+    const cardBlocks = text.split(/\n\s*\n\s*\n/).filter(block => block.trim());
+    
+    cardBlocks.forEach((block, index) => {
+      const lines = block.trim().split('\n').filter(line => line.trim());
+      if (lines.length < 3) return; // Need term + blank line + definition
+      
+      // Find the term (first non-empty line)
+      const term = lines[0].trim();
+      if (!term) return;
+      
+      // Find the definition (everything after the first empty line)
+      let definitionStartIndex = -1;
+      for (let i = 1; i < lines.length; i++) {
+        if (lines[i].trim() === '') {
+          definitionStartIndex = i + 1;
+          break;
+        }
+      }
+      
+      if (definitionStartIndex === -1 || definitionStartIndex >= lines.length) {
+        // Try alternative format - look for lines that don't end with period as term
+        const possibleDefinitionStart = lines.findIndex((line, idx) => 
+          idx > 0 && line.trim().length > 10 && 
+          (line.includes('The ') || line.includes('A ') || line.includes('An '))
+        );
+        
+        if (possibleDefinitionStart > 0) {
+          definitionStartIndex = possibleDefinitionStart;
+        } else {
+          return; // Can't find definition
+        }
+      }
+      
+      // Extract definition text
+      const definition = lines.slice(definitionStartIndex).join(' ').trim();
+      
+      if (term.length > 3 && definition.length > 10) {
+        flashcards.push({
+          id: crypto.randomUUID(),
+          front: term,
+          back: definition,
+          createdAt: new Date(),
+        });
+      }
+    });
+    
+    return flashcards;
+  };
+
+  return (
+    <div className="container mx-auto px-4 py-8">
+      <div className="max-w-4xl mx-auto">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold mb-2">Bulk Flashcard Import</h1>
+          <p className="text-muted-foreground">
+            Import multiple flashcards at once by copying and pasting terms and definitions
+          </p>
+        </div>
+
+        {/* Course Selection */}
+        <Card className="mb-6">
+          <CardHeader>
+            <CardTitle>Select Course</CardTitle>
+            <CardDescription>Choose which course to add flashcards to</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Select value={selectedCourse} onValueChange={setSelectedCourse}>
+              <SelectTrigger className="w-full max-w-md">
+                <SelectValue placeholder="Select a course" />
+              </SelectTrigger>
+              <SelectContent>
+                {(courses as any[])?.map((course: any) => (
+                  <SelectItem key={course.id} value={course.id}>
+                    {course.title}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </CardContent>
+        </Card>
+
+        {/* Format Instructions */}
+        <Card className="mb-6">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <FileText className="h-5 w-5" />
+              Louisiana Plumbing Code Flashcard Format
+            </CardTitle>
+            <CardDescription>Copy and paste flashcards in your exact format</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4 text-sm">
+              <div>
+                <h4 className="font-semibold mb-2">Your Format: Term, Blank Line, Definition</h4>
+                <pre className="bg-muted p-3 rounded text-xs">
+{`Louisiana State Plumbing Code (LSPC)
+
+The official title for the plumbing regulations adopted by the Department of Health and Hospitals, Office of Public Health in Louisiana, also referred to as "this code" or "this Part."
+
+
+Part XIV (Plumbing) of the Sanitary Code, State of Louisiana (LAC 51:XIV)
+
+The specific section of the Sanitary Code that deals with plumbing, adopted by the Department of Health and Hospitals, Office of Public Health.
+
+
+Department of Health and Hospitals, Office of Public Health
+
+The agency responsible for adopting and promulgating the Louisiana State Plumbing Code.`}
+                </pre>
+              </div>
+
+              <Alert>
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription>
+                  <strong>Format requirements:</strong> Term on first line, blank line, then definition. Separate each flashcard with double blank lines.
+                </AlertDescription>
+              </Alert>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Flashcard Input */}
+        <Card className="mb-6">
+          <CardHeader>
+            <CardTitle>Paste Your Flashcards</CardTitle>
+            <CardDescription>Copy and paste multiple flashcards with terms and definitions</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="flashcards">Flashcards Content</Label>
+                <Textarea
+                  id="flashcards"
+                  value={flashcardsText}
+                  onChange={(e) => setFlashcardsText(e.target.value)}
+                  rows={15}
+                  placeholder={`Paste your flashcards here...
+
+Example:
+Louisiana State Plumbing Code (LSPC)
+
+The official title for the plumbing regulations adopted by the Department of Health and Hospitals, Office of Public Health in Louisiana.
+
+
+Part XIV (Plumbing) of the Sanitary Code
+
+The specific section of the Sanitary Code that deals with plumbing, adopted by the Department of Health and Hospitals, Office of Public Health.
+
+
+R.S. 36:258(B)
+
+The primary legal document that grants the authority for the Sanitary Code's promulgation.`}
+                  className="font-mono text-sm"
+                />
+              </div>
+              
+              <div className="flex gap-2">
+                <Button 
+                  onClick={parseFlashcards}
+                  disabled={!flashcardsText.trim() || importStatus === "parsing"}
+                  className="flex items-center gap-2"
+                >
+                  <FileText className="h-4 w-4" />
+                  {importStatus === "parsing" ? "Parsing..." : "Parse Flashcards"}
+                </Button>
+                
+                {previewFlashcards.length > 0 && (
+                  <Button 
+                    onClick={importFlashcards}
+                    disabled={!selectedCourse || importStatus === "importing"}
+                    className="flex items-center gap-2"
+                  >
+                    <Upload className="h-4 w-4" />
+                    {importStatus === "importing" ? "Importing..." : `Import ${previewFlashcards.length} Flashcards`}
+                  </Button>
+                )}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Preview */}
+        {previewFlashcards.length > 0 && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <CheckCircle className="h-5 w-5 text-green-600" />
+                Preview ({previewFlashcards.length} flashcards found)
+              </CardTitle>
+              <CardDescription>Review the parsed flashcards before importing</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4 max-h-96 overflow-y-auto">
+                {previewFlashcards.map((card, index) => (
+                  <div key={index} className="border rounded-lg p-4">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                      <div>
+                        <h4 className="font-semibold text-blue-600 mb-2">Front (Term)</h4>
+                        <p className="text-sm bg-blue-50 p-3 rounded">
+                          {card.front}
+                        </p>
+                      </div>
+                      <div>
+                        <h4 className="font-semibold text-green-600 mb-2">Back (Definition)</h4>
+                        <p className="text-sm bg-green-50 p-3 rounded">
+                          {card.back}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {importStatus === "success" && (
+          <Alert className="mt-6">
+            <CheckCircle className="h-4 w-4" />
+            <AlertDescription>
+              Flashcards imported successfully! You can now view them in the Content Management section.
+            </AlertDescription>
+          </Alert>
+        )}
+      </div>
+    </div>
+  );
+}

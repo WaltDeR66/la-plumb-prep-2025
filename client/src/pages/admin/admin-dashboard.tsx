@@ -1,7 +1,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
-import { Users, MessageSquare, BarChart3, Settings, BookOpen } from "lucide-react";
+import { Users, MessageSquare, BarChart3, Settings, BookOpen, Upload } from "lucide-react";
 
 export default function AdminDashboard() {
   return (
@@ -88,6 +88,34 @@ export default function AdminDashboard() {
               </Button>
             </CardContent>
           </Card>
+
+          <Link href="/admin/bulk-import">
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Upload className="h-5 w-5" />
+                  Bulk Question Import
+                </CardTitle>
+                <CardDescription>
+                  Import multiple questions at once using text format
+                </CardDescription>
+              </CardHeader>
+            </Card>
+          </Link>
+
+          <Link href="/admin/flashcard-import">
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Upload className="h-5 w-5" />
+                  Bulk Flashcard Import
+                </CardTitle>
+                <CardDescription>
+                  Import flashcards with terms and definitions
+                </CardDescription>
+              </CardHeader>
+            </Card>
+          </Link>
 
           <Card>
             <CardHeader>
