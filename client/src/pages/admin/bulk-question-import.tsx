@@ -26,11 +26,22 @@ export default function BulkQuestionImport() {
 
   const bulkImportMutation = useMutation({
     mutationFn: async (data: any) => await apiRequest("POST", "/api/admin/questions/bulk-import", data),
-    onSuccess: (result) => {
-      toast({ 
-        title: "Questions imported successfully!", 
-        description: `Added ${result.count} questions to the course.`
-      });
+    onSuccess: (result: any) => {
+      const { imported, duplicatesSkipped, totalSubmitted } = result;
+      
+      if (duplicatesSkipped > 0) {
+        toast({ 
+          title: "Import completed with duplicates detected", 
+          description: `Added ${imported} new questions. Skipped ${duplicatesSkipped} duplicates out of ${totalSubmitted} total.`,
+          variant: "default"
+        });
+      } else {
+        toast({ 
+          title: "All questions imported successfully!", 
+          description: `Added ${imported} new questions to the course.`
+        });
+      }
+      
       setImportStatus("success");
       setQuestionsText("");
       setPreviewQuestions([]);

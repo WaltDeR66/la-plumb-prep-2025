@@ -4210,7 +4210,7 @@ Start your journey at laplumbprep.com/courses
     }
   });
 
-  // Bulk import questions
+  // Bulk import questions with duplicate detection
   app.post("/api/admin/questions/bulk-import", async (req: any, res) => {
     if (!req.isAuthenticated()) {
       return res.status(401).json({ message: "Not authenticated" });
@@ -4227,23 +4227,49 @@ Start your journey at laplumbprep.com/courses
         return res.status(400).json({ error: "courseId and questions array are required" });
       }
       
-      // Add IDs and timestamps to all questions
-      const questionsToCreate = questions.map((q: any) => ({
-        ...q,
-        id: crypto.randomUUID(),
-        courseId,
-        createdAt: new Date(),
-      }));
+      // Get existing questions for this course to check for duplicates
+      const existingQuestions = await storage.getQuestionsByCourse(courseId);
       
-      // Create all questions
+      // Create a set of existing question texts for faster lookup (normalized)
+      const existingQuestionTexts = new Set(
+        existingQuestions.map((q: any) => 
+          q.questionText.toLowerCase().trim().replace(/\s+/g, ' ')
+        )
+      );
+      
+      // Filter out duplicates and track them
+      const newQuestions: any[] = [];
+      const duplicates: any[] = [];
+      
+      questions.forEach((q: any) => {
+        const normalizedText = q.questionText.toLowerCase().trim().replace(/\s+/g, ' ');
+        
+        if (existingQuestionTexts.has(normalizedText)) {
+          duplicates.push(q);
+        } else {
+          newQuestions.push({
+            ...q,
+            id: crypto.randomUUID(),
+            courseId,
+            createdAt: new Date(),
+          });
+          // Add to set to prevent duplicates within this batch too
+          existingQuestionTexts.add(normalizedText);
+        }
+      });
+      
+      // Create only new questions
       const createdQuestions = await Promise.all(
-        questionsToCreate.map((q: any) => storage.createQuestion(q))
+        newQuestions.map((q: any) => storage.createQuestion(q))
       );
       
       res.json({ 
         success: true, 
-        count: createdQuestions.length,
-        questions: createdQuestions 
+        imported: createdQuestions.length,
+        duplicatesSkipped: duplicates.length,
+        totalSubmitted: questions.length,
+        questions: createdQuestions,
+        duplicates: duplicates.map(d => d.questionText.substring(0, 100) + "...")
       });
     } catch (error: any) {
       console.error("Error bulk importing questions:", error);
