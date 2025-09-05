@@ -1,7 +1,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
-import { Users, MessageSquare, BarChart3, Settings } from "lucide-react";
+import { Users, MessageSquare, BarChart3, Settings, BookOpen } from "lucide-react";
 
 export default function AdminDashboard() {
   return (
@@ -14,7 +14,26 @@ export default function AdminDashboard() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <BookOpen className="h-5 w-5" />
+                Content Management
+              </CardTitle>
+              <CardDescription>
+                Create and manage course lessons, chapters, and practice questions
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Link href="/admin/content">
+                <Button className="w-full">
+                  Manage Content
+                </Button>
+              </Link>
+            </CardContent>
+          </Card>
+
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">

@@ -4104,6 +4104,112 @@ Start your journey at laplumbprep.com/courses
     }
   });
 
+  // Admin Content Management Routes
+  // Get course content for management
+  app.get("/api/admin/course-content/:courseId", async (req: any, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+    
+    // Check if user is admin (simple check for now)
+    if (!req.user.email?.includes('admin') && req.user.subscriptionTier !== 'master') {
+      return res.status(403).json({ error: "Admin access required" });
+    }
+    
+    try {
+      const { courseId } = req.params;
+      
+      // Get lessons, chapters, and questions for this course
+      const lessons = await storage.getLessonsByCourse(courseId);
+      const chapters = await storage.getChaptersByCourse(courseId);
+      const questions = await storage.getQuestionsByCourse(courseId);
+      
+      res.json({
+        lessons,
+        chapters,
+        questions
+      });
+    } catch (error: any) {
+      console.error("Error fetching course content:", error);
+      res.status(500).json({ error: "Failed to fetch course content" });
+    }
+  });
+
+  // Add new lesson
+  app.post("/api/admin/lessons", async (req: any, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+    
+    if (!req.user.email?.includes('admin') && req.user.subscriptionTier !== 'master') {
+      return res.status(403).json({ error: "Admin access required" });
+    }
+    
+    try {
+      const lessonData = {
+        ...req.body,
+        id: crypto.randomUUID(),
+        createdAt: new Date(),
+      };
+      
+      const lesson = await storage.createLesson(lessonData);
+      res.json(lesson);
+    } catch (error: any) {
+      console.error("Error creating lesson:", error);
+      res.status(500).json({ error: "Failed to create lesson" });
+    }
+  });
+
+  // Add new chapter
+  app.post("/api/admin/chapters", async (req: any, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+    
+    if (!req.user.email?.includes('admin') && req.user.subscriptionTier !== 'master') {
+      return res.status(403).json({ error: "Admin access required" });
+    }
+    
+    try {
+      const chapterData = {
+        ...req.body,
+        id: crypto.randomUUID(),
+        createdAt: new Date(),
+      };
+      
+      const chapter = await storage.createChapter(chapterData);
+      res.json(chapter);
+    } catch (error: any) {
+      console.error("Error creating chapter:", error);
+      res.status(500).json({ error: "Failed to create chapter" });
+    }
+  });
+
+  // Add new question
+  app.post("/api/admin/questions", async (req: any, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+    
+    if (!req.user.email?.includes('admin') && req.user.subscriptionTier !== 'master') {
+      return res.status(403).json({ error: "Admin access required" });
+    }
+    
+    try {
+      const questionData = {
+        ...req.body,
+        id: crypto.randomUUID(),
+        createdAt: new Date(),
+      };
+      
+      const question = await storage.createQuestion(questionData);
+      res.json(question);
+    } catch (error: any) {
+      console.error("Error creating question:", error);
+      res.status(500).json({ error: "Failed to create question" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
