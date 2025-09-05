@@ -530,6 +530,116 @@ Start your journey at laplumbprep.com/courses
     }
   });
 
+  // Public payment intent creation for checkout flow
+  app.post('/api/create-payment-intent', async (req, res) => {
+    const { priceId, tier, collectCustomerInfo } = req.body;
+
+    try {
+      const paymentIntent = await stripe.paymentIntents.create({
+        amount: 1, // Temporary amount - will be updated by subscription
+        currency: 'usd',
+        automatic_payment_methods: {
+          enabled: true,
+        },
+        metadata: {
+          priceId,
+          tier,
+          collectCustomerInfo: collectCustomerInfo || 'false'
+        }
+      });
+
+      res.json({ clientSecret: paymentIntent.client_secret });
+    } catch (error: any) {
+      console.error('Error creating payment intent:', error);
+      res.status(500).json({ message: "Error creating payment intent: " + error.message });
+    }
+  });
+
+  // Process successful payment and create account
+  app.post('/api/process-payment-success', async (req, res) => {
+    const { paymentIntentId, plan, email } = req.body;
+
+    try {
+      // Verify payment was successful
+      const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
+      
+      if (paymentIntent.status !== 'succeeded') {
+        return res.status(400).json({ message: "Payment not successful" });
+      }
+
+      // Extract customer info from payment intent
+      const billingDetails = paymentIntent.charges.data[0]?.billing_details;
+      if (!billingDetails) {
+        return res.status(400).json({ message: "Customer information not found" });
+      }
+
+      // Generate username and password
+      const username = `${billingDetails.name?.toLowerCase().replace(/\s+/g, '')}${Math.floor(Math.random() * 1000)}`;
+      const tempPassword = Math.random().toString(36).slice(-8).toUpperCase();
+
+      // Create user account
+      const newUser = await storage.createUser({
+        firstName: billingDetails.name?.split(' ')[0] || 'User',
+        lastName: billingDetails.name?.split(' ').slice(1).join(' ') || 'Account',
+        email: billingDetails.email || email,
+        username,
+        password: tempPassword, // This will be hashed by the storage layer
+        phone: billingDetails.phone || '',
+        subscriptionTier: plan
+      });
+
+      // Create Stripe customer and subscription
+      const customer = await stripe.customers.create({
+        email: billingDetails.email || email,
+        name: billingDetails.name,
+        payment_method: paymentIntent.payment_method,
+      });
+
+      // Get price ID from metadata
+      const priceId = paymentIntent.metadata.priceId;
+      
+      const subscription = await stripe.subscriptions.create({
+        customer: customer.id,
+        items: [{ price: priceId }],
+        default_payment_method: paymentIntent.payment_method,
+        expand: ['latest_invoice.payment_intent'],
+      });
+
+      // Update user with Stripe info
+      await storage.updateUserStripeInfo(newUser.id, customer.id, subscription.id);
+
+      // Send emails (receipt + credentials)
+      try {
+        // Send receipt email
+        await emailService.sendWelcomeEmail(newUser.email, {
+          firstName: newUser.firstName,
+          planName: plan.charAt(0).toUpperCase() + plan.slice(1),
+          username,
+          tempPassword
+        });
+        
+        console.log(`Welcome email sent to ${newUser.email}`);
+      } catch (emailError) {
+        console.error('Error sending welcome email:', emailError);
+      }
+
+      res.json({
+        credentials: {
+          username,
+          password: tempPassword
+        },
+        user: {
+          id: newUser.id,
+          email: newUser.email,
+          firstName: newUser.firstName
+        }
+      });
+    } catch (error: any) {
+      console.error('Error processing payment success:', error);
+      res.status(500).json({ message: "Error processing payment: " + error.message });
+    }
+  });
+
   // Stripe subscription routes
   app.post('/api/create-subscription', async (req, res) => {
     if (!req.isAuthenticated()) {

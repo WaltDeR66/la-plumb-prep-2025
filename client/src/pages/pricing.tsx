@@ -239,7 +239,7 @@ export default function Pricing() {
                     ))}
                   </div>
                   
-                  <Link href={`/subscribe?plan=${plan.id}&priceId=${getPriceId(plan.id, isAnnual, isBetaTester)}&tier=${plan.tier}&isAnnual=${isAnnual}&isBeta=${isBetaTester}`}>
+                  <Link href={`/checkout?plan=${plan.tier}&priceId=${getPriceId(plan.id, isAnnual, isBetaTester)}&planName=${plan.name}&price=$${calculatePrice(plan.basePrice, isAnnual, isBetaTester).toFixed(2)}`}>
                     <Button 
                       className={`w-full ${plan.popular ? 'bg-primary hover:bg-primary/90' : ''}`}
                       size="lg"

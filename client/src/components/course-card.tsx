@@ -199,13 +199,13 @@ export default function CourseCard({ course, isEnrolled = false, progress = 0, i
                     Coming Soon
                   </Button>
                 ) : !user ? (
-                  // User is not logged in - redirect to registration
+                  // User is not logged in - redirect to pricing
                   <Button 
                     asChild
                     data-testid={`button-start-${course.id}`}
                   >
-                    <Link href="/register">
-                      Start Course
+                    <Link href="/pricing">
+                      Enroll Now
                     </Link>
                   </Button>
                 ) : hasActiveSubscription() ? (
@@ -224,7 +224,7 @@ export default function CourseCard({ course, isEnrolled = false, progress = 0, i
                     data-testid={`button-start-${course.id}`}
                   >
                     <Link href="/pricing">
-                      Start Course
+                      Enroll Now
                     </Link>
                   </Button>
                 )}

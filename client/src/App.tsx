@@ -10,6 +10,8 @@ import Tools from "@/pages/tools";
 import Jobs from "@/pages/jobs";
 import Pricing from "@/pages/pricing";
 import Subscribe from "@/pages/subscribe";
+import Checkout from "@/pages/checkout";
+import CheckoutSuccess from "@/pages/checkout/success";
 import Dashboard from "@/pages/dashboard";
 import CourseContent from "@/pages/course-content";
 import Lesson from "@/pages/lesson";
@@ -59,6 +61,8 @@ function Router() {
           <Route path="/jobs" component={Jobs} />
           <Route path="/pricing" component={Pricing} />
           <Route path="/subscribe" component={Subscribe} />
+          <Route path="/checkout" component={Checkout} />
+          <Route path="/checkout/success" component={CheckoutSuccess} />
           <Route path="/dashboard" component={Dashboard} />
           <Route path="/store" component={Store} />
           <Route path="/store/product/:id" component={ProductDetail} />
