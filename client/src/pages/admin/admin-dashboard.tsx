@@ -117,6 +117,20 @@ export default function AdminDashboard() {
             </Card>
           </Link>
 
+          <Link href="/admin/study-notes-import">
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <BookOpen className="h-5 w-5" />
+                  Bulk Study Notes Import
+                </CardTitle>
+                <CardDescription>
+                  Import structured study notes with headings
+                </CardDescription>
+              </CardHeader>
+            </Card>
+          </Link>
+
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">

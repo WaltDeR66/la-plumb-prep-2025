@@ -4210,6 +4210,73 @@ Start your journey at laplumbprep.com/courses
     }
   });
 
+  // Bulk import study notes with duplicate detection
+  app.post("/api/admin/study-notes/bulk-import", async (req: any, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+    
+    if (!req.user.email?.includes('admin') && req.user.subscriptionTier !== 'master') {
+      return res.status(403).json({ error: "Admin access required" });
+    }
+    
+    try {
+      const { courseId, studyNotes } = req.body;
+      
+      if (!courseId || !studyNotes || !Array.isArray(studyNotes)) {
+        return res.status(400).json({ error: "courseId and studyNotes array are required" });
+      }
+      
+      // Get existing study notes for this course to check for duplicates
+      const existingStudyNotes = await storage.getStudyNotesByCourse(courseId);
+      
+      // Create a set of existing study note titles for faster lookup (normalized)
+      const existingStudyNoteTitles = new Set(
+        existingStudyNotes.map((sn: any) => 
+          sn.title.toLowerCase().trim().replace(/\s+/g, ' ')
+        )
+      );
+      
+      // Filter out duplicates and track them
+      const newStudyNotes: any[] = [];
+      const duplicates: any[] = [];
+      
+      studyNotes.forEach((sn: any) => {
+        const normalizedTitle = sn.title.toLowerCase().trim().replace(/\s+/g, ' ');
+        
+        if (existingStudyNoteTitles.has(normalizedTitle)) {
+          duplicates.push(sn);
+        } else {
+          newStudyNotes.push({
+            ...sn,
+            id: crypto.randomUUID(),
+            courseId,
+            createdAt: new Date(),
+          });
+          // Add to set to prevent duplicates within this batch too
+          existingStudyNoteTitles.add(normalizedTitle);
+        }
+      });
+      
+      // Create only new study notes
+      const createdStudyNotes = await Promise.all(
+        newStudyNotes.map((sn: any) => storage.createStudyNote(sn))
+      );
+      
+      res.json({ 
+        success: true, 
+        imported: createdStudyNotes.length,
+        duplicatesSkipped: duplicates.length,
+        totalSubmitted: studyNotes.length,
+        studyNotes: createdStudyNotes,
+        duplicates: duplicates.map(d => d.title.substring(0, 100) + "...")
+      });
+    } catch (error: any) {
+      console.error("Error bulk importing study notes:", error);
+      res.status(500).json({ error: "Failed to import study notes" });
+    }
+  });
+
   // Bulk import flashcards with duplicate detection
   app.post("/api/admin/flashcards/bulk-import", async (req: any, res) => {
     if (!req.isAuthenticated()) {
