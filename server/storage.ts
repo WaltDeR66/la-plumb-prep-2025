@@ -1433,11 +1433,11 @@ export class DatabaseStorage implements IStorage {
           endDate,
           status: 'upcoming',
           timeLimit: 120, // 2 hours
-          questionCount: 50,
+          questionCount: 100,
           difficultyCounts: {
-            medium: 20,
-            hard: 20,
-            very_hard: 10
+            medium: 40,
+            hard: 40,
+            very_hard: 20
           }
         })
         .returning();

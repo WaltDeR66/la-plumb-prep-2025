@@ -65,10 +65,10 @@ export default function Register() {
 
       toast({
         title: "Account created successfully!",
-        description: "Please sign in to start your learning journey.",
+        description: "Choose your learning plan to get started.",
       });
 
-      setLocation("/login");
+      setLocation("/pricing");
     } catch (error: any) {
       setError(error.message || "Registration failed. Please try again.");
     } finally {
