@@ -326,7 +326,7 @@ export default function CourseContent() {
                           data-testid={`button-start-lesson-${section}`}
                           className={shouldShowAsLocked ? "opacity-75" : ""}
                         >
-                          <Link href={`/course/${course.id}/lesson/${section}`}>
+                          <Link href={`/course/${courseId}/lesson/${section}`}>
                             {shouldShowAsLocked ? <Lock className="w-4 h-4 mr-2" /> : <Play className="w-4 h-4 mr-2" />}
                             {shouldShowAsLocked ? "Locked" : (progress > 0 ? "Continue" : "Start")}
                           </Link>

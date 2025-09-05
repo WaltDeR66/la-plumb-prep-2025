@@ -21,6 +21,18 @@ import {
   Lock
 } from "lucide-react";
 
+// Map friendly course identifiers to database UUIDs
+function getCourseUUID(courseSlug: string): string {
+  const courseMapping: { [key: string]: string } = {
+    'journeyman-prep': '5f02238b-afb2-4e7f-a488-96fb471fee56',
+    'backflow-prevention': 'b1f02238b-afb2-4e7f-a488-96fb471fee57',
+    'natural-gas': 'c2f02238b-afb2-4e7f-a488-96fb471fee58',
+    'medical-gas': 'd3f02238b-afb2-4e7f-a488-96fb471fee59',
+    'master-plumber': 'e4f02238b-afb2-4e7f-a488-96fb471fee60'
+  };
+  return courseMapping[courseSlug] || courseSlug;
+}
+
 interface CourseContent {
   id: string;
   title: string;
@@ -49,25 +61,28 @@ export default function Lesson() {
     return <div>Lesson not found</div>;
   }
 
+  // Resolve friendly course ID to UUID for API calls
+  const resolvedCourseId = getCourseUUID(courseId);
+
   const { data: courses } = useQuery<Course[]>({
     queryKey: ["/api/courses"],
   });
   
-  const course = courses?.find(c => c.id === courseId);
+  const course = courses?.find(c => c.id === resolvedCourseId);
 
   const { data: allContent, isLoading } = useQuery<CourseContent[]>({
-    queryKey: [`/api/courses/${courseId}/content`],
+    queryKey: [`/api/courses/${resolvedCourseId}/content`],
   });
 
   const { data: sectionProgress } = useQuery<Array<{section: number, isUnlocked: boolean, isAdmin: boolean}>>({
-    queryKey: [`/api/section-progress/${courseId}`],
-    enabled: !!courseId,
+    queryKey: [`/api/section-progress/${resolvedCourseId}`],
+    enabled: !!resolvedCourseId,
   });
 
   // Fetch study plans for this course
   const { data: studyPlans } = useQuery<Array<{id: string, title: string, content: string, duration: number}>>({
-    queryKey: [`/api/courses/${courseId}/study-plans`],
-    enabled: !!courseId,
+    queryKey: [`/api/courses/${resolvedCourseId}/study-plans`],
+    enabled: !!resolvedCourseId,
   });
 
   // Filter content for this specific section and sort by the desired order
