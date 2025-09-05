@@ -28,6 +28,7 @@ import EmployerPortal from "@/pages/employer-portal";
 import EmployerDashboard from "@/pages/employer-dashboard";
 import JobApproval from "@/pages/admin/job-approval";
 import BetaFeedbackDashboard from "@/pages/admin/beta-feedback-dashboard";
+import AdminDashboard from "@/pages/admin/admin-dashboard";
 import JobAnalytics from "@/pages/employer/job-analytics";
 import Privacy from "@/pages/privacy";
 import Terms from "@/pages/terms";
@@ -78,6 +79,7 @@ function Router() {
           <Route path="/employer-portal" component={EmployerPortal} />
           <Route path="/employer/dashboard" component={EmployerDashboard} />
           <Route path="/employer/analytics" component={JobAnalytics} />
+          <Route path="/admin" component={AdminDashboard} />
           <Route path="/admin/job-approval" component={JobApproval} />
           <Route path="/admin/beta-feedback" component={BetaFeedbackDashboard} />
           <Route path="/privacy" component={Privacy} />
