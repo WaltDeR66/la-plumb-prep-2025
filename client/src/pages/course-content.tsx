@@ -242,12 +242,13 @@ export default function CourseContent() {
             const isUnlocked = sectionStatus?.isUnlocked ?? false;
             const isAdmin = sectionStatus?.isAdmin ?? false;
             
-            // For demo purposes, show proper locking UI even for admins
-            // Only Section 101 should appear unlocked, others should show locks
-            const shouldShowAsLocked = sectionNum !== 101;
+            // Section 101 is always unlocked for all users (starting section)
+            // Other sections require completion of previous section
+            const isFirstSection = sectionNum === 101;
+            const shouldShowAsLocked = !isFirstSection && !isUnlocked && !isAdmin;
             
             return (
-              <Card key={section} className={`hover:shadow-md transition-shadow ${!isUnlocked ? 'opacity-60' : ''}`} data-testid={`lesson-card-${section}`}>
+              <Card key={section} className={`hover:shadow-md transition-shadow ${shouldShowAsLocked ? 'opacity-60' : ''}`} data-testid={`lesson-card-${section}`}>
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
                     <div className="flex-1">
@@ -319,7 +320,7 @@ export default function CourseContent() {
                     </div>
                     
                     <div className="ml-4">
-                      {(isUnlocked || isAdmin) ? (
+                      {(isFirstSection || isUnlocked || isAdmin) ? (
                         <Button 
                           asChild
                           data-testid={`button-start-lesson-${section}`}
