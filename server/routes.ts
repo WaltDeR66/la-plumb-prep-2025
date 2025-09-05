@@ -14,6 +14,26 @@ import { emailAutomation } from "./email-automation";
 import { bulkPricingService } from "./bulk-pricing";
 import Stripe from "stripe";
 
+// Course ID resolver function - maps friendly URLs to database UUIDs
+async function resolveCourseId(courseId: string): Promise<string | null> {
+  // If it's already a UUID format, return as-is
+  if (courseId.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i)) {
+    const course = await storage.getCourse(courseId);
+    return course ? courseId : null;
+  }
+  
+  // Handle friendly course identifiers
+  const courseMapping: { [key: string]: string } = {
+    'journeyman-prep': '5f02238b-afb2-4e7f-a488-96fb471fee56',
+    'backflow-prevention': 'b1f02238b-afb2-4e7f-a488-96fb471fee57',
+    'natural-gas': 'c2f02238b-afb2-4e7f-a488-96fb471fee58',
+    'medical-gas': 'd3f02238b-afb2-4e7f-a488-96fb471fee59',
+    'master-plumber': 'e4f02238b-afb2-4e7f-a488-96fb471fee60'
+  };
+  
+  return courseMapping[courseId] || null;
+}
+
 // Course content seeding function
 async function seedCourseContent() {
   const courseId = "5f02238b-afb2-4e7f-a488-96fb471fee56"; // Louisiana Journeyman Prep
@@ -2597,13 +2617,20 @@ Start your journey at laplumbprep.com/courses
   app.get("/api/courses/:courseId/content", async (req, res) => {
     try {
       const { courseId } = req.params;
-      let content = await storage.getCourseContent(courseId);
+      
+      // Resolve course ID (handle friendly URLs like "journeyman-prep")
+      const resolvedCourseId = await resolveCourseId(courseId);
+      if (!resolvedCourseId) {
+        return res.status(404).json({ message: "Course not found" });
+      }
+      
+      let content = await storage.getCourseContent(resolvedCourseId);
       
       // If content is empty for the Louisiana Journeyman Prep course, auto-seed it
-      if (content.length === 0 && courseId === "5f02238b-afb2-4e7f-a488-96fb471fee56") {
+      if (content.length === 0 && resolvedCourseId === "5f02238b-afb2-4e7f-a488-96fb471fee56") {
         console.log("Course content empty, auto-seeding...");
         await seedCourseContent();
-        content = await storage.getCourseContent(courseId);
+        content = await storage.getCourseContent(resolvedCourseId);
       }
       
       // Add cache-busting headers to ensure fresh data
@@ -4214,7 +4241,14 @@ Start your journey at laplumbprep.com/courses
   app.get("/api/courses/:courseId/study-plans", async (req: any, res) => {
     try {
       const { courseId } = req.params;
-      const studyPlans = await storage.getStudyPlansByCourse(courseId);
+      
+      // Resolve course ID (handle friendly URLs like "journeyman-prep")
+      const resolvedCourseId = await resolveCourseId(courseId);
+      if (!resolvedCourseId) {
+        return res.status(404).json({ message: "Course not found" });
+      }
+      
+      const studyPlans = await storage.getStudyPlansByCourse(resolvedCourseId);
       res.json(studyPlans);
     } catch (error: any) {
       console.error("Error fetching study plans:", error);
