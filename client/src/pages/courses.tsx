@@ -253,7 +253,7 @@ export default function Courses() {
                   <div className="space-y-2 mb-4">
                     <div className="flex items-center text-sm text-gray-500">
                       <span className="w-4 h-4 mr-2">⏱️</span>
-                      {course.duration} weeks
+                      {course.duration}
                     </div>
                     <div className="flex items-center text-sm text-gray-500">
                       <span className="w-4 h-4 mr-2">📚</span>
@@ -273,16 +273,12 @@ export default function Courses() {
                     </div>
                   </div>
                   
-                  {/* Coming Soon Badge or Price */}
-                  {!course.isActive ? (
+                  {/* Coming Soon Badge */}
+                  {!course.isActive && (
                     <div className="mb-4">
                       <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800">
                         Coming Soon
                       </span>
-                    </div>
-                  ) : (
-                    <div className="text-2xl font-bold text-indigo-600 mb-4">
-                      ${course.price}
                     </div>
                   )}
                   

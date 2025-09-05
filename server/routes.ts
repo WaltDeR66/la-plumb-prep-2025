@@ -951,6 +951,39 @@ Start your journey at laplumbprep.com/courses
     }
   });
 
+  // Admin route to update course durations and lessons
+  app.post('/api/admin/update-course-data', async (req, res) => {
+    if (!req.isAuthenticated() || (req.user as any)?.role !== 'admin') {
+      return res.status(401).json({ message: "Admin access required" });
+    }
+    
+    try {
+      const courseUpdates = [
+        { id: 1, duration: "2 months", lessons: 24, practiceQuestions: 150 },
+        { id: 2, duration: "1 month", lessons: 16, practiceQuestions: 75 },
+        { id: 3, duration: "1.5 months", lessons: 20, practiceQuestions: 100 },
+        { id: 4, duration: "2 months", lessons: 28, practiceQuestions: 125 },
+        { id: 5, duration: "3 months", lessons: 36, practiceQuestions: 200 }
+      ];
+
+      for (const update of courseUpdates) {
+        await db.update(courses)
+          .set({
+            duration: update.duration,
+            lessons: update.lessons,
+            practiceQuestions: update.practiceQuestions,
+            updatedAt: new Date()
+          })
+          .where(eq(courses.id, update.id));
+      }
+
+      res.json({ message: "Course data updated successfully", updated: courseUpdates.length });
+    } catch (error: any) {
+      console.error('Error updating course data:', error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
   // Stripe webhook for handling subscription events
   app.post('/api/stripe-webhook', express.raw({ type: 'application/json' }), async (req, res) => {
     const sig = req.headers['stripe-signature'] as string;
@@ -1342,11 +1375,49 @@ Start your journey at laplumbprep.com/courses
         return res.json(seededCourses);
       }
       
+      // Transform courses data with updated lesson counts and duration format
+      const transformedCourses = courses.map(course => {
+        let duration, lessons;
+        
+        switch(course.id) {
+          case "5f02238b-afb2-4e7f-a488-96fb471fee56": // Louisiana Journeyman Prep
+            duration = "2 months";
+            lessons = 24;
+            break;
+          case "b1f02238b-afb2-4e7f-a488-96fb471fee57": // Backflow Prevention Training
+            duration = "1 month";
+            lessons = 16;
+            break;
+          case "c2f02238b-afb2-4e7f-a488-96fb471fee58": // Natural Gas Certification
+            duration = "1.5 months";
+            lessons = 20;
+            break;
+          case "d3f02238b-afb2-4e7f-a488-96fb471fee59": // Medical Gas Installer Certification
+            duration = "2 months";
+            lessons = 28;
+            break;
+          case "e4f02238b-afb2-4e7f-a488-96fb471fee60": // Master Plumber Prep
+            duration = "3 months";
+            lessons = 36;
+            break;
+          default:
+            // Keep original values as fallback
+            duration = course.duration;
+            lessons = course.lessons;
+        }
+        
+        return {
+          ...course,
+          duration,
+          lessons
+        };
+      });
+      
       // Update cache
-      coursesCache = courses;
+      coursesCache = transformedCourses;
       cacheTime = now;
       
-      res.json(courses);
+      res.json(transformedCourses);
     } catch (error: any) {
       // Fallback course data when database is unavailable
       console.log("Database unavailable, serving fallback course data");

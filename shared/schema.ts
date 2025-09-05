@@ -71,7 +71,7 @@ export const courses = pgTable("courses", {
   description: text("description").notNull(),
   type: courseTypeEnum("type").notNull(),
   price: decimal("price", { precision: 10, scale: 2 }).notNull(),
-  duration: integer("duration"), // in hours
+  duration: text("duration"), // e.g., "2 months", "1.5 months"
   lessons: integer("lessons"),
   practiceQuestions: integer("practice_questions"),
   isActive: boolean("is_active").default(true),
