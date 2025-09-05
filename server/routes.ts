@@ -1381,24 +1381,24 @@ Start your journey at laplumbprep.com/courses
         
         switch(course.id) {
           case "5f02238b-afb2-4e7f-a488-96fb471fee56": // Louisiana Journeyman Prep
-            duration = "2 months";
-            lessons = 24;
+            duration = "4-5 years";
+            lessons = 120; // Estimated ~7 lessons per chapter across 17 chapters
             break;
           case "b1f02238b-afb2-4e7f-a488-96fb471fee57": // Backflow Prevention Training
-            duration = "1 month";
+            duration = "6-8 weeks";
             lessons = 16;
             break;
           case "c2f02238b-afb2-4e7f-a488-96fb471fee58": // Natural Gas Certification
-            duration = "1.5 months";
-            lessons = 20;
+            duration = "3-4 months";
+            lessons = 24;
             break;
           case "d3f02238b-afb2-4e7f-a488-96fb471fee59": // Medical Gas Installer Certification
-            duration = "2 months";
-            lessons = 28;
+            duration = "4-6 months";
+            lessons = 32;
             break;
           case "e4f02238b-afb2-4e7f-a488-96fb471fee60": // Master Plumber Prep
-            duration = "3 months";
-            lessons = 36;
+            duration = "6-12 months";
+            lessons = 48;
             break;
           default:
             // Keep original values as fallback
