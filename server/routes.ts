@@ -4210,6 +4210,47 @@ Start your journey at laplumbprep.com/courses
     }
   });
 
+  // Bulk import questions
+  app.post("/api/admin/questions/bulk-import", async (req: any, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+    
+    if (!req.user.email?.includes('admin') && req.user.subscriptionTier !== 'master') {
+      return res.status(403).json({ error: "Admin access required" });
+    }
+    
+    try {
+      const { courseId, questions } = req.body;
+      
+      if (!courseId || !questions || !Array.isArray(questions)) {
+        return res.status(400).json({ error: "courseId and questions array are required" });
+      }
+      
+      // Add IDs and timestamps to all questions
+      const questionsToCreate = questions.map((q: any) => ({
+        ...q,
+        id: crypto.randomUUID(),
+        courseId,
+        createdAt: new Date(),
+      }));
+      
+      // Create all questions
+      const createdQuestions = await Promise.all(
+        questionsToCreate.map((q: any) => storage.createQuestion(q))
+      );
+      
+      res.json({ 
+        success: true, 
+        count: createdQuestions.length,
+        questions: createdQuestions 
+      });
+    } catch (error: any) {
+      console.error("Error bulk importing questions:", error);
+      res.status(500).json({ error: "Failed to import questions" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

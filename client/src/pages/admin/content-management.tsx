@@ -7,7 +7,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Plus, BookOpen, HelpCircle, FileText, Video, Headphones } from "lucide-react";
+import { Plus, BookOpen, HelpCircle, FileText, Video, Headphones, Upload } from "lucide-react";
+import { Link } from "wouter";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
@@ -171,11 +172,19 @@ export default function ContentManagement() {
                     <CardTitle>Practice Questions</CardTitle>
                     <CardDescription>Create practice questions for lessons and tests</CardDescription>
                   </div>
-                  <AddQuestionDialog 
-                    courseId={selectedCourse} 
-                    onAdd={addQuestionMutation.mutate}
-                    isPending={addQuestionMutation.isPending}
-                  />
+                  <div className="flex gap-2">
+                    <Link href="/admin/bulk-import">
+                      <Button variant="outline" className="flex items-center gap-2">
+                        <Upload className="h-4 w-4" />
+                        Bulk Import
+                      </Button>
+                    </Link>
+                    <AddQuestionDialog 
+                      courseId={selectedCourse} 
+                      onAdd={addQuestionMutation.mutate}
+                      isPending={addQuestionMutation.isPending}
+                    />
+                  </div>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
