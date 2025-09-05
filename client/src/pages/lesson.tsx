@@ -5,7 +5,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { StudyPlanSelector } from "@/components/StudyPlanSelector";
 import { 
   BookOpen, 
   Play, 
@@ -321,18 +320,31 @@ export default function Lesson() {
         </TabsContent>
 
         <TabsContent value="study-plans" className="space-y-4">
-          <StudyPlanSelector
-            studyPlans={studyPlans || []}
-            lessonTitle={`Louisiana State Plumbing Code §${section}`}
-            onStartSession={(plan) => {
-              // Track study session start
-              console.log('Starting study session with plan:', plan.title);
-            }}
-            onCompleteSession={() => {
-              // Track completion
-              console.log('Study session completed');
-            }}
-          />
+          <div className="text-center py-8">
+            <div className="max-w-md mx-auto space-y-4">
+              <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
+                <Clock className="h-8 w-8 text-primary" />
+              </div>
+              <h3 className="text-xl font-semibold">Timed Study Sessions</h3>
+              <p className="text-muted-foreground text-sm">
+                Choose from structured study plans with timed sections to help you focus and learn efficiently.
+              </p>
+              <Button 
+                size="lg" 
+                asChild 
+                className="w-full"
+                data-testid="select-study-plans-button"
+              >
+                <Link href={`/study-plans/${courseId}`}>
+                  <Clock className="h-4 w-4 mr-2" />
+                  Select Study Plans
+                </Link>
+              </Button>
+              <p className="text-xs text-muted-foreground">
+                Available durations: 15 minutes • 30 minutes • 1 hour
+              </p>
+            </div>
+          </div>
         </TabsContent>
       </Tabs>
 
