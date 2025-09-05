@@ -198,7 +198,18 @@ export default function CourseCard({ course, isEnrolled = false, progress = 0, i
                   >
                     Coming Soon
                   </Button>
+                ) : !user ? (
+                  // User is not logged in - redirect to registration
+                  <Button 
+                    asChild
+                    data-testid={`button-start-${course.id}`}
+                  >
+                    <Link href="/register">
+                      Start Course
+                    </Link>
+                  </Button>
                 ) : hasActiveSubscription() ? (
+                  // User is logged in and has subscription - enroll directly
                   <Button 
                     onClick={handleEnroll}
                     disabled={enrollMutation.isPending}
@@ -207,6 +218,7 @@ export default function CourseCard({ course, isEnrolled = false, progress = 0, i
                     {enrollMutation.isPending ? "Enrolling..." : "Start Course"}
                   </Button>
                 ) : (
+                  // User is logged in but doesn't have subscription - go to pricing
                   <Button 
                     asChild
                     data-testid={`button-start-${course.id}`}
