@@ -38,11 +38,13 @@ async function resolveCourseId(courseId: string): Promise<string | null> {
 async function seedCourseContent() {
   const courseId = "5f02238b-afb2-4e7f-a488-96fb471fee56"; // Louisiana Journeyman Prep
   
-  // Check if course content already exists
+  // Force clear existing content for study plan updates
   const existingContent = await storage.getCourseContent(courseId);
   if (existingContent.length > 0) {
-    console.log("Course content already exists, skipping seeding");
-    return;
+    console.log("Clearing existing course content for study plan updates...");
+    for (const content of existingContent) {
+      await storage.deleteCourseContent(content.id);
+    }
   }
 
   console.log("Auto-seeding course content...");
@@ -87,19 +89,58 @@ async function seedCourseContent() {
     {
       id: "1db67ac7-708c-4904-8bdc-4dfa0c5157ce",
       courseId,
-      title: "LSPC 101 Administration - Study Plan",
-      type: "study-plan",
+      title: "LSPC 101 Administration - 10-Minute Study Plan",
+      type: "study_plans",
       chapter: 1,
       section: 101,
       content: {
         "extracted": {
           "title": "LSPC 101 Administration - Time-Based Study Plans",
-          "content": "# Section 101 Study Plans - Administration & Authority\n\nChoose your available study time to get a customized learning plan:\n\n## 🕐 10-Minute Quick Study\n\n### Focus: Core Administration & Authority\n\n**Minutes 0-2: Core Adoption & Naming**\n- Department of Health and Hospitals adopts Part XIV (Plumbing)\n- Also known as Louisiana State Plumbing Code (LSPC)\n- These terms are interchangeable",
+          "content": "# Section 101 Study Plans - Administration & Authority\n\nChoose your available study time to get a customized learning plan:\n\n## 🕐 10-Minute Quick Study\n\n### Focus: Core Administration & Authority\n\n**Minutes 0-2: Core Adoption & Naming**\n- Department of Health and Hospitals adopts Part XIV (Plumbing)\n- Also known as Louisiana State Plumbing Code (LSPC)\n- These terms are interchangeable\n\n**Minutes 3-5: Legal Authority Structure**\n- LSPC has legal authority under Louisiana law\n- Local jurisdictions can enforce plumbing standards\n- Inspectors cite Section 101 for fundamental authority\n\n**Minutes 6-8: Terminology & References**\n- \"This code\" = Louisiana State Plumbing Code\n- \"This Part\" = Part XIV of Sanitary Code\n- All terms reference the same legal document\n\n**Minutes 9-10: Practical Applications**\n- Citations and violations use interchangeable terms\n- Legal documents reference various names for same code\n- Understanding helps navigate permits and inspections\n\n## 🕐 15-Minute Comprehensive Study\n\n**Minutes 0-3: Foundation & Authority**\n- Department of Health and Hospitals adoption process\n- Legal basis under Louisiana Administrative Code 51:XIV\n- Hierarchy of enforcement authority\n\n**Minutes 4-7: Code Structure & Organization**\n- Part XIV organization within Sanitary Code\n- Relationship to other Louisiana construction codes\n- Administrative procedures and requirements\n\n**Minutes 8-11: Terminology Mastery**\n- Complete list of interchangeable references\n- Legal document navigation strategies\n- Common citation formats in practice\n\n**Minutes 12-15: Real-World Applications**\n- Permit application processes\n- Inspection procedures and authority\n- Violation resolution and appeals\n\n## 🕐 30-Minute Deep Dive Study\n\n**Minutes 0-5: Historical Context & Development**\n- Evolution of Louisiana plumbing regulations\n- Integration with state health and safety codes\n- Federal influence and local adaptations\n\n**Minutes 6-10: Legal Framework Analysis**\n- Department of Health and Hospitals authority structure\n- State vs. local jurisdiction boundaries\n- Enforcement mechanisms and penalties\n\n**Minutes 11-15: Code Interpretation & Application**\n- Reading and understanding code references\n- Cross-referencing with other code sections\n- Practical interpretation guidelines\n\n**Minutes 16-20: Administrative Procedures**\n- Permit processes and requirements\n- Inspection scheduling and protocols\n- Documentation and record-keeping\n\n**Minutes 21-25: Professional Practice Integration**\n- Daily application for working plumbers\n- Client communication about code requirements\n- Problem-solving using administrative framework\n\n**Minutes 26-30: Exam Preparation Focus**\n- Key concepts likely to appear on certification exams\n- Common question formats and answer strategies\n- Memory techniques for terminology and references",
           "extractedAt": "2025-01-28T22:17:00Z"
         }
       },
+      duration: 10,
       isActive: true,
       sortOrder: 0
+    },
+    // 15-minute study plan
+    {
+      id: "2db67ac7-708c-4904-8bdc-4dfa0c5157ce",
+      courseId,
+      title: "LSPC 101 Administration - 15-Minute Study Plan",
+      type: "study_plans",
+      chapter: 1,
+      section: 101,
+      content: {
+        "extracted": {
+          "title": "LSPC 101 Administration - 15-Minute Study Plan",
+          "content": "# Section 101 Study Plans - Administration & Authority\n\n## 🕐 15-Minute Comprehensive Study\n\n**Minutes 0-3: Foundation & Authority**\n- Department of Health and Hospitals adoption process\n- Legal basis under Louisiana Administrative Code 51:XIV\n- Hierarchy of enforcement authority\n\n**Minutes 4-7: Code Structure & Organization**\n- Part XIV organization within Sanitary Code\n- Relationship to other Louisiana construction codes\n- Administrative procedures and requirements\n\n**Minutes 8-11: Terminology Mastery**\n- Complete list of interchangeable references\n- Legal document navigation strategies\n- Common citation formats in practice\n\n**Minutes 12-15: Real-World Applications**\n- Permit application processes\n- Inspection procedures and authority\n- Violation resolution and appeals",
+          "extractedAt": "2025-01-28T22:17:00Z"
+        }
+      },
+      duration: 15,
+      isActive: true,
+      sortOrder: 1
+    },
+    // 30-minute study plan
+    {
+      id: "3db67ac7-708c-4904-8bdc-4dfa0c5157ce",
+      courseId,
+      title: "LSPC 101 Administration - 30-Minute Study Plan",
+      type: "study_plans",
+      chapter: 1,
+      section: 101,
+      content: {
+        "extracted": {
+          "title": "LSPC 101 Administration - 30-Minute Study Plan",
+          "content": "# Section 101 Study Plans - Administration & Authority\n\n## 🕐 30-Minute Deep Dive Study\n\n**Minutes 0-5: Historical Context & Development**\n- Evolution of Louisiana plumbing regulations\n- Integration with state health and safety codes\n- Federal influence and local adaptations\n\n**Minutes 6-10: Legal Framework Analysis**\n- Department of Health and Hospitals authority structure\n- State vs. local jurisdiction boundaries\n- Enforcement mechanisms and penalties\n\n**Minutes 11-15: Code Interpretation & Application**\n- Reading and understanding code references\n- Cross-referencing with other code sections\n- Practical interpretation guidelines\n\n**Minutes 16-20: Administrative Procedures**\n- Permit processes and requirements\n- Inspection scheduling and protocols\n- Documentation and record-keeping\n\n**Minutes 21-25: Professional Practice Integration**\n- Daily application for working plumbers\n- Client communication about code requirements\n- Problem-solving using administrative framework\n\n**Minutes 26-30: Exam Preparation Focus**\n- Key concepts likely to appear on certification exams\n- Common question formats and answer strategies\n- Memory techniques for terminology and references",
+          "extractedAt": "2025-01-28T22:17:00Z"
+        }
+      },
+      duration: 30,
+      isActive: true,
+      sortOrder: 2
     },
     {
       id: "6bf16416-942a-4e08-9210-d9841331f819",
