@@ -159,6 +159,7 @@ export interface IStorage {
   
   // Course content methods
   getCourseContent(courseId: string): Promise<CourseContent[]>;
+  getStudyPlansByCourse(courseId: string): Promise<any[]>;
   createCourseContent(content: InsertCourseContent): Promise<CourseContent>;
   updateCourseContent(id: string, updates: Partial<CourseContent>): Promise<CourseContent>;
   deleteCourseContent(id: string): Promise<void>;
@@ -793,6 +794,24 @@ export class DatabaseStorage implements IStorage {
       .orderBy(courseContent.chapter, courseContent.section, courseContent.sortOrder);
     
     return results;
+  }
+
+  async getStudyPlansByCourse(courseId: string): Promise<any[]> {
+    const results = await db
+      .select()
+      .from(courseContent)
+      .where(and(
+        eq(courseContent.courseId, courseId),
+        eq(courseContent.type, 'study_plans')
+      ))
+      .orderBy(courseContent.chapter, courseContent.section, courseContent.sortOrder);
+    
+    return results.map(plan => ({
+      id: plan.id,
+      title: plan.title,
+      content: plan.content,
+      duration: plan.duration || 30 // Default 30 minutes if not specified
+    }));
   }
 
   async getCourseContentById(id: string): Promise<CourseContent | null> {
