@@ -4,6 +4,18 @@ import { Search, Users, BookOpen, CheckCircle } from "lucide-react";
 import { useLocation } from "wouter";
 import { AuthService, User } from "@/lib/auth";
 import { apiRequest, queryClient } from "@/lib/queryClient";
+
+// Map database UUIDs to friendly course identifiers
+function getCourseSlug(courseId: string): string {
+  const courseMapping: { [key: string]: string } = {
+    '5f02238b-afb2-4e7f-a488-96fb471fee56': 'journeyman-prep',
+    'b1f02238b-afb2-4e7f-a488-96fb471fee57': 'backflow-prevention',
+    'c2f02238b-afb2-4e7f-a488-96fb471fee58': 'natural-gas',
+    'd3f02238b-afb2-4e7f-a488-96fb471fee59': 'medical-gas',
+    'e4f02238b-afb2-4e7f-a488-96fb471fee60': 'master-plumber'
+  };
+  return courseMapping[courseId] || courseId;
+}
 import { useToast } from "@/hooks/use-toast";
 
 interface Course {
@@ -79,7 +91,7 @@ export default function Courses() {
     }
 
     if (isEnrolledIn(course.id)) {
-      setLocation(`/courses/${course.id}`);
+      setLocation(`/course/${getCourseSlug(course.id)}`);
       return;
     }
 

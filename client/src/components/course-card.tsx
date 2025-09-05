@@ -1,4 +1,16 @@
 import { Button } from "@/components/ui/button";
+
+// Map database UUIDs to friendly course identifiers
+function getCourseSlug(courseId: string): string {
+  const courseMapping: { [key: string]: string } = {
+    '5f02238b-afb2-4e7f-a488-96fb471fee56': 'journeyman-prep',
+    'b1f02238b-afb2-4e7f-a488-96fb471fee57': 'backflow-prevention',
+    'c2f02238b-afb2-4e7f-a488-96fb471fee58': 'natural-gas',
+    'd3f02238b-afb2-4e7f-a488-96fb471fee59': 'medical-gas',
+    'e4f02238b-afb2-4e7f-a488-96fb471fee60': 'master-plumber'
+  };
+  return courseMapping[courseId] || courseId;
+}
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
@@ -240,7 +252,7 @@ export default function CourseCard({ course, isEnrolled = false, progress = 0, i
                   asChild
                   data-testid={`button-continue-${course.id}`}
                 >
-                  <Link href={`/course/${course.id}`}>
+                  <Link href={`/course/${getCourseSlug(course.id)}`}>
                     <Play className="w-4 h-4 mr-2" />
                     {isCompleted ? "Review" : "Continue"}
                   </Link>
