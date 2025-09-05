@@ -4210,6 +4210,73 @@ Start your journey at laplumbprep.com/courses
     }
   });
 
+  // Bulk import study plans with duplicate detection
+  app.post("/api/admin/study-plans/bulk-import", async (req: any, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+    
+    if (!req.user.email?.includes('admin') && req.user.subscriptionTier !== 'master') {
+      return res.status(403).json({ error: "Admin access required" });
+    }
+    
+    try {
+      const { courseId, studyPlans } = req.body;
+      
+      if (!courseId || !studyPlans || !Array.isArray(studyPlans)) {
+        return res.status(400).json({ error: "courseId and studyPlans array are required" });
+      }
+      
+      // Get existing study plans for this course to check for duplicates
+      const existingStudyPlans = await storage.getStudyPlansByCourse(courseId);
+      
+      // Create a set of existing study plan titles for faster lookup (normalized)
+      const existingStudyPlanTitles = new Set(
+        existingStudyPlans.map((sp: any) => 
+          sp.title.toLowerCase().trim().replace(/\s+/g, ' ')
+        )
+      );
+      
+      // Filter out duplicates and track them
+      const newStudyPlans: any[] = [];
+      const duplicates: any[] = [];
+      
+      studyPlans.forEach((sp: any) => {
+        const normalizedTitle = sp.title.toLowerCase().trim().replace(/\s+/g, ' ');
+        
+        if (existingStudyPlanTitles.has(normalizedTitle)) {
+          duplicates.push(sp);
+        } else {
+          newStudyPlans.push({
+            ...sp,
+            id: crypto.randomUUID(),
+            courseId,
+            createdAt: new Date(),
+          });
+          // Add to set to prevent duplicates within this batch too
+          existingStudyPlanTitles.add(normalizedTitle);
+        }
+      });
+      
+      // Create only new study plans
+      const createdStudyPlans = await Promise.all(
+        newStudyPlans.map((sp: any) => storage.createStudyPlan(sp))
+      );
+      
+      res.json({ 
+        success: true, 
+        imported: createdStudyPlans.length,
+        duplicatesSkipped: duplicates.length,
+        totalSubmitted: studyPlans.length,
+        studyPlans: createdStudyPlans,
+        duplicates: duplicates.map(d => d.title.substring(0, 100) + "...")
+      });
+    } catch (error: any) {
+      console.error("Error bulk importing study plans:", error);
+      res.status(500).json({ error: "Failed to import study plans" });
+    }
+  });
+
   // Bulk import study notes with duplicate detection
   app.post("/api/admin/study-notes/bulk-import", async (req: any, res) => {
     if (!req.isAuthenticated()) {

@@ -1,7 +1,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
-import { Users, MessageSquare, BarChart3, Settings, BookOpen, Upload } from "lucide-react";
+import { Users, MessageSquare, BarChart3, Settings, BookOpen, Upload, Clock } from "lucide-react";
 
 export default function AdminDashboard() {
   return (
@@ -126,6 +126,20 @@ export default function AdminDashboard() {
                 </CardTitle>
                 <CardDescription>
                   Import structured study notes with headings
+                </CardDescription>
+              </CardHeader>
+            </Card>
+          </Link>
+
+          <Link href="/admin/study-plan-import">
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Clock className="h-5 w-5" />
+                  Bulk Study Plan Import
+                </CardTitle>
+                <CardDescription>
+                  Import adaptive study plans with time-based sessions
                 </CardDescription>
               </CardHeader>
             </Card>
