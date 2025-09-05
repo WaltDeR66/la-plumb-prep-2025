@@ -265,7 +265,7 @@ export default function Courses() {
                   <div className="space-y-1 mb-4">
                     <div className="flex items-center text-sm text-green-600">
                       <CheckCircle className="w-4 h-4 mr-2" />
-                      State Approved Curriculum
+                      Comprehensive Curriculum
                     </div>
                     <div className="flex items-center text-sm text-green-600">
                       <CheckCircle className="w-4 h-4 mr-2" />
