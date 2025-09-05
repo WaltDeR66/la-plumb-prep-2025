@@ -21,6 +21,18 @@ import {
 } from "lucide-react";
 import { Link } from "wouter";
 
+// Map friendly course identifiers to database UUIDs
+function getCourseUUID(courseSlug: string): string {
+  const courseMapping: { [key: string]: string } = {
+    'journeyman-prep': '5f02238b-afb2-4e7f-a488-96fb471fee56',
+    'backflow-prevention': 'b1f02238b-afb2-4e7f-a488-96fb471fee57',
+    'natural-gas': 'c2f02238b-afb2-4e7f-a488-96fb471fee58',
+    'medical-gas': 'd3f02238b-afb2-4e7f-a488-96fb471fee59',
+    'master-plumber': 'e4f02238b-afb2-4e7f-a488-96fb471fee60'
+  };
+  return courseMapping[courseSlug] || courseSlug;
+}
+
 interface CourseContent {
   id: string;
   title: string;
@@ -63,7 +75,9 @@ export default function CourseContent() {
     queryKey: ["/api/courses"],
   });
   
-  const course = courses?.find(c => c.id === courseId);
+  // Map friendly URL to database UUID for course lookup
+  const courseUUID = getCourseUUID(courseId);
+  const course = courses?.find(c => c.id === courseUUID);
 
   const { data: content, isLoading } = useQuery<CourseContent[]>({
     queryKey: [`/api/courses/${courseId}/content`],
