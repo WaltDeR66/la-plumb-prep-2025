@@ -4210,6 +4210,69 @@ Start your journey at laplumbprep.com/courses
     }
   });
 
+  // Get study plans for a specific course/lesson
+  app.get("/api/courses/:courseId/study-plans", async (req: any, res) => {
+    try {
+      const { courseId } = req.params;
+      const studyPlans = await storage.getStudyPlansByCourse(courseId);
+      res.json(studyPlans);
+    } catch (error: any) {
+      console.error("Error fetching study plans:", error);
+      res.status(500).json({ error: "Failed to fetch study plans" });
+    }
+  });
+
+  // Start a study session
+  app.post("/api/study-sessions", async (req: any, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+
+    try {
+      const { contentId, contentType, studyPlanId, estimatedDuration } = req.body;
+      const userId = req.user.id;
+
+      const session = await storage.createStudySession({
+        userId,
+        contentId,
+        contentType,
+        studyPlanId,
+        estimatedDuration,
+        sessionStart: new Date(),
+      });
+
+      res.json(session);
+    } catch (error: any) {
+      console.error("Error starting study session:", error);
+      res.status(500).json({ error: "Failed to start study session" });
+    }
+  });
+
+  // Update study session progress
+  app.put("/api/study-sessions/:sessionId", async (req: any, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+
+    try {
+      const { sessionId } = req.params;
+      const { completed, durationSeconds, sectionsCompleted } = req.body;
+      const userId = req.user.id;
+
+      const updatedSession = await storage.updateStudySession(sessionId, {
+        completed,
+        durationSeconds,
+        sectionsCompleted,
+        sessionEnd: completed ? new Date() : undefined,
+      });
+
+      res.json(updatedSession);
+    } catch (error: any) {
+      console.error("Error updating study session:", error);
+      res.status(500).json({ error: "Failed to update study session" });
+    }
+  });
+
   // Bulk import study plans with duplicate detection
   app.post("/api/admin/study-plans/bulk-import", async (req: any, res) => {
     if (!req.isAuthenticated()) {

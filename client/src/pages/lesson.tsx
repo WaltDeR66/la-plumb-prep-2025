@@ -4,6 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { StudyPlanSelector } from "@/components/StudyPlanSelector";
 import { 
   BookOpen, 
   Play, 
@@ -59,6 +61,12 @@ export default function Lesson() {
 
   const { data: sectionProgress } = useQuery<Array<{section: number, isUnlocked: boolean, isAdmin: boolean}>>({
     queryKey: [`/api/section-progress/${courseId}`],
+    enabled: !!courseId,
+  });
+
+  // Fetch study plans for this course
+  const { data: studyPlans } = useQuery<Array<{id: string, title: string, content: string, duration: number}>>({
+    queryKey: [`/api/courses/${courseId}/study-plans`],
     enabled: !!courseId,
   });
 
@@ -207,16 +215,28 @@ export default function Lesson() {
         <Progress value={progress} className="h-2" data-testid="lesson-progress-bar" />
       </div>
 
-      {/* Content Flow */}
-      <div className="space-y-4">
-        <h2 className="text-xl font-semibold mb-4" data-testid="lesson-content-header">
-          Lesson Flow
-        </h2>
-        
-        {sortedContent.map((item, index) => {
-          const IconComponent = getTypeIcon(item.type);
-          const isCompleted = index < completed;
-          const isCurrent = index === completed;
+      {/* Tabbed Interface with Study Plans */}
+      <Tabs defaultValue="lesson-flow" className="space-y-6">
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="lesson-flow" className="flex items-center gap-2" data-testid="tab-lesson-flow">
+            <BookOpen className="h-4 w-4" />
+            Lesson Content
+          </TabsTrigger>
+          <TabsTrigger value="study-plans" className="flex items-center gap-2" data-testid="tab-study-plans">
+            <Clock className="h-4 w-4" />
+            Timed Study Plans
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="lesson-flow" className="space-y-4">
+          <h2 className="text-xl font-semibold mb-4" data-testid="lesson-content-header">
+            Lesson Flow
+          </h2>
+          
+          {sortedContent?.map((item, index) => {
+            const IconComponent = getTypeIcon(item.type);
+            const isCompleted = index < completed;
+            const isCurrent = index === completed;
           
           return (
             <Card 
@@ -281,9 +301,25 @@ export default function Lesson() {
                 </div>
               </CardContent>
             </Card>
-          );
-        })}
-      </div>
+            );
+          })}
+        </TabsContent>
+
+        <TabsContent value="study-plans" className="space-y-4">
+          <StudyPlanSelector
+            studyPlans={studyPlans || []}
+            lessonTitle={`Louisiana State Plumbing Code §${section}`}
+            onStartSession={(plan) => {
+              // Track study session start
+              console.log('Starting study session with plan:', plan.title);
+            }}
+            onCompleteSession={() => {
+              // Track completion
+              console.log('Study session completed');
+            }}
+          />
+        </TabsContent>
+      </Tabs>
 
       {/* Navigation */}
       <div className="flex justify-between mt-8 pt-6 border-t">
