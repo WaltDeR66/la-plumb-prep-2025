@@ -119,6 +119,22 @@ app.use((req, res, next) => {
     // Also run on startup if it's the first day of the month
     setTimeout(checkBetaFeedback, 5000); // After 5 seconds
     
+    // Run feedback monitoring every 4 hours to check for concerning patterns
+    const runFeedbackMonitoring = async () => {
+      try {
+        const { BetaFeedbackService } = await import('./betaFeedbackSystem');
+        await BetaFeedbackService.runAutomatedMonitoring();
+      } catch (error) {
+        console.error("Error running feedback monitoring:", error);
+      }
+    };
+    
+    // Monitor feedback patterns every 4 hours
+    setInterval(runFeedbackMonitoring, 4 * 60 * 60 * 1000); // 4 hours
+    
+    // Run initial monitoring after 30 seconds
+    setTimeout(runFeedbackMonitoring, 30000);
+    
     log("Email automation system initialized");
     log("Bulk pricing system initialized");
     log("Beta feedback system initialized");

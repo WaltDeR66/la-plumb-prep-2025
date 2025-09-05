@@ -935,6 +935,22 @@ Start your journey at laplumbprep.com/courses
     }
   });
 
+  // Admin route to manually run feedback monitoring
+  app.post('/api/admin/beta-feedback/run-monitoring', async (req, res) => {
+    if (!req.isAuthenticated() || (req.user as any)?.role !== 'admin') {
+      return res.status(401).json({ message: "Admin access required" });
+    }
+    
+    try {
+      const { BetaFeedbackService } = await import('./betaFeedbackSystem');
+      const analysis = await BetaFeedbackService.runAutomatedMonitoring();
+      res.json(analysis || { message: "Monitoring completed" });
+    } catch (error: any) {
+      console.error('Error running feedback monitoring:', error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
   // Stripe webhook for handling subscription events
   app.post('/api/stripe-webhook', express.raw({ type: 'application/json' }), async (req, res) => {
     const sig = req.headers['stripe-signature'] as string;

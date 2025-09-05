@@ -6,8 +6,9 @@ import {
   betaFeedbackResponses,
   emailQueue 
 } from "@shared/schema";
-import { eq, and, isNull } from "drizzle-orm";
+import { eq, and, isNull, lt } from "drizzle-orm";
 import { randomUUID } from "crypto";
+import { emailAutomation } from './email-automation';
 
 export class BetaFeedbackService {
   // Initialize default feedback questions
@@ -379,6 +380,182 @@ export class BetaFeedbackService {
       </body>
       </html>
     `;
+  }
+
+  // Monitor and analyze feedback for concerning patterns
+  static async analyzeFeedbackPatterns() {
+    try {
+      // Get recent feedback responses
+      const recentResponses = await db.select({
+        id: betaFeedbackResponses.id,
+        userId: betaFeedbackResponses.userId,
+        campaignId: betaFeedbackResponses.campaignId,
+        responses: betaFeedbackResponses.responses,
+        completedAt: betaFeedbackResponses.completedAt,
+        user: {
+          firstName: users.firstName,
+          lastName: users.lastName,
+          email: users.email
+        }
+      })
+      .from(betaFeedbackResponses)
+      .leftJoin(users, eq(betaFeedbackResponses.userId, users.id))
+      .where(isNull(betaFeedbackResponses.deletedAt));
+
+      const alerts: string[] = [];
+      const criticalIssues: string[] = [];
+
+      // Analyze satisfaction scores (Question 1 - Overall experience rating)
+      const satisfactionScores = recentResponses
+        .map(r => {
+          if (typeof r.responses === 'object' && r.responses) {
+            const responses = r.responses as any;
+            return responses['1'] ? parseInt(responses['1']) : null;
+          }
+          return null;
+        })
+        .filter(score => score !== null);
+
+      if (satisfactionScores.length > 0) {
+        const avgSatisfaction = satisfactionScores.reduce((a, b) => a + b, 0) / satisfactionScores.length;
+        const lowScores = satisfactionScores.filter(score => score <= 2).length;
+        const lowScorePercentage = (lowScores / satisfactionScores.length) * 100;
+
+        // Alert thresholds
+        if (avgSatisfaction < 3.0) {
+          criticalIssues.push(`🚨 CRITICAL: Average satisfaction score is ${avgSatisfaction.toFixed(1)}/5 - Immediate attention required`);
+        } else if (avgSatisfaction < 3.5) {
+          alerts.push(`⚠️ Warning: Average satisfaction score declining to ${avgSatisfaction.toFixed(1)}/5`);
+        }
+
+        if (lowScorePercentage > 25) {
+          criticalIssues.push(`🚨 CRITICAL: ${lowScorePercentage.toFixed(1)}% of users rated experience 2/5 or lower`);
+        } else if (lowScorePercentage > 15) {
+          alerts.push(`⚠️ Warning: ${lowScorePercentage.toFixed(1)}% of users giving low satisfaction scores`);
+        }
+      }
+
+      // Check completion rates
+      const campaigns = await db.select()
+        .from(betaFeedbackCampaigns)
+        .where(isNull(betaFeedbackCampaigns.deletedAt));
+
+      const latestCampaign = campaigns[campaigns.length - 1];
+      if (latestCampaign) {
+        const campaignResponses = recentResponses.filter(r => r.campaignId === latestCampaign.id);
+        const totalBetaTesters = await db.select().from(users).where(eq(users.isBetaTester, true));
+        const completionRate = (campaignResponses.length / totalBetaTesters.length) * 100;
+
+        if (completionRate < 30) {
+          criticalIssues.push(`🚨 CRITICAL: Only ${completionRate.toFixed(1)}% feedback completion rate - System may have issues`);
+        } else if (completionRate < 50) {
+          alerts.push(`⚠️ Warning: Low feedback completion rate at ${completionRate.toFixed(1)}%`);
+        }
+      }
+
+      // Analyze common improvement requests for bug reports
+      const improvementRequests = recentResponses
+        .map(r => {
+          if (typeof r.responses === 'object' && r.responses) {
+            const responses = r.responses as any;
+            return responses['3'] || ''; // Question 3 - improvement requests
+          }
+          return '';
+        })
+        .filter(text => text.length > 10);
+
+      const problemKeywords = ['bug', 'error', 'broken', 'not working', 'slow', 'crash', 'issue', 'problem'];
+      const bugReports = improvementRequests.filter(text => 
+        problemKeywords.some(keyword => text.toLowerCase().includes(keyword))
+      );
+
+      if (bugReports.length > improvementRequests.length * 0.3) {
+        criticalIssues.push(`🚨 CRITICAL: ${bugReports.length} users reporting bugs or technical issues`);
+      } else if (bugReports.length > 2) {
+        alerts.push(`⚠️ Warning: ${bugReports.length} users mentioning technical problems`);
+      }
+
+      return {
+        alerts,
+        criticalIssues,
+        totalResponses: recentResponses.length,
+        avgSatisfaction: satisfactionScores.length > 0 ? satisfactionScores.reduce((a, b) => a + b, 0) / satisfactionScores.length : 0,
+        bugReports: bugReports.length,
+        satisfactionScores
+      };
+    } catch (error) {
+      console.error('Error analyzing feedback patterns:', error);
+      return { alerts: [], criticalIssues: ['🚨 Error analyzing feedback patterns'], totalResponses: 0, avgSatisfaction: 0, bugReports: 0, satisfactionScores: [] };
+    }
+  }
+
+  // Send alert emails to admin
+  static async sendAdminAlerts(alerts: string[], criticalIssues: string[]) {
+    if (alerts.length === 0 && criticalIssues.length === 0) return;
+
+    const adminEmail = process.env.SUPPORT_EMAIL || 'admin@laplumbprep.com';
+    const subject = criticalIssues.length > 0 
+      ? '🚨 CRITICAL: Beta Feedback Alerts Requiring Immediate Attention'
+      : '⚠️ Beta Feedback Monitoring Alerts';
+
+    const content = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+        <h2 style="color: #1e40af; margin-bottom: 30px;">Beta Feedback System Alert</h2>
+        
+        ${criticalIssues.length > 0 ? `
+          <div style="background: #fee2e2; border: 2px solid #dc2626; border-radius: 8px; padding: 20px; margin-bottom: 20px;">
+            <h3 style="color: #dc2626; margin-top: 0;">🚨 Critical Issues Requiring Immediate Action</h3>
+            <ul style="margin: 0;">
+              ${criticalIssues.map(issue => `<li style="color: #7f1d1d; margin-bottom: 8px;">${issue}</li>`).join('')}
+            </ul>
+          </div>
+        ` : ''}
+        
+        ${alerts.length > 0 ? `
+          <div style="background: #fef3c7; border: 2px solid #d97706; border-radius: 8px; padding: 20px; margin-bottom: 20px;">
+            <h3 style="color: #d97706; margin-top: 0;">⚠️ Warning Alerts</h3>
+            <ul style="margin: 0;">
+              ${alerts.map(alert => `<li style="color: #92400e; margin-bottom: 8px;">${alert}</li>`).join('')}
+            </ul>
+          </div>
+        ` : ''}
+        
+        <div style="background: #f3f4f6; border-radius: 8px; padding: 20px; margin-top: 20px;">
+          <h4 style="margin-top: 0; color: #374151;">Recommended Actions:</h4>
+          <ul style="color: #6b7280;">
+            <li>Review detailed feedback responses in the admin dashboard</li>
+            <li>Prioritize fixes for critical issues affecting user satisfaction</li>
+            <li>Consider reaching out directly to users with low satisfaction scores</li>
+            <li>Monitor completion rates for technical issues</li>
+          </ul>
+        </div>
+      </div>
+    `;
+
+    // Queue admin alert email
+    await db.insert(emailQueue).values({
+      recipientEmail: adminEmail,
+      subject,
+      content,
+      scheduledFor: new Date(),
+    });
+  }
+
+  // Run automated monitoring and send alerts if needed
+  static async runAutomatedMonitoring() {
+    try {
+      const analysis = await this.analyzeFeedbackPatterns();
+      
+      if (analysis.alerts.length > 0 || analysis.criticalIssues.length > 0) {
+        await this.sendAdminAlerts(analysis.alerts, analysis.criticalIssues);
+        console.log(`Beta feedback monitoring: ${analysis.criticalIssues.length} critical issues, ${analysis.alerts.length} warnings`);
+      }
+      
+      return analysis;
+    } catch (error) {
+      console.error('Error running feedback monitoring:', error);
+      return null;
+    }
   }
 }
 

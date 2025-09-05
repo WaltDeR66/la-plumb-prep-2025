@@ -43,6 +43,7 @@ export default function BetaFeedbackDashboard() {
   const [selectedMonth, setSelectedMonth] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isSending, setIsSending] = useState(false);
+  const [isMonitoring, setIsMonitoring] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -99,6 +100,36 @@ export default function BetaFeedbackDashboard() {
     }
   };
 
+  const runMonitoring = async () => {
+    setIsMonitoring(true);
+    try {
+      const response = await apiRequest("POST", "/api/admin/beta-feedback/run-monitoring");
+      const result = await response.json();
+      
+      if (result.criticalIssues?.length > 0 || result.alerts?.length > 0) {
+        toast({
+          title: "Monitoring Complete",
+          description: `Found ${result.criticalIssues?.length || 0} critical issues and ${result.alerts?.length || 0} warnings`,
+          variant: result.criticalIssues?.length > 0 ? "destructive" : "default",
+        });
+      } else {
+        toast({
+          title: "Monitoring Complete",
+          description: "No issues detected in recent feedback",
+        });
+      }
+    } catch (error: any) {
+      console.error("Error running monitoring:", error);
+      toast({
+        title: "Error",
+        description: "Failed to run feedback monitoring",
+        variant: "destructive",
+      });
+    } finally {
+      setIsMonitoring(false);
+    }
+  };
+
   const handleMonthChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const monthYear = e.target.value;
     setSelectedMonth(monthYear);
@@ -127,23 +158,43 @@ export default function BetaFeedbackDashboard() {
             Manage monthly feedback campaigns for beta testers
           </p>
         </div>
-        <Button 
-          onClick={sendMonthlyFeedback}
-          disabled={isSending}
-          data-testid="send-feedback-button"
-        >
-          {isSending ? (
-            <>
-              <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2"></div>
-              Sending...
-            </>
-          ) : (
-            <>
-              <Send className="w-4 h-4 mr-2" />
-              Send Monthly Feedback
-            </>
-          )}
-        </Button>
+        <div className="flex gap-3">
+          <Button 
+            onClick={runMonitoring}
+            disabled={isMonitoring}
+            variant="outline"
+            data-testid="run-monitoring-button"
+          >
+            {isMonitoring ? (
+              <>
+                <div className="animate-spin w-4 h-4 border-2 border-current border-t-transparent rounded-full mr-2"></div>
+                Analyzing...
+              </>
+            ) : (
+              <>
+                <TrendingUp className="w-4 h-4 mr-2" />
+                Run Monitoring
+              </>
+            )}
+          </Button>
+          <Button 
+            onClick={sendMonthlyFeedback}
+            disabled={isSending}
+            data-testid="send-feedback-button"
+          >
+            {isSending ? (
+              <>
+                <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2"></div>
+                Sending...
+              </>
+            ) : (
+              <>
+                <Send className="w-4 h-4 mr-2" />
+                Send Monthly Feedback
+              </>
+            )}
+          </Button>
+        </div>
       </div>
 
       {/* Month selector */}
