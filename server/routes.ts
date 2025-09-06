@@ -4372,18 +4372,30 @@ Start your journey at laplumbprep.com/courses
         questions: allContent
           .filter(content => content.type === 'quiz')
           .reduce((total, quiz) => {
-            const content = quiz.content?.toString() || '';
-            // Count numbered questions like "**1. ", "**2. ", etc.
-            const questionMatches = content.match(/\*\*\d+\.\s/g) || [];
-            return total + questionMatches.length;
+            try {
+              const contentObj = typeof quiz.content === 'string' ? JSON.parse(quiz.content) : quiz.content;
+              const extractedContent = contentObj?.extracted?.content || '';
+              // Count numbered questions like "**1. ", "**2. ", etc.
+              const questionMatches = extractedContent.match(/\*\*\d+\.\s/g) || [];
+              return total + questionMatches.length;
+            } catch (error) {
+              console.error('Error parsing quiz content:', error);
+              return total;
+            }
           }, 0),
         flashcards: allContent
           .filter(content => content.type === 'flashcards')
           .reduce((total, flashcardSet) => {
-            const content = flashcardSet.content?.toString() || '';
-            // Count flashcard pairs marked with "Front:" or "**Front:"
-            const flashcardMatches = content.match(/(\*\*)?Front:/g) || [];
-            return total + flashcardMatches.length;
+            try {
+              const contentObj = typeof flashcardSet.content === 'string' ? JSON.parse(flashcardSet.content) : flashcardSet.content;
+              const extractedContent = contentObj?.extracted?.content || '';
+              // Count flashcard pairs marked with "Front:" or "**Front:"
+              const flashcardMatches = extractedContent.match(/(\*\*)?Front:/g) || [];
+              return total + flashcardMatches.length;
+            } catch (error) {
+              console.error('Error parsing flashcard content:', error);
+              return total;
+            }
           }, 0),
         studyNotes: allContent.filter(content => content.type === 'study-notes').length,
         studyPlans: allContent.filter(content => content.type === 'study-plan' || content.type === 'study-plans').length,

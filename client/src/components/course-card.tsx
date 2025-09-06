@@ -49,7 +49,7 @@ export default function CourseCard({ course, isEnrolled = false, progress = 0, i
   });
 
   // Fetch course content statistics
-  const { data: contentStats } = useQuery<{
+  const { data: contentStats, isLoading, error } = useQuery<{
     questions: number;
     flashcards: number;
     studyNotes: number;
@@ -59,6 +59,14 @@ export default function CourseCard({ course, isEnrolled = false, progress = 0, i
   }>({
     queryKey: ["/api/courses", course.id, "stats"],
     retry: false,
+  });
+
+  // Debug logging
+  console.log('CourseCard Debug:', {
+    courseId: course.id,
+    contentStats,
+    isLoading,
+    error
   });
 
   const enrollMutation = useMutation({
@@ -165,7 +173,7 @@ export default function CourseCard({ course, isEnrolled = false, progress = 0, i
           <div className="grid grid-cols-2 gap-2 text-xs text-muted-foreground">
             <div className="flex items-center space-x-1">
               <HelpCircle className="w-3 h-3" />
-              <span>{contentStats?.questions || 0} Questions ({JSON.stringify(contentStats)})</span>
+              <span>{contentStats?.questions || 0} Questions</span>
             </div>
             <div className="flex items-center space-x-1">
               <Upload className="w-3 h-3" />
