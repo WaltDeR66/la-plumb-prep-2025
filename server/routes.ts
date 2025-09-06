@@ -7,7 +7,7 @@ import { insertUserSchema, insertJobSchema, insertJobApplicationSchema, insertCo
 import { competitionNotificationService } from "./competitionNotifications";
 import { eq, and, or, desc, sql, count } from "drizzle-orm";
 import { db } from "./db";
-import { analyzePhoto, analyzePlans, getMentorResponse, calculatePipeSize, reviewJobPosting } from "./openai";
+import { analyzePhoto, analyzePlans, getMentorResponse, calculatePipeSize, reviewJobPosting, generateNumberedFittingPDF } from "./openai";
 import { calculateReferralCommission, isValidSubscriptionTier } from "@shared/referral-utils";
 import { contentExtractor } from "./content-extractor";
 import { emailAutomation } from "./email-automation";
@@ -2136,11 +2136,16 @@ Start your journey at laplumbprep.com/courses
         analysis.codeCompliance
       );
 
+      // Generate numbered fitting PDF
+      const pdfPath = await generateNumberedFittingPDF(analysis, base64File);
+      
       res.json({
         ...upload,
         materialList: analysis.materialList,
+        numberedFittings: analysis.numberedFittings,
         codeCompliance: analysis.codeCompliance,
-        totalEstimatedCost: analysis.totalEstimatedCost
+        totalEstimatedCost: analysis.totalEstimatedCost,
+        pdfUrl: pdfPath
       });
     } catch (error: any) {
       res.status(500).json({ message: error.message });
@@ -2168,6 +2173,40 @@ Start your journey at laplumbprep.com/courses
     }
   });
 
+  // Generate numbered fitting PDF for existing plan
+  app.post("/api/plans/:planId/generate-pdf", requireActiveSubscription, async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+
+    try {
+      const { planId } = req.params;
+      const userId = (req.user as any).id;
+      
+      // Get plan from database
+      const plan = await storage.getPlanUpload(planId, userId);
+      if (!plan) {
+        return res.status(404).json({ message: "Plan not found" });
+      }
+      
+      // Read the original plan file
+      const planPath = path.join(process.cwd(), 'public', plan.url);
+      const planBuffer = fs.readFileSync(planPath);
+      const base64Plan = planBuffer.toString('base64');
+      
+      // Generate PDF with numbered fittings
+      const pdfPath = await generateNumberedFittingPDF({
+        materialList: plan.materialList as any,
+        numberedFittings: (plan.analysis as any)?.numberedFittings || [],
+        totalEstimatedCost: (plan.analysis as any)?.totalEstimatedCost || 0
+      }, base64Plan);
+      
+      res.json({ pdfUrl: pdfPath });
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
   // Serve uploaded files
   app.get('/uploads/:filename', (req, res) => {
     const filename = req.params.filename;
@@ -2178,6 +2217,19 @@ Start your journey at laplumbprep.com/courses
     } else {
       res.status(404).json({ message: 'File not found' });
     }
+  });
+
+  // Serve PDF files
+  app.get('/pdfs/:filename', (req, res) => {
+    const filename = req.params.filename;
+    const filePath = path.join(process.cwd(), 'public', 'pdfs', filename);
+    
+    if (!fs.existsSync(filePath)) {
+      return res.status(404).json({ message: 'PDF not found' });
+    }
+    
+    res.contentType('application/pdf');
+    res.sendFile(filePath);
   });
 
   // Serve public files (PDFs, code books, etc.) from uploads directory

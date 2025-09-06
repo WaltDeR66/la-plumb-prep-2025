@@ -437,7 +437,7 @@ export default function Tools() {
                   <CardContent>
                     <div className="space-y-4">
                       <p className="text-muted-foreground text-sm">
-                        <strong>Intelligent Plan Review:</strong> Upload construction plans and blueprints to automatically generate comprehensive material lists, accurate cost estimates, and complete Louisiana code compliance checks. Our AI system analyzes drawings, identifies all plumbing fixtures, calculates pipe runs, and produces professional-grade reports. Perfect for contractors, estimators, and project planning.
+                        <strong>🔧 Numbered Fitting Placement System:</strong> Upload construction plans to get professional installation diagrams with numbered fittings, comprehensive material lists, and Louisiana code compliance checks. Each fitting gets a unique number that matches a detailed parts list - like a puzzle system for rough-in work. Perfect for contractors, estimators, and project planning.
                       </p>
                       
                       <input
@@ -482,38 +482,96 @@ export default function Tools() {
                       )}
 
                       {analysisResult?.materialList && (
-                        <div className="space-y-4 mt-6">
-                          <div className="flex items-center justify-between">
-                            <h4 className="font-medium">Material List</h4>
-                            <Button size="sm" variant="outline" data-testid="download-materials">
-                              <Download className="w-4 h-4 mr-2" />
-                              Download
-                            </Button>
-                          </div>
-                          
-                          <div className="border rounded-lg overflow-hidden">
-                            <table className="w-full text-sm">
-                              <thead className="bg-muted">
-                                <tr>
-                                  <th className="text-left p-3">Item</th>
-                                  <th className="text-center p-3">Qty</th>
-                                  <th className="text-right p-3">Cost</th>
-                                </tr>
-                              </thead>
-                              <tbody className="divide-y">
-                                {analysisResult.materialList.slice(0, 5).map((item: any, index: number) => (
-                                  <tr key={index}>
-                                    <td className="p-3">{item.item}</td>
-                                    <td className="p-3 text-center">{item.quantity} {item.unit}</td>
-                                    <td className="p-3 text-right">${item.estimatedCost}</td>
-                                  </tr>
+                        <div className="space-y-6 mt-6">
+                          {/* Numbered Fitting Placement PDF */}
+                          {analysisResult.pdfUrl && (
+                            <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+                              <div className="flex items-center justify-between">
+                                <div>
+                                  <h4 className="font-medium text-blue-900 dark:text-blue-100">🔧 Numbered Fitting Placement Diagram</h4>
+                                  <p className="text-sm text-blue-700 dark:text-blue-300 mt-1">
+                                    Professional installation guide with numbered fittings matched to parts list
+                                  </p>
+                                </div>
+                                <Button 
+                                  size="sm" 
+                                  className="bg-blue-600 hover:bg-blue-700"
+                                  onClick={() => window.open(analysisResult.pdfUrl, '_blank')}
+                                  data-testid="download-fitting-diagram"
+                                >
+                                  <Download className="w-4 h-4 mr-2" />
+                                  Download PDF
+                                </Button>
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Numbered Fittings Preview */}
+                          {analysisResult.numberedFittings && analysisResult.numberedFittings.length > 0 && (
+                            <div>
+                              <h4 className="font-medium mb-3">🔢 Numbered Fitting Guide (Preview)</h4>
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-60 overflow-y-auto">
+                                {analysisResult.numberedFittings.slice(0, 8).map((fitting: any) => (
+                                  <div key={fitting.number} className="border rounded-lg p-3 bg-gray-50 dark:bg-gray-800">
+                                    <div className="flex items-start gap-3">
+                                      <div className="bg-blue-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold">
+                                        {fitting.number}
+                                      </div>
+                                      <div className="flex-1 min-w-0">
+                                        <p className="text-sm font-medium truncate">{fitting.description}</p>
+                                        <p className="text-xs text-muted-foreground">{fitting.size} • {fitting.type}</p>
+                                        {fitting.pipeLength && (
+                                          <p className="text-xs text-blue-600 dark:text-blue-400">
+                                            {fitting.pipeSize} × {fitting.pipeLength}"
+                                          </p>
+                                        )}
+                                      </div>
+                                    </div>
+                                  </div>
                                 ))}
-                              </tbody>
-                            </table>
-                          </div>
-                          
-                          <div className="text-right font-medium">
-                            Total: ${analysisResult.totalEstimatedCost}
+                              </div>
+                              {analysisResult.numberedFittings.length > 8 && (
+                                <p className="text-sm text-muted-foreground mt-2 text-center">
+                                  +{analysisResult.numberedFittings.length - 8} more fittings in full PDF
+                                </p>
+                              )}
+                            </div>
+                          )}
+
+                          {/* Material List */}
+                          <div className="space-y-4">
+                            <div className="flex items-center justify-between">
+                              <h4 className="font-medium">📋 Complete Material List</h4>
+                              <Button size="sm" variant="outline" data-testid="download-materials">
+                                <Download className="w-4 h-4 mr-2" />
+                                Download
+                              </Button>
+                            </div>
+                            
+                            <div className="border rounded-lg overflow-hidden">
+                              <table className="w-full text-sm">
+                                <thead className="bg-muted">
+                                  <tr>
+                                    <th className="text-left p-3">Item</th>
+                                    <th className="text-center p-3">Qty</th>
+                                    <th className="text-right p-3">Cost</th>
+                                  </tr>
+                                </thead>
+                                <tbody className="divide-y">
+                                  {analysisResult.materialList.slice(0, 5).map((item: any, index: number) => (
+                                    <tr key={index}>
+                                      <td className="p-3">{item.item}</td>
+                                      <td className="p-3 text-center">{item.quantity} {item.unit}</td>
+                                      <td className="p-3 text-right">${item.estimatedCost}</td>
+                                    </tr>
+                                  ))}
+                                </tbody>
+                              </table>
+                            </div>
+                            
+                            <div className="text-right font-medium">
+                              Total: ${analysisResult.totalEstimatedCost}
+                            </div>
                           </div>
                         </div>
                       )}

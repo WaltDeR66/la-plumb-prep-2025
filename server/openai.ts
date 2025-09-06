@@ -1,6 +1,7 @@
 import OpenAI from "openai";
 import fs from "fs";
 import path from "path";
+import PDFDocument from "pdfkit";
 
 if (!process.env.OPENAI_API_KEY) {
   throw new Error("OPENAI_API_KEY environment variable is required");
@@ -67,6 +68,16 @@ export async function analyzePlans(base64Image: string): Promise<{
     unit: string;
     estimatedCost: number;
   }>;
+  numberedFittings: Array<{
+    number: number;
+    description: string;
+    size: string;
+    type: string;
+    location: string;
+    connections: string[];
+    pipeLength?: number;
+    pipeSize?: string;
+  }>;
   codeCompliance: {
     issues: string[];
     recommendations: string[];
@@ -79,8 +90,13 @@ export async function analyzePlans(base64Image: string): Promise<{
       messages: [
         {
           role: "system",
-          content: `You are a Louisiana plumbing expert who analyzes construction plans to generate material lists and identify code compliance issues. Respond with JSON in this format: {
+          content: `You are a Louisiana plumbing expert who analyzes construction plans to generate detailed material lists, numbered fitting placement diagrams, and code compliance checks. 
+          
+          For numbered fittings, assign sequential numbers (1, 2, 3...) to each fitting, valve, fixture connection, and pipe run visible in the plans. Include precise measurements when visible on professional plans.
+          
+          Respond with JSON in this format: {
             "materialList": [{"item": string, "quantity": number, "unit": string, "estimatedCost": number}],
+            "numberedFittings": [{"number": number, "description": string, "size": string, "type": string, "location": string, "connections": string[], "pipeLength": number, "pipeSize": string}],
             "codeCompliance": {"issues": string[], "recommendations": string[]},
             "totalEstimatedCost": number
           }`
@@ -90,7 +106,7 @@ export async function analyzePlans(base64Image: string): Promise<{
           content: [
             {
               type: "text",
-              text: "Analyze these plumbing plans and generate a comprehensive material list with quantities and estimated costs. Also identify any potential Louisiana plumbing code compliance issues."
+              text: "Analyze these plumbing plans and generate: 1) A comprehensive material list with quantities and costs, 2) A numbered fitting placement system where each fitting, valve, connection point, and pipe run gets a sequential number with detailed specifications including pipe lengths and sizes when visible on the plans, 3) Louisiana plumbing code compliance analysis. The numbered fittings should create a 'puzzle system' for plumbers doing rough-in work."
             },
             {
               type: "image_url",
@@ -264,6 +280,132 @@ export async function generateAudio(text: string, contentId: string): Promise<st
     return `/audio/${fileName}`;
   } catch (error) {
     throw new Error("Failed to generate audio: " + (error as Error).message);
+  }
+}
+
+export async function generateNumberedFittingPDF(
+  planAnalysis: {
+    materialList: Array<{
+      item: string;
+      quantity: number;
+      unit: string;
+      estimatedCost: number;
+    }>;
+    numberedFittings: Array<{
+      number: number;
+      description: string;
+      size: string;
+      type: string;
+      location: string;
+      connections: string[];
+      pipeLength?: number;
+      pipeSize?: string;
+    }>;
+    totalEstimatedCost: number;
+  },
+  planImageBase64: string
+): Promise<string> {
+  try {
+    const doc = new PDFDocument({ size: 'A4', margin: 50 });
+    const pdfPath = path.join(process.cwd(), 'public', 'pdfs', `fitting-diagram-${Date.now()}.pdf`);
+    
+    // Ensure PDF directory exists
+    const pdfDir = path.dirname(pdfPath);
+    if (!fs.existsSync(pdfDir)) {
+      fs.mkdirSync(pdfDir, { recursive: true });
+    }
+    
+    const stream = fs.createWriteStream(pdfPath);
+    doc.pipe(stream);
+    
+    // Title Page
+    doc.fontSize(20).text('Numbered Fitting Placement Diagram', 50, 50);
+    doc.fontSize(12).text(`Generated: ${new Date().toLocaleDateString()}`, 50, 80);
+    
+    // Add plan image if available
+    if (planImageBase64) {
+      try {
+        const imageBuffer = Buffer.from(planImageBase64, 'base64');
+        doc.addPage();
+        doc.fontSize(16).text('Construction Plan with Numbered Fittings', 50, 50);
+        doc.image(imageBuffer, 50, 80, { width: 500, height: 400 });
+      } catch (error) {
+        console.warn('Could not add plan image to PDF:', error);
+      }
+    }
+    
+    // Numbered Fittings List
+    doc.addPage();
+    doc.fontSize(16).text('Numbered Fitting Installation Guide', 50, 50);
+    doc.fontSize(10).text('Match each number on the plan to the corresponding fitting below:', 50, 80);
+    
+    let yPosition = 110;
+    planAnalysis.numberedFittings.forEach((fitting) => {
+      if (yPosition > 700) {
+        doc.addPage();
+        yPosition = 50;
+      }
+      
+      doc.fontSize(12).fillColor('#2563eb').text(`${fitting.number}.`, 50, yPosition, { width: 30 });
+      doc.fontSize(11).fillColor('#000000')
+        .text(`${fitting.description}`, 85, yPosition)
+        .text(`Size: ${fitting.size} | Type: ${fitting.type}`, 85, yPosition + 15)
+        .text(`Location: ${fitting.location}`, 85, yPosition + 30);
+      
+      if (fitting.pipeLength && fitting.pipeSize) {
+        doc.text(`Pipe: ${fitting.pipeSize} × ${fitting.pipeLength}"`, 85, yPosition + 45);
+      }
+      
+      if (fitting.connections && fitting.connections.length > 0) {
+        doc.text(`Connections: ${fitting.connections.join(', ')}`, 85, yPosition + 60);
+      }
+      
+      yPosition += 85;
+    });
+    
+    // Material List Summary
+    doc.addPage();
+    doc.fontSize(16).text('Complete Material List', 50, 50);
+    
+    yPosition = 80;
+    doc.fontSize(10)
+      .text('Item', 50, yPosition)
+      .text('Qty', 300, yPosition)
+      .text('Unit', 350, yPosition)
+      .text('Cost', 450, yPosition);
+    
+    doc.moveTo(50, yPosition + 15).lineTo(500, yPosition + 15).stroke();
+    yPosition += 25;
+    
+    planAnalysis.materialList.forEach((item) => {
+      if (yPosition > 700) {
+        doc.addPage();
+        yPosition = 50;
+      }
+      
+      doc.fontSize(9)
+        .text(item.item, 50, yPosition, { width: 240 })
+        .text(item.quantity.toString(), 300, yPosition)
+        .text(item.unit, 350, yPosition)
+        .text(`$${item.estimatedCost.toFixed(2)}`, 450, yPosition);
+      
+      yPosition += 20;
+    });
+    
+    // Total cost
+    doc.moveTo(350, yPosition + 5).lineTo(500, yPosition + 5).stroke();
+    doc.fontSize(11).text(`Total Estimated Cost: $${planAnalysis.totalEstimatedCost.toFixed(2)}`, 350, yPosition + 15);
+    
+    doc.end();
+    
+    return new Promise((resolve, reject) => {
+      stream.on('finish', () => {
+        resolve(pdfPath.replace(process.cwd() + '/public', ''));
+      });
+      stream.on('error', reject);
+    });
+  } catch (error) {
+    throw new Error("Failed to generate PDF: " + (error as Error).message);
   }
 }
 
