@@ -1,0 +1,47 @@
+> rest-express@1.0.0 dev
+5:03:29 PM [express] serving on port 5000s
+Checking if database needs seeding...
+Browserslist: browsers data (caniuse-lite) is 11 months old. Please run:
+  npx update-browserslist-db@latest
+  Why you should do it regularly: https://github.com/browserslist/update-db#readme
+Quiz content sample: # Louisiana State Plumbing Code Section 101 - Practice Quiz\n\n## Multiple Choice Questions\n\n**1. Which specific section of the Louisiana Sanitary Code does the Department of Health and Hospitals, O
+Question matches found: 20
+Quiz content sample: # Section 103 Practice Quiz - Document Availability\n\n## Multiple Choice Questions\n\n**1. What is the primary purpose of §103, titled "Availability"?**\nA. To list the specific R.S. authorities gove
+Question matches found: 20
+Quiz content sample: # Section 105 Practice Quiz - Effective Dates and Editions\n\n## Multiple Choice Questions\n\n**1. What is the effective date for the main portion of this Part, excluding specific components related t
+Question matches found: 20
+5:03:34 PM [express] GET /api/courses/5f02238b-afb2-4e7f-a488-96fb471fee56/stats 200 in 4452ms :: {"…
+Database already seeded
+Email campaigns already initialized
+Beta feedback system initialized
+5:03:36 PM [express] Email automation system initialized
+5:03:36 PM [express] Bulk pricing system initialized
+5:03:36 PM [express] Beta feedback system initialized
+5:03:39 PM [express] GET /api/auth/me 401 in 1ms :: {"message":"Not authenticated"}
+5:03:44 PM [vite] hmr update /src/pages/courses.tsx, /src/index.css?v=LsTRPet1Sm3Rd6Q0WFIw3
+5:04:06 PM [express] GET /api/auth/me 401 in 1ms :: {"message":"Not authenticated"}
+Courses API called - this is a public endpoint
+5:04:12 PM [express] GET /api/auth/me 401 in 1ms :: {"message":"Not authenticated"}
+5:04:12 PM [express] GET /api/courses 200 in 62ms :: [{"id":"5f02238b-afb2-4e7f-a488-96fb471fee56","…
+Quiz content sample: # Louisiana State Plumbing Code Section 101 - Practice Quiz\n\n## Multiple Choice Questions\n\n**1. Which specific section of the Louisiana Sanitary Code does the Department of Health and Hospitals, O
+Question matches found: 20
+Quiz content sample: # Section 103 Practice Quiz - Document Availability\n\n## Multiple Choice Questions\n\n**1. What is the primary purpose of §103, titled "Availability"?**\nA. To list the specific R.S. authorities gove
+Question matches found: 20
+Quiz content sample: # Section 105 Practice Quiz - Effective Dates and Editions\n\n## Multiple Choice Questions\n\n**1. What is the effective date for the main portion of this Part, excluding specific components related t
+Question matches found: 20
+5:04:13 PM [express] GET /api/courses/5f02238b-afb2-4e7f-a488-96fb471fee56/stats 200 in 180ms :: {"q…
+5:04:13 PM [express] GET /api/courses/b1f02238b-afb2-4e7f-a488-96fb471fee57/stats 200 in 61ms :: {"q…
+5:04:13 PM [express] GET /api/courses/c2f02238b-afb2-4e7f-a488-96fb471fee58/stats 200 in 61ms :: {"q…
+5:04:13 PM [express] GET /api/courses/d3f02238b-afb2-4e7f-a488-96fb471fee59/stats 200 in 61ms :: {"q…
+5:04:13 PM [express] GET /api/courses/e4f02238b-afb2-4e7f-a488-96fb471fee60/stats 200 in 61ms :: {"q…
+5:05:12 PM [vite] hmr update /src/pages/courses.tsx, /src/index.css?v=LsTRPet1Sm3Rd6Q0WFIw3 (x2)
+5:05:13 PM [express] GET /api/auth/me 401 in 2ms :: {"message":"Not authenticated"}
+5:05:15 PM [vite] hmr update /src/pages/courses.tsx, /src/index.css?v=LsTRPet1Sm3Rd6Q0WFIw3 (x3)
+5:05:15 PM [express] GET /api/auth/me 401 in 1ms :: {"message":"Not authenticated"}
+5:05:53 PM [express] POST /api/auth/login 200 in 3333ms :: {"message":"Login successful","user":{"id…
+5:05:54 PM [express] GET /api/auth/me 200 in 69ms :: {"id":"admin-test-user","email":"admin@latraine…
+5:05:54 PM [express] GET /api/enrollments 200 in 125ms :: [{"id":"admin-enrollment","userId":"admin-…
+5:05:54 PM [express] GET /api/mentor/conversations 200 in 126ms :: []
+5:05:54 PM [express] GET /api/job-applications 200 in 246ms
+5:06:07 PM [express] GET /api/admin/course-content/5f02238b-afb2-4e7f-a488-96fb471fee56/stats 200 in…
+5:06:07 PM [express] GET /api/admin/course-content/5f02238b-afb2-4e7f-a488-96fb471fee56 200 in 434ms…
