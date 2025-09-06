@@ -78,7 +78,7 @@ export default function Pricing() {
     {
       id: "basic",
       name: "Basic",
-      basePrice: 49.99,
+      basePrice: 37.49,
       tier: "basic",
       description: "Perfect for getting started",
       features: [
