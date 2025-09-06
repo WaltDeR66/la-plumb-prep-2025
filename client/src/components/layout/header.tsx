@@ -21,6 +21,7 @@ export default function Header() {
 
   const navigation = [
     { name: "Courses", href: "/courses" },
+    { name: "Study Companion", href: "/study-companion" },
     { name: "Competitions", href: "/competitions" },
     { name: "Tools", href: "/tools/ai-pricing" },
     { name: "Store", href: "/store" },

@@ -6,6 +6,7 @@ import {
   jobs,
   jobApplications,
   mentorConversations,
+  studyCompanionMessages,
   photoUploads,
   planUploads,
   referrals,
@@ -33,6 +34,8 @@ import {
   type InsertJobApplication,
   type CourseEnrollment,
   type MentorConversation,
+  type StudyCompanionMessage,
+  type InsertStudyCompanionMessage,
   type PhotoUpload,
   type PlanUpload,
   type Referral,
@@ -121,6 +124,11 @@ export interface IStorage {
   createMentorConversation(userId: string, messages: any[]): Promise<MentorConversation>;
   updateMentorConversation(id: string, messages: any[]): Promise<MentorConversation>;
   getUserMentorConversations(userId: string): Promise<MentorConversation[]>;
+  
+  // Study companion methods
+  getStudyCompanionConversations(userId: string): Promise<StudyCompanionMessage[]>;
+  saveStudyCompanionMessage(message: InsertStudyCompanionMessage): Promise<StudyCompanionMessage>;
+  getUserProgress(userId: string): Promise<any>;
   
   // Photo upload methods
   createPhotoUpload(userId: string, filename: string, url: string, analysis?: any): Promise<PhotoUpload>;
@@ -640,6 +648,105 @@ export class DatabaseStorage implements IStorage {
       .from(mentorConversations)
       .where(eq(mentorConversations.userId, userId))
       .orderBy(desc(mentorConversations.updatedAt));
+  }
+
+  // Study companion methods
+  async getStudyCompanionConversations(userId: string): Promise<StudyCompanionMessage[]> {
+    return await db
+      .select()
+      .from(studyCompanionMessages)
+      .where(eq(studyCompanionMessages.userId, userId))
+      .orderBy(studyCompanionMessages.timestamp);
+  }
+
+  async saveStudyCompanionMessage(message: InsertStudyCompanionMessage): Promise<StudyCompanionMessage> {
+    const [savedMessage] = await db
+      .insert(studyCompanionMessages)
+      .values(message)
+      .returning();
+    return savedMessage;
+  }
+
+  async getUserProgress(userId: string): Promise<any> {
+    try {
+      // Get user enrollments
+      const enrollments = await this.getUserEnrollments(userId);
+      
+      // Get user's study sessions for progress tracking
+      const studySessions = await this.getUserStudySessions(userId);
+      
+      // Get recent quiz attempts
+      const quizAttempts = await this.getUserQuizAttempts(userId);
+      
+      // Calculate overall progress
+      const totalStudyTime = studySessions.reduce((total, session) => {
+        const duration = session.endedAt && session.startedAt 
+          ? new Date(session.endedAt).getTime() - new Date(session.startedAt).getTime()
+          : 0;
+        return total + (duration / (1000 * 60)); // Convert to minutes
+      }, 0);
+
+      const enrolledCourses = enrollments.map(e => e.courseId);
+      const recentTopics = [...new Set(studySessions
+        .slice(-5)
+        .map(session => session.contentType)
+        .filter(Boolean)
+      )];
+
+      return {
+        enrolledCourses,
+        overallProgress: enrollments.length > 0 
+          ? enrollments.reduce((avg, e) => avg + (e.progress || 0), 0) / enrollments.length 
+          : 0,
+        totalStudyTime: Math.round(totalStudyTime),
+        recentTopics,
+        quizPerformance: quizAttempts.length > 0 
+          ? quizAttempts.reduce((avg, attempt) => avg + (attempt.score || 0), 0) / quizAttempts.length 
+          : 0,
+        studyStreak: this.calculateStudyStreak(studySessions),
+        lastActivity: studySessions.length > 0 
+          ? studySessions[studySessions.length - 1].startedAt 
+          : null
+      };
+    } catch (error) {
+      console.error("Error getting user progress:", error);
+      return {
+        enrolledCourses: [],
+        overallProgress: 0,
+        totalStudyTime: 0,
+        recentTopics: [],
+        quizPerformance: 0,
+        studyStreak: 0,
+        lastActivity: null
+      };
+    }
+  }
+
+  private calculateStudyStreak(studySessions: any[]): number {
+    if (studySessions.length === 0) return 0;
+    
+    // Simple streak calculation - count consecutive days with study sessions
+    const sessionDates = studySessions
+      .map(session => new Date(session.startedAt).toDateString())
+      .reverse(); // Most recent first
+    
+    const uniqueDates = [...new Set(sessionDates)];
+    let streak = 0;
+    const today = new Date().toDateString();
+    
+    for (let i = 0; i < uniqueDates.length; i++) {
+      const sessionDate = new Date(uniqueDates[i]);
+      const expectedDate = new Date();
+      expectedDate.setDate(expectedDate.getDate() - i);
+      
+      if (sessionDate.toDateString() === expectedDate.toDateString()) {
+        streak++;
+      } else {
+        break;
+      }
+    }
+    
+    return streak;
   }
 
   async createPhotoUpload(userId: string, filename: string, url: string, analysis?: any): Promise<PhotoUpload> {

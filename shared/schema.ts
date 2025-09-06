@@ -157,6 +157,16 @@ export const mentorConversations = pgTable("mentor_conversations", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
+// Study companion chat messages
+export const studyCompanionMessages = pgTable("study_companion_messages", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: text("user_id").notNull(),
+  role: text("role").notNull(), // "user" or "assistant"
+  content: text("content").notNull(),
+  emotion: text("emotion"), // For assistant messages: "happy", "excited", "helpful", "thinking", "encouraging"
+  timestamp: timestamp("timestamp").defaultNow(),
+});
+
 // Chat answers for course content
 export const chatAnswers = pgTable("chat_answers", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
@@ -708,6 +718,11 @@ export const insertChatAnswerSchema = createInsertSchema(chatAnswers).omit({
   createdAt: true,
 });
 
+export const insertStudyCompanionMessageSchema = createInsertSchema(studyCompanionMessages).omit({
+  id: true,
+  timestamp: true,
+});
+
 export const insertStudySessionSchema = createInsertSchema(studySessions).omit({
   id: true,
   createdAt: true,
@@ -1009,6 +1024,8 @@ export type PrivateCodeBook = typeof privateCodeBooks.$inferSelect;
 export type InsertPrivateCodeBook = z.infer<typeof insertPrivateCodeBookSchema>;
 export type ChatAnswer = typeof chatAnswers.$inferSelect;
 export type InsertChatAnswer = z.infer<typeof insertChatAnswerSchema>;
+export type StudyCompanionMessage = typeof studyCompanionMessages.$inferSelect;
+export type InsertStudyCompanionMessage = z.infer<typeof insertStudyCompanionMessageSchema>;
 export type StudySession = typeof studySessions.$inferSelect;
 export type InsertStudySession = z.infer<typeof insertStudySessionSchema>;
 export type QuizAttempt = typeof quizAttempts.$inferSelect;

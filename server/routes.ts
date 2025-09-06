@@ -13,6 +13,7 @@ import { contentExtractor } from "./content-extractor";
 import { emailAutomation } from "./email-automation";
 import { bulkPricingService } from "./bulk-pricing";
 import Stripe from "stripe";
+import { StudyCompanionService } from "./openai-service";
 
 // Course ID resolver function - maps friendly URLs to database UUIDs
 async function resolveCourseId(courseId: string): Promise<string | null> {
@@ -4848,6 +4849,111 @@ Start your journey at laplumbprep.com/courses
     } catch (error: any) {
       console.error("Error getting popular tools:", error);
       res.status(500).json({ message: "Failed to get popular tools" });
+    }
+  });
+
+  // Study Companion AI Chat Routes
+  app.get("/api/study-companion/chat", async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+
+    try {
+      const userId = (req.user as any).id;
+      const conversations = await storage.getStudyCompanionConversations(userId);
+      res.json(conversations);
+    } catch (error: any) {
+      console.error("Error fetching study companion chat:", error);
+      res.status(500).json({ message: "Failed to fetch chat history" });
+    }
+  });
+
+  app.post("/api/study-companion/chat", async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+
+    try {
+      const userId = (req.user as any).id;
+      const { message, context } = req.body;
+
+      if (!message || typeof message !== 'string') {
+        return res.status(400).json({ message: "Message is required" });
+      }
+
+      // Get user's chat history for context
+      const chatHistory = await storage.getStudyCompanionConversations(userId);
+      
+      // Get user's progress for personalized responses
+      const userProgress = context || await storage.getUserProgress(userId);
+
+      // Save user message
+      const userMessageData = {
+        id: crypto.randomUUID(),
+        userId,
+        role: "user" as const,
+        content: message.trim(),
+        timestamp: new Date(),
+      };
+      await storage.saveStudyCompanionMessage(userMessageData);
+
+      // Generate AI response
+      const aiResponse = await StudyCompanionService.generateResponse(
+        message,
+        userProgress,
+        chatHistory.slice(-10) // Last 10 messages for context
+      );
+
+      // Save AI response
+      const aiMessageData = {
+        id: crypto.randomUUID(),
+        userId,
+        role: "assistant" as const,
+        content: aiResponse.content,
+        emotion: aiResponse.emotion,
+        timestamp: new Date(),
+      };
+      await storage.saveStudyCompanionMessage(aiMessageData);
+
+      res.json({
+        userMessage: userMessageData,
+        aiResponse: aiMessageData
+      });
+
+    } catch (error: any) {
+      console.error("Error in study companion chat:", error);
+      res.status(500).json({ message: "Failed to process chat message" });
+    }
+  });
+
+  app.get("/api/user/progress", async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+
+    try {
+      const userId = (req.user as any).id;
+      const progress = await storage.getUserProgress(userId);
+      res.json(progress);
+    } catch (error: any) {
+      console.error("Error fetching user progress:", error);
+      res.status(500).json({ message: "Failed to fetch user progress" });
+    }
+  });
+
+  app.get("/api/study-companion/suggestions", async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+
+    try {
+      const userId = (req.user as any).id;
+      const userProgress = await storage.getUserProgress(userId);
+      const suggestions = await StudyCompanionService.generateStudySuggestions(userProgress);
+      res.json({ suggestions });
+    } catch (error: any) {
+      console.error("Error generating study suggestions:", error);
+      res.status(500).json({ message: "Failed to generate suggestions" });
     }
   });
 
