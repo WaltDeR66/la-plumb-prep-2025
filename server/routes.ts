@@ -4341,32 +4341,12 @@ Start your journey at laplumbprep.com/courses
       // Get all course content for this course
       const allContent = await storage.getCourseContent(courseId);
       
-      // Count questions from both quiz files AND competition questions table
-      const quizContent = allContent.filter(content => content.type === 'quiz');
-      const questionContent = allContent.filter(content => content.type === 'question');
-      
-      // Count questions in quiz files
-      const quizQuestions = quizContent
-        .reduce((total, quiz) => {
-          try {
-            const contentObj = typeof quiz.content === 'string' ? JSON.parse(quiz.content) : quiz.content;
-            const extractedContent = contentObj?.extracted?.content || '';
-            // Count numbered questions like "**1. ", "**2. ", etc.
-            const questionMatches = extractedContent.match(/\*\*\d+\./g) || [];
-            console.log('Admin API: Quiz', quiz.title, 'has', questionMatches.length, 'questions');
-            return total + questionMatches.length;
-          } catch (error) {
-            console.error('Error parsing quiz content:', error);
-            return total;
-          }
-        }, 0);
-
-      // Count competition questions (bulk imported questions)
+      // Count questions from unified competition_questions table only
       const competitionQuestions = await storage.getQuestionsByCourse(courseId);
       
-      console.log('Admin API: Found', quizContent.length, 'quiz files with', quizQuestions, 'questions,', questionContent.length, 'course questions, and', competitionQuestions.length, 'competition questions');
+      console.log('Admin API: Found', competitionQuestions.length, 'questions in unified system');
       
-      const questions = quizQuestions + questionContent.length + competitionQuestions.length;
+      const questions = competitionQuestions.length;
 
       const flashcardContent = allContent.filter(content => content.type === 'flashcards');
       const flashcards = flashcardContent
