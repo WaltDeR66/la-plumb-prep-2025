@@ -4639,7 +4639,12 @@ Start your journey at laplumbprep.com/courses
       
       // Create only new study plans
       const createdStudyPlans = await Promise.all(
-        newStudyPlans.map((sp: any) => storage.createStudyPlan(sp))
+        newStudyPlans.map((sp: any) => storage.createCourseContent({
+          courseId: sp.courseId,
+          type: 'study-plan',
+          title: sp.title,
+          content: sp.content
+        }))
       );
       
       res.json({ 
