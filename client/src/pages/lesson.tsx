@@ -383,17 +383,36 @@ export default function Lesson() {
                         </Badge>
                       )}
                       
-                      <Button 
-                        variant={isCurrent ? "default" : isCompleted ? "outline" : "ghost"}
-                        disabled={!isCurrent && !isCompleted && index > completed}
-                        asChild
-                        data-testid={`button-study-${item.type}-${index}`}
-                      >
-                        <Link href={`/course/${courseId}/${item.type === 'podcast' ? 'podcast' : 'content'}/${item.id}${item.type === 'podcast' && isCompleted ? '?autostart=true' : ''}`}>
+                      {item.type === 'chat' ? (
+                        <Button 
+                          variant={isCurrent ? "default" : isCompleted ? "outline" : "ghost"}
+                          disabled={!isCurrent && !isCompleted && index > completed}
+                          onClick={() => {
+                            setTimeout(() => {
+                              const chatElement = document.querySelector('[data-testid="ai-mentor-chat"]');
+                              if (chatElement) {
+                                chatElement.scrollIntoView({ behavior: 'smooth' });
+                              }
+                            }, 100);
+                          }}
+                          data-testid={`button-study-${item.type}-${index}`}
+                        >
                           <Play className="w-4 h-4 mr-2" />
-                          {isCompleted ? "Review" : isCurrent ? "Continue" : "Start"}
-                        </Link>
-                      </Button>
+                          {isCompleted ? "Open Chat" : isCurrent ? "Start Chat" : "Start Chat"}
+                        </Button>
+                      ) : (
+                        <Button 
+                          variant={isCurrent ? "default" : isCompleted ? "outline" : "ghost"}
+                          disabled={!isCurrent && !isCompleted && index > completed}
+                          asChild
+                          data-testid={`button-study-${item.type}-${index}`}
+                        >
+                          <Link href={`/course/${courseId}/${item.type === 'podcast' ? 'podcast' : 'content'}/${item.id}${item.type === 'podcast' && isCompleted ? '?autostart=true' : ''}`}>
+                            <Play className="w-4 h-4 mr-2" />
+                            {isCompleted ? "Review" : isCurrent ? "Continue" : "Start"}
+                          </Link>
+                        </Button>
+                      )}
                     </div>
                   </div>
                 </CardContent>
