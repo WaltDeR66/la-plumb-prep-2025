@@ -1680,11 +1680,8 @@ export class DatabaseStorage implements IStorage {
     const questionText = questionData.question || questionData.questionText;
     
     if (!questionText) {
-      console.error('❌ Question text is missing:', { questionData });
       throw new Error('Question text is required');
     }
-    
-    console.log('✅ Creating question:', questionText.substring(0, 100) + '...');
     
     const [newQuestion] = await db
       .insert(competitionQuestions)
