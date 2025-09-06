@@ -4729,10 +4729,21 @@ Start your journey at laplumbprep.com/courses
       const existingQuestions = await storage.getQuestionsByCourse(courseId);
       
       // Create a set of existing question texts for faster lookup (normalized)
+      // Normalize by removing extra spaces, punctuation variations, and converting to lowercase
+      const normalizeQuestionText = (text: string) => {
+        return text
+          .toLowerCase()
+          .trim()
+          .replace(/\s+/g, ' ')           // Multiple spaces to single space
+          .replace(/[.!?]+$/, '')         // Remove trailing punctuation
+          .replace(/["'"''""]/g, '"')     // Normalize quotes
+          .replace(/\s*\?\s*/g, '?')      // Normalize question marks
+          .replace(/\s*:\s*/g, ':')       // Normalize colons
+          .replace(/\s*;\s*/g, ';');      // Normalize semicolons
+      };
+
       const existingQuestionTexts = new Set(
-        existingQuestions.map((q: any) => 
-          q.question.toLowerCase().trim().replace(/\s+/g, ' ')
-        )
+        existingQuestions.map((q: any) => normalizeQuestionText(q.question))
       );
       
       // Filter out duplicates and track them
@@ -4740,7 +4751,7 @@ Start your journey at laplumbprep.com/courses
       const duplicates: any[] = [];
       
       questions.forEach((q: any) => {
-        const normalizedText = q.questionText.toLowerCase().trim().replace(/\s+/g, ' ');
+        const normalizedText = normalizeQuestionText(q.questionText);
         
         if (existingQuestionTexts.has(normalizedText)) {
           duplicates.push(q);
