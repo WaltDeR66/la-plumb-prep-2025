@@ -62,13 +62,9 @@ export default function AIToolsPricing() {
       payPerUse: true,
       aiFeatures: [
         "Photo Analysis: $2.99 per photo",
-        "Plan Analysis Tiered Pricing:",
-        "• Small files (≤2MB): $4.99",
-        "• Medium files (2-10MB): $9.99", 
-        "• Large files (10-25MB): $19.99",
-        "• Enterprise files (25MB+): $39.99",
         "AI Mentor: $0.99 per question",
-        "No subscription required"
+        "No subscription required",
+        "Pay only for what you use"
       ],
       additionalFeatures: [
         "Instant results",
@@ -170,11 +166,11 @@ export default function AIToolsPricing() {
             </h1>
           </div>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto mb-8" data-testid="ai-tools-description">
-            Revolutionary AI technology designed specifically for Louisiana plumbers. Analyze photos with subscription plans or use our Plan Analysis Tool with pay-per-use pricing.
+            Professional AI tools for Louisiana plumbers. Get unlimited photo analysis and AI mentor support with our subscription plans.
           </p>
           <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 max-w-2xl mx-auto">
             <p className="text-sm text-blue-700 dark:text-blue-300">
-              <strong>📋 Plan Analysis Tool:</strong> Now available as pay-per-use with tiered pricing ($4.99 - $39.99) based on file size. No subscription required!
+              <strong>📋 Looking for Plan Analysis?</strong> Visit our dedicated <a href="/tools/plan-analysis" className="underline font-semibold">Plan Analysis Tool</a> page for pay-per-use pricing ($4.99 - $39.99).
             </p>
           </div>
           <div className="flex flex-col items-center space-y-6">
@@ -252,7 +248,7 @@ export default function AIToolsPricing() {
               Choose Your AI Power Level
             </h2>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Unlock the full potential of AI-powered plumbing analysis with our professional subscription plans.
+              Choose unlimited access to photo analysis and AI mentor support, or pay per use for occasional needs.
             </p>
           </div>
           
@@ -368,14 +364,23 @@ export default function AIToolsPricing() {
           </div>
           
           <div className="text-center mt-12">
-            <p className="text-muted-foreground mb-4">
-              Need course materials? Check out our learning plans with AI tools included.
-            </p>
-            <Link href="/pricing">
-              <Button variant="outline">
-                View Learning Plans
-              </Button>
-            </Link>
+            <div className="space-y-4">
+              <p className="text-muted-foreground">
+                Need course materials? Check out our learning plans with AI tools included.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <Link href="/pricing">
+                  <Button variant="outline">
+                    View Learning Plans
+                  </Button>
+                </Link>
+                <Link href="/tools/plan-analysis">
+                  <Button variant="outline">
+                    Plan Analysis Tool
+                  </Button>
+                </Link>
+              </div>
+            </div>
           </div>
         </div>
       </section>

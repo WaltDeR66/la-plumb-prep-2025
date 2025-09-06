@@ -23,6 +23,7 @@ import Register from "@/pages/auth/register";
 import Store from "@/pages/store";
 import ProductDetail from "@/pages/product-detail";
 import AIToolsPricing from "@/pages/ai-tools-pricing";
+import PlanAnalysisTool from "@/pages/plan-analysis-tool";
 import PayPerUseCheckout from "@/pages/pay-per-use-checkout";
 import EmployerPortal from "@/pages/employer-portal";
 import EmployerDashboard from "@/pages/employer-dashboard";
@@ -71,6 +72,7 @@ function Router() {
           <Route path="/courses" component={Courses} />
           <Route path="/tools" component={Tools} />
           <Route path="/tools/ai-pricing" component={AIToolsPricing} />
+          <Route path="/tools/plan-analysis" component={PlanAnalysisTool} />
           <Route path="/pay-per-use" component={PayPerUseCheckout} />
           <Route path="/jobs" component={Jobs} />
           <Route path="/pricing" component={Pricing} />

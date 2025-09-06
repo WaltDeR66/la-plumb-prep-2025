@@ -133,9 +133,11 @@ export default function Tools() {
     {
       id: "plan-analysis",
       title: "Plan Analysis Tool",
-      description: "Upload construction plans for material lists and compliance checks.",
+      description: "Pay-per-use plan analysis with spatial mapping and material lists ($4.99-$39.99).",
       icon: FileText,
-      category: "AI Tools"
+      category: "AI Tools",
+      external: true,
+      link: "/tools/plan-analysis"
     }
   ];
 
