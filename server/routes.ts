@@ -4367,10 +4367,24 @@ Start your journey at laplumbprep.com/courses
       // Get all course content for this course
       const allContent = await storage.getCourseContent(courseId);
       
-      // Count by type - only return public stats (using actual database types)
+      // Count individual items within content, not just content files
       const stats = {
-        questions: allContent.filter(content => content.type === 'quiz').length,
-        flashcards: allContent.filter(content => content.type === 'flashcards').length,
+        questions: allContent
+          .filter(content => content.type === 'quiz')
+          .reduce((total, quiz) => {
+            const content = quiz.content?.toString() || '';
+            // Count numbered questions like "**1. ", "**2. ", etc.
+            const questionMatches = content.match(/\*\*\d+\.\s/g) || [];
+            return total + questionMatches.length;
+          }, 0),
+        flashcards: allContent
+          .filter(content => content.type === 'flashcards')
+          .reduce((total, flashcardSet) => {
+            const content = flashcardSet.content?.toString() || '';
+            // Count flashcard pairs marked with "Front:" or "**Front:"
+            const flashcardMatches = content.match(/(\*\*)?Front:/g) || [];
+            return total + flashcardMatches.length;
+          }, 0),
         studyNotes: allContent.filter(content => content.type === 'study-notes').length,
         studyPlans: allContent.filter(content => content.type === 'study-plan' || content.type === 'study-plans').length,
         podcasts: allContent.filter(content => content.type === 'podcast').length,

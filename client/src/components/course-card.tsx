@@ -165,7 +165,7 @@ export default function CourseCard({ course, isEnrolled = false, progress = 0, i
           <div className="grid grid-cols-2 gap-2 text-xs text-muted-foreground">
             <div className="flex items-center space-x-1">
               <HelpCircle className="w-3 h-3" />
-              <span>{contentStats?.questions || 0} Questions</span>
+              <span>{contentStats?.questions || 0} Questions ({JSON.stringify(contentStats)})</span>
             </div>
             <div className="flex items-center space-x-1">
               <Upload className="w-3 h-3" />
