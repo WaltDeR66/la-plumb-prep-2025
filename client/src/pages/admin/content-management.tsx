@@ -38,8 +38,8 @@ export default function ContentManagement() {
 
   const safeContent = courseContent || { lessons: [], chapters: [], questions: [] };
   const safeStats = contentStats || { 
-    lessons: 0, chapters: 0, questions: 0, flashcards: 0, 
-    studyNotes: 0, studyPlans: 0, podcasts: 0, aiChat: 0 
+    questions: 0, flashcards: 0, studyNotes: 0, 
+    studyPlans: 0, podcasts: 0, aiChat: 0 
   };
 
   const addLessonMutation = useMutation({
@@ -112,29 +112,7 @@ export default function ContentManagement() {
             <TabsContent value="overview">
               <div className="space-y-6">
                 {/* Content Statistics */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                  <Card>
-                    <CardHeader className="flex flex-row items-center space-y-0 pb-2">
-                      <CardTitle className="text-sm font-medium">Lessons</CardTitle>
-                      <BookOpen className="h-4 w-4 ml-auto text-muted-foreground" />
-                    </CardHeader>
-                    <CardContent>
-                      <div className="text-2xl font-bold" data-testid="text-lessons-count">
-                        {safeStats.lessons}
-                      </div>
-                    </CardContent>
-                  </Card>
-                  <Card>
-                    <CardHeader className="flex flex-row items-center space-y-0 pb-2">
-                      <CardTitle className="text-sm font-medium">Chapters</CardTitle>
-                      <FileText className="h-4 w-4 ml-auto text-muted-foreground" />
-                    </CardHeader>
-                    <CardContent>
-                      <div className="text-2xl font-bold" data-testid="text-chapters-count">
-                        {safeStats.chapters}
-                      </div>
-                    </CardContent>
-                  </Card>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   <Card>
                     <CardHeader className="flex flex-row items-center space-y-0 pb-2">
                       <CardTitle className="text-sm font-medium">Questions</CardTitle>
