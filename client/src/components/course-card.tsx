@@ -57,7 +57,7 @@ export default function CourseCard({ course, isEnrolled = false, progress = 0, i
     podcasts: number;
     aiChat: number;
   }>({
-    queryKey: [`/api/courses/${course.id}/stats`],
+    queryKey: ["/api/courses", course.id, "stats"],
     retry: false,
   });
 
