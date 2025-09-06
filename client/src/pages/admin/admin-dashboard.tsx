@@ -83,9 +83,11 @@ export default function AdminDashboard() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <Button className="w-full" variant="outline" disabled>
-                Coming Soon
-              </Button>
+              <Link href="/admin/system-analytics">
+                <Button className="w-full">
+                  View Analytics Dashboard
+                </Button>
+              </Link>
             </CardContent>
           </Card>
 
@@ -170,9 +172,11 @@ export default function AdminDashboard() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <Button className="w-full" variant="outline" disabled>
-                Coming Soon
-              </Button>
+              <Link href="/admin/system-settings">
+                <Button className="w-full">
+                  Configure Settings
+                </Button>
+              </Link>
             </CardContent>
           </Card>
         </div>
