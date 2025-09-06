@@ -9,6 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { Upload, FileText, CheckCircle, AlertCircle, BookOpen } from "lucide-react";
+import { PLUMBING_CODE_SECTIONS } from "@/lib/plumbing-code-sections";
 
 export default function BulkStudyNotesImport() {
   const { toast } = useToast();
@@ -21,93 +22,6 @@ export default function BulkStudyNotesImport() {
   const [previewNotes, setPreviewNotes] = useState<any[]>([]);
   const [importStatus, setImportStatus] = useState<"idle" | "parsing" | "previewing" | "importing" | "success">("idle");
 
-  // Louisiana Plumbing Code sections data
-  const sectionOptions = [
-    { value: "101", label: "§101 - General" },
-    { value: "102", label: "§102 - Applicability" },
-    { value: "103", label: "§103 - Intent" },
-    { value: "104", label: "§104 - Severability" },
-    { value: "105", label: "§105 - Validity" },
-    { value: "201", label: "§201 - General" },
-    { value: "301", label: "§301 - General" },
-    { value: "302", label: "§302 - Approval" },
-    { value: "303", label: "§303 - Compliance with Codes" },
-    { value: "304", label: "§304 - Connection to Public Sewer Required" },
-    { value: "305", label: "§305 - Connection to Public Water Supply Required" },
-    { value: "306", label: "§306 - Unsafe or Insanitary Plumbing" },
-    { value: "307", label: "§307 - Excavations and Backfill" },
-    { value: "308", label: "§308 - Piping Support" },
-    { value: "309", label: "§309 - Trenching, Excavation and Tunneling" },
-    { value: "310", label: "§310 - Cutting of Structural Members" },
-    { value: "311", label: "§311 - Connections to Drainage System" },
-    { value: "312", label: "§312 - Connections to Water Supply System" },
-    { value: "313", label: "§313 - Inspection and Testing" },
-    { value: "314", label: "§314 - Disinfection of Potable Water System" },
-    { value: "315", label: "§315 - Air Test" },
-    { value: "316", label: "§316 - Final Test" },
-    { value: "317", label: "§317 - Drainage and Vent System Test" },
-    { value: "318", label: "§318 - Water Supply System Test" },
-    { value: "401", label: "§401 - General" },
-    { value: "402", label: "§402 - Fixture Requirements" },
-    { value: "403", label: "§403 - Minimum Number of Fixtures" },
-    { value: "404", label: "§404 - Accessible Route" },
-    { value: "405", label: "§405 - Installation" },
-    { value: "406", label: "§406 - Access to Connections" },
-    { value: "407", label: "§407 - Setting" },
-    { value: "408", label: "§408 - Water Closets" },
-    { value: "409", label: "§409 - Urinals" },
-    { value: "410", label: "§410 - Lavatories" },
-    { value: "411", label: "§411 - Bathtubs" },
-    { value: "412", label: "§412 - Showers" },
-    { value: "413", label: "§413 - Bidets" },
-    { value: "414", label: "§414 - Kitchen Sinks" },
-    { value: "415", label: "§415 - Laundry Tubs" },
-    { value: "416", label: "§416 - Service Sinks" },
-    { value: "417", label: "§417 - Drinking Fountains" },
-    { value: "418", label: "§418 - Special Fixtures" },
-    { value: "419", label: "§419 - Floor Drains" },
-    { value: "420", label: "§420 - Faucets and Fittings" },
-    { value: "501", label: "§501 - General" },
-    { value: "502", label: "§502 - Installation" },
-    { value: "503", label: "§503 - Connections" },
-    { value: "504", label: "§504 - Safety Relief Valves" },
-    { value: "505", label: "§505 - Requirements for All Water Heaters" },
-    { value: "506", label: "§506 - Electric Water Heaters" },
-    { value: "507", label: "§507 - Oil-Fired Water Heaters" },
-    { value: "508", label: "§508 - Solid Fuel-Fired Water Heaters" },
-    { value: "509", label: "§509 - Gas-Fired Water Heaters" },
-    { value: "510", label: "§510 - Pool and Spa Heaters" },
-    { value: "601", label: "§601 - General" },
-    { value: "602", label: "§602 - Water Service" },
-    { value: "603", label: "§603 - Water Service Pipe" },
-    { value: "604", label: "§604 - Building Water Distribution" },
-    { value: "605", label: "§605 - Hot Water Supply System" },
-    { value: "606", label: "§606 - Solar Thermal Systems" },
-    { value: "607", label: "§607 - Combined Hydronic Piping Systems" },
-    { value: "608", label: "§608 - Backflow Protection" },
-    { value: "609", label: "§609 - Health Care Facilities" },
-    { value: "610", label: "§610 - Disinfection" },
-    { value: "611", label: "§611 - Residential Fire Sprinkler Systems" },
-    { value: "612", label: "§612 - Decorative Water Features" },
-    { value: "613", label: "§613 - Swimming Pool Water Supply" },
-    { value: "614", label: "§614 - Nonpotable Water Systems" },
-    { value: "615", label: "§615 - Graywater Systems" },
-    { value: "616", label: "§616 - Recycled Water Systems" },
-    { value: "617", label: "§617 - Rainwater Systems" },
-    { value: "618", label: "§618 - Cross Connection Control" },
-    { value: "619", label: "§619 - Backflow Preventer Test Gauges" },
-    { value: "701", label: "§701 - General" },
-    { value: "702", label: "§702 - Materials" },
-    { value: "703", label: "§703 - Building Drains and Building Sewers" },
-    { value: "704", label: "§704 - Drainage Piping Installation" },
-    { value: "705", label: "§705 - Joints and Connections" },
-    { value: "706", label: "§706 - Changes in Direction" },
-    { value: "707", label: "§707 - Cleanouts" },
-    { value: "708", label: "§708 - Support of Drainage Piping" },
-    { value: "709", label: "§709 - Drainage Piping Installation Requirements" },
-    { value: "710", label: "§710 - Subsoil Drains" },
-    { value: "711", label: "§711 - Sumps and Ejectors" }
-  ];
 
   // Fetch courses
   const { data: courses } = useQuery({
@@ -347,7 +261,7 @@ export default function BulkStudyNotesImport() {
                     <SelectValue placeholder="Select section" />
                   </SelectTrigger>
                   <SelectContent className="max-h-64 overflow-y-auto">
-                    {sectionOptions.map((section) => (
+                    {PLUMBING_CODE_SECTIONS.map((section) => (
                       <SelectItem key={section.value} value={section.value}>
                         {section.label}
                       </SelectItem>
