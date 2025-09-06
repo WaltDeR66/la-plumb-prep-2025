@@ -96,7 +96,7 @@ export default function BulkFlashcardImport() {
     }
   };
 
-  const isSectionValid = /^[1-9]\d{0,3}$/.test(selectedSection);
+  const isSectionValid = selectedSection && selectedSection.trim().length > 0;
 
   const importFlashcards = () => {
     if (!selectedCourse) {
