@@ -35,35 +35,36 @@ export default function Pricing() {
 
   // Function to get the correct price ID based on plan, billing cycle, and beta status
   const getPriceId = (planId: string, isAnnual: boolean, isBeta: boolean) => {
+    // Real Stripe Price IDs from your account
     const priceMapping = {
       basic: {
         monthly: {
-          regular: "prod_T0F1neyKINQC", // Basic Monthly
-          beta: "prod_T0F1neyKINQC" // Beta Basic Monthly  
+          regular: "price_1S4EusByFL1L8uV24yWoGtnf", // Basic Monthly - $49.99
+          beta: "price_1S4E4SByFL1L8uV2fwNtzcdE" // Beta Basic Monthly - $37.49
         },
         annual: {
-          regular: "prod_T0FKlneyKINQC", // Basic Annual
-          beta: "prod_T0FKlneyKINQC" // Beta Basic Annual
+          regular: "price_1S4EqJByFL1L8uV2KtL96A1l", // Basic Annual - $599.88
+          beta: "price_1S4Ek6ByFL1L8uV2AYQdiGj4" // Beta Basic Annual - $437.41
         }
       },
       professional: {
         monthly: {
-          regular: "prod_T0Ed4tSoGvjJYa", // Professional Monthly
-          beta: "prod_T0Ed4tSoGvjJYa" // Beta Professional Monthly
+          regular: "price_1S4F7cByFL1L8uV2U5V4tOje", // Professional Monthly - $79.99
+          beta: "price_1S4E9wByFL1L8uV2wOO4VM4D" // Beta Professional Monthly - $59.99
         },
         annual: {
-          regular: "prod_T0FawTUIyov1sj", // Professional Annual
-          beta: "prod_T0FawTUIyov1sj" // Beta Professional Annual
+          regular: "price_1S4F4wByFL1L8uV2xK3ArjCj", // Professional Annual - $959.88
+          beta: "price_1S4EZSByFL1L8uV2cRdBL3bp" // Beta Professional Annual - $699.91
         }
       },
       master: {
         monthly: {
-          regular: "prod_T0Ej93AZknHTr7", // Master Monthly
-          beta: "prod_T0Ej93AZknHTr7" // Beta Master Monthly
+          regular: "price_1S4F1jByFL1L8uV2YfeGdK7U", // Master Monthly - $99.99
+          beta: "price_1S4ESMByFL1L8uV2SPXM5fs4" // Beta Master Monthly - $74.99
         },
         annual: {
-          regular: "prod_T0FHT3fqRLYUe", // Master Annual
-          beta: "prod_T0FHT3fqRLYUe" // Beta Master Annual
+          regular: "price_1S4EyGByFL1L8uV2c2IPcRGY", // Master Annual - $1199.88
+          beta: "price_1S4EflByFL1L8uV2hXo6sAmI" // Beta Master Annual - $874.91
         }
       }
     };

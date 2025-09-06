@@ -759,21 +759,21 @@ Start your journey at laplumbprep.com/courses
           // Calculate commission based on subscription price (10% of first month)
           const planPrices = {
             // Regular monthly prices
-            'price_1S1xrhByFL1L8uV2JfKn5bqI': 49.99,
-            'price_1S1xriByFL1L8uV2cKXSxmwV': 79.99,
-            'price_1S1xrjByFL1L8uV2iwBxqPG8': 99.99,
-            // Beta monthly prices (25% off)
-            'price_1S1xuXByFL1L8uV2NYB05RYq': 37.49,
-            'price_1S1xuaByFL1L8uV2sfIJs3Hz': 59.99,
-            'price_1S1xucByFL1L8uV2axdk2dL9': 74.99,
-            // Regular annual prices (20% off)
-            'price_1S1xuoByFL1L8uV2rpDkL4wS': 479.90,
-            'price_1S1xuqByFL1L8uV2vPEtWkmX': 767.90,
-            'price_1S1xurByFL1L8uV2IQuts2h2': 959.90,
-            // Beta annual prices (25% + 20% = 40% off)
-            'price_1S1xv7ByFL1L8uV2EvZUX3Wg': 359.90,
-            'price_1S1xv9ByFL1L8uV2F8u5czkc': 575.90,
-            'price_1S1xvAByFL1L8uV2iuNDyfN7': 719.90
+            'price_1S4EusByFL1L8uV24yWoGtnf': 49.99, // Basic Monthly
+            'price_1S4F7cByFL1L8uV2U5V4tOje': 79.99, // Professional Monthly
+            'price_1S4F1jByFL1L8uV2YfeGdK7U': 99.99, // Master Monthly
+            // Beta monthly prices
+            'price_1S4E4SByFL1L8uV2fwNtzcdE': 37.49, // Beta Basic Monthly
+            'price_1S4E9wByFL1L8uV2wOO4VM4D': 59.99, // Beta Professional Monthly
+            'price_1S4ESMByFL1L8uV2SPXM5fs4': 74.99, // Beta Master Monthly
+            // Regular annual prices
+            'price_1S4EqJByFL1L8uV2KtL96A1l': 599.88, // Basic Annual
+            'price_1S4F4wByFL1L8uV2xK3ArjCj': 959.88, // Professional Annual
+            'price_1S4EyGByFL1L8uV2c2IPcRGY': 1199.88, // Master Annual
+            // Beta annual prices
+            'price_1S4Ek6ByFL1L8uV2AYQdiGj4': 437.41, // Beta Basic Annual
+            'price_1S4EZSByFL1L8uV2cRdBL3bp': 699.91, // Beta Professional Annual
+            'price_1S4EflByFL1L8uV2hXo6sAmI': 874.91  // Beta Master Annual
           };
           const subscriptionPrice = planPrices[priceId as keyof typeof planPrices] || 39.99;
           const commissionAmount = subscriptionPrice * 0.10; // 10% commission

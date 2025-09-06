@@ -39,8 +39,8 @@ export const pricingPlans = {
     id: 'basic',
     name: 'Basic',
     price: 49.99,
-    priceId: 'prod_T0F1neyKINQC', // Basic Monthly
-    annualPriceId: 'prod_T0FKlneyKINQC', // Basic Annual
+    priceId: 'price_1S4EusByFL1L8uV24yWoGtnf', // Basic Monthly - $49.99
+    annualPriceId: 'price_1S4EqJByFL1L8uV2KtL96A1l', // Basic Annual - $599.88
     tier: 'basic',
     description: 'Perfect for getting started',
     features: [
@@ -56,8 +56,8 @@ export const pricingPlans = {
     id: 'professional',
     name: 'Professional',
     price: 59.99,
-    priceId: 'prod_T0Ed4tSoGvjJYa', // Professional Monthly
-    annualPriceId: 'prod_T0FawTUIyov1sj', // Professional Annual
+    priceId: 'price_1S4F7cByFL1L8uV2U5V4tOje', // Professional Monthly - $79.99
+    annualPriceId: 'price_1S4F4wByFL1L8uV2xK3ArjCj', // Professional Annual - $959.88
     tier: 'professional',
     description: 'For serious professionals',
     features: [
@@ -78,8 +78,8 @@ export const pricingPlans = {
     id: 'master',
     name: 'Master',
     price: 74.99,
-    priceId: 'prod_T0Ej93AZknHTr7', // Master Monthly
-    annualPriceId: 'prod_T0FHT3fqRLYUe', // Master Annual
+    priceId: 'price_1S4F1jByFL1L8uV2YfeGdK7U', // Master Monthly - $99.99
+    annualPriceId: 'price_1S4EyGByFL1L8uV2c2IPcRGY', // Master Annual - $1199.88
     tier: 'master',
     description: 'Complete mastery package',
     features: [
