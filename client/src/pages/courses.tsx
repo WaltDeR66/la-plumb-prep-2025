@@ -46,8 +46,8 @@ export default function Courses() {
   });
 
   // Fetch content stats for each course using public endpoint
-  const { data: contentStats } = useQuery({
-    queryKey: ["/api/courses", "all-stats"],
+  const { data: contentStats, isLoading: statsLoading, error: statsError } = useQuery({
+    queryKey: ["/api/courses", "all-stats", courses.length],
     queryFn: async () => {
       console.log('🔄 Starting to fetch content stats for', courses.length, 'courses');
       const stats: any = {};
@@ -72,6 +72,17 @@ export default function Courses() {
       return stats;
     },
     enabled: courses.length > 0,
+    staleTime: 0,
+    refetchOnMount: true,
+  });
+
+  // Debug logging
+  console.log('🔍 Debug info:', {
+    coursesLength: courses.length,
+    contentStats,
+    statsLoading,
+    statsError,
+    enabled: courses.length > 0
   });
 
   // Get current user
