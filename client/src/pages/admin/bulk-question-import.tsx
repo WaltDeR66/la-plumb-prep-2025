@@ -265,18 +265,13 @@ export default function BulkQuestionImport() {
               </div>
               <div>
                 <Label htmlFor="section">Section</Label>
-                <Select value={selectedSection} onValueChange={setSelectedSection}>
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Select section" />
-                  </SelectTrigger>
-                  <SelectContent className="max-h-64 overflow-y-auto">
-                    {PLUMBING_CODE_SECTIONS.map((section) => (
-                      <SelectItem key={section.value} value={section.value}>
-                        {section.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <Input
+                  id="section"
+                  value={selectedSection}
+                  onChange={(e) => setSelectedSection(e.target.value)}
+                  placeholder="Enter section number (e.g., 101, 103, 105...)"
+                  disabled={!selectedChapter}
+                />
               </div>
               <div>
                 <Label htmlFor="difficulty">Question Difficulty</Label>
