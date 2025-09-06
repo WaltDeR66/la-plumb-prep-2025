@@ -96,7 +96,7 @@ export default function BulkQuestionImport() {
     }
   };
 
-  const isSectionValid = /^[1-9]\d{0,3}$/.test(selectedSection);
+  const isSectionValid = selectedSection && selectedSection.trim().length > 0;
 
   const importQuestions = () => {
     if (!selectedCourse) {
