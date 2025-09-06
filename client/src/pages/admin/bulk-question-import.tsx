@@ -18,6 +18,8 @@ export default function BulkQuestionImport() {
   const [previewQuestions, setPreviewQuestions] = useState<any[]>([]);
   const [importStatus, setImportStatus] = useState<"idle" | "parsing" | "previewing" | "importing" | "success">("idle");
   const [selectedDifficulty, setSelectedDifficulty] = useState("medium");
+  const [selectedChapter, setSelectedChapter] = useState("");
+  const [selectedSection, setSelectedSection] = useState("");
 
   // Fetch courses
   const { data: courses } = useQuery({
@@ -102,6 +104,15 @@ export default function BulkQuestionImport() {
       return;
     }
 
+    if (!selectedChapter || !selectedSection) {
+      toast({
+        title: "Chapter and Section required",
+        description: "Please select both chapter and section for organization",
+        variant: "destructive"
+      });
+      return;
+    }
+
     setImportStatus("importing");
     bulkImportMutation.mutate({
       courseId: selectedCourse,
@@ -162,6 +173,10 @@ export default function BulkQuestionImport() {
           options,
           correctAnswer,
           difficulty: selectedDifficulty,
+          chapter: selectedChapter,
+          section: selectedSection,
+          category: selectedChapter,
+          codeReference: `${selectedChapter} - ${selectedSection}`,
           explanation: `Explanation for question ${index + 1}`
         });
       }
@@ -187,7 +202,7 @@ export default function BulkQuestionImport() {
             <CardDescription>Choose course and set difficulty level for all questions in this batch</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               <div>
                 <Label htmlFor="course">Select Course</Label>
                 <Select value={selectedCourse} onValueChange={setSelectedCourse}>
@@ -200,6 +215,42 @@ export default function BulkQuestionImport() {
                         {course.title}
                       </SelectItem>
                     ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label htmlFor="chapter">Chapter</Label>
+                <Select value={selectedChapter} onValueChange={setSelectedChapter}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Select chapter" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Chapter 1">Chapter 1 - Plumbing Code</SelectItem>
+                    <SelectItem value="Chapter 2">Chapter 2 - Water Supply</SelectItem>
+                    <SelectItem value="Chapter 3">Chapter 3 - Drainage</SelectItem>
+                    <SelectItem value="Chapter 4">Chapter 4 - Gas Piping</SelectItem>
+                    <SelectItem value="Chapter 5">Chapter 5 - Fixtures</SelectItem>
+                    <SelectItem value="Chapter 6">Chapter 6 - Safety</SelectItem>
+                    <SelectItem value="Chapter 7">Chapter 7 - Testing</SelectItem>
+                    <SelectItem value="Chapter 8">Chapter 8 - Repairs</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label htmlFor="section">Section</Label>
+                <Select value={selectedSection} onValueChange={setSelectedSection}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Select section" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Section 1">Section 1</SelectItem>
+                    <SelectItem value="Section 2">Section 2</SelectItem>
+                    <SelectItem value="Section 3">Section 3</SelectItem>
+                    <SelectItem value="Section 4">Section 4</SelectItem>
+                    <SelectItem value="Section 5">Section 5</SelectItem>
+                    <SelectItem value="Section 6">Section 6</SelectItem>
+                    <SelectItem value="Section 7">Section 7</SelectItem>
+                    <SelectItem value="Section 8">Section 8</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -329,15 +380,31 @@ ANSWER: C"
                 <CheckCircle className="h-5 w-5 text-green-600" />
                 Preview ({previewQuestions.length} questions found)
               </CardTitle>
-              <CardDescription>Review the parsed questions before importing</CardDescription>
+              <CardDescription>
+                Review the parsed questions before importing. Questions will be organized under {selectedChapter} - {selectedSection}
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-6 max-h-96 overflow-y-auto">
                 {previewQuestions.map((question, index) => (
                   <div key={index} className="border rounded-lg p-4">
-                    <h3 className="font-semibold mb-3">
-                      Question {index + 1}: {question.questionText}
-                    </h3>
+                    <div className="flex justify-between items-start mb-3">
+                      <h3 className="font-semibold">
+                        Question {index + 1}: {question.questionText}
+                      </h3>
+                      <div className="flex gap-2 text-xs">
+                        <span className="bg-blue-100 text-blue-700 px-2 py-1 rounded">{selectedChapter}</span>
+                        <span className="bg-purple-100 text-purple-700 px-2 py-1 rounded">{selectedSection}</span>
+                        <span className={`px-2 py-1 rounded ${
+                          question.difficulty === 'easy' ? 'bg-green-100 text-green-700' :
+                          question.difficulty === 'medium' ? 'bg-yellow-100 text-yellow-700' :
+                          question.difficulty === 'hard' ? 'bg-orange-100 text-orange-700' :
+                          'bg-red-100 text-red-700'
+                        }`}>
+                          {question.difficulty}
+                        </span>
+                      </div>
+                    </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                       {question.options.map((option: string, optIndex: number) => (
                         <div

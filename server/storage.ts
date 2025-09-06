@@ -1558,8 +1558,8 @@ export class DatabaseStorage implements IStorage {
         correctAnswer: questionData.correctAnswer,
         explanation: questionData.explanation,
         difficulty: questionData.difficulty || 'medium',
-        category: questionData.category,
-        codeReference: questionData.codeReference,
+        category: questionData.category || questionData.chapter,
+        codeReference: questionData.codeReference || questionData.section || `${questionData.chapter || 'General'} - ${questionData.section || 'Section 1'}`,
         pointValue: questionData.pointValue || 1,
         isActive: true
       })
