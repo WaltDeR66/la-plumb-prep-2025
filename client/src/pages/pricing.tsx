@@ -114,7 +114,6 @@ export default function Pricing() {
       description: "Complete mastery package",
       features: [
         "Journeyman Prep Course",
-        "Plan Analysis Tools",
         "Material List Generator",
         "Referral Commissions (10%)",
         "Book Store Access",
@@ -295,12 +294,6 @@ export default function Pricing() {
                   <td className="p-4 font-medium">Photo Code Checker</td>
                   <td className="p-4 text-center">❌</td>
                   <td className="p-4 text-center">✅</td>
-                  <td className="p-4 text-center">✅</td>
-                </tr>
-                <tr>
-                  <td className="p-4 font-medium">Plan Analysis</td>
-                  <td className="p-4 text-center">❌</td>
-                  <td className="p-4 text-center">❌</td>
                   <td className="p-4 text-center">✅</td>
                 </tr>
                 <tr>

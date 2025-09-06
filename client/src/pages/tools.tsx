@@ -462,20 +462,24 @@ export default function Tools() {
                           {isAnalyzing ? "Analyzing..." : "Upload Plans"}
                         </Button>
                       ) : (
-                        <div className="space-y-2">
-                          <Link href="/tools/ai-pricing" className="w-full">
+                        <div className="space-y-3">
+                          <div className="text-xs text-muted-foreground bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg">
+                            <strong>Pay-per-use pricing by file size:</strong>
+                            <div className="mt-2 space-y-1">
+                              <div>• Small (up to 2MB): <span className="font-medium text-green-600">$4.99</span></div>
+                              <div>• Medium (2-10MB): <span className="font-medium text-blue-600">$9.99</span></div>
+                              <div>• Large (10-25MB): <span className="font-medium text-orange-600">$19.99</span></div>
+                              <div>• Enterprise (25MB+): <span className="font-medium text-purple-600">$39.99</span></div>
+                            </div>
+                          </div>
+                          <Link href="/tools/plan-analysis" className="w-full">
                             <Button
                               className="w-full"
                               variant="outline"
                               data-testid="pay-per-use-plan-button"
                             >
                               <FileEdit className="w-4 h-4 mr-2" />
-                              Pay $9.99 to Analyze
-                            </Button>
-                          </Link>
-                          <Link href="/tools/ai-pricing" className="w-full">
-                            <Button className="w-full" variant="ghost" size="sm" data-testid="get-ai-plan-tools-button">
-                              Or get unlimited access
+                              Analyze Plan
                             </Button>
                           </Link>
                         </div>
