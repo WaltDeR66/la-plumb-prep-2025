@@ -329,6 +329,206 @@ async function seedCourseContent() {
       isActive: true,
       sortOrder: 401
     },
+
+    // CHAPTER 5 REVIEW INTRODUCTION
+    {
+      id: "intro-chapter-5-review",
+      courseId,
+      title: "Chapter 5 Review Introduction - Water Heaters Mastery",
+      type: "lesson",
+      chapter: 5,
+      section: 999,
+      content: {
+        "extracted": {
+          "title": "Chapter 5 Review Introduction - Water Heaters Mastery",
+          "content": "# Chapter 5 Review Introduction - Water Heaters Mastery\n\n## Chapter Overview - Complete Water Heater Safety and Installation\n\nChapter 5 provides **comprehensive requirements** for water heaters and hot water systems in Louisiana. This chapter covers safety, installation, relief valves, solar systems, and all aspects of safe water heating.\n\n### 🎯 Critical Concepts to Master for 80% Pass Threshold\n\n**General Requirements (Section 501)**\n- Water heater scope and types covered by regulations\n- Basic safety standards and installation principles\n- Coordination with plumbing and building systems\n- Professional responsibility for equipment selection\n\n**Installation Standards (Section 503)**\n- Clearance requirements and accessibility standards\n- Support and mounting specifications\n- Connection procedures for all water heater types\n- Electrical and gas connection requirements\n\n**Safety Devices (Section 511)**\n- Temperature and pressure relief valve requirements\n- Relief valve discharge piping and termination\n- Emergency shutdown and safety device provisions\n- Testing and maintenance requirements\n\n**Solar Water Heating (Section 513)**\n- Closed-loop system requirements and prohibitions\n- Heat exchanger and freeze protection standards\n- Installation and certification requirements\n- Integration with auxiliary heating systems\n\n### 📚 Integration Points - How Sections Work Together\n\n**Complete Water Heater Framework:**\n1. **Section 501** establishes scope and basic requirements\n2. **Section 503** defines installation procedures and standards\n3. **Section 511** ensures safety through relief devices\n4. **Section 513** covers specialized solar water heating\n\n**Safety-First Approach:**\nChapter 5 prioritizes safety at every level, from equipment selection through installation and ongoing operation.\n\n### 🎓 Exam Preparation Strategy\n\n**High-Priority Topics:**\n- Temperature and pressure relief valve specifications\n- Installation clearance and accessibility requirements\n- Safety device testing and discharge requirements\n- Solar system design and installation standards\n- Emergency shutdown and safety procedures\n\n**Common Exam Scenarios:**\n- Relief valve sizing and discharge piping\n- Water heater clearance and support requirements\n- Solar system integration and safety\n- Emergency safety device applications\n- Installation coordination with other systems\n\n### 🔧 Real-World Integration\n\nMastering Chapter 5 enables you to:\n- **Install water heaters safely** with proper clearances and support\n- **Size and install relief valves** correctly for all applications\n- **Design and install solar systems** meeting Louisiana requirements\n- **Ensure safety compliance** in all water heating installations\n- **Coordinate effectively** with electrical and HVAC trades\n\n### ⚠️ Chapter Review Requirements\n\n**80% Pass Threshold:** This chapter review requires 80% to advance to Chapter 6 (Water Supply). Water heater safety knowledge is critical for protecting life and property.\n\n**Study Approach:**\n1. Master safety device requirements and installation\n2. Learn clearance and accessibility standards\n3. Understand relief valve sizing and discharge\n4. Study solar system requirements and integration\n5. Practice emergency safety procedures\n\n### 💡 Success Strategy\n\nThink of Chapter 5 as \"water heater safety mastery\" - proper installation prevents scalding, explosion, and carbon monoxide hazards that can be life-threatening.\n\n### 📝 Connection to Future Chapters\n\nChapter 5 water heater knowledge supports:\n- **Chapter 6**: Water supply sizing and connection to heaters\n- **Chapter 7**: Drainage requirements for relief valve discharge\n- **Chapter 11**: Venting requirements for fuel-burning heaters\n- **All system chapters**: Integration of water heating into complete systems\n\n---\n\n**Mastery Goal:** You should be able to select, install, and ensure safety of all water heating equipment, from conventional units to solar systems, while protecting life and property through proper safety device installation and testing.",
+          "extractedAt": "2025-01-30T22:29:00Z"
+        }
+      },
+      isActive: true,
+      sortOrder: 499
+    },
+
+    // COMPREHENSIVE CHAPTER REVIEWS FOR REMAINING CHAPTERS 6-15
+    {
+      id: "intro-chapter-6-review",
+      courseId,
+      title: "Chapter 6 Review Introduction - Water Supply Systems Mastery",
+      type: "lesson",
+      chapter: 6,
+      section: 999,
+      content: {
+        "extracted": {
+          "title": "Chapter 6 Review Introduction - Water Supply Systems Mastery",
+          "content": "# Chapter 6 Review Introduction - Water Supply Systems Mastery\n\n## Chapter Overview - Complete Water Supply System Design\n\nChapter 6 provides **comprehensive requirements** for water supply systems in Louisiana. This chapter covers materials, sizing, cross-connection protection, and all aspects of safe potable water delivery.\n\n### 🎯 Critical Concepts to Master for 80% Pass Threshold\n\n**System Design and Materials**\n- Approved materials for water supply piping and fittings\n- Pipe sizing calculations and pressure requirements\n- System layout and distribution design principles\n- Connection standards and installation procedures\n\n**Cross-Connection Protection**\n- Backflow prevention device requirements and applications\n- Air gap specifications and proper installation\n- Cross-connection identification and elimination\n- Testing and maintenance of protection devices\n\n**Pressure and Flow Requirements**\n- Minimum pressure standards for fixtures\n- Flow rate calculations and demand factors\n- Pressure reducing valves and system protection\n- Water hammer prevention and control\n\n### 🔧 Real-World Integration\n\nMastering Chapter 6 enables you to:\n- **Design water supply systems** that meet all pressure and flow requirements\n- **Install cross-connection protection** to safeguard public health\n- **Size piping correctly** for optimal system performance\n- **Ensure water quality** through proper material selection and installation\n\n---\n\n**Mastery Goal:** You should be able to design, install, and protect water supply systems that deliver safe, adequate potable water while preventing contamination and ensuring code compliance.",
+          "extractedAt": "2025-01-30T22:30:00Z"
+        }
+      },
+      isActive: true,
+      sortOrder: 599
+    },
+
+    {
+      id: "intro-chapter-7-review",
+      courseId,
+      title: "Chapter 7 Review Introduction - Drainage Systems Mastery",
+      type: "lesson",
+      chapter: 7,
+      section: 999,
+      content: {
+        "extracted": {
+          "title": "Chapter 7 Review Introduction - Drainage Systems Mastery",
+          "content": "# Chapter 7 Review Introduction - Drainage Systems Mastery\n\n## Chapter Overview - Complete Drainage System Design\n\nChapter 7 provides **comprehensive requirements** for sanitary drainage systems in Louisiana. This chapter covers pipe sizing, fixture units, system layout, and proper waste removal.\n\n### 🎯 Critical Concepts to Master for 80% Pass Threshold\n\n**System Design and Sizing**\n- Fixture unit calculations and pipe sizing methods\n- Drainage system layout and slope requirements\n- Building drain and sewer sizing standards\n- Connection procedures and fitting requirements\n\n**Waste Management**\n- Sanitary waste vs. storm water separation\n- Grease interceptor and special waste requirements\n- Floor drain and area drain installation\n- System testing and inspection procedures\n\n### 🔧 Real-World Integration\n\nMastering Chapter 7 enables you to:\n- **Size drainage systems** correctly for all building types\n- **Install proper slopes** for effective waste removal\n- **Design special waste systems** for commercial applications\n- **Ensure system integrity** through proper testing and inspection\n\n---\n\n**Mastery Goal:** You should be able to design and install drainage systems that effectively remove all waste while preventing backups and maintaining sanitary conditions.",
+          "extractedAt": "2025-01-30T22:31:00Z"
+        }
+      },
+      isActive: true,
+      sortOrder: 699
+    },
+
+    {
+      id: "intro-chapter-8-review",
+      courseId,
+      title: "Chapter 8 Review Introduction - Special Waste Systems Mastery",
+      type: "lesson",
+      chapter: 8,
+      section: 999,
+      content: {
+        "extracted": {
+          "title": "Chapter 8 Review Introduction - Special Waste Systems Mastery",
+          "content": "# Chapter 8 Review Introduction - Special Waste Systems Mastery\n\n## Chapter Overview - Specialized Waste Handling Systems\n\nChapter 8 provides **comprehensive requirements** for special waste systems in Louisiana. This chapter covers industrial waste, interceptors, and specialized treatment requirements.\n\n### 🎯 Critical Concepts to Master for 80% Pass Threshold\n\n**Special Waste Classification**\n- Industrial waste vs. sanitary waste definitions\n- Grease interceptor sizing and installation\n- Chemical waste treatment requirements\n- Oil and sand interceptor applications\n\n**Treatment and Disposal**\n- Pre-treatment requirements for industrial waste\n- Neutralization and chemical treatment systems\n- Sampling and monitoring requirements\n- Discharge standards and permit compliance\n\n### 🔧 Real-World Integration\n\nMastering Chapter 8 enables you to:\n- **Design interceptor systems** for restaurants and commercial facilities\n- **Handle industrial waste** according to environmental regulations\n- **Install treatment systems** that protect public infrastructure\n- **Ensure compliance** with discharge standards and permits\n\n---\n\n**Mastery Goal:** You should be able to design and install special waste systems that properly treat and dispose of non-domestic waste while protecting public health and the environment.",
+          "extractedAt": "2025-01-30T22:32:00Z"
+        }
+      },
+      isActive: true,
+      sortOrder: 799
+    },
+
+    {
+      id: "intro-chapter-9-review",
+      courseId,
+      title: "Chapter 9 Review Introduction - Venting Systems Mastery",
+      type: "lesson",
+      chapter: 9,
+      section: 999,
+      content: {
+        "extracted": {
+          "title": "Chapter 9 Review Introduction - Venting Systems Mastery",
+          "content": "# Chapter 9 Review Introduction - Venting Systems Mastery\n\n## Chapter Overview - Complete Venting System Design\n\nChapter 9 provides **comprehensive requirements** for venting systems in Louisiana. This chapter covers vent sizing, installation, and proper system design for trap seal protection.\n\n### 🎯 Critical Concepts to Master for 80% Pass Threshold\n\n**Vent System Design**\n- Individual and common vent sizing methods\n- Stack venting and wet venting applications\n- Vent terminal locations and protection\n- Connection procedures and fitting requirements\n\n**Trap Seal Protection**\n- Proper vent sizing to prevent siphonage\n- Back pressure prevention in vent systems\n- Relief vent applications and installation\n- Testing procedures for vent system integrity\n\n### 🔧 Real-World Integration\n\nMastering Chapter 9 enables you to:\n- **Design vent systems** that protect all trap seals\n- **Size vents correctly** for optimal performance\n- **Install vent terminals** that prevent weather infiltration\n- **Ensure system balance** through proper vent design\n\n---\n\n**Mastery Goal:** You should be able to design and install venting systems that maintain trap seals, prevent sewer gas infiltration, and ensure proper drainage system operation.",
+          "extractedAt": "2025-01-30T22:33:00Z"
+        }
+      },
+      isActive: true,
+      sortOrder: 899
+    },
+
+    {
+      id: "intro-chapter-10-review",
+      courseId,
+      title: "Chapter 10 Review Introduction - Traps and Interceptors Mastery",
+      type: "lesson",
+      chapter: 10,
+      section: 999,
+      content: {
+        "extracted": {
+          "title": "Chapter 10 Review Introduction - Traps and Interceptors Mastery",
+          "content": "# Chapter 10 Review Introduction - Traps and Interceptors Mastery\n\n## Chapter Overview - Trap and Interceptor Systems\n\nChapter 10 provides **comprehensive requirements** for traps and interceptors in Louisiana. This chapter covers trap selection, installation, and maintenance for proper sewer gas protection.\n\n### 🎯 Critical Concepts to Master for 80% Pass Threshold\n\n**Trap Requirements**\n- Individual fixture trap requirements\n- Trap seal depths and protection methods\n- Prohibited trap configurations\n- Trap cleaning and maintenance access\n\n**Interceptor Applications**\n- Grease interceptor sizing for food service\n- Oil interceptor requirements for automotive facilities\n- Sand interceptor applications\n- Maintenance and cleaning procedures\n\n### 🔧 Real-World Integration\n\nMastering Chapter 10 enables you to:\n- **Select appropriate traps** for all fixture types\n- **Install interceptors** correctly for commercial applications\n- **Maintain trap seals** through proper venting\n- **Provide access** for cleaning and maintenance\n\n---\n\n**Mastery Goal:** You should be able to select, install, and maintain traps and interceptors that provide effective sewer gas protection and waste treatment.",
+          "extractedAt": "2025-01-30T22:34:00Z"
+        }
+      },
+      isActive: true,
+      sortOrder: 999
+    },
+
+    {
+      id: "intro-chapter-11-review",
+      courseId,
+      title: "Chapter 11 Review Introduction - Storm Drainage Mastery",
+      type: "lesson",
+      chapter: 11,
+      section: 999,
+      content: {
+        "extracted": {
+          "title": "Chapter 11 Review Introduction - Storm Drainage Mastery",
+          "content": "# Chapter 11 Review Introduction - Storm Drainage Mastery\n\n## Chapter Overview - Storm Water Management Systems\n\nChapter 11 provides **comprehensive requirements** for storm drainage systems in Louisiana. This chapter covers roof drainage, area drains, and storm water management.\n\n### 🎯 Critical Concepts to Master for 80% Pass Threshold\n\n**Storm Water Systems**\n- Roof drainage design and sizing calculations\n- Storm sewer vs. sanitary sewer separation\n- Area drain installation and connection\n- Overflow provisions and emergency drainage\n\n**Installation Requirements**\n- Proper slopes for storm water removal\n- Backflow prevention in storm systems\n- Connection to municipal storm systems\n- Testing and inspection procedures\n\n### 🔧 Real-World Integration\n\nMastering Chapter 11 enables you to:\n- **Design roof drainage** for effective water removal\n- **Separate storm and sanitary** systems properly\n- **Install area drains** for surface water management\n- **Prevent flooding** through proper design and installation\n\n---\n\n**Mastery Goal:** You should be able to design and install storm drainage systems that effectively manage rainfall and prevent property damage.",
+          "extractedAt": "2025-01-30T22:35:00Z"
+        }
+      },
+      isActive: true,
+      sortOrder: 1099
+    },
+
+    {
+      id: "intro-chapter-12-review",
+      courseId,
+      title: "Chapter 12 Review Introduction - Fuel Gas Piping Mastery",
+      type: "lesson",
+      chapter: 12,
+      section: 999,
+      content: {
+        "extracted": {
+          "title": "Chapter 12 Review Introduction - Fuel Gas Piping Mastery",
+          "content": "# Chapter 12 Review Introduction - Fuel Gas Piping Mastery\n\n## Chapter Overview - Safe Fuel Gas Installation\n\nChapter 12 provides **comprehensive requirements** for fuel gas piping in Louisiana. This chapter covers natural gas and LP gas systems, safety requirements, and installation standards.\n\n### 🎯 Critical Concepts to Master for 80% Pass Threshold\n\n**Gas Piping Systems**\n- Natural gas vs. LP gas system differences\n- Pipe sizing calculations for gas flow\n- Material requirements and approvals\n- Installation and testing procedures\n\n**Safety Requirements**\n- Gas leak detection and prevention\n- Emergency shut-off valve requirements\n- Ventilation requirements for gas appliances\n- Explosion prevention measures\n\n### 🔧 Real-World Integration\n\nMastering Chapter 12 enables you to:\n- **Install gas piping** safely for all appliance types\n- **Test gas systems** to ensure leak-free operation\n- **Size gas lines** correctly for appliance demands\n- **Ensure safety** through proper installation and testing\n\n---\n\n**Mastery Goal:** You should be able to install fuel gas piping systems safely while preventing leaks and ensuring proper appliance operation.",
+          "extractedAt": "2025-01-30T22:36:00Z"
+        }
+      },
+      isActive: true,
+      sortOrder: 1199
+    },
+
+    {
+      id: "intro-chapter-13-review",
+      courseId,
+      title: "Chapter 13 Review Introduction - Medical Facilities Mastery",
+      type: "lesson",
+      chapter: 13,
+      section: 999,
+      content: {
+        "extracted": {
+          "title": "Chapter 13 Review Introduction - Medical Facilities Mastery",
+          "content": "# Chapter 13 Review Introduction - Medical Facilities Mastery\n\n## Chapter Overview - Healthcare Facility Plumbing\n\nChapter 13 provides **comprehensive requirements** for medical facility plumbing in Louisiana. This chapter covers specialized requirements for hospitals, clinics, and healthcare facilities.\n\n### 🎯 Critical Concepts to Master for 80% Pass Threshold\n\n**Medical Facility Requirements**\n- Specialized fixture requirements for healthcare\n- Infection control and sanitation standards\n- Medical gas system coordination\n- Emergency system requirements\n\n**Special Considerations**\n- Patient safety and accessibility requirements\n- Isolation room plumbing requirements\n- Laboratory and clinical waste handling\n- Sterilization equipment connections\n\n### 🔧 Real-World Integration\n\nMastering Chapter 13 enables you to:\n- **Install healthcare fixtures** meeting specialized requirements\n- **Ensure infection control** through proper design\n- **Coordinate with medical systems** for complete facility service\n- **Meet accessibility standards** for patient care areas\n\n---\n\n**Mastery Goal:** You should be able to install plumbing systems in medical facilities that meet specialized healthcare requirements while ensuring patient safety and infection control.",
+          "extractedAt": "2025-01-30T22:37:00Z"
+        }
+      },
+      isActive: true,
+      sortOrder: 1299
+    },
+
+    {
+      id: "intro-chapter-14-review",
+      courseId,
+      title: "Chapter 14 Review Introduction - Swimming Pools and Spas Mastery",
+      type: "lesson",
+      chapter: 14,
+      section: 999,
+      content: {
+        "extracted": {
+          "title": "Chapter 14 Review Introduction - Swimming Pools and Spas Mastery",
+          "content": "# Chapter 14 Review Introduction - Swimming Pools and Spas Mastery\n\n## Chapter Overview - Pool and Spa Plumbing Systems\n\nChapter 14 provides **comprehensive requirements** for swimming pool and spa plumbing in Louisiana. This chapter covers circulation systems, drainage, and safety requirements.\n\n### 🎯 Critical Concepts to Master for 80% Pass Threshold\n\n**Pool and Spa Systems**\n- Circulation system design and sizing\n- Suction fitting safety requirements\n- Drainage and overflow systems\n- Chemical feed system connections\n\n**Safety Requirements**\n- Anti-entrapment measures and regulations\n- Emergency drainage provisions\n- Backflow prevention for pool systems\n- Equipment access and maintenance requirements\n\n### 🔧 Real-World Integration\n\nMastering Chapter 14 enables you to:\n- **Design pool circulation** for effective water treatment\n- **Install safety features** to prevent entrapment hazards\n- **Connect chemical systems** safely and effectively\n- **Ensure compliance** with pool safety regulations\n\n---\n\n**Mastery Goal:** You should be able to install pool and spa plumbing systems that provide safe operation while meeting all circulation and safety requirements.",
+          "extractedAt": "2025-01-30T22:38:00Z"
+        }
+      },
+      isActive: true,
+      sortOrder: 1399
+    },
+
+    {
+      id: "intro-chapter-15-review",
+      courseId,
+      title: "Chapter 15 Review Introduction - Mobile Homes and Travel Trailers Mastery",
+      type: "lesson",
+      chapter: 15,
+      section: 999,
+      content: {
+        "extracted": {
+          "title": "Chapter 15 Review Introduction - Mobile Homes and Travel Trailers Mastery",
+          "content": "# Chapter 15 Review Introduction - Mobile Homes and Travel Trailers Mastery\n\n## Chapter Overview - Mobile and Manufactured Housing Plumbing\n\nChapter 15 provides **comprehensive requirements** for mobile home and travel trailer plumbing in Louisiana. This chapter covers unique requirements for manufactured housing and mobile facilities.\n\n### 🎯 Critical Concepts to Master for 80% Pass Threshold\n\n**Mobile Home Requirements**\n- Unique plumbing requirements for manufactured housing\n- Connection standards for utility hookups\n- Freeze protection in mobile installations\n- Skirting and underpinning access requirements\n\n**Travel Trailer Systems**\n- Temporary connection requirements\n- Sanitary station design and installation\n- Water supply and waste system connections\n- Park facility plumbing requirements\n\n### 🔧 Real-World Integration\n\nMastering Chapter 15 enables you to:\n- **Install mobile home plumbing** meeting manufactured housing standards\n- **Design trailer park facilities** for temporary connections\n- **Ensure freeze protection** in mobile installations\n- **Provide proper connections** for all mobile housing types\n\n---\n\n**Mastery Goal:** You should be able to install plumbing systems for mobile homes and travel trailers that meet specialized requirements while ensuring code compliance and system reliability.\n\n### 🎓 Final Course Integration\n\nCongratulations! Completing all 15 chapters of the Louisiana State Plumbing Code provides you with comprehensive knowledge for journeyman plumber certification. You now understand:\n\n✅ **Administrative requirements** and code authority\n✅ **Technical vocabulary** and professional communication\n✅ **General regulations** and basic principles\n✅ **Fixture installation** and requirements\n✅ **Water heater safety** and installation\n✅ **Water supply systems** and cross-connection protection\n✅ **Drainage systems** and waste management\n✅ **Special waste handling** and treatment\n✅ **Venting systems** and trap seal protection\n✅ **Traps and interceptors** for sewer gas protection\n✅ **Storm drainage** and water management\n✅ **Fuel gas piping** and safety\n✅ **Medical facility** specialized requirements\n✅ **Pool and spa systems** and safety\n✅ **Mobile housing** and manufactured home requirements\n\nYou are now prepared for the Louisiana Journeyman Plumber certification exam!",
+          "extractedAt": "2025-01-30T22:39:00Z"
+        }
+      },
+      isActive: true,
+      sortOrder: 1499
+    },
     {
       id: "810cafa9-6024-4bdc-a3c5-266490062114",
       courseId,
