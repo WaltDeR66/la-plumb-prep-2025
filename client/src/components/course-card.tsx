@@ -49,7 +49,14 @@ export default function CourseCard({ course, isEnrolled = false, progress = 0, i
   });
 
   // Fetch course content statistics
-  const { data: contentStats } = useQuery({
+  const { data: contentStats } = useQuery<{
+    questions: number;
+    flashcards: number;
+    studyNotes: number;
+    studyPlans: number;
+    podcasts: number;
+    aiChat: number;
+  }>({
     queryKey: [`/api/courses/${course.id}/stats`],
     retry: false,
   });
