@@ -4340,12 +4340,43 @@ Start your journey at laplumbprep.com/courses
       // Get all course content for this course
       const allContent = await storage.getCourseContent(courseId);
       
+      // Count individual questions and flashcards within content files
+      const quizContent = allContent.filter(content => content.type === 'quiz');
+      const questions = quizContent
+        .reduce((total, quiz) => {
+          try {
+            const contentObj = typeof quiz.content === 'string' ? JSON.parse(quiz.content) : quiz.content;
+            const extractedContent = contentObj?.extracted?.content || '';
+            // Count numbered questions like "**1. ", "**2. ", etc.
+            const questionMatches = extractedContent.match(/\*\*\d+\./g) || [];
+            return total + questionMatches.length;
+          } catch (error) {
+            console.error('Error parsing quiz content:', error);
+            return total;
+          }
+        }, 0);
+
+      const flashcardContent = allContent.filter(content => content.type === 'flashcards');
+      const flashcards = flashcardContent
+        .reduce((total, flashcardSet) => {
+          try {
+            const contentObj = typeof flashcardSet.content === 'string' ? JSON.parse(flashcardSet.content) : flashcardSet.content;
+            const extractedContent = contentObj?.extracted?.content || '';
+            // Count flashcard items like "**Front:" or "**Q:" 
+            const flashcardMatches = extractedContent.match(/\*\*(Front:|Q:)/g) || [];
+            return total + flashcardMatches.length;
+          } catch (error) {
+            console.error('Error parsing flashcard content:', error);
+            return total;
+          }
+        }, 0);
+
       // Count by type (using actual database types)
       const stats = {
         lessons: allContent.filter(content => content.type === 'lesson').length,
         chapters: allContent.filter(content => content.type === 'chapter').length, 
-        questions: allContent.filter(content => content.type === 'quiz').length,
-        flashcards: allContent.filter(content => content.type === 'flashcards').length,
+        questions: questions,
+        flashcards: flashcards,
         studyNotes: allContent.filter(content => content.type === 'study-notes').length,
         studyPlans: allContent.filter(content => content.type === 'study-plan' || content.type === 'study-plans').length,
         podcasts: allContent.filter(content => content.type === 'podcast').length,
