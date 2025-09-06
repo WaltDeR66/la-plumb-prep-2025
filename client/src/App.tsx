@@ -105,7 +105,7 @@ function Router() {
           <Route path="/admin/bulk-import" component={BulkQuestionImport} />
           <Route path="/admin/flashcard-import" component={BulkFlashcardImport} />
           <Route path="/admin/study-notes-import" component={BulkStudyNotesImport} />
-          <Route path="/admin/study-plan-import" component={BulkStudyPlanImport} />
+          <Route path="/admin/bulk-studyplan-import" component={BulkStudyPlanImport} />
           <Route path="/admin/content-import" component={BulkAIChatImport} />
           <Route path="/admin/podcast-import" component={BulkPodcastImport} />
           <Route path="/admin/system-analytics" component={SystemAnalytics} />
