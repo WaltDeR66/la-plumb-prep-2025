@@ -77,6 +77,9 @@ export default function ContentViewer(props: ContentViewerProps) {
     enabled: !!contentId,
   });
 
+  // For quiz content, we don't need to wait for full content loading
+  const isQuizContent = contentType === 'quiz' || content?.type === 'quiz';
+
   // Extract content mutation
   const extractMutation = useMutation({
     mutationFn: async () => {
@@ -121,10 +124,46 @@ export default function ContentViewer(props: ContentViewerProps) {
     completeMutation.mutate();
   };
 
-  if (isLoading) {
+  if (isLoading && !isQuizContent) {
     return (
       <div className="flex items-center justify-center p-8">
         <Loader2 className="w-8 h-8 animate-spin" />
+      </div>
+    );
+  }
+
+  // For quiz content, show the interactive quiz immediately
+  if (isQuizContent) {
+    const section = content?.title?.match(/\d+/)?.[0] || title?.match(/\d+/)?.[0] || sectionId || '101';
+    
+    return (
+      <div className="max-w-4xl mx-auto p-6">
+        <div className="mb-6">
+          <Button 
+            variant="outline" 
+            onClick={() => navigate("/courses")}
+            className="mb-4"
+          >
+            ← Back to Courses
+          </Button>
+          
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-2xl font-bold">{content?.title || title}</h1>
+              <Badge variant="secondary" className="mt-2">
+                Interactive Quiz
+              </Badge>
+            </div>
+          </div>
+        </div>
+
+        <InteractiveQuiz 
+          section={section}
+          contentId={contentId}
+          onComplete={() => {
+            handleComplete();
+          }}
+        />
       </div>
     );
   }
