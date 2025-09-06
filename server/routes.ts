@@ -1119,13 +1119,14 @@ Start your journey at laplumbprep.com/courses
         return res.status(400).json({ message: "Image data required" });
       }
 
-      // Create a one-time payment intent for photo analysis ($2.99)
+      // Create a one-time payment intent for photo analysis using your Stripe price ID
       const paymentIntent = await stripe.paymentIntents.create({
         amount: 299, // $2.99 in cents
         currency: 'usd',
         metadata: {
           service: 'photo-analysis',
-          type: 'pay-per-use'
+          type: 'pay-per-use',
+          priceId: 'price_1S4DRpByFL1L8uV2xlSpm1Zq' // Photo Analysis - $2.99
         }
       });
 
@@ -1156,22 +1157,27 @@ Start your journey at laplumbprep.com/courses
       
       let price: number;
       let tier: string;
+      let priceId: string;
       
       if (fileSizeMB <= 2) {
         price = 4.99;
         tier = "Small";
+        priceId = "price_1S4DodByFL1L8uV2GezncbVz"; // Plan Analysis Tool Small Files
       } else if (fileSizeMB <= 10) {
         price = 9.99;
         tier = "Medium";
+        priceId = "price_1S4DscByFL1L8uV2y9RBvVFw"; // Plan Analysis Tool Medium Files
       } else if (fileSizeMB <= 25) {
         price = 19.99;
         tier = "Large";
+        priceId = "price_1S4DwJByFL1L8uV2nazKwF5f"; // Plan Analysis Tool Large Files
       } else {
         price = 39.99;
         tier = "Enterprise";
+        priceId = "price_1S4DzrByFL1L8uV2Fk4fbabq"; // Plan Analysis Tool Enterprise Files
       }
 
-      // Create a one-time payment intent for plan analysis (tiered pricing)
+      // Create a one-time payment intent using your Stripe price IDs
       const paymentIntent = await stripe.paymentIntents.create({
         amount: Math.round(price * 100), // Convert to cents
         currency: 'usd',
@@ -1179,7 +1185,8 @@ Start your journey at laplumbprep.com/courses
           service: 'plan-analysis',
           type: 'pay-per-use',
           tier: tier,
-          fileSizeMB: fileSizeMB.toFixed(2)
+          fileSizeMB: fileSizeMB.toFixed(2),
+          priceId: priceId
         }
       });
 
@@ -1204,13 +1211,14 @@ Start your journey at laplumbprep.com/courses
         return res.status(400).json({ message: "Question required" });
       }
 
-      // Create a one-time payment intent for mentor question ($0.99)
+      // Create a one-time payment intent for mentor question using your Stripe price ID
       const paymentIntent = await stripe.paymentIntents.create({
         amount: 99, // $0.99 in cents
         currency: 'usd',
         metadata: {
           service: 'mentor-question',
-          type: 'pay-per-use'
+          type: 'pay-per-use',
+          priceId: 'price_1S4DVoByFL1L8uV2sC7p8FLk' // AI Mentor - $0.99
         }
       });
 
