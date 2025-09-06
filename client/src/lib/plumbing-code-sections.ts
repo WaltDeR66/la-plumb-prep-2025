@@ -1,8 +1,43 @@
+// Utility functions for chapter-based filtering
+export function getChapterFromSection(sectionValue: string): number {
+  return Math.floor(parseInt(sectionValue, 10) / 100);
+}
+
+export function parseChapterNumber(chapterStr: string): number {
+  const match = chapterStr.match(/\d+/);
+  return match ? parseInt(match[0], 10) : 0;
+}
+
+export function filterSectionsByChapter(chapterStr: string): typeof PLUMBING_CODE_SECTIONS {
+  const chapterNum = parseChapterNumber(chapterStr);
+  return PLUMBING_CODE_SECTIONS.filter(section => 
+    getChapterFromSection(section.value) === chapterNum
+  ).sort((a, b) => parseInt(a.value, 10) - parseInt(b.value, 10));
+}
+
 // Louisiana Plumbing Code sections data (only odd-numbered sections exist)
 export const PLUMBING_CODE_SECTIONS = [
+  // Chapter 1 - Administration (101-139)
   { value: "101", label: "§101 - General" },
   { value: "103", label: "§103 - Availability" },
   { value: "105", label: "§105 - Effective Dates and Editions" },
+  { value: "107", label: "§107 - Applicability" },
+  { value: "109", label: "§109 - Referenced Codes and Standards" },
+  { value: "111", label: "§111 - Conflicting Requirements" },
+  { value: "113", label: "§113 - Permits" },
+  { value: "115", label: "§115 - Required Permits and Fees" },
+  { value: "117", label: "§117 - Application for Permits" },
+  { value: "119", label: "§119 - Permit Issuance" },
+  { value: "121", label: "§121 - Inspection Requirements" },
+  { value: "123", label: "§123 - Plumbing Inspector Qualifications" },
+  { value: "125", label: "§125 - Inspection Scheduling" },
+  { value: "127", label: "§127 - Required Inspections" },
+  { value: "129", label: "§129 - Reinspection" },
+  { value: "131", label: "§131 - Approval of Installation" },
+  { value: "133", label: "§133 - Notices and Orders" },
+  { value: "135", label: "§135 - Violations" },
+  { value: "137", label: "§137 - Stop Work Orders" },
+  { value: "139", label: "§139 - Unsafe Plumbing" },
   { value: "201", label: "§201 - General" },
   { value: "301", label: "§301 - General" },
   { value: "303", label: "§303 - Compliance with Codes" },

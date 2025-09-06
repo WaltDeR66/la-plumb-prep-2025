@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -9,7 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { Upload, FileText, CheckCircle, AlertCircle, Clock, BookOpen } from "lucide-react";
-import { PLUMBING_CODE_SECTIONS } from "@/lib/plumbing-code-sections";
+import { PLUMBING_CODE_SECTIONS, filterSectionsByChapter } from "@/lib/plumbing-code-sections";
 
 export default function BulkStudyPlanImport() {
   const { toast } = useToast();
@@ -18,6 +18,14 @@ export default function BulkStudyPlanImport() {
   const [selectedChapter, setSelectedChapter] = useState("");
   const [selectedSection, setSelectedSection] = useState("");
   const [selectedDifficulty, setSelectedDifficulty] = useState("medium");
+
+  // Filter sections based on selected chapter
+  const filteredSections = selectedChapter ? filterSectionsByChapter(selectedChapter) : [];
+
+  // Reset section when chapter changes
+  useEffect(() => {
+    setSelectedSection("");
+  }, [selectedChapter]);
   const [studyPlanText, setStudyPlanText] = useState("");
   const [previewPlans, setPreviewPlans] = useState<any[]>([]);
   const [importStatus, setImportStatus] = useState<"idle" | "parsing" | "previewing" | "importing" | "success">("idle");
@@ -281,12 +289,12 @@ export default function BulkStudyPlanImport() {
               </div>
               <div>
                 <Label htmlFor="section">Section</Label>
-                <Select value={selectedSection} onValueChange={setSelectedSection}>
+                <Select value={selectedSection} onValueChange={setSelectedSection} disabled={!selectedChapter}>
                   <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Select section" />
+                    <SelectValue placeholder={selectedChapter ? `Select section for ${selectedChapter}` : "Select chapter first"} />
                   </SelectTrigger>
                   <SelectContent className="max-h-64 overflow-y-auto">
-                    {PLUMBING_CODE_SECTIONS.map((section) => (
+                    {filteredSections.map((section) => (
                       <SelectItem key={section.value} value={section.value}>
                         {section.label}
                       </SelectItem>
