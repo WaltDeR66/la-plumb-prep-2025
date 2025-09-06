@@ -4342,6 +4342,7 @@ Start your journey at laplumbprep.com/courses
       
       // Count individual questions and flashcards within content files
       const quizContent = allContent.filter(content => content.type === 'quiz');
+      console.log('Admin API: Found', quizContent.length, 'quiz files');
       const questions = quizContent
         .reduce((total, quiz) => {
           try {
@@ -4349,6 +4350,7 @@ Start your journey at laplumbprep.com/courses
             const extractedContent = contentObj?.extracted?.content || '';
             // Count numbered questions like "**1. ", "**2. ", etc.
             const questionMatches = extractedContent.match(/\*\*\d+\./g) || [];
+            console.log('Admin API: Quiz', quiz.title, 'has', questionMatches.length, 'questions');
             return total + questionMatches.length;
           } catch (error) {
             console.error('Error parsing quiz content:', error);
