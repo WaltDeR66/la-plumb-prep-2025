@@ -86,7 +86,7 @@ export default function Courses() {
   // Handle enrollment button click
   const handleEnrollClick = (course: Course) => {
     if (!user) {
-      setLocation("/auth/login");
+      setLocation("/pricing");
       return;
     }
 
