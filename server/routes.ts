@@ -4216,10 +4216,13 @@ Start your journey at laplumbprep.com/courses
     try {
       const { courseId } = req.params;
       
-      // Get lessons, chapters, and questions for this course
-      const lessons = await storage.getLessonsByCourse(courseId);
-      const chapters = await storage.getChaptersByCourse(courseId);
-      const questions = await storage.getQuestionsByCourse(courseId);
+      // Get all course content for this course
+      const allContent = await storage.getCourseContent(courseId);
+      
+      // Separate content by type
+      const lessons = allContent.filter(content => content.type === 'lesson');
+      const chapters = allContent.filter(content => content.type === 'chapter');
+      const questions = allContent.filter(content => content.type === 'question');
       
       res.json({
         lessons,
@@ -4229,6 +4232,46 @@ Start your journey at laplumbprep.com/courses
     } catch (error: any) {
       console.error("Error fetching course content:", error);
       res.status(500).json({ error: "Failed to fetch course content" });
+    }
+  });
+
+  // Add new stats endpoint for overview counts
+  app.get("/api/admin/course-content/:courseId/stats", async (req: any, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+    
+    // Check if user is admin (simple check for now)
+    if (!req.user.email?.includes('admin') && req.user.subscriptionTier !== 'master') {
+      return res.status(403).json({ error: "Admin access required" });
+    }
+    
+    try {
+      const { courseId } = req.params;
+      
+      // Get all course content for this course
+      const allContent = await storage.getCourseContent(courseId);
+      
+      // Count by type
+      const stats = {
+        lessons: allContent.filter(content => content.type === 'lesson').length,
+        chapters: allContent.filter(content => content.type === 'chapter').length, 
+        questions: allContent.filter(content => content.type === 'question').length,
+        flashcards: allContent.filter(content => content.type === 'flashcard').length,
+        studyNotes: allContent.filter(content => content.type === 'study_notes').length,
+        studyPlans: allContent.filter(content => content.type === 'study_plan').length,
+        podcasts: allContent.filter(content => content.type === 'podcast').length,
+        aiChat: await storage.getAllChatAnswers().then(answers => 
+          answers.filter(answer => answer.contentId && 
+            allContent.some(content => content.id === answer.contentId)
+          ).length
+        )
+      };
+      
+      res.json(stats);
+    } catch (error: any) {
+      console.error("Error fetching course content stats:", error);
+      res.status(500).json({ error: "Failed to fetch course content stats" });
     }
   });
 

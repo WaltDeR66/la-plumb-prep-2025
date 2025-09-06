@@ -29,13 +29,25 @@ export default function ContentManagement() {
     enabled: !!selectedCourse,
   });
 
+  // Fetch course content stats for overview
+  const { data: contentStats } = useQuery({
+    queryKey: ["/api/admin/course-content", selectedCourse, "stats"],
+    queryFn: () => apiRequest("GET", `/api/admin/course-content/${selectedCourse}/stats`),
+    enabled: !!selectedCourse,
+  });
+
   const safeContent = courseContent || { lessons: [], chapters: [], questions: [] };
+  const safeStats = contentStats || { 
+    lessons: 0, chapters: 0, questions: 0, flashcards: 0, 
+    studyNotes: 0, studyPlans: 0, podcasts: 0, aiChat: 0 
+  };
 
   const addLessonMutation = useMutation({
     mutationFn: async (data: any) => await apiRequest("POST", "/api/admin/lessons", data),
     onSuccess: () => {
       toast({ title: "Lesson added successfully!" });
-      queryClient.invalidateQueries({ queryKey: ["/api/admin/course-content"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/course-content", selectedCourse] });
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/course-content", selectedCourse, "stats"] });
     },
   });
 
@@ -43,7 +55,8 @@ export default function ContentManagement() {
     mutationFn: async (data: any) => await apiRequest("POST", "/api/admin/questions", data),
     onSuccess: () => {
       toast({ title: "Question added successfully!" });
-      queryClient.invalidateQueries({ queryKey: ["/api/admin/course-content"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/course-content", selectedCourse] });
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/course-content", selectedCourse, "stats"] });
     },
   });
 
@@ -51,7 +64,8 @@ export default function ContentManagement() {
     mutationFn: async (data: any) => await apiRequest("POST", "/api/admin/chapters", data),
     onSuccess: () => {
       toast({ title: "Chapter added successfully!" });
-      queryClient.invalidateQueries({ queryKey: ["/api/admin/course-content"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/course-content", selectedCourse] });
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/course-content", selectedCourse, "stats"] });
     },
   });
 
@@ -210,62 +224,96 @@ export default function ContentManagement() {
             <TabsContent value="overview">
               <div className="space-y-6">
                 {/* Content Statistics */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                   <Card>
                     <CardHeader className="flex flex-row items-center space-y-0 pb-2">
-                      <CardTitle className="text-sm font-medium">Total Lessons</CardTitle>
+                      <CardTitle className="text-sm font-medium">Lessons</CardTitle>
                       <BookOpen className="h-4 w-4 ml-auto text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                      <div className="text-2xl font-bold">{safeContent.lessons?.length || 0}</div>
+                      <div className="text-2xl font-bold" data-testid="text-lessons-count">
+                        {safeStats.lessons}
+                      </div>
                     </CardContent>
                   </Card>
                   <Card>
                     <CardHeader className="flex flex-row items-center space-y-0 pb-2">
-                      <CardTitle className="text-sm font-medium">Total Chapters</CardTitle>
+                      <CardTitle className="text-sm font-medium">Chapters</CardTitle>
                       <FileText className="h-4 w-4 ml-auto text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                      <div className="text-2xl font-bold">{safeContent.chapters?.length || 0}</div>
+                      <div className="text-2xl font-bold" data-testid="text-chapters-count">
+                        {safeStats.chapters}
+                      </div>
                     </CardContent>
                   </Card>
                   <Card>
                     <CardHeader className="flex flex-row items-center space-y-0 pb-2">
-                      <CardTitle className="text-sm font-medium">Total Questions</CardTitle>
+                      <CardTitle className="text-sm font-medium">Questions</CardTitle>
                       <HelpCircle className="h-4 w-4 ml-auto text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                      <div className="text-2xl font-bold">{safeContent.questions?.length || 0}</div>
+                      <div className="text-2xl font-bold" data-testid="text-questions-count">
+                        {safeStats.questions}
+                      </div>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardHeader className="flex flex-row items-center space-y-0 pb-2">
+                      <CardTitle className="text-sm font-medium">Flashcards</CardTitle>
+                      <Upload className="h-4 w-4 ml-auto text-muted-foreground" />
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-2xl font-bold" data-testid="text-flashcards-count">
+                        {safeStats.flashcards}
+                      </div>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardHeader className="flex flex-row items-center space-y-0 pb-2">
+                      <CardTitle className="text-sm font-medium">Study Notes</CardTitle>
+                      <BookOpen className="h-4 w-4 ml-auto text-muted-foreground" />
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-2xl font-bold" data-testid="text-studynotes-count">
+                        {safeStats.studyNotes}
+                      </div>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardHeader className="flex flex-row items-center space-y-0 pb-2">
+                      <CardTitle className="text-sm font-medium">Study Plans</CardTitle>
+                      <Clock className="h-4 w-4 ml-auto text-muted-foreground" />
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-2xl font-bold" data-testid="text-studyplans-count">
+                        {safeStats.studyPlans}
+                      </div>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardHeader className="flex flex-row items-center space-y-0 pb-2">
+                      <CardTitle className="text-sm font-medium">Podcasts</CardTitle>
+                      <Mic className="h-4 w-4 ml-auto text-muted-foreground" />
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-2xl font-bold" data-testid="text-podcasts-count">
+                        {safeStats.podcasts}
+                      </div>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardHeader className="flex flex-row items-center space-y-0 pb-2">
+                      <CardTitle className="text-sm font-medium">AI Chat Content</CardTitle>
+                      <Brain className="h-4 w-4 ml-auto text-muted-foreground" />
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-2xl font-bold" data-testid="text-aichat-count">
+                        {safeStats.aiChat}
+                      </div>
                     </CardContent>
                   </Card>
                 </div>
-
-                {/* Quick Actions */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Quick Actions</CardTitle>
-                    <CardDescription>Create content individually or use bulk import tools</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      <AddLessonDialog 
-                        courseId={selectedCourse} 
-                        onAdd={addLessonMutation.mutate}
-                        isPending={addLessonMutation.isPending}
-                      />
-                      <AddChapterDialog 
-                        courseId={selectedCourse} 
-                        onAdd={addChapterMutation.mutate}
-                        isPending={addChapterMutation.isPending}
-                      />
-                      <AddQuestionDialog 
-                        courseId={selectedCourse} 
-                        onAdd={addQuestionMutation.mutate}
-                        isPending={addQuestionMutation.isPending}
-                      />
-                    </div>
-                  </CardContent>
-                </Card>
               </div>
             </TabsContent>
 
