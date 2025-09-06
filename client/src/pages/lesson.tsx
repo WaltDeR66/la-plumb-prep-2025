@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { 
   BookOpen, 
   Play, 
@@ -326,23 +327,39 @@ export default function Lesson() {
                 <Clock className="h-8 w-8 text-primary" />
               </div>
               <h3 className="text-xl font-semibold">Timed Study Sessions</h3>
-              <p className="text-muted-foreground text-sm">
-                Choose from structured study plans with timed sections to help you focus and learn efficiently.
+              <p className="text-muted-foreground text-sm mb-6">
+                Choose your study duration and start a structured, timed learning session.
               </p>
-              <Button 
-                size="lg" 
-                asChild 
-                className="w-full"
-                data-testid="select-study-plans-button"
-              >
-                <Link href={`/study-plans/${courseId}`}>
-                  <Clock className="h-4 w-4 mr-2" />
-                  Select Study Plans
-                </Link>
-              </Button>
-              <p className="text-xs text-muted-foreground">
-                Available durations: 15 minutes • 30 minutes • 1 hour
-              </p>
+              <div className="space-y-4">
+                <Select onValueChange={(duration) => window.location.href = `/study-plans/${courseId}/${duration}/0`}>
+                  <SelectTrigger className="w-full" data-testid="study-plan-duration-select">
+                    <SelectValue placeholder="Select study duration" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="15" data-testid="option-15-min">
+                      <div className="flex items-center gap-2">
+                        <Clock className="h-4 w-4" />
+                        15 Minutes - Quick Review
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="30" data-testid="option-30-min">
+                      <div className="flex items-center gap-2">
+                        <Clock className="h-4 w-4" />
+                        30 Minutes - Comprehensive Study
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="60" data-testid="option-60-min">
+                      <div className="flex items-center gap-2">
+                        <Clock className="h-4 w-4" />
+                        1 Hour - Deep Dive Learning
+                      </div>
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-muted-foreground">
+                  Structured content with timed sections and automatic progression
+                </p>
+              </div>
             </div>
           </div>
         </TabsContent>
