@@ -1657,7 +1657,9 @@ export class DatabaseStorage implements IStorage {
 
   // Get questions by section for quiz
   async getQuestionsBySection(section: string): Promise<any[]> {
-    return await db
+    console.log('🔍 Getting questions for section:', section);
+    
+    const questions = await db
       .select()
       .from(competitionQuestions)
       .where(and(
@@ -1665,6 +1667,11 @@ export class DatabaseStorage implements IStorage {
         like(competitionQuestions.codeReference, `%${section}%`)
       ))
       .orderBy(competitionQuestions.createdAt);
+      
+    console.log('📊 Found', questions.length, 'questions for section', section);
+    console.log('📝 Code references:', questions.map(q => q.codeReference).slice(0, 3));
+    
+    return questions;
   }
 
   // Create a new question
