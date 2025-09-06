@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { useRoute, Link } from "wouter";
+import { useRoute, Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -54,6 +54,7 @@ interface Course {
 
 export default function Lesson() {
   const [match, params] = useRoute("/course/:courseId/lesson/:section");
+  const [, navigate] = useLocation();
   const courseId = params?.courseId;
   const section = params?.section;
 
@@ -79,11 +80,6 @@ export default function Lesson() {
     enabled: !!resolvedCourseId,
   });
 
-  // Fetch study plans for this course
-  const { data: studyPlans } = useQuery<Array<{id: string, title: string, content: string, duration: number}>>({
-    queryKey: [`/api/courses/${resolvedCourseId}/study-plans`],
-    enabled: !!resolvedCourseId,
-  });
 
   // Filter content for this specific section and sort by the desired order
   const sectionContent = allContent?.filter(item => {
@@ -93,7 +89,7 @@ export default function Lesson() {
   });
   
   // Define the correct content order
-  const contentOrder = ['lesson', 'podcast', 'chat', 'flashcards', 'study-notes', 'quiz'];
+  const contentOrder = ['lesson', 'podcast', 'chat', 'flashcards', 'study-notes', 'study-plan', 'quiz'];
   
   // Sort content by the defined order
   const sortedContent = sectionContent?.sort((a, b) => {
@@ -255,77 +251,153 @@ export default function Lesson() {
             const IconComponent = getTypeIcon(item.type);
             const isCompleted = index < completed;
             const isCurrent = index === completed;
-          
-          return (
-            <Card 
-              key={item.id} 
-              className={`transition-all ${isCurrent ? 'ring-2 ring-primary' : ''} ${isCompleted ? 'bg-green-50 border-green-200' : ''}`}
-              data-testid={`content-card-${item.type}-${index}`}
-            >
-              <CardContent className="p-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-4">
-                    {/* Step Number */}
-                    <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold ${
-                      isCompleted 
-                        ? 'bg-green-100 text-green-800 border-2 border-green-300' 
-                        : isCurrent 
-                          ? 'bg-primary text-primary-foreground border-2 border-primary' 
-                          : 'bg-gray-100 text-gray-600 border-2 border-gray-200'
-                    }`} data-testid={`step-number-${index + 1}`}>
-                      {isCompleted ? '✓' : index + 1}
-                    </div>
-                    
-                    {/* Content Info */}
-                    <div>
-                      <div className="flex items-center space-x-2">
-                        <IconComponent className="w-5 h-5 text-muted-foreground" />
-                        <Badge variant="outline" className={getTypeColor(item.type)} data-testid={`content-type-${item.type}`}>
-                          {getTypeLabel(item.type)}
-                        </Badge>
-                      </div>
-                      <h3 className="font-medium text-foreground mt-1" data-testid={`content-title-${index}`}>
-                        {getTypeLabel(item.type)}
-                      </h3>
-                      {item.duration && (
-                        <div className="flex items-center space-x-1 text-sm text-muted-foreground mt-1">
-                          <Clock className="w-3 h-3" />
-                          <span>{item.duration}h</span>
+
+            // Special handling for study-plan items - show dropdown instead of regular card
+            if (item.type === 'study-plan') {
+              return (
+                <Card 
+                  key={item.id} 
+                  className={`transition-all ${isCurrent ? 'ring-2 ring-primary' : ''} ${isCompleted ? 'bg-green-50 border-green-200' : ''}`}
+                  data-testid={`content-card-${item.type}-${index}`}
+                >
+                  <CardContent className="p-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-4">
+                        {/* Step Number */}
+                        <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold ${
+                          isCompleted 
+                            ? 'bg-green-100 text-green-800 border-2 border-green-300' 
+                            : isCurrent 
+                              ? 'bg-primary text-primary-foreground border-2 border-primary' 
+                              : 'bg-gray-100 text-gray-600 border-2 border-gray-200'
+                        }`} data-testid={`step-number-${index + 1}`}>
+                          {isCompleted ? '✓' : index + 1}
                         </div>
+                        
+                        {/* Content Info */}
+                        <div>
+                          <div className="flex items-center space-x-2">
+                            <IconComponent className="w-5 h-5 text-muted-foreground" />
+                            <Badge variant="outline" className={getTypeColor(item.type)} data-testid={`content-type-${item.type}`}>
+                              {getTypeLabel(item.type)}
+                            </Badge>
+                          </div>
+                          <h3 className="font-medium text-foreground mt-1" data-testid={`content-title-${index}`}>
+                            {getTypeLabel(item.type)}
+                          </h3>
+                          <p className="text-sm text-muted-foreground mt-1">
+                            Choose your study duration and start a timed session
+                          </p>
+                        </div>
+                      </div>
+                      
+                      {/* Dropdown for Study Duration */}
+                      <div className="flex items-center space-x-2">
+                        {isCompleted && (
+                          <Badge className="bg-green-100 text-green-800" data-testid={`completed-badge-${index}`}>
+                            Completed
+                          </Badge>
+                        )}
+                        
+                        <Select 
+                          disabled={!isCurrent && !isCompleted && index > completed}
+                          onValueChange={(duration) => navigate(`/study-plans/${courseId}/${duration}/0`)}
+                        >
+                          <SelectTrigger className="w-48" data-testid="lesson-flow-study-duration-select">
+                            <SelectValue placeholder="Select study time" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="15" data-testid="lesson-flow-option-15-min">
+                              <div className="flex items-center gap-2">
+                                <Clock className="h-4 w-4" />
+                                15 Minutes
+                              </div>
+                            </SelectItem>
+                            <SelectItem value="30" data-testid="lesson-flow-option-30-min">
+                              <div className="flex items-center gap-2">
+                                <Clock className="h-4 w-4" />
+                                30 Minutes
+                              </div>
+                            </SelectItem>
+                            <SelectItem value="60" data-testid="lesson-flow-option-60-min">
+                              <div className="flex items-center gap-2">
+                                <Clock className="h-4 w-4" />
+                                1 Hour
+                              </div>
+                            </SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            }
+
+            // Regular handling for other content types
+            return (
+              <Card 
+                key={item.id} 
+                className={`transition-all ${isCurrent ? 'ring-2 ring-primary' : ''} ${isCompleted ? 'bg-green-50 border-green-200' : ''}`}
+                data-testid={`content-card-${item.type}-${index}`}
+              >
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-4">
+                      {/* Step Number */}
+                      <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold ${
+                        isCompleted 
+                          ? 'bg-green-100 text-green-800 border-2 border-green-300' 
+                          : isCurrent 
+                            ? 'bg-primary text-primary-foreground border-2 border-primary' 
+                            : 'bg-gray-100 text-gray-600 border-2 border-gray-200'
+                      }`} data-testid={`step-number-${index + 1}`}>
+                        {isCompleted ? '✓' : index + 1}
+                      </div>
+                      
+                      {/* Content Info */}
+                      <div>
+                        <div className="flex items-center space-x-2">
+                          <IconComponent className="w-5 h-5 text-muted-foreground" />
+                          <Badge variant="outline" className={getTypeColor(item.type)} data-testid={`content-type-${item.type}`}>
+                            {getTypeLabel(item.type)}
+                          </Badge>
+                        </div>
+                        <h3 className="font-medium text-foreground mt-1" data-testid={`content-title-${index}`}>
+                          {getTypeLabel(item.type)}
+                        </h3>
+                        {item.duration && (
+                          <div className="flex items-center space-x-1 text-sm text-muted-foreground mt-1">
+                            <Clock className="w-3 h-3" />
+                            <span>{item.duration}h</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                    
+                    {/* Action Button */}
+                    <div className="flex items-center space-x-2">
+                      {isCompleted && (
+                        <Badge className="bg-green-100 text-green-800" data-testid={`completed-badge-${index}`}>
+                          Completed
+                        </Badge>
                       )}
+                      
+                      <Button 
+                        variant={isCurrent ? "default" : isCompleted ? "outline" : "ghost"}
+                        disabled={!isCurrent && !isCompleted && index > completed}
+                        asChild
+                        data-testid={`button-study-${item.type}-${index}`}
+                      >
+                        <Link href={`/course/${courseId}/${item.type === 'podcast' ? 'podcast' : 'content'}/${item.id}${item.type === 'podcast' && isCompleted ? '?autostart=true' : ''}`}>
+                          <Play className="w-4 h-4 mr-2" />
+                          {isCompleted ? "Review" : isCurrent ? "Continue" : "Start"}
+                        </Link>
+                      </Button>
                     </div>
                   </div>
-                  
-                  {/* Action Button */}
-                  <div className="flex items-center space-x-2">
-                    {isCompleted && (
-                      <Badge className="bg-green-100 text-green-800" data-testid={`completed-badge-${index}`}>
-                        Completed
-                      </Badge>
-                    )}
-                    
-                    <Button 
-                      variant={isCurrent ? "default" : isCompleted ? "outline" : "ghost"}
-                      disabled={!isCurrent && !isCompleted && index > completed}
-                      asChild
-                      data-testid={`button-study-${item.type}-${index}`}
-                    >
-                      <Link href={
-                        item.type === 'study-plan' 
-                          ? `/study-plans/${courseId}` 
-                          : `/course/${courseId}/${item.type === 'podcast' ? 'podcast' : 'content'}/${item.id}${item.type === 'podcast' && isCompleted ? '?autostart=true' : ''}`
-                      }>
-                        <Play className="w-4 h-4 mr-2" />
-                        {item.type === 'study-plan' 
-                          ? (isCompleted ? "Study Again" : isCurrent ? "Start Study" : "Start Study")
-                          : (isCompleted ? "Review" : isCurrent ? "Continue" : "Start")
-                        }
-                      </Link>
-                    </Button>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
             );
           })}
         </TabsContent>
@@ -341,24 +413,24 @@ export default function Lesson() {
                 Choose your study duration and start a structured, timed learning session.
               </p>
               <div className="space-y-4">
-                <Select onValueChange={(duration) => window.location.href = `/study-plans/${courseId}/${duration}/0`}>
-                  <SelectTrigger className="w-full" data-testid="study-plan-duration-select">
+                <Select onValueChange={(duration) => navigate(`/study-plans/${courseId}/${duration}/0`)}>
+                  <SelectTrigger className="w-full" data-testid="tab-study-plan-duration-select">
                     <SelectValue placeholder="Select study duration" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="15" data-testid="option-15-min">
+                    <SelectItem value="15" data-testid="tab-option-15-min">
                       <div className="flex items-center gap-2">
                         <Clock className="h-4 w-4" />
                         15 Minutes - Quick Review
                       </div>
                     </SelectItem>
-                    <SelectItem value="30" data-testid="option-30-min">
+                    <SelectItem value="30" data-testid="tab-option-30-min">
                       <div className="flex items-center gap-2">
                         <Clock className="h-4 w-4" />
                         30 Minutes - Comprehensive Study
                       </div>
                     </SelectItem>
-                    <SelectItem value="60" data-testid="option-60-min">
+                    <SelectItem value="60" data-testid="tab-option-60-min">
                       <div className="flex items-center gap-2">
                         <Clock className="h-4 w-4" />
                         1 Hour - Deep Dive Learning

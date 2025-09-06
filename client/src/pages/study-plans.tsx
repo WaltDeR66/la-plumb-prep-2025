@@ -153,32 +153,17 @@ export default function StudyPlans() {
                             Structured content with timed sections
                           </p>
                         </div>
-                        <div className="space-y-2">
-                          <Button 
-                            asChild
-                            className="w-full"
-                            size="lg"
-                            data-testid={`start-${duration}-min-plan`}
-                          >
-                            <Link href={`/study-plans/${courseId}/${duration}/0`}>
-                              <Play className="h-4 w-4 mr-2" />
-                              Start {durationLabel} Study
-                            </Link>
-                          </Button>
-                          
-                          <Button 
-                            asChild
-                            variant="outline"
-                            className="w-full"
-                            size="sm"
-                            data-testid={`review-${duration}-min-plan`}
-                          >
-                            <Link href={`/study-plans/${courseId}/${duration}/0?review=true`}>
-                              <BookOpen className="h-4 w-4 mr-2" />
-                              Review Previous Sessions
-                            </Link>
-                          </Button>
-                        </div>
+                        <Button 
+                          asChild
+                          className="w-full"
+                          size="lg"
+                          data-testid={`start-${duration}-min-plan`}
+                        >
+                          <Link href={`/study-plans/${courseId}/${duration}/0`}>
+                            <Play className="h-4 w-4 mr-2" />
+                            Start {durationLabel} Study
+                          </Link>
+                        </Button>
                       </>
                     ) : (
                       <>
