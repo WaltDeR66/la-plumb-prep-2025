@@ -37,20 +37,6 @@ export default function AIToolsPricing() {
       plans: ["Professional", "Master"]
     },
     {
-      icon: FileText,
-      title: "Plan Analysis Tool", 
-      description: "Upload construction plans and blueprints to automatically generate material lists, cost estimates, and code compliance checks. Powered by GPT-5 for comprehensive plan review and analysis.",
-      details: [
-        "Automatic material list generation",
-        "Cost estimation with current pricing",
-        "Code compliance verification",
-        "Identifies potential conflicts",
-        "Suggests optimization opportunities",
-        "Exports to common formats"
-      ],
-      plans: ["Master"]
-    },
-    {
       icon: Wand2,
       title: "AI Mentor Support",
       description: "24/7 AI-powered plumbing mentor that answers technical questions, provides code interpretations, and offers installation guidance. Trained on Louisiana plumbing codes and industry best practices.",
@@ -76,7 +62,7 @@ export default function AIToolsPricing() {
       payPerUse: true,
       aiFeatures: [
         "Photo Analysis: $2.99 per photo",
-        "Plan Analysis: $9.99 per plan", 
+        "Plan Analysis: $4.99 - $39.99 (by file size)", 
         "AI Mentor: $0.99 per question",
         "No subscription required"
       ],
@@ -96,7 +82,6 @@ export default function AIToolsPricing() {
       popular: true,
       aiFeatures: [
         "Photo Code Checker",
-        "Plan Analysis Tool",
         "AI Mentor Support", 
         "Unlimited AI analysis",
         "Priority support"
@@ -116,7 +101,6 @@ export default function AIToolsPricing() {
       description: "AI tools yearly plan",
       aiFeatures: [
         "Photo Code Checker",
-        "Plan Analysis Tool",
         "AI Mentor Support",
         "Unlimited AI analysis",
         "Priority support"
@@ -182,8 +166,13 @@ export default function AIToolsPricing() {
             </h1>
           </div>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto mb-8" data-testid="ai-tools-description">
-            Revolutionary AI technology designed specifically for Louisiana plumbers. Analyze photos, review plans, and get expert guidance powered by advanced machine learning.
+            Revolutionary AI technology designed specifically for Louisiana plumbers. Analyze photos with subscription plans or use our Plan Analysis Tool with pay-per-use pricing.
           </p>
+          <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 max-w-2xl mx-auto">
+            <p className="text-sm text-blue-700 dark:text-blue-300">
+              <strong>📋 Plan Analysis Tool:</strong> Now available as pay-per-use with tiered pricing ($4.99 - $39.99) based on file size. No subscription required!
+            </p>
+          </div>
           <div className="flex flex-col items-center space-y-6">
             <div className="flex items-center justify-center space-x-8 text-sm text-muted-foreground">
               <div className="flex items-center space-x-2">
