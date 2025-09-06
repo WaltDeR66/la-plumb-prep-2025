@@ -137,7 +137,7 @@ export function AmazonProductSearch({
                     className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
                     onError={(e) => {
                       const target = e.target as HTMLImageElement;
-                      target.src = '/api/placeholder/300/300';
+                      target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjMwMCIgdmlld0JveD0iMCAwIDMwMCAzMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIzMDAiIGhlaWdodD0iMzAwIiBmaWxsPSIjRjNGNEY2Ii8+CjxwYXRoIGQ9Ik0xNTAgMTIwQzE2NS41IDEyMCAxNzggMTMyLjUgMTc4IDE0OEMxNzggMTYzLjUgMTY1LjUgMTc2IDE1MCAxNzZDMTM0LjUgMTc2IDEyMiAxNjMuNSAxMjIgMTQ4QzEyMiAxMzIuNSAxMzQuNSAxMjAgMTUwIDEyMFoiIGZpbGw9IiM5Q0EzQUYiLz4KPHN2Zz4K';
                     }}
                   />
                   <Badge 

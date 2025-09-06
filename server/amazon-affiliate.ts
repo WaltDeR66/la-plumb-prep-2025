@@ -61,7 +61,7 @@ export class AmazonAffiliateService {
       {
         title: "RIDGID 31632 Model 103 Close Quarters Tubing Cutter",
         price: "$23.97",
-        image: "https://m.media-amazon.com/images/I/71j+7mFJVmL._AC_UL320_.jpg",
+        image: "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjMwMCIgdmlld0JveD0iMCAwIDMwMCAzMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIzMDAiIGhlaWdodD0iMzAwIiBmaWxsPSIjRjNGNEY2Ii8+CjxjaXJjbGUgY3g9IjE1MCIgY3k9IjE1MCIgcj0iNDAiIGZpbGw9IiM2MzY2RjEiLz4KPHN2Zz4K",
         url: this.generateAffiliateLink("https://www.amazon.com/dp/B000BQTCPQ"),
         rating: "4.5",
         reviews: "1,203",
@@ -71,7 +71,7 @@ export class AmazonAffiliateService {
       {
         title: "SharkBite U720A 1/2-Inch Slip Coupling, 2-Pack",
         price: "$8.47",
-        image: "https://m.media-amazon.com/images/I/61v0vJdv6cL._AC_UL320_.jpg",
+        image: "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjMwMCIgdmlld0JveD0iMCAwIDMwMCAzMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIzMDAiIGhlaWdodD0iMzAwIiBmaWxsPSIjRjNGNEY2Ii8+CjxyZWN0IHg9IjEyMCIgeT0iMTIwIiB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIGZpbGw9IiMxMEI5ODEiLz4KPHN2Zz4K",
         url: this.generateAffiliateLink("https://www.amazon.com/dp/B004I9YBRQ"),
         rating: "4.6",
         reviews: "2,154",
@@ -81,7 +81,7 @@ export class AmazonAffiliateService {
       {
         title: "DEWALT Pipe Threading Machine, Heavy Duty (DWPN50)",
         price: "$2,397.00",
-        image: "https://m.media-amazon.com/images/I/71wXvJKGOEL._AC_UL320_.jpg",
+        image: "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjMwMCIgdmlld0JveD0iMCAwIDMwMCAzMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIzMDAiIGhlaWdodD0iMzAwIiBmaWxsPSIjRjNGNEY2Ii8+CjxjaXJjbGUgY3g9IjE1MCIgY3k9IjE1MCIgcj0iNDAiIGZpbGw9IiNGRjlBMDAiLz4KPHN2Zz4K",
         url: this.generateAffiliateLink("https://www.amazon.com/dp/B00I4V5ZSS"),
         rating: "4.7",
         reviews: "89",
@@ -91,7 +91,7 @@ export class AmazonAffiliateService {
       {
         title: "General Tools & Instruments 1/8 Digital Pipe Locator",
         price: "$89.99",
-        image: "https://m.media-amazon.com/images/I/51UjvTtYMkL._AC_UL320_.jpg",
+        image: "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjMwMCIgdmlld0JveD0iMCAwIDMwMCAzMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIzMDAiIGhlaWdodD0iMzAwIiBmaWxsPSIjRjNGNEY2Ii8+CjxyZWN0IHg9IjEyMCIgeT0iMTIwIiB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIGZpbGw9IiNEQzI2MjYiLz4KPHN2Zz4K",
         url: this.generateAffiliateLink("https://www.amazon.com/dp/B00K2MZKXW"),
         rating: "4.1",
         reviews: "342",
@@ -101,7 +101,7 @@ export class AmazonAffiliateService {
       {
         title: "Milwaukee M12 Fuel Hackzall Reciprocating Saw Kit",
         price: "$199.00",
-        image: "https://m.media-amazon.com/images/I/81WHRJ7CqRL._AC_UL320_.jpg",
+        image: "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjMwMCIgdmlld0JveD0iMCAwIDMwMCAzMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIzMDAiIGhlaWdodD0iMzAwIiBmaWxsPSIjRjNGNEY2Ii8+CjxjaXJjbGUgY3g9IjE1MCIgY3k9IjE1MCIgcj0iNDAiIGZpbGw9IiMxNjE4NUEiLz4KPHN2Zz4K",
         url: this.generateAffiliateLink("https://www.amazon.com/dp/B07D7Z1VPR"),
         rating: "4.8",
         reviews: "567",
@@ -111,7 +111,7 @@ export class AmazonAffiliateService {
       {
         title: "Legend Valve 101-143NL T-451 FIP Ball Valve, Bronze",
         price: "$22.95",
-        image: "https://m.media-amazon.com/images/I/41EwYQeYJ4L._AC_UL320_.jpg",
+        image: "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjMwMCIgdmlld0JveD0iMCAwIDMwMCAzMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIzMDAiIGhlaWdodD0iMzAwIiBmaWxsPSIjRjNGNEY2Ii8+CjxyZWN0IHg9IjEyMCIgeT0iMTIwIiB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIGZpbGw9IiNFNjc5MDAiLz4KPHN2Zz4K",
         url: this.generateAffiliateLink("https://www.amazon.com/dp/B008L8KPTY"),
         rating: "4.4",
         reviews: "198",
