@@ -52,6 +52,10 @@ export default function StudyPlanItem() {
   const courseId = params?.courseId;
   const duration = params?.duration ? parseInt(params.duration) : 0;
   const itemIndex = params?.itemIndex ? parseInt(params.itemIndex) : 0;
+  
+  // Check if we're in review mode
+  const urlParams = new URLSearchParams(window.location.search);
+  const isReviewMode = urlParams.get('review') === 'true';
 
   if (!courseId || !duration) {
     return <div>Study plan not found</div>;
@@ -267,63 +271,82 @@ export default function StudyPlanItem() {
         
         <div className="text-center">
           <Badge variant="outline" className="bg-primary/10 text-primary">
-            {duration === 60 ? '1 Hour' : `${duration} Minutes`} Study Plan
+            {isReviewMode ? 'Review: ' : ''}{duration === 60 ? '1 Hour' : `${duration} Minutes`} Study Plan
           </Badge>
           <p className="text-sm text-muted-foreground mt-1">
             Section {currentSectionIndex + 1} of {sections.length}
           </p>
+          {isReviewMode && (
+            <Badge variant="outline" className="bg-yellow-100 text-yellow-800 mt-1">
+              Review Mode - No Timer
+            </Badge>
+          )}
         </div>
       </div>
 
-      {/* Timer Card */}
-      <Card className="mb-6">
-        <CardHeader className="text-center">
-          <CardTitle className="flex items-center justify-center gap-2">
-            <Clock className="h-5 w-5" />
-            {currentSection.title}
-          </CardTitle>
-          <p className="text-sm text-muted-foreground">
-            Minutes {currentSection.startMinute}-{currentSection.endMinute}
-          </p>
-        </CardHeader>
-        <CardContent>
-          <div className="text-center space-y-4">
-            <div className="text-6xl font-bold text-primary" data-testid="timer-display">
-              {formatTime(timeRemaining)}
-            </div>
-            
-            <Progress value={progressPercentage} className="h-3" />
-            
-            <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
-              <Badge variant={isActive ? "default" : "secondary"}>
-                {isActive ? "Active" : "Paused"}
-              </Badge>
-            </div>
-            
-            <div className="flex justify-center gap-2">
-              <Button
-                onClick={toggleTimer}
-                variant={isActive ? "secondary" : "default"}
-                className="flex items-center gap-2"
-                data-testid="timer-toggle"
-              >
-                {isActive ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
-                {isActive ? "Pause" : "Start"}
-              </Button>
+      {/* Timer Card or Review Header */}
+      {!isReviewMode ? (
+        <Card className="mb-6">
+          <CardHeader className="text-center">
+            <CardTitle className="flex items-center justify-center gap-2">
+              <Clock className="h-5 w-5" />
+              {currentSection.title}
+            </CardTitle>
+            <p className="text-sm text-muted-foreground">
+              Minutes {currentSection.startMinute}-{currentSection.endMinute}
+            </p>
+          </CardHeader>
+          <CardContent>
+            <div className="text-center space-y-4">
+              <div className="text-6xl font-bold text-primary" data-testid="timer-display">
+                {formatTime(timeRemaining)}
+              </div>
               
-              <Button
-                onClick={resetTimer}
-                variant="outline"
-                className="flex items-center gap-2"
-                data-testid="timer-reset"
-              >
-                <RotateCcw className="h-4 w-4" />
-                Reset
-              </Button>
+              <Progress value={progressPercentage} className="h-3" />
+              
+              <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
+                <Badge variant={isActive ? "default" : "secondary"}>
+                  {isActive ? "Active" : "Paused"}
+                </Badge>
+              </div>
+              
+              <div className="flex justify-center gap-2">
+                <Button
+                  onClick={toggleTimer}
+                  variant={isActive ? "secondary" : "default"}
+                  className="flex items-center gap-2"
+                  data-testid="timer-toggle"
+                >
+                  {isActive ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
+                  {isActive ? "Pause" : "Start"}
+                </Button>
+              
+                <Button
+                  onClick={resetTimer}
+                  variant="outline"
+                  className="flex items-center gap-2"
+                  data-testid="timer-reset"
+                >
+                  <RotateCcw className="h-4 w-4" />
+                  Reset
+                </Button>
+              </div>
             </div>
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      ) : (
+        <Card className="mb-6">
+          <CardHeader className="text-center">
+            <CardTitle className="flex items-center justify-center gap-2">
+              <BookOpen className="h-5 w-5" />
+              Review: {currentSection.title}
+            </CardTitle>
+            <p className="text-sm text-muted-foreground">
+              Minutes {currentSection.startMinute}-{currentSection.endMinute} • Review Mode
+            </p>
+          </CardHeader>
+        </Card>
+      )}
 
       {/* Content Card */}
       <Card className="mb-6">

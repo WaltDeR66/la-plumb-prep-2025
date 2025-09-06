@@ -159,6 +159,7 @@ export default function Lesson() {
       case 'chat': return MessageSquare;
       case 'flashcards': return Bookmark;
       case 'study-notes': return NotebookPen;
+      case 'study-plan': return Clock;
       default: return BookOpen;
     }
   };
@@ -171,6 +172,7 @@ export default function Lesson() {
       case 'chat': return 'Teach Me Chat';
       case 'flashcards': return 'Flashcards';
       case 'study-notes': return 'Study Notes';
+      case 'study-plan': return 'Timed Study';
       default: return type;
     }
   };
@@ -183,6 +185,7 @@ export default function Lesson() {
       case 'chat': return 'bg-orange-100 text-orange-800 border-orange-200';
       case 'flashcards': return 'bg-pink-100 text-pink-800 border-pink-200';
       case 'study-notes': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+      case 'study-plan': return 'bg-indigo-100 text-indigo-800 border-indigo-200';
       default: return 'bg-gray-100 text-gray-800 border-gray-200';
     }
   };
@@ -307,9 +310,16 @@ export default function Lesson() {
                       asChild
                       data-testid={`button-study-${item.type}-${index}`}
                     >
-                      <Link href={`/course/${courseId}/${item.type === 'podcast' ? 'podcast' : 'content'}/${item.id}${item.type === 'podcast' && isCompleted ? '?autostart=true' : ''}`}>
+                      <Link href={
+                        item.type === 'study-plan' 
+                          ? `/study-plans/${courseId}` 
+                          : `/course/${courseId}/${item.type === 'podcast' ? 'podcast' : 'content'}/${item.id}${item.type === 'podcast' && isCompleted ? '?autostart=true' : ''}`
+                      }>
                         <Play className="w-4 h-4 mr-2" />
-                        {isCompleted ? "Review" : isCurrent ? "Continue" : "Start"}
+                        {item.type === 'study-plan' 
+                          ? (isCompleted ? "Study Again" : isCurrent ? "Start Study" : "Start Study")
+                          : (isCompleted ? "Review" : isCurrent ? "Continue" : "Start")
+                        }
                       </Link>
                     </Button>
                   </div>
