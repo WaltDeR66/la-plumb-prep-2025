@@ -5,11 +5,13 @@ import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { MessageCircle, Send, Bot, User, Lightbulb, Timer } from "lucide-react";
+import { MessageCircle, Send, Bot, User, Lightbulb, Timer, Download, Lock, Crown } from "lucide-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { useStudySession } from "@/hooks/use-study-session";
+import { AuthService } from "@/lib/auth";
+import { Link } from "wouter";
 
 interface Message {
   role: "user" | "assistant";
@@ -38,8 +40,19 @@ export default function AIMentorChat() {
     autoStart: true
   });
 
+  // Get current user data
+  const { data: user } = useQuery({
+    queryKey: ["/api/auth/me"],
+    retry: false,
+  });
+
+  // Check if user has AI mentor access (Professional/Master tiers only)
+  const hasAIAccess = user ? AuthService.hasFeatureAccess(user, 'ai_mentor') : false;
+  const userTier = user?.subscriptionTier || 'basic';
+
   const { data: conversations, isLoading } = useQuery({
     queryKey: ["/api/mentor/conversations"],
+    enabled: hasAIAccess, // Only fetch conversations if user has AI access
   });
 
   const chatMutation = useMutation({
@@ -93,142 +106,225 @@ export default function AIMentorChat() {
 
   const getQuickPrompts = () => [
     "What's the minimum pipe size for a 3-fixture bathroom?",
-    "How do I test a backflow prevention assembly?",
-    "What are the Louisiana requirements for gas line pressure testing?",
-    "Explain the difference between Type L and Type M copper pipe",
-    "What clearances are required for water heater installation?",
+    "Explain water pressure requirements for residential buildings",
+    "What are the Louisiana-specific fixture installation codes?",
+    "How do I calculate pipe sizing for a commercial building?",
+    "What's required for backflow prevention systems?",
+    "Explain grease trap installation requirements",
+  ];
+
+  const getBasicContent = () => [
+    {
+      title: "Louisiana Plumbing Code Section 1: General Administration",
+      description: "Complete overview of code administration and enforcement",
+      downloadUrl: "/public-objects/louisiana-code-section-1.pdf"
+    },
+    {
+      title: "Pipe Sizing Reference Guide",
+      description: "Comprehensive tables and calculations for pipe sizing",
+      downloadUrl: "/public-objects/pipe-sizing-guide.pdf"
+    },
+    {
+      title: "Fixture Installation Standards",
+      description: "Standard installation procedures for common fixtures",
+      downloadUrl: "/public-objects/fixture-installation-guide.pdf"
+    },
+    {
+      title: "Code Compliance Checklist",
+      description: "Quick reference checklist for common inspections",
+      downloadUrl: "/public-objects/compliance-checklist.pdf"
+    },
   ];
 
   const currentConversation = getCurrentConversation();
-  const messages = currentConversation?.messages || [];
 
-  return (
-    <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 h-[600px]" data-testid="ai-mentor-chat">
-      {/* Conversation List */}
-      <Card className="lg:col-span-1" data-testid="conversation-list">
-        <CardHeader>
-          <CardTitle className="flex items-center space-x-2">
-            <MessageCircle className="w-5 h-5" />
-            <span>Conversations</span>
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="p-0">
-          <ScrollArea className="h-[500px]">
-            <div className="space-y-2 p-4">
-              <Button
-                variant="outline"
-                className="w-full justify-start"
-                onClick={() => setSelectedConversation(null)}
-                data-testid="new-conversation"
-              >
-                <MessageCircle className="w-4 h-4 mr-2" />
-                New Conversation
-              </Button>
-              
-              {isLoading ? (
-                <div className="space-y-2">
-                  {[...Array(3)].map((_, i) => (
-                    <div key={i} className="h-12 bg-muted animate-pulse rounded"></div>
-                  ))}
+  if (isLoading && hasAIAccess) {
+    return (
+      <div className="flex justify-center items-center h-32">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
+  // Show different interface based on subscription tier
+  if (!hasAIAccess) {
+    // Basic Plan: Downloadable Content Interface
+    return (
+      <div className="max-w-4xl mx-auto" data-testid="ai-mentor-chat">
+        <Card className="min-h-[600px]">
+          <CardHeader className="border-b">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 rounded-full bg-gradient-to-r from-green-500 to-blue-600 flex items-center justify-center">
+                  <Download className="w-5 h-5 text-white" />
                 </div>
-              ) : conversations?.length > 0 ? (
-                conversations.map((conversation: Conversation) => (
-                  <Button
-                    key={conversation.id}
-                    variant={selectedConversation === conversation.id ? "default" : "ghost"}
-                    className="w-full justify-start text-left h-auto p-3"
-                    onClick={() => setSelectedConversation(conversation.id)}
-                    data-testid={`conversation-${conversation.id}`}
-                  >
-                    <div className="truncate">
-                      <p className="text-sm font-medium truncate">
-                        {conversation.messages[0]?.content.substring(0, 30) || "New conversation"}
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        {new Date(conversation.updatedAt).toLocaleDateString()}
-                      </p>
-                    </div>
-                  </Button>
-                ))
-              ) : (
-                <p className="text-sm text-muted-foreground text-center py-4">
-                  No conversations yet
-                </p>
-              )}
-            </div>
-          </ScrollArea>
-        </CardContent>
-      </Card>
-
-      {/* Chat Interface */}
-      <Card className="lg:col-span-3" data-testid="chat-interface">
-        <CardHeader>
-          <CardTitle className="flex items-center justify-between">
-            <div className="flex items-center space-x-2">
-              <Bot className="w-5 h-5 text-primary" />
-              <span>AI Plumbing Mentor</span>
-              <Badge variant="secondary">Online</Badge>
-            </div>
-            {studySession.isActive && (
-              <Badge variant="outline" className="flex items-center gap-1">
-                <Timer className="w-3 h-3" />
-                {studySession.formattedTime}
-              </Badge>
-            )}
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="p-0">
-          {/* Chat Messages */}
-          <ScrollArea className="h-[400px] p-4" ref={scrollAreaRef} data-testid="chat-messages">
-            {messages.length === 0 ? (
-              <div className="text-center py-8 space-y-4">
-                <Bot className="w-16 h-16 text-muted-foreground mx-auto" />
                 <div>
-                  <h3 className="text-lg font-semibold text-foreground">Welcome to AI Mentor</h3>
-                  <p className="text-muted-foreground">
-                    Ask me anything about Louisiana plumbing codes, installation techniques, or exam preparation.
+                  <CardTitle className="flex items-center gap-2">
+                    Teach Me Chat - Study Materials
+                    <Badge variant="secondary" className="text-xs">
+                      <Download className="w-3 h-3 mr-1" />
+                      Basic Plan
+                    </Badge>
+                  </CardTitle>
+                  <p className="text-sm text-muted-foreground">
+                    Download comprehensive Louisiana plumbing code study materials
                   </p>
                 </div>
-                
-                {/* Quick Prompts */}
-                <div className="space-y-2 max-w-md mx-auto">
-                  <p className="text-sm font-medium text-foreground">Quick questions to get started:</p>
-                  {getQuickPrompts().map((prompt, index) => (
-                    <Button
-                      key={index}
-                      variant="outline"
+              </div>
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <Timer className="w-4 h-4" />
+                <span>Session: {studySession.timeSpent}</span>
+              </div>
+            </div>
+          </CardHeader>
+
+          <CardContent className="p-6">
+            <div className="grid gap-4">
+              {getBasicContent().map((item, index) => (
+                <Card key={index} className="p-4 hover:shadow-md transition-shadow">
+                  <div className="flex items-center justify-between">
+                    <div className="flex-1">
+                      <h3 className="font-medium text-foreground">{item.title}</h3>
+                      <p className="text-sm text-muted-foreground mt-1">{item.description}</p>
+                    </div>
+                    <Button 
+                      asChild 
+                      variant="outline" 
                       size="sm"
-                      className="w-full text-left text-xs h-auto p-2 justify-start"
-                      onClick={() => setCurrentMessage(prompt)}
-                      data-testid={`quick-prompt-${index}`}
+                      data-testid={`download-${index}`}
                     >
-                      <Lightbulb className="w-3 h-3 mr-2 flex-shrink-0" />
-                      <span className="truncate">{prompt}</span>
+                      <a href={item.downloadUrl} download>
+                        <Download className="w-4 h-4 mr-2" />
+                        Download
+                      </a>
                     </Button>
-                  ))}
+                  </div>
+                </Card>
+              ))}
+            </div>
+
+            <div className="mt-8 p-6 bg-gradient-to-r from-orange-50 to-amber-50 border border-orange-200 rounded-lg">
+              <div className="flex items-start gap-4">
+                <div className="w-12 h-12 rounded-full bg-gradient-to-r from-orange-500 to-amber-600 flex items-center justify-center">
+                  <Crown className="w-6 h-6 text-white" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-lg font-semibold text-foreground mb-2">
+                    Unlock AI Mentor Chat
+                  </h3>
+                  <p className="text-muted-foreground mb-4">
+                    Upgrade to Professional or Master plan to access our AI-powered mentor that provides instant, 
+                    personalized answers to your plumbing code questions.
+                  </p>
+                  <div className="space-y-2 mb-4">
+                    <div className="flex items-center gap-2 text-sm">
+                      <Bot className="w-4 h-4 text-orange-600" />
+                      <span>Instant answers to any Louisiana plumbing code question</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm">
+                      <Lightbulb className="w-4 h-4 text-orange-600" />
+                      <span>Smart suggestions and code interpretation</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm">
+                      <MessageCircle className="w-4 h-4 text-orange-600" />
+                      <span>Interactive conversation-based learning</span>
+                    </div>
+                  </div>
+                  <Button asChild className="bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700">
+                    <Link href="/pricing">
+                      Upgrade Now
+                    </Link>
+                  </Button>
                 </div>
               </div>
-            ) : (
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  // Professional/Master Plans: AI Chat Interface
+  return (
+    <div className="max-w-4xl mx-auto" data-testid="ai-mentor-chat">
+      <Card className="h-[600px] flex flex-col">
+        <CardHeader className="border-b">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <div className="w-10 h-10 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center">
+                <Bot className="w-5 h-5 text-white" />
+              </div>
+              <div>
+                <CardTitle className="flex items-center gap-2">
+                  AI Mentor Chat
+                  <Badge variant="secondary" className="text-xs">
+                    <Lightbulb className="w-3 h-3 mr-1" />
+                    Smart Assistant
+                  </Badge>
+                  <Badge className="text-xs bg-gradient-to-r from-orange-500 to-amber-600">
+                    <Crown className="w-3 h-3 mr-1" />
+                    {userTier === 'master' ? 'Master' : 'Professional'}
+                  </Badge>
+                </CardTitle>
+                <p className="text-sm text-muted-foreground">
+                  Get instant help with Louisiana plumbing codes
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <Timer className="w-4 h-4" />
+              <span>Session: {studySession.timeSpent}</span>
+            </div>
+          </div>
+        </CardHeader>
+
+        <CardContent className="flex-1 flex flex-col p-0">
+          {/* Quick Action Prompts */}
+          {!currentConversation && (
+            <div className="p-4 border-b bg-muted/30">
+              <h3 className="text-sm font-medium mb-3">Quick Start Prompts</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                {getQuickPrompts().map((prompt, index) => (
+                  <Button
+                    key={index}
+                    variant="outline"
+                    size="sm"
+                    className="text-xs justify-start h-auto py-2 px-3"
+                    onClick={() => setCurrentMessage(prompt)}
+                    data-testid={`quick-prompt-${index}`}
+                  >
+                    {prompt}
+                  </Button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Chat Messages */}
+          <ScrollArea className="flex-1 p-4" ref={scrollAreaRef}>
+            {currentConversation ? (
               <div className="space-y-4">
-                {messages.map((message, index) => (
+                {currentConversation.messages.map((message, index) => (
                   <div
                     key={index}
-                    className={`flex ${
-                      message.role === "user" ? "justify-end" : "justify-start"
-                    }`}
-                    data-testid={`message-${index}`}
+                    className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
                   >
-                    <div
-                      className={`w-full p-3 rounded-lg ${
-                        message.role === "user"
-                          ? "bg-primary text-primary-foreground"
-                          : "bg-muted"
-                      }`}
-                    >
-                      <p className="text-sm whitespace-pre-wrap">{message.content}</p>
-                      <p className="text-xs opacity-70 mt-1">
-                        {new Date(message.timestamp).toLocaleTimeString()}
-                      </p>
+                    <div className={`flex items-start space-x-2 max-w-[80%] ${message.role === 'user' ? 'flex-row-reverse space-x-reverse' : ''}`}>
+                      <Avatar className="w-8 h-8">
+                        <AvatarFallback className={message.role === 'user' ? 'bg-primary text-primary-foreground' : 'bg-muted'}>
+                          {message.role === 'user' ? <User className="w-4 h-4" /> : <Bot className="w-4 h-4" />}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className={`p-3 rounded-lg ${
+                        message.role === 'user' 
+                          ? 'bg-primary text-primary-foreground' 
+                          : 'bg-muted'
+                      }`}>
+                        <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+                        <p className="text-xs opacity-70 mt-1">
+                          {new Date(message.timestamp).toLocaleTimeString()}
+                        </p>
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -244,6 +340,12 @@ export default function AIMentorChat() {
                     </div>
                   </div>
                 )}
+              </div>
+            ) : (
+              <div className="text-center text-muted-foreground py-8">
+                <Bot className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                <p>Start a conversation with your AI mentor!</p>
+                <p className="text-sm">Ask about Louisiana plumbing codes, installation procedures, or code compliance.</p>
               </div>
             )}
           </ScrollArea>
