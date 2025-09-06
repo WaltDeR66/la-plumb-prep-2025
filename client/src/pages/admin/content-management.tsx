@@ -7,7 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Plus, BookOpen, HelpCircle, FileText, Video, Headphones, Upload } from "lucide-react";
+import { Plus, BookOpen, HelpCircle, FileText, Video, Headphones, Upload, Mic, Clock, Brain } from "lucide-react";
 import { Link } from "wouter";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -88,12 +88,13 @@ export default function ContentManagement() {
         </Card>
 
         {selectedCourse && (
-          <Tabs defaultValue="lessons" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-4">
+          <Tabs defaultValue="overview" className="space-y-6">
+            <TabsList className="grid w-full grid-cols-5">
+              <TabsTrigger value="overview">Overview</TabsTrigger>
               <TabsTrigger value="lessons">Lessons</TabsTrigger>
               <TabsTrigger value="chapters">Chapters</TabsTrigger>
               <TabsTrigger value="questions">Questions</TabsTrigger>
-              <TabsTrigger value="overview">Overview</TabsTrigger>
+              <TabsTrigger value="imports">Bulk Imports</TabsTrigger>
             </TabsList>
 
             <TabsContent value="lessons">
@@ -172,19 +173,11 @@ export default function ContentManagement() {
                     <CardTitle>Practice Questions</CardTitle>
                     <CardDescription>Create practice questions for lessons and tests</CardDescription>
                   </div>
-                  <div className="flex gap-2">
-                    <Link href="/admin/bulk-import">
-                      <Button variant="outline" className="flex items-center gap-2">
-                        <Upload className="h-4 w-4" />
-                        Bulk Import
-                      </Button>
-                    </Link>
-                    <AddQuestionDialog 
-                      courseId={selectedCourse} 
-                      onAdd={addQuestionMutation.mutate}
-                      isPending={addQuestionMutation.isPending}
-                    />
-                  </div>
+                  <AddQuestionDialog 
+                    courseId={selectedCourse} 
+                    onAdd={addQuestionMutation.mutate}
+                    isPending={addQuestionMutation.isPending}
+                  />
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
@@ -215,32 +208,162 @@ export default function ContentManagement() {
             </TabsContent>
 
             <TabsContent value="overview">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="space-y-6">
+                {/* Content Statistics */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <Card>
+                    <CardHeader className="flex flex-row items-center space-y-0 pb-2">
+                      <CardTitle className="text-sm font-medium">Total Lessons</CardTitle>
+                      <BookOpen className="h-4 w-4 ml-auto text-muted-foreground" />
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-2xl font-bold">{safeContent.lessons?.length || 0}</div>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardHeader className="flex flex-row items-center space-y-0 pb-2">
+                      <CardTitle className="text-sm font-medium">Total Chapters</CardTitle>
+                      <FileText className="h-4 w-4 ml-auto text-muted-foreground" />
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-2xl font-bold">{safeContent.chapters?.length || 0}</div>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardHeader className="flex flex-row items-center space-y-0 pb-2">
+                      <CardTitle className="text-sm font-medium">Total Questions</CardTitle>
+                      <HelpCircle className="h-4 w-4 ml-auto text-muted-foreground" />
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-2xl font-bold">{safeContent.questions?.length || 0}</div>
+                    </CardContent>
+                  </Card>
+                </div>
+
+                {/* Quick Actions */}
                 <Card>
-                  <CardHeader className="flex flex-row items-center space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">Total Lessons</CardTitle>
-                    <BookOpen className="h-4 w-4 ml-auto text-muted-foreground" />
+                  <CardHeader>
+                    <CardTitle>Quick Actions</CardTitle>
+                    <CardDescription>Create content individually or use bulk import tools</CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold">{safeContent.lessons?.length || 0}</div>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <AddLessonDialog 
+                        courseId={selectedCourse} 
+                        onAdd={addLessonMutation.mutate}
+                        isPending={addLessonMutation.isPending}
+                      />
+                      <AddChapterDialog 
+                        courseId={selectedCourse} 
+                        onAdd={addChapterMutation.mutate}
+                        isPending={addChapterMutation.isPending}
+                      />
+                      <AddQuestionDialog 
+                        courseId={selectedCourse} 
+                        onAdd={addQuestionMutation.mutate}
+                        isPending={addQuestionMutation.isPending}
+                      />
+                    </div>
                   </CardContent>
                 </Card>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="imports">
+              <div className="space-y-6">
                 <Card>
-                  <CardHeader className="flex flex-row items-center space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">Total Chapters</CardTitle>
-                    <FileText className="h-4 w-4 ml-auto text-muted-foreground" />
+                  <CardHeader>
+                    <CardTitle>Bulk Import Tools</CardTitle>
+                    <CardDescription>
+                      Import multiple pieces of content at once to quickly build your course
+                    </CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold">{safeContent.chapters?.length || 0}</div>
-                  </CardContent>
-                </Card>
-                <Card>
-                  <CardHeader className="flex flex-row items-center space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">Total Questions</CardTitle>
-                    <HelpCircle className="h-4 w-4 ml-auto text-muted-foreground" />
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold">{safeContent.questions?.length || 0}</div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                      <Link href={`/admin/bulk-import?courseId=${selectedCourse}`}>
+                        <Card className="hover:shadow-lg transition-shadow cursor-pointer h-full">
+                          <CardHeader>
+                            <CardTitle className="flex items-center gap-2 text-base">
+                              <Upload className="h-5 w-5" />
+                              Bulk Questions
+                            </CardTitle>
+                            <CardDescription>
+                              Import multiple practice questions using text format
+                            </CardDescription>
+                          </CardHeader>
+                        </Card>
+                      </Link>
+
+                      <Link href={`/admin/flashcard-import?courseId=${selectedCourse}`}>
+                        <Card className="hover:shadow-lg transition-shadow cursor-pointer h-full">
+                          <CardHeader>
+                            <CardTitle className="flex items-center gap-2 text-base">
+                              <Upload className="h-5 w-5" />
+                              Bulk Flashcards
+                            </CardTitle>
+                            <CardDescription>
+                              Import flashcards with terms and definitions
+                            </CardDescription>
+                          </CardHeader>
+                        </Card>
+                      </Link>
+
+                      <Link href={`/admin/study-notes-import?courseId=${selectedCourse}`}>
+                        <Card className="hover:shadow-lg transition-shadow cursor-pointer h-full">
+                          <CardHeader>
+                            <CardTitle className="flex items-center gap-2 text-base">
+                              <BookOpen className="h-5 w-5" />
+                              Study Notes
+                            </CardTitle>
+                            <CardDescription>
+                              Import structured study notes with headings
+                            </CardDescription>
+                          </CardHeader>
+                        </Card>
+                      </Link>
+
+                      <Link href={`/admin/study-plan-import?courseId=${selectedCourse}`}>
+                        <Card className="hover:shadow-lg transition-shadow cursor-pointer h-full">
+                          <CardHeader>
+                            <CardTitle className="flex items-center gap-2 text-base">
+                              <Clock className="h-5 w-5" />
+                              Study Plans
+                            </CardTitle>
+                            <CardDescription>
+                              Import adaptive study plans with time-based sessions
+                            </CardDescription>
+                          </CardHeader>
+                        </Card>
+                      </Link>
+
+                      <Link href={`/admin/podcast-import?courseId=${selectedCourse}`}>
+                        <Card className="hover:shadow-lg transition-shadow cursor-pointer h-full">
+                          <CardHeader>
+                            <CardTitle className="flex items-center gap-2 text-base">
+                              <Mic className="h-5 w-5" />
+                              Podcast Episodes
+                            </CardTitle>
+                            <CardDescription>
+                              Import conversation content to create podcast episodes
+                            </CardDescription>
+                          </CardHeader>
+                        </Card>
+                      </Link>
+
+                      <Link href={`/admin/content-import?courseId=${selectedCourse}`}>
+                        <Card className="hover:shadow-lg transition-shadow cursor-pointer h-full">
+                          <CardHeader>
+                            <CardTitle className="flex items-center gap-2 text-base">
+                              <Brain className="h-5 w-5" />
+                              AI Chat Content
+                            </CardTitle>
+                            <CardDescription>
+                              Import educational content for the AI mentor chat system
+                            </CardDescription>
+                          </CardHeader>
+                        </Card>
+                      </Link>
+                    </div>
                   </CardContent>
                 </Card>
               </div>
