@@ -5321,16 +5321,33 @@ Start your journey at laplumbprep.com/courses
         }
       });
       
-      // Create only new questions
+      // Create only new questions - DEBUG VERSION
+      console.log('=== BULK IMPORT DEBUG START ===');
       console.log('📝 About to create', newQuestions.length, 'new questions');
-      console.log('📋 First question sample:', JSON.stringify(newQuestions[0], null, 2));
       
-      const createdQuestions = await Promise.all(
-        newQuestions.map((q: any) => {
-          console.log('🔍 Processing question:', q.questionText || q.question || 'NO QUESTION TEXT');
-          return storage.createQuestion(q);
-        })
-      );
+      if (newQuestions.length > 0) {
+        const firstQ = newQuestions[0];
+        console.log('📋 First question structure:', {
+          hasQuestion: !!firstQ.question,
+          hasQuestionText: !!firstQ.questionText,
+          questionPreview: (firstQ.question || firstQ.questionText || 'MISSING').substring(0, 50),
+          allKeys: Object.keys(firstQ)
+        });
+      }
+      
+      const createdQuestions: any[] = [];
+      for (let i = 0; i < newQuestions.length; i++) {
+        const q = newQuestions[i];
+        console.log(`🔍 Question ${i + 1}: "${(q.question || q.questionText || 'UNDEFINED').substring(0, 30)}..."`);
+        try {
+          const created = await storage.createQuestion(q);
+          createdQuestions.push(created);
+        } catch (error) {
+          console.error(`❌ Failed to create question ${i + 1}:`, error);
+          throw error;
+        }
+      }
+      console.log('=== BULK IMPORT DEBUG END ===');
       
       res.json({ 
         success: true, 

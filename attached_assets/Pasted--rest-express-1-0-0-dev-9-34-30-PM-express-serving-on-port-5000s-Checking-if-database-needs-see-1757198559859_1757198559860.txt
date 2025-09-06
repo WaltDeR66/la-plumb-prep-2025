@@ -1,0 +1,53 @@
+> rest-express@1.0.0 dev
+9:34:30 PM [express] serving on port 5000s
+Checking if database needs seeding...
+Database already seeded
+Browserslist: browsers data (caniuse-lite) is 11 months old. Please run:
+  npx update-browserslist-db@latest
+  Why you should do it regularly: https://github.com/browserslist/update-db#readme
+Email campaigns already initialized
+Beta feedback system initialized
+9:34:35 PM [express] Email automation system initialized
+9:34:35 PM [express] Bulk pricing system initialized
+9:34:35 PM [express] Beta feedback system initialized
+9:34:37 PM [express] GET /api/auth/me 401 in 3ms :: {"message":"Not authenticated"}
+9:34:37 PM [express] GET /api/section-progress/5f02238b-afb2-4e7f-a488-96fb471fee56 401 in 1ms :: {"…
+Courses API called - this is a public endpoint
+9:34:37 PM [express] GET /api/courses 200 in 64ms :: [{"id":"5f02238b-afb2-4e7f-a488-96fb471fee56","…
+9:34:38 PM [express] GET /api/courses/5f02238b-afb2-4e7f-a488-96fb471fee56/content 200 in 491ms :: […
+9:34:38 PM [express] POST /api/study-sessions/start 401 in 1ms :: {"message":"Not authenticated"}
+9:34:40 PM [express] GET /api/auth/me 401 in 1ms :: {"message":"Not authenticated"}
+9:34:43 PM [express] GET /api/auth/me 401 in 1ms :: {"message":"Not authenticated"}
+Processing 0 pending emails
+Processing 0 pending emails
+Processing 0 pending emails
+Processing 0 pending emails
+Processing 0 pending emails
+Processing 0 pending emails
+Processing 0 pending emails
+Processing 0 pending emails
+Processing 0 pending emails
+Processing 0 pending emails
+10:29:04 PM [express] GET /api/auth/me 401 in 1ms :: {"message":"Not authenticated"}
+Processing 0 pending emails
+10:33:25 PM [express] POST /api/auth/login 200 in 663ms :: {"message":"Login successful","user":{"id"…
+10:33:25 PM [express] GET /api/auth/me 200 in 69ms :: {"id":"admin-test-user","email":"admin@latraine…
+10:33:26 PM [express] GET /api/enrollments 200 in 127ms :: [{"id":"admin-enrollment","userId":"admin-…
+Courses API called - this is a public endpoint
+10:33:26 PM [express] GET /api/courses 200 in 123ms :: [{"id":"5f02238b-afb2-4e7f-a488-96fb471fee56",…
+10:33:26 PM [express] GET /api/job-applications 200 in 264ms
+10:33:28 PM [express] GET /api/mentor/conversations 200 in 2311ms :: []
+10:33:38 PM [express] GET /api/courses/5f02238b-afb2-4e7f-a488-96fb471fee56/content 200 in 352ms :: […
+10:33:38 PM [express] GET /api/section-progress/5f02238b-afb2-4e7f-a488-96fb471fee56 200 in 495ms :: …
+10:33:44 PM [express] POST /api/study-sessions/start 200 in 135ms :: {"id":"138e44a9-492c-4ca7-955f-f…
+10:34:03 PM [express] GET /api/job-applications 200 in 258ms
+🔧 ADMIN STATS API CALLED for course: 5f02238b-afb2-4e7f-a488-96fb471fee56
+10:34:13 PM [express] GET /api/admin/course-content/5f02238b-afb2-4e7f-a488-96fb471fee56 200 in 287ms…
+Admin API: Found 80 questions in unified system
+10:34:13 PM [express] GET /api/admin/course-content/5f02238b-afb2-4e7f-a488-96fb471fee56/stats 200 in…
+Processing 0 pending emails
+10:35:23 PM [express] POST /api/admin/questions/bulk-import 200 in 776ms :: {"success":true,"imported…
+10:37:16 PM [vite] hmr update /src/pages/admin/bulk-question-import.tsx, /src/index.css?v=-08snbRoDtFFdm-znDH_g
+10:38:43 PM [express] POST /api/admin/questions/bulk-import 200 in 448ms :: {"success":true,"imported…
+Processing 0 pending emails
+10:40:50 PM [express] POST /api/admin/questions/bulk-import 200 in 424ms :: {"success":true,"imported…
