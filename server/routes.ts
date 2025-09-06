@@ -4862,6 +4862,112 @@ Start your journey at laplumbprep.com/courses
     }
   });
 
+  // Interactive Quiz Routes
+  
+  // Start a quiz for a specific section
+  app.post("/api/quiz/:section/start", async (req: any, res) => {
+    try {
+      const { section } = req.params;
+      
+      // Get questions for this section (20 random questions of mixed difficulty)
+      const allQuestions = await storage.getQuestionsBySection(section);
+      
+      if (allQuestions.length === 0) {
+        return res.status(404).json({ error: "No questions found for this section" });
+      }
+      
+      // Select 20 questions with difficulty distribution
+      const easyQuestions = allQuestions.filter(q => q.difficulty === 'easy' || q.difficulty === 'medium');
+      const hardQuestions = allQuestions.filter(q => q.difficulty === 'hard');
+      const veryHardQuestions = allQuestions.filter(q => q.difficulty === 'very_hard');
+      
+      // Mix difficulties: 10 easy/medium, 5 hard, 5 very_hard (adjust based on available questions)
+      const selectedQuestions = [
+        ...easyQuestions.slice(0, Math.min(10, easyQuestions.length)),
+        ...hardQuestions.slice(0, Math.min(5, hardQuestions.length)),
+        ...veryHardQuestions.slice(0, Math.min(5, veryHardQuestions.length))
+      ];
+      
+      // If we don't have enough, fill with any available questions
+      if (selectedQuestions.length < 20) {
+        const remaining = allQuestions.filter(q => !selectedQuestions.find(sq => sq.id === q.id));
+        selectedQuestions.push(...remaining.slice(0, 20 - selectedQuestions.length));
+      }
+      
+      // Shuffle the questions
+      const shuffledQuestions = selectedQuestions.sort(() => Math.random() - 0.5).slice(0, 20);
+      
+      res.json({
+        id: `quiz-${section}-${Date.now()}`,
+        section,
+        questions: shuffledQuestions.map(q => ({
+          id: q.id,
+          question: q.question,
+          options: q.options,
+          correctAnswer: q.correctAnswer,
+          explanation: q.explanation,
+          codeReference: q.codeReference,
+          difficulty: q.difficulty
+        }))
+      });
+    } catch (error: any) {
+      console.error("Error starting quiz:", error);
+      res.status(500).json({ error: "Failed to start quiz" });
+    }
+  });
+
+  // Submit quiz answers
+  app.post("/api/quiz/:section/submit", async (req: any, res) => {
+    try {
+      const { section } = req.params;
+      const { contentId, questions, timeSpent } = req.body;
+      
+      if (!questions || !Array.isArray(questions)) {
+        return res.status(400).json({ error: "Questions data is required" });
+      }
+      
+      // Calculate score
+      const correctAnswers = questions.filter(q => q.isCorrect).length;
+      const totalQuestions = questions.length;
+      const score = Math.round((correctAnswers / totalQuestions) * 100);
+      const passed = score >= 70;
+      
+      // Store quiz attempt if user is authenticated
+      let attemptId = null;
+      if (req.isAuthenticated?.()) {
+        const attempt = await storage.createQuizAttempt({
+          userId: req.user.id,
+          contentId: contentId,
+          score: score,
+          totalQuestions: totalQuestions,
+          correctAnswers: correctAnswers,
+          timeSpent: timeSpent,
+          passed: passed,
+          answers: questions.map(q => ({
+            questionId: q.id,
+            userAnswer: q.userAnswer,
+            correctAnswer: q.correctAnswer,
+            isCorrect: q.isCorrect
+          }))
+        });
+        attemptId = attempt.id;
+      }
+      
+      res.json({
+        attemptId,
+        score,
+        passed,
+        correctAnswers,
+        totalQuestions,
+        timeSpent,
+        incorrectQuestions: questions.filter(q => !q.isCorrect)
+      });
+    } catch (error: any) {
+      console.error("Error submitting quiz:", error);
+      res.status(500).json({ error: "Failed to submit quiz" });
+    }
+  });
+
   // Amazon Affiliate Product Search Routes
   app.get("/api/amazon/search", async (req, res) => {
     try {

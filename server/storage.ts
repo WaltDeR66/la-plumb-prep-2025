@@ -1655,6 +1655,18 @@ export class DatabaseStorage implements IStorage {
       .orderBy(competitionQuestions.createdAt);
   }
 
+  // Get questions by section for quiz
+  async getQuestionsBySection(section: string): Promise<any[]> {
+    return await db
+      .select()
+      .from(competitionQuestions)
+      .where(and(
+        eq(competitionQuestions.isActive, true),
+        like(competitionQuestions.codeReference, `%${section}%`)
+      ))
+      .orderBy(competitionQuestions.createdAt);
+  }
+
   // Create a new question
   async createQuestion(questionData: any): Promise<any> {
     const [newQuestion] = await db
