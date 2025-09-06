@@ -34,7 +34,7 @@ export default function ContentManagement() {
     queryKey: ["/api/admin/course-content", selectedCourse, "stats"],
     queryFn: async () => {
       const response = await apiRequest("GET", `/api/admin/course-content/${selectedCourse}/stats`);
-      return await response.json();
+      return response;
     },
     enabled: !!selectedCourse,
   });
