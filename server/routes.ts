@@ -69,6 +69,116 @@ async function seedCourseContent() {
       isActive: true,
       sortOrder: -1
     },
+
+    // CHAPTER 1 SECTION INTRODUCTIONS
+    {
+      id: "intro-section-101",
+      courseId,
+      title: "Section 101 Introduction - Title and Adoption",
+      type: "lesson",
+      chapter: 1,
+      section: 101,
+      content: {
+        "extracted": {
+          "title": "Section 101 Introduction - Title and Adoption of Louisiana State Plumbing Code",
+          "content": "# Section 101 Introduction - Title and Adoption of Louisiana State Plumbing Code\n\n## What This Section Establishes\n\nSection 101 serves as the **legal foundation** for all plumbing regulations in Louisiana. This critical section formally adopts the Louisiana State Plumbing Code and establishes its authority.\n\n### 🎯 Key Learning Objectives\n\nAfter studying this section, you will understand:\n- **Legal authority** behind Louisiana plumbing regulations\n- **Official terminology** and how to reference the code properly\n- **Relationship** between state and local plumbing codes\n- **Foundation** for all subsequent code sections\n\n### 📋 Critical Concepts to Master\n\n**Code Authority**\n- How the Department of Health and Hospitals adopts plumbing standards\n- The connection between Louisiana Sanitary Code Part XIV and the Plumbing Code\n- Why this legal foundation matters for enforcement\n\n**Proper Terminology**\n- Understanding 'Louisiana State Plumbing Code' vs 'Part XIV (Plumbing) of the Sanitary Code'\n- When and how to cite code references correctly\n- Professional communication about code requirements\n\n### 🔧 Real-World Applications\n\nAs a Louisiana plumber, Section 101 knowledge helps you:\n- **Communicate professionally** with inspectors and officials\n- **Reference code sections** correctly in documentation\n- **Understand legal backing** when explaining requirements to clients\n- **Navigate disputes** by citing proper authority\n\n### 🎓 Study Focus for Certification\n\n**Memorize These Key Points:**\n- The official name and citation format for Louisiana plumbing regulations\n- Which department has authority over plumbing code adoption\n- How to properly reference code sections in professional settings\n\n**Practical Application:**\nThis section provides the legal basis for everything else you'll learn. Consider it the 'constitutional foundation' of Louisiana plumbing work.\n\n### 📝 Connection to Other Sections\n\nSection 101 works with:\n- **Section 103**: Provides availability information for the code\n- **Section 107**: Explains the purpose behind the authority established here\n- **All subsequent sections**: Derive their legal power from this foundational section\n\n---\n\n**Study Tip:** Think of Section 101 as answering 'What gives this code its power?' - understanding this foundation makes all other sections more meaningful and enforceable.",
+          "extractedAt": "2025-01-30T22:15:00Z"
+        }
+      },
+      isActive: true,
+      sortOrder: 1
+    },
+
+    {
+      id: "intro-section-103",
+      courseId,
+      title: "Section 103 Introduction - Availability",
+      type: "lesson",
+      chapter: 1,
+      section: 103,
+      content: {
+        "extracted": {
+          "title": "Section 103 Introduction - Availability of the Louisiana State Plumbing Code",
+          "content": "# Section 103 Introduction - Availability of the Louisiana State Plumbing Code\n\n## What This Section Provides\n\nSection 103 ensures **public access** to the Louisiana State Plumbing Code by establishing where and how professionals and citizens can obtain copies of the regulations.\n\n### 🎯 Key Learning Objectives\n\nAfter studying this section, you will know:\n- **Where to obtain** official copies of the plumbing code\n- **How to access** current regulations and updates\n- **Professional responsibility** for staying current with code requirements\n- **Resources available** for code research and verification\n\n### 📋 Critical Concepts to Master\n\n**Official Code Access**\n- Understanding the role of the Office of the State Register\n- How to contact authorities for official code copies\n- Importance of using current, official versions\n\n**Professional Responsibility**\n- Your obligation to work with current code versions\n- How to verify you're using the most recent regulations\n- When updates and amendments become effective\n\n### 🔧 Real-World Applications\n\nAs a Louisiana plumber, Section 103 knowledge helps you:\n- **Stay current** with code changes and updates\n- **Access official information** when questions arise on job sites\n- **Verify code requirements** for complex installations\n- **Provide accurate information** to clients and colleagues\n\n### 🎓 Study Focus for Certification\n\n**Remember These Contact Points:**\n- Office of the State Register contact information\n- Electronic access methods for code viewing\n- Professional requirement to use current code versions\n\n**Professional Practice:**\nKnowing where to find authoritative code information demonstrates professionalism and ensures your work meets current standards.\n\n### 📝 Connection to Other Sections\n\nSection 103 supports:\n- **Section 101**: Provides access to the code whose authority was established\n- **Section 105**: Works with edition information to ensure current code use\n- **All code sections**: Ensures you can access the most current requirements\n\n### 💡 Professional Tip\n\nBookmark official code access points and check for updates regularly. Plumbing inspectors expect you to work with current code versions, and using outdated information can lead to failed inspections and rework.\n\n---\n\n**Study Tip:** Section 103 answers 'How do I get the official code?' - this practical information ensures you always have access to authoritative regulations when needed.",
+          "extractedAt": "2025-01-30T22:16:00Z"
+        }
+      },
+      isActive: true,
+      sortOrder: 2
+    },
+
+    {
+      id: "intro-section-105",
+      courseId,
+      title: "Section 105 Introduction - Effective Date and Edition",
+      type: "lesson",
+      chapter: 1,
+      section: 105,
+      content: {
+        "extracted": {
+          "title": "Section 105 Introduction - Effective Date and Edition Information",
+          "content": "# Section 105 Introduction - Effective Date and Edition Information\n\n## What This Section Establishes\n\nSection 105 provides **critical timing information** about when code requirements take effect and how to identify which edition of the code applies to your work.\n\n### 🎯 Key Learning Objectives\n\nAfter studying this section, you will understand:\n- **When code requirements** become legally enforceable\n- **How edition dating** works for the Louisiana Plumbing Code\n- **Transition periods** and implementation timelines\n- **Which code version** applies to specific projects\n\n### 📋 Critical Concepts to Master\n\n**Code Effective Dates**\n- Understanding when new requirements become mandatory\n- How effective dates affect ongoing projects\n- Transition periods for code compliance\n\n**Edition Identification**\n- How Louisiana Plumbing Code editions are named and dated\n- Identifying which edition applies to your work\n- Staying current with the most recent edition\n\n### 🔧 Real-World Applications\n\nAs a Louisiana plumber, Section 105 knowledge helps you:\n- **Determine which code version** applies to specific projects\n- **Plan project timelines** around code effective dates\n- **Communicate with inspectors** about applicable code editions\n- **Ensure compliance** with current legal requirements\n\n### 🎓 Study Focus for Certification\n\n**Critical Dates to Remember:**\n- February 20, 2013 - Key effective date for major code provisions\n- How the 2013 Edition designation was established\n- Understanding of transition periods and implementation\n\n**Professional Application:**\nKnowing which code edition applies to your work ensures legal compliance and prevents costly rework due to using incorrect requirements.\n\n### 📝 Connection to Other Sections\n\nSection 105 coordinates with:\n- **Section 103**: Ensures you can access the correct edition\n- **Section 113**: Affects how existing buildings are treated under new codes\n- **All subsequent sections**: Determines when their requirements became enforceable\n\n### ⚠️ Important Professional Note\n\nProjects permitted under previous code editions may continue under those requirements, but new work typically must meet current code standards. Understanding effective dates prevents compliance issues.\n\n### 💡 Pro Tip for Certification Exam\n\nThe exam may test your understanding of when different code provisions became effective. Pay special attention to transition dates and how they affect different types of plumbing work.\n\n---\n\n**Study Tip:** Section 105 answers 'When does this code apply?' - this timing information is crucial for ensuring your work meets the correct legal requirements for its timeframe.",
+          "extractedAt": "2025-01-30T22:17:00Z"
+        }
+      },
+      isActive: true,
+      sortOrder: 3
+    },
+
+    {
+      id: "intro-section-107",
+      courseId,
+      title: "Section 107 Introduction - Purpose",
+      type: "lesson",
+      chapter: 1,
+      section: 107,
+      content: {
+        "extracted": {
+          "title": "Section 107 Introduction - Purpose of Louisiana Plumbing Code",
+          "content": "# Section 107 Introduction - Purpose of Louisiana Plumbing Code\n\n## What This Section Defines\n\nSection 107 clearly states the **fundamental purpose** behind Louisiana's plumbing regulations, establishing why these codes exist and what they aim to achieve.\n\n### 🎯 Key Learning Objectives\n\nAfter studying this section, you will understand:\n- **Primary purpose** of Louisiana plumbing regulations\n- **Goals of administration and enforcement** procedures\n- **How purpose guides** code interpretation and application\n- **Connection between purpose and compliance** requirements\n\n### 📋 Critical Concepts to Master\n\n**Administration and Enforcement Purpose**\n- Understanding why consistent code administration is essential\n- How enforcement procedures protect public interests\n- The role of uniformity in code application\n\n**Foundational Goals**\n- Public safety protection through proper plumbing installation\n- Health protection via sanitary plumbing systems\n- General welfare promotion through code compliance\n\n### 🔧 Real-World Applications\n\nAs a Louisiana plumber, Section 107 knowledge helps you:\n- **Explain to clients** why code compliance is important\n- **Understand inspector priorities** during inspections\n- **Make judgment calls** when code interpretation is needed\n- **Communicate professionally** about regulatory purpose\n\n### 🎓 Study Focus for Certification\n\n**Key Purpose Elements:**\n- Administration and enforcement as the primary chapter goal\n- How this purpose affects all subsequent code sections\n- Professional responsibility to support code purposes\n\n**Understanding Intent:**\nKnowing the code's purpose helps you apply requirements correctly even in situations not explicitly covered by specific regulations.\n\n### 📝 Connection to Other Sections\n\nSection 107 provides context for:\n- **Section 109**: Explains why the code is declared remedial\n- **Section 111**: Shows how scope supports the stated purpose\n- **Enforcement sections**: Justifies why administration and enforcement matter\n\n### 💡 Professional Insight\n\nWhen code requirements seem unclear or when facing unique installation challenges, returning to the fundamental purpose in Section 107 can guide appropriate decision-making.\n\n### 🎯 Certification Exam Focus\n\nExam questions may test your understanding of:\n- Why Louisiana has plumbing code administration requirements\n- How purpose influences code interpretation\n- The connection between administration and public safety\n\n---\n\n**Study Tip:** Section 107 answers 'Why do we have this code?' - understanding this purpose makes all other requirements more meaningful and helps you apply them correctly in professional practice.",
+          "extractedAt": "2025-01-30T22:18:00Z"
+        }
+      },
+      isActive: true,
+      sortOrder: 4
+    },
+
+    {
+      id: "intro-section-109",
+      courseId,
+      title: "Section 109 Introduction - Code Remedial",
+      type: "lesson",
+      chapter: 1,
+      section: 109,
+      content: {
+        "extracted": {
+          "title": "Section 109 Introduction - Code Remedial Nature and Scope",
+          "content": "# Section 109 Introduction - Code Remedial Nature and Scope\n\n## What This Section Establishes\n\nSection 109 declares the Louisiana Plumbing Code as **remedial in nature** and defines its scope, limitations, and the responsibilities of various parties in the plumbing process.\n\n### 🎯 Key Learning Objectives\n\nAfter studying this section, you will understand:\n- **Remedial nature** of the plumbing code and what this means\n- **Quality control limitations** and what the code does NOT cover\n- **Permitting and inspection responsibilities** and limitations\n- **Liability protections** for jurisdictions and officials\n\n### 📋 Critical Concepts to Master\n\n**Remedial Declaration**\n- Understanding 'remedial' means the code aims to remedy or prevent problems\n- How this supports public safety, health, and general welfare\n- The focus on regulating installation and maintenance\n\n**Quality Control Boundaries**\n- What aspects of quality control ARE covered by the code\n- What quality aspects are NOT within the code's scope\n- How this affects your responsibilities as a plumber\n\n**Permitting and Inspection Limitations**\n- What permits and inspections can and cannot guarantee\n- Professional liability considerations\n- Understanding the limits of code compliance verification\n\n### 🔧 Real-World Applications\n\nAs a Louisiana plumber, Section 109 knowledge helps you:\n- **Understand code limitations** when discussing warranties with clients\n- **Recognize your professional responsibilities** beyond basic code compliance\n- **Communicate appropriately** about inspection results and their meaning\n- **Manage client expectations** about what code compliance guarantees\n\n### 🎓 Study Focus for Certification\n\n**Key Remedial Aspects:**\n- Public safety, health, and general welfare as primary goals\n- Installation and maintenance regulation as primary focus\n- Quality control limitations and boundaries\n\n**Professional Responsibility:**\nUnderstanding what the code covers (and doesn't cover) helps you provide appropriate professional services and manage liability.\n\n### ⚠️ Important Professional Implications\n\n**What Code Compliance DOES Provide:**\n- Minimum safety and health standards\n- Regulatory compliance verification\n- Foundation for professional installation practices\n\n**What Code Compliance DOES NOT Guarantee:**\n- Perfect system performance\n- Complete protection from all failures\n- Warranty of physical condition or adequacy\n\n### 📝 Connection to Other Sections\n\nSection 109 works with:\n- **Section 107**: Builds on the purpose by defining scope\n- **Section 111**: Complements the general scope provisions\n- **Inspection sections**: Establishes limitations on inspection authority\n\n### 💡 Professional Practice Tip\n\nExplain to clients that code compliance ensures minimum safety standards but doesn't replace the need for quality workmanship, proper maintenance, and appropriate system design for their specific needs.\n\n---\n\n**Study Tip:** Section 109 answers 'What can we expect from this code and what are its limits?' - this understanding helps you apply the code appropriately while managing professional expectations.",
+          "extractedAt": "2025-01-30T22:19:00Z"
+        }
+      },
+      isActive: true,
+      sortOrder: 5
+    },
+
+    // CHAPTER 1 REVIEW INTRODUCTION
+    {
+      id: "intro-chapter-1-review",
+      courseId,
+      title: "Chapter 1 Review Introduction - Administration Mastery",
+      type: "lesson",
+      chapter: 1,
+      section: 999,
+      content: {
+        "extracted": {
+          "title": "Chapter 1 Review Introduction - Administration Mastery",
+          "content": "# Chapter 1 Review Introduction - Administration Mastery\n\n## Chapter Overview - Administration Foundation\n\nChapter 1 establishes the **complete administrative framework** for Louisiana plumbing regulations. This chapter provides the legal foundation, access information, timing requirements, purpose, and scope that govern all plumbing work in Louisiana.\n\n### 🎯 Critical Concepts to Master for 80% Pass Threshold\n\n**Legal Foundation (Section 101)**\n- Authority of the Department of Health and Hospitals\n- Proper code citation and terminology\n- Relationship between state and local regulations\n\n**Code Access and Currency (Section 103)**\n- Official sources for current code information\n- Professional responsibility for using current editions\n- Resource availability for code verification\n\n**Timing and Editions (Section 105)**\n- Effective dates and edition identification\n- Transition periods and implementation requirements\n- Project timeline considerations\n\n**Purpose and Intent (Section 107)**\n- Administration and enforcement goals\n- Public safety, health, and welfare objectives\n- How purpose guides code interpretation\n\n**Scope and Limitations (Section 109)**\n- Remedial nature of the code\n- Quality control boundaries and limitations\n- Permitting and inspection responsibilities\n\n### 📚 Integration Points - How Sections Work Together\n\n**Administrative Chain:**\n1. **Section 101** establishes legal authority\n2. **Section 103** ensures code accessibility\n3. **Section 105** provides timing framework\n4. **Section 107** defines purpose and goals\n5. **Section 109** sets scope and limitations\n\n**Professional Application:**\nThese sections work together to create a complete administrative framework that supports all technical requirements in subsequent chapters.\n\n### 🎓 Exam Preparation Strategy\n\n**High-Priority Topics:**\n- Code authority and legal foundation\n- Proper code citation methods\n- Edition identification and effective dates\n- Purpose-driven code interpretation\n- Scope limitations and professional responsibilities\n\n**Common Exam Scenarios:**\n- Questions about code authority and jurisdiction\n- Situations requiring proper code citation\n- Timeline questions involving effective dates\n- Purpose-based code interpretation challenges\n- Scope and limitation identification\n\n### 🔧 Real-World Integration\n\nMastering Chapter 1 enables you to:\n- **Communicate professionally** with inspectors and officials\n- **Apply code requirements** with proper legal understanding\n- **Stay current** with code updates and changes\n- **Understand the bigger picture** behind technical requirements\n- **Manage client expectations** appropriately\n\n### ⚠️ Chapter Review Requirements\n\n**80% Pass Threshold:** This chapter review requires 80% to advance to Chapter 2 (Definitions). This higher standard ensures you have a solid foundation in administrative concepts before moving to technical content.\n\n**Study Approach:**\n1. Review each section's key concepts\n2. Understand how sections integrate\n3. Practice applying administrative knowledge to real scenarios\n4. Focus on professional communication and compliance\n\n### 💡 Success Strategy\n\nThink of Chapter 1 as the \"constitution\" of Louisiana plumbing work. Every technical requirement in later chapters derives its authority and context from these administrative foundations.\n\n---\n\n**Mastery Goal:** You should be able to explain Louisiana plumbing code authority, access current regulations, understand timing requirements, apply code purpose, and recognize scope limitations - all while communicating professionally about these administrative aspects.",
+          "extractedAt": "2025-01-30T22:20:00Z"
+        }
+      },
+      isActive: true,
+      sortOrder: 99
+    },
     {
       id: "810cafa9-6024-4bdc-a3c5-266490062114",
       courseId,
