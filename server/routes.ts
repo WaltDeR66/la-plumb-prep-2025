@@ -5322,8 +5322,14 @@ Start your journey at laplumbprep.com/courses
       });
       
       // Create only new questions
+      console.log('📝 About to create', newQuestions.length, 'new questions');
+      console.log('📋 First question sample:', JSON.stringify(newQuestions[0], null, 2));
+      
       const createdQuestions = await Promise.all(
-        newQuestions.map((q: any) => storage.createQuestion(q))
+        newQuestions.map((q: any) => {
+          console.log('🔍 Processing question:', q.questionText || q.question || 'NO QUESTION TEXT');
+          return storage.createQuestion(q);
+        })
       );
       
       res.json({ 
