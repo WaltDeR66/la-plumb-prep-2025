@@ -191,7 +191,8 @@ export default function BulkQuestionImport() {
       // Only add if we have exactly 4 options
       if (options.length === 4 && answerLine) {
         questions.push({
-          questionText,
+          question: questionText,  // Use 'question' field to match backend expectations
+          questionText,            // Keep for compatibility
           options,
           correctAnswer,
           difficulty: selectedDifficulty,
