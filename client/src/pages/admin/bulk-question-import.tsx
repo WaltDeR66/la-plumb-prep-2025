@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -94,6 +95,8 @@ export default function BulkQuestionImport() {
     }
   };
 
+  const isSectionValid = /^[1-9]\d{0,3}$/.test(selectedSection);
+
   const importQuestions = () => {
     if (!selectedCourse) {
       toast({
@@ -113,10 +116,28 @@ export default function BulkQuestionImport() {
       return;
     }
 
+    if (!isSectionValid) {
+      toast({
+        title: "Invalid section number",
+        description: "Enter a valid section number (e.g., 101)",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // Update questions with current chapter and section values to prevent stale data
+    const payloadQuestions = previewQuestions.map(q => ({
+      ...q,
+      chapter: selectedChapter,
+      category: selectedChapter,
+      section: selectedSection,
+      codeReference: `${selectedChapter} - Section ${selectedSection}`
+    }));
+
     setImportStatus("importing");
     bulkImportMutation.mutate({
       courseId: selectedCourse,
-      questions: previewQuestions
+      questions: payloadQuestions
     });
   };
 
@@ -238,21 +259,17 @@ export default function BulkQuestionImport() {
               </div>
               <div>
                 <Label htmlFor="section">Section</Label>
-                <Select value={selectedSection} onValueChange={setSelectedSection}>
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Select section" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Section 1">Section 1</SelectItem>
-                    <SelectItem value="Section 2">Section 2</SelectItem>
-                    <SelectItem value="Section 3">Section 3</SelectItem>
-                    <SelectItem value="Section 4">Section 4</SelectItem>
-                    <SelectItem value="Section 5">Section 5</SelectItem>
-                    <SelectItem value="Section 6">Section 6</SelectItem>
-                    <SelectItem value="Section 7">Section 7</SelectItem>
-                    <SelectItem value="Section 8">Section 8</SelectItem>
-                  </SelectContent>
-                </Select>
+                <Input
+                  id="section"
+                  inputMode="numeric"
+                  pattern="[0-9]*"
+                  placeholder="e.g., 101"
+                  value={selectedSection}
+                  onChange={(e) => setSelectedSection(e.target.value.replace(/\D/g, ''))}
+                  data-testid="input-section"
+                  className="w-full"
+                />
+                <p className="text-sm text-muted-foreground mt-1">Enter a section number (e.g., 101, 203)</p>
               </div>
               <div>
                 <Label htmlFor="difficulty">Question Difficulty</Label>
@@ -360,7 +377,7 @@ ANSWER: C"
                 {previewQuestions.length > 0 && (
                   <Button 
                     onClick={importQuestions}
-                    disabled={!selectedCourse || importStatus === "importing"}
+                    disabled={!selectedCourse || !selectedChapter || !isSectionValid || importStatus === "importing"}
                     className="flex items-center gap-2"
                   >
                     <Upload className="h-4 w-4" />
@@ -381,7 +398,7 @@ ANSWER: C"
                 Preview ({previewQuestions.length} questions found)
               </CardTitle>
               <CardDescription>
-                Review the parsed questions before importing. Questions will be organized under {selectedChapter} - {selectedSection}
+                Review the parsed questions before importing. Questions will be organized under {selectedChapter} - Section {selectedSection || '—'}
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -394,7 +411,7 @@ ANSWER: C"
                       </h3>
                       <div className="flex gap-2 text-xs">
                         <span className="bg-blue-100 text-blue-700 px-2 py-1 rounded">{selectedChapter}</span>
-                        <span className="bg-purple-100 text-purple-700 px-2 py-1 rounded">{selectedSection}</span>
+                        <span className="bg-purple-100 text-purple-700 px-2 py-1 rounded">Section {selectedSection}</span>
                         <span className={`px-2 py-1 rounded ${
                           question.difficulty === 'easy' ? 'bg-green-100 text-green-700' :
                           question.difficulty === 'medium' ? 'bg-yellow-100 text-yellow-700' :
