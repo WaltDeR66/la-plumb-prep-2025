@@ -4349,7 +4349,7 @@ Start your journey at laplumbprep.com/courses
         studyNotes: allContent.filter(content => content.type === 'study-notes').length,
         studyPlans: allContent.filter(content => content.type === 'study-plan' || content.type === 'study-plans').length,
         podcasts: allContent.filter(content => content.type === 'podcast').length,
-        aiChat: allContent.filter(content => content.type === 'chat').length
+        aiChat: 1 // Study Companion "Pipe Buddy" is available for all courses
       };
       
       res.json(stats);
@@ -4374,7 +4374,7 @@ Start your journey at laplumbprep.com/courses
         studyNotes: allContent.filter(content => content.type === 'study-notes').length,
         studyPlans: allContent.filter(content => content.type === 'study-plan' || content.type === 'study-plans').length,
         podcasts: allContent.filter(content => content.type === 'podcast').length,
-        aiChat: allContent.filter(content => content.type === 'chat').length
+        aiChat: 1 // Study Companion "Pipe Buddy" is available for all courses
       };
       
       res.json(stats);
