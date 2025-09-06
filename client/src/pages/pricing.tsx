@@ -98,11 +98,15 @@ export default function Pricing() {
       popular: true,
       features: [
         "Journeyman Prep Course",
+        "Basic Calculator Tools",
+        "Practice Tests",
+        "Job Board Access",
+        "Referral Commissions (10%)",
+        "Email Support",
         "Complete Calculator Suite",
         "Photo Code Checker",
         "AI Mentor Support",
         "Resume Builder",
-        "Referral Commissions (10%)",
         "Priority Support"
       ]
     },
@@ -114,8 +118,17 @@ export default function Pricing() {
       description: "Complete mastery package",
       features: [
         "Journeyman Prep Course",
-        "Material List Generator",
+        "Basic Calculator Tools",
+        "Practice Tests",
+        "Job Board Access",
         "Referral Commissions (10%)",
+        "Email Support",
+        "Complete Calculator Suite",
+        "Photo Code Checker",
+        "AI Mentor Support",
+        "Resume Builder",
+        "Priority Support",
+        "Material List Generator",
         "Book Store Access",
         "White-Glove Support"
       ]
