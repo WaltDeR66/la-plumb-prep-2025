@@ -9,6 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { Upload, FileText, CheckCircle, AlertCircle, Clock, BookOpen } from "lucide-react";
+import { Input } from "@/components/ui/input";
 import { PLUMBING_CODE_SECTIONS, filterSectionsByChapter } from "@/lib/plumbing-code-sections";
 
 export default function BulkStudyPlanImport() {
@@ -289,18 +290,15 @@ export default function BulkStudyPlanImport() {
               </div>
               <div>
                 <Label htmlFor="section">Section</Label>
-                <Select value={selectedSection} onValueChange={setSelectedSection} disabled={!selectedChapter}>
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder={selectedChapter ? `Select section for ${selectedChapter}` : "Select chapter first"} />
-                  </SelectTrigger>
-                  <SelectContent className="max-h-64 overflow-y-auto">
-                    {filteredSections.map((section) => (
-                      <SelectItem key={section.value} value={section.value}>
-                        {section.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <Input 
+                  id="section"
+                  type="text"
+                  value={selectedSection} 
+                  onChange={(e) => setSelectedSection(e.target.value)}
+                  placeholder={selectedChapter ? `Enter section number (e.g., 101, 103, 105...)` : "Select chapter first"}
+                  disabled={!selectedChapter}
+                  className="w-full"
+                />
               </div>
               <div>
                 <Label htmlFor="difficulty">Difficulty Level</Label>
