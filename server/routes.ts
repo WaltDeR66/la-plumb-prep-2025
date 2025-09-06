@@ -4376,7 +4376,9 @@ Start your journey at laplumbprep.com/courses
               const contentObj = typeof quiz.content === 'string' ? JSON.parse(quiz.content) : quiz.content;
               const extractedContent = contentObj?.extracted?.content || '';
               // Count numbered questions like "**1. ", "**2. ", etc.
-              const questionMatches = extractedContent.match(/\*\*\d+\.\s/g) || [];
+              const questionMatches = extractedContent.match(/\*\*\d+\./g) || [];
+              console.log('Quiz content sample:', extractedContent.substring(0, 200));
+              console.log('Question matches found:', questionMatches.length);
               return total + questionMatches.length;
             } catch (error) {
               console.error('Error parsing quiz content:', error);
