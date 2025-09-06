@@ -1603,10 +1603,7 @@ Start your journey at laplumbprep.com/courses
       const userId = (req.user as any).id;
       const user = req.user as any;
       
-      // Check if user is admin (admin email or subscription tier)  
-      const isAdmin = user.email?.includes('admin') || user.subscriptionTier === 'master';
-      
-      // For demo purposes, let's make admin more restrictive - only specific admin emails
+      // Only specific admin emails get admin access - no subscription tier bypass
       const isSuperAdmin = user.email === 'admin@latrainer.com' || user.email === 'admin@laplumbprep.com';
       
       // Get all course content to determine sections
@@ -1617,6 +1614,8 @@ Start your journey at laplumbprep.com/courses
       
       for (const section of sections) {
         const sectionNum = Number(section);
+        // Students must complete quizzes with 70%+ to unlock sections (except section 101)
+        // Only super admins bypass this requirement
         const isUnlocked = isSuperAdmin || await storage.isSectionUnlocked(userId, courseId, 1, sectionNum);
         
         sectionStatus.push({
