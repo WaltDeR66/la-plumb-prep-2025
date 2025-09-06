@@ -4339,20 +4339,16 @@ Start your journey at laplumbprep.com/courses
       // Get all course content for this course
       const allContent = await storage.getCourseContent(courseId);
       
-      // Count by type
+      // Count by type (using actual database types)
       const stats = {
         lessons: allContent.filter(content => content.type === 'lesson').length,
         chapters: allContent.filter(content => content.type === 'chapter').length, 
-        questions: allContent.filter(content => content.type === 'question').length,
-        flashcards: allContent.filter(content => content.type === 'flashcard').length,
-        studyNotes: allContent.filter(content => content.type === 'study_notes').length,
-        studyPlans: allContent.filter(content => content.type === 'study_plan').length,
+        questions: allContent.filter(content => content.type === 'quiz').length,
+        flashcards: allContent.filter(content => content.type === 'flashcards').length,
+        studyNotes: allContent.filter(content => content.type === 'study-notes').length,
+        studyPlans: allContent.filter(content => content.type === 'study-plan' || content.type === 'study-plans').length,
         podcasts: allContent.filter(content => content.type === 'podcast').length,
-        aiChat: await storage.getAllChatAnswers().then(answers => 
-          answers.filter(answer => answer.contentId && 
-            allContent.some(content => content.id === answer.contentId)
-          ).length
-        )
+        aiChat: allContent.filter(content => content.type === 'chat').length
       };
       
       res.json(stats);
@@ -4370,14 +4366,14 @@ Start your journey at laplumbprep.com/courses
       // Get all course content for this course
       const allContent = await storage.getCourseContent(courseId);
       
-      // Count by type - only return public stats
+      // Count by type - only return public stats (using actual database types)
       const stats = {
-        questions: allContent.filter(content => content.type === 'question').length,
-        flashcards: allContent.filter(content => content.type === 'flashcard').length,
-        studyNotes: allContent.filter(content => content.type === 'study_notes').length,
-        studyPlans: allContent.filter(content => content.type === 'study_plans').length,
+        questions: allContent.filter(content => content.type === 'quiz').length,
+        flashcards: allContent.filter(content => content.type === 'flashcards').length,
+        studyNotes: allContent.filter(content => content.type === 'study-notes').length,
+        studyPlans: allContent.filter(content => content.type === 'study-plan' || content.type === 'study-plans').length,
         podcasts: allContent.filter(content => content.type === 'podcast').length,
-        aiChat: allContent.filter(content => content.type === 'ai_chat' || content.type === 'chat').length
+        aiChat: allContent.filter(content => content.type === 'chat').length
       };
       
       res.json(stats);
