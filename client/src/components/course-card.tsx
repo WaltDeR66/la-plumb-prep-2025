@@ -19,6 +19,7 @@ import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { Link } from "wouter";
+import { HelpCircle, Upload, Brain, Mic } from "lucide-react";
 
 interface CourseCardProps {
   course: {
@@ -44,6 +45,13 @@ export default function CourseCard({ course, isEnrolled = false, progress = 0, i
   // Check user's subscription status
   const { data: user } = useQuery({
     queryKey: ["/api/auth/me"],
+    retry: false,
+  });
+
+  // Fetch course content statistics
+  const { data: contentStats } = useQuery({
+    queryKey: [`/api/courses/${course.id}/stats`],
+    queryFn: () => apiRequest("GET", `/api/courses/${course.id}/stats`),
     retry: false,
   });
 
@@ -147,26 +155,32 @@ export default function CourseCard({ course, isEnrolled = false, progress = 0, i
             </p>
           </div>
 
-          {/* Course Stats */}
-          <div className="flex items-center space-x-4 text-sm text-muted-foreground">
-            {course.duration && (
-              <div className="flex items-center space-x-1">
-                <Clock className="w-4 h-4" />
-                <span>{course.duration}h</span>
-              </div>
-            )}
-            {course.lessons && (
-              <div className="flex items-center space-x-1">
-                <BookOpen className="w-4 h-4" />
-                <span>{course.lessons} lessons</span>
-              </div>
-            )}
-            {course.practiceQuestions && (
-              <div className="flex items-center space-x-1">
-                <Star className="w-4 h-4" />
-                <span>{course.practiceQuestions} quizzes</span>
-              </div>
-            )}
+          {/* Content Statistics */}
+          <div className="grid grid-cols-2 gap-2 text-xs text-muted-foreground">
+            <div className="flex items-center space-x-1">
+              <HelpCircle className="w-3 h-3" />
+              <span>{contentStats?.questions || 0} Questions</span>
+            </div>
+            <div className="flex items-center space-x-1">
+              <Upload className="w-3 h-3" />
+              <span>{contentStats?.flashcards || 0} Flashcards</span>
+            </div>
+            <div className="flex items-center space-x-1">
+              <BookOpen className="w-3 h-3" />
+              <span>{contentStats?.studyNotes || 0} Study Notes</span>
+            </div>
+            <div className="flex items-center space-x-1">
+              <Clock className="w-3 h-3" />
+              <span>{contentStats?.studyPlans || 0} Study Plans</span>
+            </div>
+            <div className="flex items-center space-x-1">
+              <Mic className="w-3 h-3" />
+              <span>{contentStats?.podcasts || 0} Podcasts</span>
+            </div>
+            <div className="flex items-center space-x-1">
+              <Brain className="w-3 h-3" />
+              <span>{contentStats?.aiChat || 0} AI Chat</span>
+            </div>
           </div>
 
           {/* Progress Bar (for enrolled courses) */}
