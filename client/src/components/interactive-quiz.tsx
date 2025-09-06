@@ -56,7 +56,14 @@ export default function InteractiveQuiz({ section, contentId, onComplete }: Inte
   // Fetch quiz questions for this section
   const { data: quizData, isLoading } = useQuery<QuizAttempt>({
     queryKey: [`/api/quiz/${section}/start`],
-    queryFn: () => apiRequest("POST", `/api/quiz/${section}/start`),
+    queryFn: async () => {
+      const response = await fetch(`/api/quiz/${section}/start`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+      });
+      if (!response.ok) throw new Error("Failed to start quiz");
+      return response.json();
+    },
   });
 
   // Submit quiz mutation
