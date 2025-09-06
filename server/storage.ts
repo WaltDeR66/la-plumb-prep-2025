@@ -1539,6 +1539,34 @@ export class DatabaseStorage implements IStorage {
     return questions;
   }
 
+  // Get questions for a course (using competition questions table)
+  async getQuestionsByCourse(courseId: string): Promise<any[]> {
+    return await db
+      .select()
+      .from(competitionQuestions)
+      .where(eq(competitionQuestions.isActive, true))
+      .orderBy(competitionQuestions.createdAt);
+  }
+
+  // Create a new question
+  async createQuestion(questionData: any): Promise<any> {
+    const [newQuestion] = await db
+      .insert(competitionQuestions)
+      .values({
+        question: questionData.questionText,
+        options: questionData.options,
+        correctAnswer: questionData.correctAnswer,
+        explanation: questionData.explanation,
+        difficulty: questionData.difficulty || 'medium',
+        category: questionData.category,
+        codeReference: questionData.codeReference,
+        pointValue: questionData.pointValue || 1,
+        isActive: true
+      })
+      .returning();
+    return newQuestion;
+  }
+
   // Submit competition attempt
   async submitCompetitionAttempt(competitionId: string, userId: string, answers: any[], timeSpent: number): Promise<any> {
     // Get the attempt

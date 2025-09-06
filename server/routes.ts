@@ -4731,7 +4731,7 @@ Start your journey at laplumbprep.com/courses
       // Create a set of existing question texts for faster lookup (normalized)
       const existingQuestionTexts = new Set(
         existingQuestions.map((q: any) => 
-          q.questionText.toLowerCase().trim().replace(/\s+/g, ' ')
+          q.question.toLowerCase().trim().replace(/\s+/g, ' ')
         )
       );
       
