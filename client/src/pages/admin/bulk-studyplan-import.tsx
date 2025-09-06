@@ -9,6 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { Upload, FileText, CheckCircle, AlertCircle, Clock, BookOpen } from "lucide-react";
+import { PLUMBING_CODE_SECTIONS } from "@/lib/plumbing-code-sections";
 
 export default function BulkStudyPlanImport() {
   const { toast } = useToast();
@@ -20,54 +21,6 @@ export default function BulkStudyPlanImport() {
   const [studyPlanText, setStudyPlanText] = useState("");
   const [previewPlans, setPreviewPlans] = useState<any[]>([]);
   const [importStatus, setImportStatus] = useState<"idle" | "parsing" | "previewing" | "importing" | "success">("idle");
-
-  // Louisiana Plumbing Code sections data (only odd-numbered sections exist)
-  const sectionOptions = [
-    { value: "101", label: "§101 - General" },
-    { value: "103", label: "§103 - Availability" },
-    { value: "105", label: "§105 - Effective Dates and Editions" },
-    { value: "201", label: "§201 - General" },
-    { value: "301", label: "§301 - General" },
-    { value: "303", label: "§303 - Compliance with Codes" },
-    { value: "305", label: "§305 - Connection to Public Water Supply Required" },
-    { value: "307", label: "§307 - Excavations and Backfill" },
-    { value: "309", label: "§309 - Trenching, Excavation and Tunneling" },
-    { value: "311", label: "§311 - Connections to Drainage System" },
-    { value: "313", label: "§313 - Inspection and Testing" },
-    { value: "315", label: "§315 - Air Test" },
-    { value: "317", label: "§317 - Drainage and Vent System Test" },
-    { value: "401", label: "§401 - General" },
-    { value: "403", label: "§403 - Minimum Number of Fixtures" },
-    { value: "405", label: "§405 - Installation" },
-    { value: "407", label: "§407 - Setting" },
-    { value: "409", label: "§409 - Urinals" },
-    { value: "411", label: "§411 - Bathtubs" },
-    { value: "413", label: "§413 - Bidets" },
-    { value: "415", label: "§415 - Laundry Tubs" },
-    { value: "417", label: "§417 - Drinking Fountains" },
-    { value: "419", label: "§419 - Floor Drains" },
-    { value: "501", label: "§501 - General" },
-    { value: "503", label: "§503 - Connections" },
-    { value: "505", label: "§505 - Requirements for All Water Heaters" },
-    { value: "507", label: "§507 - Oil-Fired Water Heaters" },
-    { value: "509", label: "§509 - Gas-Fired Water Heaters" },
-    { value: "601", label: "§601 - General" },
-    { value: "603", label: "§603 - Water Service Pipe" },
-    { value: "605", label: "§605 - Hot Water Supply System" },
-    { value: "607", label: "§607 - Combined Hydronic Piping Systems" },
-    { value: "609", label: "§609 - Health Care Facilities" },
-    { value: "611", label: "§611 - Residential Fire Sprinkler Systems" },
-    { value: "613", label: "§613 - Swimming Pool Water Supply" },
-    { value: "615", label: "§615 - Graywater Systems" },
-    { value: "617", label: "§617 - Rainwater Systems" },
-    { value: "619", label: "§619 - Backflow Preventer Test Gauges" },
-    { value: "701", label: "§701 - General" },
-    { value: "703", label: "§703 - Building Drains and Building Sewers" },
-    { value: "705", label: "§705 - Joints and Connections" },
-    { value: "707", label: "§707 - Cleanouts" },
-    { value: "709", label: "§709 - Drainage Piping Installation Requirements" },
-    { value: "711", label: "§711 - Sumps and Ejectors" }
-  ];
 
   // Fetch courses
   const { data: courses } = useQuery({
@@ -333,7 +286,7 @@ export default function BulkStudyPlanImport() {
                     <SelectValue placeholder="Select section" />
                   </SelectTrigger>
                   <SelectContent className="max-h-64 overflow-y-auto">
-                    {sectionOptions.map((section) => (
+                    {PLUMBING_CODE_SECTIONS.map((section) => (
                       <SelectItem key={section.value} value={section.value}>
                         {section.label}
                       </SelectItem>
