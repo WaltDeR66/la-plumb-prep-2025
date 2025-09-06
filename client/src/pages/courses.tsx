@@ -49,21 +49,26 @@ export default function Courses() {
   const { data: contentStats } = useQuery({
     queryKey: ["/api/courses", "all-stats"],
     queryFn: async () => {
+      console.log('🔄 Starting to fetch content stats for', courses.length, 'courses');
       const stats: any = {};
       for (const course of courses) {
         try {
+          console.log(`📊 Fetching stats for course ${course.id}`);
           const courseStats = await apiRequest("GET", `/api/courses/${course.id}/stats`);
+          console.log(`✅ Got stats for ${course.id}:`, courseStats);
           stats[course.id] = courseStats || { 
             questions: 0, flashcards: 0, studyNotes: 0, 
             studyPlans: 0, podcasts: 0, aiChat: 0 
           };
         } catch (error) {
+          console.error(`❌ Failed to fetch stats for ${course.id}:`, error);
           stats[course.id] = { 
             questions: 0, flashcards: 0, studyNotes: 0, 
             studyPlans: 0, podcasts: 0, aiChat: 0 
           };
         }
       }
+      console.log('🎯 Final contentStats object:', stats);
       return stats;
     },
     enabled: courses.length > 0,
@@ -289,7 +294,11 @@ export default function Courses() {
                   <div className="grid grid-cols-2 gap-2 mb-4 text-xs">
                     <div className="flex items-center text-gray-600">
                       <HelpCircle className="w-3 h-3 mr-1" />
-                      {contentStats?.[course.id]?.questions || 0} Questions
+                      {(() => {
+                        const questions = contentStats?.[course.id]?.questions || 0;
+                        console.log(`🏷️ Course ${course.id} questions display:`, questions, 'from contentStats:', contentStats?.[course.id]);
+                        return questions;
+                      })()} Questions
                     </div>
                     <div className="flex items-center text-gray-600">
                       <Upload className="w-3 h-3 mr-1" />
