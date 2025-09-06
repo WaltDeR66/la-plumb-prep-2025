@@ -35,8 +35,8 @@ import BulkQuestionImport from "@/pages/admin/bulk-question-import";
 import BulkFlashcardImport from "@/pages/admin/bulk-flashcard-import";
 import BulkStudyNotesImport from "@/pages/admin/bulk-studynotes-import";
 import BulkStudyPlanImport from "@/pages/admin/bulk-studyplan-import";
-import ContentImport from "@/pages/admin/content-import";
-import PodcastImport from "@/pages/admin/podcast-import";
+import BulkPodcastImport from "@/pages/admin/bulk-podcast-import";
+import BulkAIChatImport from "@/pages/admin/bulk-ai-chat-import";
 import SystemAnalytics from "@/pages/admin/system-analytics";
 import SystemSettings from "@/pages/admin/system-settings";
 import JobAnalytics from "@/pages/employer/job-analytics";
@@ -104,8 +104,8 @@ function Router() {
           <Route path="/admin/flashcard-import" component={BulkFlashcardImport} />
           <Route path="/admin/study-notes-import" component={BulkStudyNotesImport} />
           <Route path="/admin/study-plan-import" component={BulkStudyPlanImport} />
-          <Route path="/admin/content-import" component={ContentImport} />
-          <Route path="/admin/podcast-import" component={PodcastImport} />
+          <Route path="/admin/content-import" component={BulkAIChatImport} />
+          <Route path="/admin/podcast-import" component={BulkPodcastImport} />
           <Route path="/admin/system-analytics" component={SystemAnalytics} />
           <Route path="/admin/system-settings" component={SystemSettings} />
           <Route path="/admin/job-approval" component={JobApproval} />

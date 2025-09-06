@@ -8,17 +8,17 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
-import { Upload, FileText, CheckCircle, AlertCircle, Mic } from "lucide-react";
+import { Upload, FileText, CheckCircle, AlertCircle, Brain } from "lucide-react";
 
-export default function BulkPodcastImport() {
+export default function BulkAIChatImport() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [selectedCourse, setSelectedCourse] = useState("");
   const [selectedChapter, setSelectedChapter] = useState("");
   const [selectedSection, setSelectedSection] = useState("");
   const [selectedDifficulty, setSelectedDifficulty] = useState("medium");
-  const [podcastText, setPodcastText] = useState("");
-  const [previewEpisodes, setPreviewEpisodes] = useState<any[]>([]);
+  const [chatContentText, setChatContentText] = useState("");
+  const [previewContent, setPreviewContent] = useState<any[]>([]);
   const [importStatus, setImportStatus] = useState<"idle" | "parsing" | "previewing" | "importing" | "success">("idle");
 
   // Louisiana Plumbing Code sections data
@@ -115,43 +115,43 @@ export default function BulkPodcastImport() {
   });
 
   const bulkImportMutation = useMutation({
-    mutationFn: async (data: any) => await apiRequest("POST", "/api/admin/podcast/bulk-import", data),
+    mutationFn: async (data: any) => await apiRequest("POST", "/api/admin/ai-chat/bulk-import", data),
     onSuccess: (result: any) => {
       const { imported, duplicatesSkipped, totalSubmitted } = result;
       
       if (duplicatesSkipped > 0) {
         toast({ 
           title: "Import completed with duplicates detected", 
-          description: `Added ${imported} new podcast episodes. Skipped ${duplicatesSkipped} duplicates out of ${totalSubmitted} total.`,
+          description: `Added ${imported} new AI chat content. Skipped ${duplicatesSkipped} duplicates out of ${totalSubmitted} total.`,
           variant: "default"
         });
       } else {
         toast({ 
-          title: "All podcast episodes imported successfully!", 
-          description: `Added ${imported} new episodes to the course.`
+          title: "All AI chat content imported successfully!", 
+          description: `Added ${imported} new content pieces to the AI mentor system.`
         });
       }
       
       setImportStatus("success");
-      setPodcastText("");
-      setPreviewEpisodes([]);
+      setChatContentText("");
+      setPreviewContent([]);
       queryClient.invalidateQueries({ queryKey: ["/api/admin/course-content"] });
     },
     onError: (error: any) => {
       toast({
         title: "Import failed",
-        description: error.message || "Failed to import podcast episodes",
+        description: error.message || "Failed to import AI chat content",
         variant: "destructive"
       });
       setImportStatus("idle");
     }
   });
 
-  const parsePodcasts = () => {
-    if (!podcastText.trim()) {
+  const parseAIChatContent = () => {
+    if (!chatContentText.trim()) {
       toast({
         title: "No content",
-        description: "Please enter podcast content to parse",
+        description: "Please enter AI chat content to parse",
         variant: "destructive"
       });
       return;
@@ -160,16 +160,16 @@ export default function BulkPodcastImport() {
     setImportStatus("parsing");
 
     try {
-      const parsed = parsePodcastsFromText(podcastText);
+      const parsed = parseAIChatFromText(chatContentText);
       if (parsed.length === 0) {
-        throw new Error("No valid podcast episodes found. Please check the format.");
+        throw new Error("No valid AI chat content found. Please check the format.");
       }
       
-      setPreviewEpisodes(parsed);
+      setPreviewContent(parsed);
       setImportStatus("previewing");
       toast({
-        title: "Podcast episodes parsed successfully!",
-        description: `Found ${parsed.length} episodes ready for import.`
+        title: "AI chat content parsed successfully!",
+        description: `Found ${parsed.length} content pieces ready for import.`
       });
     } catch (error: any) {
       toast({
@@ -183,7 +183,7 @@ export default function BulkPodcastImport() {
 
   const isSectionValid = /^[1-9]\d{0,3}$/.test(selectedSection);
 
-  const importPodcasts = () => {
+  const importAIChatContent = () => {
     if (!selectedCourse) {
       toast({
         title: "No course selected",
@@ -211,9 +211,9 @@ export default function BulkPodcastImport() {
       return;
     }
 
-    // Update episodes with current chapter and section values to prevent stale data
-    const payloadEpisodes = previewEpisodes.map(episode => ({
-      ...episode,
+    // Update content with current chapter and section values to prevent stale data
+    const payloadContent = previewContent.map(content => ({
+      ...content,
       chapter: selectedChapter,
       category: selectedChapter,
       section: selectedSection,
@@ -224,89 +224,111 @@ export default function BulkPodcastImport() {
     setImportStatus("importing");
     bulkImportMutation.mutate({
       courseId: selectedCourse,
-      episodes: payloadEpisodes
+      chatContent: payloadContent
     });
   };
 
-  const parsePodcastsFromText = (text: string) => {
-    const episodes: any[] = [];
+  const parseAIChatFromText = (text: string) => {
+    const content: any[] = [];
     
-    // Split by titles that start with "Louisiana State Plumbing Code" or similar patterns
-    const episodeSections = text.split(/(?=Louisiana State Plumbing Code|LSPC)/i);
+    // Split by Q&A patterns (Q:, A:, Question:, Answer:)
+    const qaSections = text.split(/(?=Q:|Question:|QUESTION:)/i);
     
-    episodeSections.forEach((section, index) => {
+    qaSections.forEach((section, index) => {
       const lines = section.trim().split('\n').filter(line => line.trim());
-      if (lines.length < 10) return; // Need substantial conversation content
+      if (lines.length < 2) return;
       
-      // Extract title from first line (typically "Louisiana State Plumbing Code §XXX Topic")
-      const title = lines[0].trim();
-      if (!title || title.length < 10) return;
+      // Extract question
+      const questionLine = lines[0];
+      const questionMatch = questionLine.match(/^(?:Q:|Question:|QUESTION:)\s*(.+)/i);
+      if (!questionMatch) return;
       
-      // The conversation starts from the second line onwards
-      const conversation = lines.slice(1).join('\n').trim();
+      const question = questionMatch[1].trim();
       
-      // Check if this looks like a host-guest conversation format
-      const conversationLines = conversation.split('\n');
-      const hasConversationPattern = conversationLines.some(line => 
-        line.includes('?') || // Questions from host
-        line.toLowerCase().includes('yes,') ||
-        line.toLowerCase().includes('indeed,') ||
-        line.toLowerCase().includes('absolutely') ||
-        line.toLowerCase().includes('right,') ||
-        line.toLowerCase().includes('exactly')
-      );
+      // Find answer
+      let answerStartIndex = -1;
+      for (let i = 1; i < lines.length; i++) {
+        if (lines[i].match(/^(?:A:|Answer:|ANSWER:)/i)) {
+          answerStartIndex = i;
+          break;
+        }
+      }
       
-      if (hasConversationPattern && conversation.length > 200) {
-        // Calculate estimated duration (average speaking rate: ~150 words per minute)
-        const wordCount = conversation.split(/\s+/).length;
-        const estimatedDuration = Math.floor((wordCount / 150) * 60); // seconds
-        
-        episodes.push({
+      if (answerStartIndex === -1) {
+        // If no explicit answer marker, treat remaining lines as answer
+        answerStartIndex = 1;
+      }
+      
+      // Extract answer text
+      const answerLines = lines.slice(answerStartIndex);
+      const answerText = answerLines.join('\n')
+        .replace(/^(?:A:|Answer:|ANSWER:)\s*/i, '') // Remove answer prefix
+        .trim();
+      
+      if (question.length > 5 && answerText.length > 20) {
+        content.push({
           id: crypto.randomUUID(),
-          title: title,
-          transcript: conversation,
-          episodeNumber: index + 1,
-          duration: estimatedDuration,
-          wordCount: wordCount,
-          type: 'podcast',
+          question: question,
+          answer: answerText,
+          type: 'ai_chat_qa',
+          context: 'Louisiana State Plumbing Code',
+          tags: extractTags(question + ' ' + answerText),
           createdAt: new Date(),
         });
       }
     });
     
-    // If no clear sections found, treat entire text as one episode
-    if (episodes.length === 0) {
-      const lines = text.trim().split('\n').filter(line => line.trim());
-      if (lines.length > 10) {
-        const title = lines[0].trim() || "Louisiana Plumbing Code Discussion";
-        const conversation = lines.slice(1).join('\n').trim();
+    // If no Q&A pattern found, try parsing by educational topics
+    if (content.length === 0) {
+      const topics = text.split(/\n\s*\n/).filter(p => p.trim());
+      
+      topics.forEach((topic, index) => {
+        const lines = topic.trim().split('\n');
+        if (lines.length < 2) return;
         
-        const wordCount = conversation.split(/\s+/).length;
-        const estimatedDuration = Math.floor((wordCount / 150) * 60);
+        // Use first line as topic, rest as explanation
+        const topicTitle = lines[0].trim();
+        const explanation = lines.slice(1).join('\n').trim();
         
-        episodes.push({
-          id: crypto.randomUUID(),
-          title: title,
-          transcript: conversation,
-          episodeNumber: 1,
-          duration: estimatedDuration,
-          wordCount: wordCount,
-          type: 'podcast',
-          createdAt: new Date(),
-        });
-      }
+        if (topicTitle.length > 5 && explanation.length > 20) {
+          content.push({
+            id: crypto.randomUUID(),
+            question: `What about ${topicTitle}?`,
+            answer: explanation,
+            type: 'ai_chat_topic',
+            context: 'Louisiana State Plumbing Code',
+            tags: extractTags(topicTitle + ' ' + explanation),
+            createdAt: new Date(),
+          });
+        }
+      });
     }
     
-    return episodes;
+    return content;
+  };
+
+  const extractTags = (text: string) => {
+    const commonTerms = [
+      'LSPC', 'Louisiana State Plumbing Code', 'plumbing', 'code', 'regulation',
+      'administration', 'approval', 'installation', 'inspection', 'testing',
+      'fixtures', 'water heaters', 'drainage', 'vents', 'pipes', 'fittings',
+      'health', 'safety', 'compliance', 'authority', 'department'
+    ];
+    
+    const foundTerms = commonTerms.filter(term => 
+      text.toLowerCase().includes(term.toLowerCase())
+    );
+    
+    return foundTerms.slice(0, 5); // Limit to 5 tags
   };
 
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="max-w-4xl mx-auto">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold mb-2">Bulk Podcast Episodes Import</h1>
+          <h1 className="text-3xl font-bold mb-2">Bulk AI Chat Content Import</h1>
           <p className="text-muted-foreground">
-            Import conversation content to create podcast episodes with transcripts
+            Import educational content for the AI mentor chat system with Q&A format
           </p>
         </div>
 
@@ -314,7 +336,7 @@ export default function BulkPodcastImport() {
         <Card className="mb-6">
           <CardHeader>
             <CardTitle>Course & Louisiana Plumbing Code Organization</CardTitle>
-            <CardDescription>Choose course, chapter, section and difficulty level for all podcast episodes in this batch</CardDescription>
+            <CardDescription>Choose course, chapter, section and difficulty level for all AI chat content in this batch</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -393,91 +415,103 @@ export default function BulkPodcastImport() {
         <Card className="mb-6">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Mic className="h-5 w-5" />
-              Louisiana Plumbing Code Podcast Format
+              <Brain className="h-5 w-5" />
+              Louisiana Plumbing Code AI Chat Format
             </CardTitle>
-            <CardDescription>Copy and paste episode content with conversation transcripts</CardDescription>
+            <CardDescription>Copy and paste Q&A content or educational topics for the AI mentor</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-4 text-sm">
               <div>
-                <h4 className="font-semibold mb-2">Your Format: Episode titles followed by conversation transcripts</h4>
+                <h4 className="font-semibold mb-2">Your Format: Questions and answers for AI mentor training</h4>
                 <pre className="bg-muted p-3 rounded text-xs">
-{`Louisiana State Plumbing Code §101 Administration
-Did you know that the state of Louisiana operates under a very specific set of plumbing regulations? It's grounded in a comprehensive sanitary code designed to protect public health.
-Yes, it's officially called the Louisiana State Plumbing Code, or LSPC. It's actually Part XIV of Louisiana's Sanitary Code, which is fascinatingly detailed.
-Right, so anytime you see references to 'this code' or 'Part XIV', they're all pointing to this singular, authoritative document governing plumbing practices statewide.
-And what gives this code its legal teeth? Is there a specific legislative act that enables its creation and enforcement?
-Indeed, its authority primarily stems from R.S. 36:258(B), with further support from various chapters and sections within Title 40 of the Louisiana Revised Statutes.
+{`This section, §101, deals with the general administration of the Louisiana State Plumbing Code (LSPC). Essentially, it explains that the Department of Health and Hospitals has officially adopted Part XIV of the Sanitary Code, which is referred to as the Louisiana State Plumbing Code.
 
-Louisiana State Plumbing Code §302 Approval
-The approval process for plumbing installations is quite structured, isn't it?
-Absolutely! The code establishes clear requirements for how plumbing systems must be approved before installation.
-Can you walk us through the typical approval process?
-Certainly! First, plans must be submitted showing compliance with all applicable code sections...`}
+🧠 Key Concept: Louisiana State Plumbing Code (LSPC)
+This is the official set of rules and regulations governing plumbing work in Louisiana, adopted by the state's Department of Health and Hospitals.
+
+Who enforces the LSPC?
+
+The Department of Health and Hospitals, Office of Public Health, is responsible for adopting the Louisiana State Plumbing Code.
+
+🧠 Key Concept: Enforcement Authority
+The "Department of Health and Hospitals, Office of Public Health" is the agency that adopts and oversees the Louisiana State Plumbing Code.
+
+What is the legal basis for the LSPC?
+
+The legal foundation for the Louisiana State Plumbing Code (LSPC) stems from specific Louisiana Revised Statutes (R.S.).
+
+💡 Key Information: Code History
+Promulgated: June 2002
+Amended: November 2012`}
                 </pre>
               </div>
 
               <Alert>
                 <AlertCircle className="h-4 w-4" />
                 <AlertDescription>
-                  <strong>Format requirements:</strong> Section title starting with "Louisiana State Plumbing Code §XXX", followed by natural host-guest conversation. Separate episodes with blank lines.
+                  <strong>Format requirements:</strong> Educational content with 🧠 Key Concepts, 💡 Key Information, and Q&A sections. Supports both structured lessons and simple Q&A format.
                 </AlertDescription>
               </Alert>
             </div>
           </CardContent>
         </Card>
 
-        {/* Podcast Input */}
+        {/* AI Chat Content Input */}
         <Card className="mb-6">
           <CardHeader>
-            <CardTitle>Paste Your Podcast Episodes</CardTitle>
-            <CardDescription>Copy and paste podcast episodes with conversation transcripts</CardDescription>
+            <CardTitle>Paste Your AI Chat Content</CardTitle>
+            <CardDescription>Copy and paste Q&A content or educational material for AI mentor training</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
               <div>
-                <Label htmlFor="podcasts">Podcast Episodes Content</Label>
+                <Label htmlFor="chatcontent">AI Chat Content</Label>
                 <Textarea
-                  id="podcasts"
-                  value={podcastText}
-                  onChange={(e) => setPodcastText(e.target.value)}
+                  id="chatcontent"
+                  value={chatContentText}
+                  onChange={(e) => setChatContentText(e.target.value)}
                   rows={15}
-                  placeholder={`Paste your podcast episodes here...
+                  placeholder={`Paste your AI chat content here...
 
 Example:
-Louisiana State Plumbing Code §101 Administration
-Did you know that the state of Louisiana operates under a very specific set of plumbing regulations? It's grounded in a comprehensive sanitary code designed to protect public health.
-Yes, it's officially called the Louisiana State Plumbing Code, or LSPC. It's actually Part XIV of Louisiana's Sanitary Code, which is fascinatingly detailed.
-Right, so anytime you see references to 'this code' or 'Part XIV', they're all pointing to this singular, authoritative document governing plumbing practices statewide.
-And what gives this code its legal teeth? Is there a specific legislative act that enables its creation and enforcement?
-Indeed, its authority primarily stems from R.S. 36:258(B), with further support from various chapters and sections within Title 40 of the Louisiana Revised Statutes.
+This section, §101, deals with the general administration of the Louisiana State Plumbing Code (LSPC).
 
-Louisiana State Plumbing Code §302 Approval
-The approval process for plumbing installations is quite structured, isn't it?
-Absolutely! The code establishes clear requirements for how plumbing systems must be approved before installation...`}
+🧠 Key Concept: Louisiana State Plumbing Code (LSPC)
+This is the official set of rules and regulations governing plumbing work in Louisiana.
+
+Who enforces the LSPC?
+
+The Department of Health and Hospitals, Office of Public Health, is responsible for adopting the code.
+
+🧠 Key Concept: Enforcement Authority
+The "Department of Health and Hospitals, Office of Public Health" is the agency that adopts and oversees the Louisiana State Plumbing Code.
+
+💡 Key Information: Code History
+Promulgated: June 2002
+Amended: November 2012`}
                   className="font-mono text-sm"
                 />
               </div>
               
               <div className="flex gap-2">
                 <Button 
-                  onClick={parsePodcasts}
-                  disabled={!podcastText.trim() || importStatus === "parsing"}
+                  onClick={parseAIChatContent}
+                  disabled={!chatContentText.trim() || importStatus === "parsing"}
                   className="flex items-center gap-2"
                 >
                   <FileText className="h-4 w-4" />
-                  {importStatus === "parsing" ? "Parsing..." : "Parse Episodes"}
+                  {importStatus === "parsing" ? "Parsing..." : "Parse Content"}
                 </Button>
                 
-                {previewEpisodes.length > 0 && (
+                {previewContent.length > 0 && (
                   <Button 
-                    onClick={importPodcasts}
+                    onClick={importAIChatContent}
                     disabled={!selectedCourse || importStatus === "importing"}
                     className="flex items-center gap-2"
                   >
                     <Upload className="h-4 w-4" />
-                    {importStatus === "importing" ? "Importing..." : `Import ${previewEpisodes.length} Episodes`}
+                    {importStatus === "importing" ? "Importing..." : `Import ${previewContent.length} Items`}
                   </Button>
                 )}
               </div>
@@ -486,38 +520,44 @@ Absolutely! The code establishes clear requirements for how plumbing systems mus
         </Card>
 
         {/* Preview */}
-        {previewEpisodes.length > 0 && (
+        {previewContent.length > 0 && (
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <CheckCircle className="h-5 w-5 text-green-600" />
-                Preview ({previewEpisodes.length} podcast episodes found)
+                Preview ({previewContent.length} AI chat items found)
               </CardTitle>
-              <CardDescription>Review the parsed episodes before importing</CardDescription>
+              <CardDescription>Review the parsed content before importing</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-4 max-h-96 overflow-y-auto">
-                {previewEpisodes.map((episode, index) => (
+                {previewContent.map((item, index) => (
                   <div key={index} className="border rounded-lg p-4">
                     <div className="space-y-3">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <h4 className="font-semibold text-blue-600 mb-1">Episode Title</h4>
-                          <p className="text-sm bg-blue-50 p-2 rounded font-medium">
-                            {episode.title}
-                          </p>
-                        </div>
-                        <div className="flex items-center gap-1 text-sm text-muted-foreground bg-gray-100 px-2 py-1 rounded">
-                          <Mic className="h-3 w-3" />
-                          ~{Math.floor(episode.duration / 60)}m
-                        </div>
+                      <div>
+                        <h4 className="font-semibold text-blue-600 mb-2">Question</h4>
+                        <p className="text-sm bg-blue-50 p-3 rounded">
+                          {item.question}
+                        </p>
                       </div>
                       <div>
-                        <h4 className="font-semibold text-green-600 mb-2">Transcript Preview</h4>
-                        <div className="text-sm bg-green-50 p-3 rounded whitespace-pre-line max-h-32 overflow-y-auto">
-                          {episode.transcript.substring(0, 500)}{episode.transcript.length > 500 ? "..." : ""}
+                        <h4 className="font-semibold text-green-600 mb-2">Answer</h4>
+                        <div className="text-sm bg-green-50 p-3 rounded whitespace-pre-line">
+                          {item.answer.substring(0, 300)}{item.answer.length > 300 ? "..." : ""}
                         </div>
                       </div>
+                      {item.tags && item.tags.length > 0 && (
+                        <div>
+                          <h4 className="font-semibold text-purple-600 mb-2">Tags</h4>
+                          <div className="flex flex-wrap gap-1">
+                            {item.tags.map((tag: string, i: number) => (
+                              <span key={i} className="text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded">
+                                {tag}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </div>
                 ))}
@@ -530,7 +570,7 @@ Absolutely! The code establishes clear requirements for how plumbing systems mus
           <Alert className="mt-6">
             <CheckCircle className="h-4 w-4" />
             <AlertDescription>
-              Podcast episodes imported successfully! You can now view them in the Content Management section.
+              AI chat content imported successfully! The AI mentor system now has new training data.
             </AlertDescription>
           </Alert>
         )}
