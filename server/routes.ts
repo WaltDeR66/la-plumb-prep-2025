@@ -1142,25 +1142,52 @@ Start your journey at laplumbprep.com/courses
 
   app.post('/api/pay-per-use/plan-analysis', async (req, res) => {
     try {
-      const { planData } = req.body;
+      const { planData, fileSizeBytes } = req.body;
       
       if (!planData) {
         return res.status(400).json({ message: "Plan data required" });
       }
 
-      // Create a one-time payment intent for plan analysis ($9.99)
+      if (!fileSizeBytes) {
+        return res.status(400).json({ message: "File size required for pricing" });
+      }
+
+      const fileSizeMB = fileSizeBytes / (1024 * 1024);
+      
+      let price: number;
+      let tier: string;
+      
+      if (fileSizeMB <= 2) {
+        price = 4.99;
+        tier = "Small";
+      } else if (fileSizeMB <= 10) {
+        price = 9.99;
+        tier = "Medium";
+      } else if (fileSizeMB <= 25) {
+        price = 19.99;
+        tier = "Large";
+      } else {
+        price = 39.99;
+        tier = "Enterprise";
+      }
+
+      // Create a one-time payment intent for plan analysis (tiered pricing)
       const paymentIntent = await stripe.paymentIntents.create({
-        amount: 999, // $9.99 in cents
+        amount: Math.round(price * 100), // Convert to cents
         currency: 'usd',
         metadata: {
           service: 'plan-analysis',
-          type: 'pay-per-use'
+          type: 'pay-per-use',
+          tier: tier,
+          fileSizeMB: fileSizeMB.toFixed(2)
         }
       });
 
       res.json({
         clientSecret: paymentIntent.client_secret,
-        amount: 9.99,
+        amount: price,
+        tier: tier,
+        fileSizeMB: parseFloat(fileSizeMB.toFixed(2)),
         service: 'plan-analysis'
       });
     } catch (error: any) {
