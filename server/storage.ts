@@ -1676,10 +1676,20 @@ export class DatabaseStorage implements IStorage {
 
   // Create a new question
   async createQuestion(questionData: any): Promise<any> {
+    // Handle both field names for question text
+    const questionText = questionData.question || questionData.questionText;
+    
+    if (!questionText) {
+      console.error('❌ Question text is missing:', { questionData });
+      throw new Error('Question text is required');
+    }
+    
+    console.log('✅ Creating question:', questionText.substring(0, 100) + '...');
+    
     const [newQuestion] = await db
       .insert(competitionQuestions)
       .values({
-        question: questionData.questionText,
+        question: questionText,
         options: questionData.options,
         correctAnswer: questionData.correctAnswer,
         explanation: questionData.explanation,
