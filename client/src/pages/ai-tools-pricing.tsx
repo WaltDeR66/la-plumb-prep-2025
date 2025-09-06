@@ -62,7 +62,11 @@ export default function AIToolsPricing() {
       payPerUse: true,
       aiFeatures: [
         "Photo Analysis: $2.99 per photo",
-        "Plan Analysis: $4.99 - $39.99 (by file size)", 
+        "Plan Analysis Tiered Pricing:",
+        "• Small files (≤2MB): $4.99",
+        "• Medium files (2-10MB): $9.99", 
+        "• Large files (10-25MB): $19.99",
+        "• Enterprise files (25MB+): $39.99",
         "AI Mentor: $0.99 per question",
         "No subscription required"
       ],
