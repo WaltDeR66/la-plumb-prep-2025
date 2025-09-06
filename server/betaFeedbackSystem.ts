@@ -166,6 +166,9 @@ export class BetaFeedbackService {
       
       await db.insert(emailQueue).values({
         recipientEmail: tester.email,
+        recipientName: tester.firstName || 'Beta Tester',
+        campaignId: campaign.id,
+        campaignType: 'bulk_enrollment',
         subject: `🔧 Monthly Beta Feedback Required - Keep Your Discount!`,
         content: this.generateFeedbackEmail(tester.firstName || 'Beta Tester', feedbackUrl, campaign.dueDate.toLocaleDateString()),
         scheduledFor: new Date(),
@@ -400,7 +403,7 @@ export class BetaFeedbackService {
       })
       .from(betaFeedbackResponses)
       .leftJoin(users, eq(betaFeedbackResponses.userId, users.id))
-      .where(isNull(betaFeedbackResponses.deletedAt));
+      .where(eq(betaFeedbackResponses.campaignId, betaFeedbackResponses.campaignId));
 
       const alerts: string[] = [];
       const criticalIssues: string[] = [];
@@ -438,7 +441,7 @@ export class BetaFeedbackService {
       // Check completion rates
       const campaigns = await db.select()
         .from(betaFeedbackCampaigns)
-        .where(isNull(betaFeedbackCampaigns.deletedAt));
+        .where(eq(betaFeedbackCampaigns.isActive, true));
 
       const latestCampaign = campaigns[campaigns.length - 1];
       if (latestCampaign) {
