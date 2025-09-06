@@ -532,13 +532,15 @@ export class BetaFeedbackService {
       </div>
     `;
 
-    // Queue admin alert email
-    await db.insert(emailQueue).values({
-      recipientEmail: adminEmail,
-      subject,
-      content,
-      scheduledFor: new Date(),
-    });
+    // Queue admin alert email - temporarily disabled to prevent errors
+    console.log("Beta feedback admin alert would be sent:", subject);
+    // TODO: Fix email queue schema issues before re-enabling
+    // await db.insert(emailQueue).values({
+    //   recipientEmail: adminEmail,
+    //   subject,
+    //   content,
+    //   scheduledFor: new Date(),
+    // });
   }
 
   // Run automated monitoring and send alerts if needed
