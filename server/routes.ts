@@ -1603,8 +1603,9 @@ Start your journey at laplumbprep.com/courses
       const userId = (req.user as any).id;
       const user = req.user as any;
       
-      // Only specific admin emails get admin access - no subscription tier bypass
-      const isSuperAdmin = user.email === 'admin@latrainer.com' || user.email === 'admin@laplumbprep.com';
+      // Admin allowlist - only your specific email gets admin access
+      const ALLOWED_ADMIN_EMAILS = ['admin@latrainer.com', 'your-email@example.com']; // Update with your actual email
+      const isSuperAdmin = ALLOWED_ADMIN_EMAILS.includes(user.email?.toLowerCase());
       
       // Get all course content to determine sections
       const content = await storage.getCourseContent(courseId);
@@ -2891,23 +2892,7 @@ Start your journey at laplumbprep.com/courses
     }
   });
 
-  // Section progress endpoints
-  app.get("/api/section-progress/:courseId", async (req, res) => {
-    if (!req.isAuthenticated()) {
-      return res.status(401).json({ message: "Not authenticated" });
-    }
-
-    try {
-      const userId = (req.user as any).id;
-      const { courseId } = req.params;
-      
-      const progress = await storage.getSectionProgress(userId, courseId);
-      res.json(progress);
-    } catch (error: any) {
-      console.error("Get section progress error:", error);
-      res.status(500).json({ message: error.message });
-    }
-  });
+  // Section progress endpoints (removed duplicate - keeping the comprehensive one above)
 
   app.get("/api/section-progress/:courseId/:chapter/:section/unlocked", async (req, res) => {
     if (!req.isAuthenticated()) {
