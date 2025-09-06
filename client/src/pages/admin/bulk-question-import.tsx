@@ -264,29 +264,153 @@ export default function BulkQuestionImport() {
               </div>
               <div>
                 <Label htmlFor="section">Section</Label>
-                <Input
-                  id="section"
-                  inputMode="numeric"
-                  pattern="[0-9]*"
-                  placeholder="e.g., 101, 301, 619"
-                  value={selectedSection}
-                  onChange={(e) => setSelectedSection(e.target.value.replace(/\D/g, ''))}
-                  data-testid="input-section"
-                  className="w-full"
-                />
-                <div className="text-sm text-muted-foreground mt-1">
-                  <p className="font-medium">Common section examples:</p>
-                  <div className="grid grid-cols-2 gap-1 mt-1 text-xs">
-                    <span>• 101 - Title and Adoption</span>
-                    <span>• 301 - General Requirements</span>
-                    <span>• 401 - Fixture Requirements</span>
-                    <span>• 501 - Water Heater Installation</span>
-                    <span>• 601 - Water Supply System</span>
-                    <span>• 701 - Drainage System Design</span>
-                    <span>• 801 - Indirect Waste Systems</span>
-                    <span>• 901 - Vent System Requirements</span>
-                  </div>
-                </div>
+                <Select value={selectedSection} onValueChange={setSelectedSection}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Select section" />
+                  </SelectTrigger>
+                  <SelectContent className="max-h-60">
+                    {/* Chapter 1 - Administration */}
+                    <SelectItem value="101">§101 - Title and Adoption of Louisiana State Plumbing Code</SelectItem>
+                    <SelectItem value="103">§103 - Availability</SelectItem>
+                    <SelectItem value="105">§105 - Effective Date and Edition</SelectItem>
+                    <SelectItem value="107">§107 - Purpose</SelectItem>
+                    <SelectItem value="109">§109 - Code Remedial</SelectItem>
+                    <SelectItem value="111">§111 - Scope</SelectItem>
+                    <SelectItem value="113">§113 - Existing Buildings</SelectItem>
+                    <SelectItem value="115">§115 - Special Historic Buildings</SelectItem>
+                    <SelectItem value="117">§117 - Authority</SelectItem>
+                    <SelectItem value="119">§119 - Right of Entry</SelectItem>
+                    <SelectItem value="121">§121 - Enforcement</SelectItem>
+                    <SelectItem value="123">§123 - Revocation of Permits or Approvals</SelectItem>
+                    <SelectItem value="125">§125 - Unsafe Installations</SelectItem>
+                    <SelectItem value="127">§127 - Requirements Not Covered By Code</SelectItem>
+                    <SelectItem value="129">§129 - Alternate Materials and Methods</SelectItem>
+                    <SelectItem value="131">§131 - Permits</SelectItem>
+                    <SelectItem value="133">§133 - Tests</SelectItem>
+                    <SelectItem value="135">§135 - Variances</SelectItem>
+                    <SelectItem value="137">§137 - Violations and Penalties</SelectItem>
+                    
+                    {/* Chapter 2 - Definitions */}
+                    <SelectItem value="201">§201 - General</SelectItem>
+                    <SelectItem value="203">§203 - Definitions</SelectItem>
+                    
+                    {/* Chapter 3 - General Regulations */}
+                    <SelectItem value="301">§301 - General Requirements</SelectItem>
+                    <SelectItem value="303">§303 - Materials</SelectItem>
+                    <SelectItem value="305">§305 - Protection of Pipes and Plumbing</SelectItem>
+                    <SelectItem value="307">§307 - Workmanship</SelectItem>
+                    <SelectItem value="309">§309 - Inspection and Tests</SelectItem>
+                    <SelectItem value="311">§311 - Trenching, Excavation and Backfill</SelectItem>
+                    <SelectItem value="313">§313 - Types of Joints</SelectItem>
+                    <SelectItem value="315">§315 - Use of Joints</SelectItem>
+                    <SelectItem value="317">§317 - Anchors, Hangers and Supports</SelectItem>
+                    <SelectItem value="319">§319 - Tests of Plumbing Systems</SelectItem>
+                    
+                    {/* Chapter 4 - Fixtures, Faucets and Fittings */}
+                    <SelectItem value="401">§401 - General</SelectItem>
+                    <SelectItem value="403">§403 - Quality of Fixtures</SelectItem>
+                    <SelectItem value="405">§405 - Water Connections to Fixtures</SelectItem>
+                    <SelectItem value="407">§407 - Waste Connections to Fixtures</SelectItem>
+                    <SelectItem value="409">§409 - Plumbing Fixtures</SelectItem>
+                    <SelectItem value="411">§411 - Minimum Number of Fixtures</SelectItem>
+                    <SelectItem value="413">§413 - Toilet and Bathing Room Requirements</SelectItem>
+                    <SelectItem value="415">§415 - Special Fixtures and Equipment</SelectItem>
+                    
+                    {/* Chapter 5 - Water Heaters */}
+                    <SelectItem value="501">§501 - General</SelectItem>
+                    <SelectItem value="503">§503 - Installation</SelectItem>
+                    <SelectItem value="505">§505 - Water Supply</SelectItem>
+                    <SelectItem value="507">§507 - Required Pan</SelectItem>
+                    <SelectItem value="509">§509 - Relief Valves</SelectItem>
+                    <SelectItem value="511">§511 - Relief Valve Discharge</SelectItem>
+                    <SelectItem value="513">§513 - Solar Water Heating Systems</SelectItem>
+                    
+                    {/* Chapter 6 - Water Supply and Distribution */}
+                    <SelectItem value="601">§601 - General</SelectItem>
+                    <SelectItem value="603">§603 - Materials</SelectItem>
+                    <SelectItem value="605">§605 - Water Service Pipe</SelectItem>
+                    <SelectItem value="607">§607 - Water Distribution</SelectItem>
+                    <SelectItem value="609">§609 - Required Water Supply</SelectItem>
+                    <SelectItem value="611">§611 - Water Supply System Design Criteria</SelectItem>
+                    <SelectItem value="613">§613 - Disinfection of Water Systems</SelectItem>
+                    <SelectItem value="615">§615 - Water System Tests</SelectItem>
+                    <SelectItem value="617">§617 - Crossconnection Control</SelectItem>
+                    <SelectItem value="619">§619 - Hot Water Supply System</SelectItem>
+                    <SelectItem value="621">§621 - Joints and Connections</SelectItem>
+                    <SelectItem value="623">§623 - Thermal Expansion Control</SelectItem>
+                    
+                    {/* Chapter 7 - Sanitary Drainage */}
+                    <SelectItem value="701">§701 - General</SelectItem>
+                    <SelectItem value="703">§703 - Materials</SelectItem>
+                    <SelectItem value="705">§705 - Building Sewer</SelectItem>
+                    <SelectItem value="707">§707 - Building Drain and Branches</SelectItem>
+                    <SelectItem value="709">§709 - Joints and Connections</SelectItem>
+                    <SelectItem value="711">§711 - Cleanouts</SelectItem>
+                    <SelectItem value="713">§713 - Interceptors and Separators</SelectItem>
+                    <SelectItem value="715">§715 - Manholes</SelectItem>
+                    <SelectItem value="717">§717 - Backwater Valves</SelectItem>
+                    <SelectItem value="719">§719 - Drainage System Installation</SelectItem>
+                    <SelectItem value="721">§721 - Sizing of Drainage Piping</SelectItem>
+                    <SelectItem value="723">§723 - Fixture Units</SelectItem>
+                    <SelectItem value="725">§725 - Drainage System Sizing</SelectItem>
+                    <SelectItem value="727">§727 - Sumps and Ejectors</SelectItem>
+                    
+                    {/* Chapter 8 - Indirect/Special Waste */}
+                    <SelectItem value="801">§801 - General</SelectItem>
+                    <SelectItem value="803">§803 - Indirect Waste Piping</SelectItem>
+                    <SelectItem value="805">§805 - Waste Receptors</SelectItem>
+                    <SelectItem value="807">§807 - Special Wastes</SelectItem>
+                    
+                    {/* Chapter 9 - Vents */}
+                    <SelectItem value="901">§901 - General</SelectItem>
+                    <SelectItem value="903">§903 - Vent Stacks and Stack Vents</SelectItem>
+                    <SelectItem value="905">§905 - Vent Connections and Grades</SelectItem>
+                    <SelectItem value="907">§907 - Vent Terminals</SelectItem>
+                    <SelectItem value="909">§909 - Vent and Branch Vent Sizing</SelectItem>
+                    <SelectItem value="911">§911 - Vent System Installation</SelectItem>
+                    <SelectItem value="913">§913 - Combination Waste and Vent System</SelectItem>
+                    <SelectItem value="915">§915 - Island Fixture Venting</SelectItem>
+                    <SelectItem value="917">§917 - Wet Venting</SelectItem>
+                    <SelectItem value="919">§919 - Circuit and Loop Venting</SelectItem>
+                    <SelectItem value="921">§921 - Individual Vent</SelectItem>
+                    <SelectItem value="923">§923 - Common Vent</SelectItem>
+                    <SelectItem value="925">§925 - Stack Venting</SelectItem>
+                    <SelectItem value="927">§927 - Waste Stack Vent</SelectItem>
+                    <SelectItem value="929">§929 - Vent Headers</SelectItem>
+                    <SelectItem value="931">§931 - Relief Vents</SelectItem>
+                    
+                    {/* Chapter 10 - Traps, Interceptors and Separators */}
+                    <SelectItem value="1001">§1001 - Fixture Traps</SelectItem>
+                    <SelectItem value="1003">§1003 - Trap Seals</SelectItem>
+                    <SelectItem value="1005">§1005 - Trap Installation</SelectItem>
+                    <SelectItem value="1007">§1007 - Building Traps</SelectItem>
+                    <SelectItem value="1009">§1009 - Interceptors and Separators</SelectItem>
+                    
+                    {/* Chapter 11 - Storm Drainage */}
+                    <SelectItem value="1101">§1101 - General</SelectItem>
+                    <SelectItem value="1103">§1103 - Materials</SelectItem>
+                    <SelectItem value="1105">§1105 - Roof Drains</SelectItem>
+                    <SelectItem value="1107">§1107 - Controlled Flow Roof Drains</SelectItem>
+                    <SelectItem value="1109">§1109 - Sizing of Storm Drainage Systems</SelectItem>
+                    <SelectItem value="1111">§1111 - Secondary Drainage</SelectItem>
+                    <SelectItem value="1113">§1113 - Subsoil Drains</SelectItem>
+                    <SelectItem value="1115">§1115 - Disposal</SelectItem>
+                    
+                    {/* Chapter 12 - Special Piping and Storage Systems */}
+                    <SelectItem value="1201">§1201 - General</SelectItem>
+                    <SelectItem value="1203">§1203 - Medical Gas and Medical Vacuum Systems</SelectItem>
+                    <SelectItem value="1205">§1205 - Fuel Oil Piping</SelectItem>
+                    <SelectItem value="1207">§1207 - Oxygen Systems</SelectItem>
+                    <SelectItem value="1209">§1209 - Nonflammable Medical Gas</SelectItem>
+                    <SelectItem value="1211">§1211 - Vacuum Systems</SelectItem>
+                    <SelectItem value="1213">§1213 - Laboratory Waste Systems</SelectItem>
+                    
+                    {/* Chapter 13 - Referenced Standards */}
+                    <SelectItem value="1301">§1301 - General</SelectItem>
+                    <SelectItem value="1303">§1303 - Standards</SelectItem>
+                    <SelectItem value="1305">§1305 - References</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
               <div>
                 <Label htmlFor="difficulty">Question Difficulty</Label>
