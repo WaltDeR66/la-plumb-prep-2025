@@ -1604,7 +1604,7 @@ Start your journey at laplumbprep.com/courses
       const user = req.user as any;
       
       // Admin allowlist - only your specific email gets admin access
-      const ALLOWED_ADMIN_EMAILS = ['admin@latrainer.com', 'your-email@example.com']; // Update with your actual email
+      const ALLOWED_ADMIN_EMAILS = ['admin@latrainer.com'];
       const isSuperAdmin = ALLOWED_ADMIN_EMAILS.includes(user.email?.toLowerCase());
       
       // Get all course content to determine sections
