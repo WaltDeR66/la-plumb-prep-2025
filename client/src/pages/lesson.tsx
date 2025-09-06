@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import AIMentorChat from "@/components/ai-mentor-chat";
 import { 
   BookOpen, 
   Play, 
@@ -465,6 +466,20 @@ export default function Lesson() {
           </div>
         </TabsContent>
       </Tabs>
+
+      {/* AI Mentor Chat Section */}
+      <div className="mt-12 pt-8 border-t" data-testid="ai-mentor-chat">
+        <div className="flex items-center gap-3 mb-6">
+          <div className="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center">
+            <MessageSquare className="h-5 w-5 text-orange-600" />
+          </div>
+          <div>
+            <h2 className="text-2xl font-bold text-foreground">AI Mentor Chat</h2>
+            <p className="text-muted-foreground">Get instant help with Louisiana plumbing code questions</p>
+          </div>
+        </div>
+        <AIMentorChat />
+      </div>
 
       {/* Navigation */}
       <div className="flex justify-between mt-8 pt-6 border-t">
