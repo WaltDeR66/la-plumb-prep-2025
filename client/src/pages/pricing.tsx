@@ -38,32 +38,32 @@ export default function Pricing() {
     const priceMapping = {
       basic: {
         monthly: {
-          regular: "price_1S1xrhByFL1L8uV2JfKn5bqI",
-          beta: "price_1S1xuXByFL1L8uV2NYB05RYq"
+          regular: "prod_T0F1neyKINQC", // Basic Monthly
+          beta: "prod_T0F1neyKINQC" // Beta Basic Monthly  
         },
         annual: {
-          regular: "price_1S1xuoByFL1L8uV2rpDkL4wS",
-          beta: "price_1S1xv7ByFL1L8uV2EvZUX3Wg"
+          regular: "prod_T0FKlneyKINQC", // Basic Annual
+          beta: "prod_T0FKlneyKINQC" // Beta Basic Annual
         }
       },
       professional: {
         monthly: {
-          regular: "price_1S1xriByFL1L8uV2cKXSxmwV",
-          beta: "price_1S1xuaByFL1L8uV2sfIJs3Hz"
+          regular: "prod_T0Ed4tSoGvjJYa", // Professional Monthly
+          beta: "prod_T0Ed4tSoGvjJYa" // Beta Professional Monthly
         },
         annual: {
-          regular: "price_1S1xuqByFL1L8uV2vPEtWkmX",
-          beta: "price_1S1xv9ByFL1L8uV2F8u5czkc"
+          regular: "prod_T0FawTUIyov1sj", // Professional Annual
+          beta: "prod_T0FawTUIyov1sj" // Beta Professional Annual
         }
       },
       master: {
         monthly: {
-          regular: "price_1S1xrjByFL1L8uV2iwBxqPG8",
-          beta: "price_1S1xucByFL1L8uV2axdk2dL9"
+          regular: "prod_T0Ej93AZknHTr7", // Master Monthly
+          beta: "prod_T0Ej93AZknHTr7" // Beta Master Monthly
         },
         annual: {
-          regular: "price_1S1xurByFL1L8uV2IQuts2h2",
-          beta: "price_1S1xvAByFL1L8uV2iuNDyfN7"
+          regular: "prod_T0FHT3fqRLYUe", // Master Annual
+          beta: "prod_T0FHT3fqRLYUe" // Beta Master Annual
         }
       }
     };
@@ -92,7 +92,7 @@ export default function Pricing() {
     {
       id: "professional",
       name: "Professional",
-      basePrice: 79.99,
+      basePrice: 59.99,
       tier: "professional",
       description: "For serious professionals",
       popular: true,
@@ -113,7 +113,7 @@ export default function Pricing() {
     {
       id: "master",
       name: "Master",
-      basePrice: 99.99,
+      basePrice: 74.99,
       tier: "master",
       description: "Complete mastery package",
       features: [

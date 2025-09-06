@@ -38,8 +38,9 @@ export const pricingPlans = {
   basic: {
     id: 'basic',
     name: 'Basic',
-    price: 49,
-    priceId: process.env.STRIPE_PRICE_ID_BASIC || 'prod_S4GP4J4nyeZ6HM',
+    price: 49.99,
+    priceId: 'prod_T0F1neyKINQC', // Basic Monthly
+    annualPriceId: 'prod_T0FKlneyKINQC', // Basic Annual
     tier: 'basic',
     description: 'Perfect for getting started',
     features: [
@@ -54,8 +55,9 @@ export const pricingPlans = {
   professional: {
     id: 'professional',
     name: 'Professional',
-    price: 79,
-    priceId: process.env.STRIPE_PRICE_ID_PREMIUM || 'prod_S46S37J6VZCn2x',
+    price: 59.99,
+    priceId: 'prod_T0Ed4tSoGvjJYa', // Professional Monthly
+    annualPriceId: 'prod_T0FawTUIyov1sj', // Professional Annual
     tier: 'professional',
     description: 'For serious professionals',
     features: [
@@ -75,8 +77,9 @@ export const pricingPlans = {
   master: {
     id: 'master',
     name: 'Master',
-    price: 99,
-    priceId: process.env.STRIPE_PRICE_ID_STANDARD || 'prod_S4GR4A08xBTUZ4',
+    price: 74.99,
+    priceId: 'prod_T0Ej93AZknHTr7', // Master Monthly
+    annualPriceId: 'prod_T0FHT3fqRLYUe', // Master Annual
     tier: 'master',
     description: 'Complete mastery package',
     features: [
@@ -368,8 +371,7 @@ export const {
   validateSubscriptionStatus,
 } = StripeService;
 
-// Export Stripe instance getter
-export { getStripe };
+// getStripe already exported above
 
 // Default export
 export default StripeService;
