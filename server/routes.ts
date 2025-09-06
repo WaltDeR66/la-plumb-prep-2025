@@ -51,6 +51,24 @@ async function seedCourseContent() {
   console.log("Auto-seeding course content...");
   
   const courseContentData = [
+    // Course Introduction - appears first
+    {
+      id: "intro-001-louisiana-plumbing",
+      courseId,
+      title: "Course Introduction - Louisiana Plumbing Certification Journey",
+      type: "lesson",
+      chapter: 0,
+      section: 1,
+      content: {
+        "extracted": {
+          "title": "Welcome to Louisiana Journeyman Plumber Certification Prep",
+          "content": "# Welcome to Your Louisiana Plumbing Certification Journey\n\n## What You'll Master in This Course\n\nThis comprehensive program prepares you for the **Louisiana Journeyman Plumber certification exam** using the most current Louisiana regulations and code requirements.\n\n### 📚 Louisiana State Plumbing Code (LSPC) Foundation\n\nYou'll develop expertise in:\n- **LSPC Section 101**: Administration and scope of authority\n- **LSPC Section 103**: Permits, inspections, and compliance procedures  \n- **Installation Standards**: Based on Louisiana-specific requirements\n- **Code Interpretation**: Real-world application of regulations\n\n### 🎯 Key Learning Outcomes\n\nBy completion, you will:\n✅ **Navigate Louisiana Sanitary Code Part XIV** with confidence\n✅ **Apply LSPC sections** to real installation scenarios\n✅ **Understand permit processes** and inspection requirements\n✅ **Master compliance procedures** specific to Louisiana\n✅ **Pass your certification exam** with 80%+ confidence\n\n### 📖 Code Reference Method (Copyright-Safe)\n\nOur educational approach:\n- **References official section numbers** (LSPC 101.1, 103.2, etc.)\n- **Explains concepts in clear language** rather than copying text\n- **Provides practical applications** of code requirements\n- **Uses educational fair use** for learning purposes\n- **Cites sources properly** for all code references\n\n### 🔧 Real-World Focus\n\nEvery lesson connects code requirements to:\n- **Actual plumbing installations** you'll encounter\n- **Inspector expectations** based on Louisiana standards\n- **Common violation scenarios** and how to avoid them\n- **Best practices** from experienced Louisiana plumbers\n\n### 📝 Study Methodology\n\nWe recommend this approach:\n1. **Read each section's concept overview**\n2. **Study the practical applications** \n3. **Take practice quizzes** (70% to advance)\n4. **Review chapter summaries** (80% to advance to next chapter)\n5. **Use AI mentor** for personalized help\n\n### 🎓 Certification Preparation\n\nThis course aligns with:\n- **Louisiana State Plumbing Board** requirements\n- **Current 2024-2025 code updates**\n- **Actual exam question formats**\n- **Time management strategies**\n\n---\n\n**Ready to start?** Click 'Complete Reading' below to begin with LSPC Section 101 fundamentals.\n\n*Note: This course references Louisiana State Plumbing Code sections for educational purposes. All content is original educational material designed to teach code concepts and applications.*",
+          "extractedAt": "2025-01-30T22:00:00Z"
+        }
+      },
+      isActive: true,
+      sortOrder: -1
+    },
     {
       id: "810cafa9-6024-4bdc-a3c5-266490062114",
       courseId,
