@@ -72,7 +72,7 @@ import {
   userPointsHistory
 } from "@shared/schema";
 import { db } from "./db";
-import { eq, and, or, desc, sql, count, isNull, ilike } from "drizzle-orm";
+import { eq, and, or, desc, sql, count, isNull, ilike, like } from "drizzle-orm";
 import { calculateReferralCommission } from "@shared/referral-utils";
 
 export interface IStorage {

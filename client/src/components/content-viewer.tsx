@@ -18,6 +18,7 @@ import { apiRequest } from "@/lib/queryClient";
 import { useStudySession } from "@/hooks/use-study-session";
 import { useToast } from "@/hooks/use-toast";
 import PodcastPlayer from "@/components/podcast-player";
+import InteractiveQuiz from "@/components/interactive-quiz";
 
 interface ContentViewerProps {
   contentId: string;
@@ -230,10 +231,29 @@ export default function ContentViewer(props: ContentViewerProps) {
     );
   };
 
+  const renderQuizContent = () => {
+    if (!content) return null;
+    
+    // Extract section from content title or ID
+    const section = content.title?.match(/\d+/)?.[0] || sectionId || '101';
+    
+    return (
+      <InteractiveQuiz 
+        section={section}
+        contentId={contentId}
+        onComplete={() => {
+          handleComplete();
+        }}
+      />
+    );
+  };
+
   const renderContent = () => {
     switch (contentType) {
       case 'podcast':
         return renderPodcastContent();
+      case 'quiz':
+        return renderQuizContent();
       default:
         return renderTextContent();
     }
