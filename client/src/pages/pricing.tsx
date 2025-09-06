@@ -316,6 +316,48 @@ export default function Pricing() {
                   <td className="p-4 text-center">✅</td>
                 </tr>
                 <tr>
+                  <td className="p-4 font-medium">Practice Tests</td>
+                  <td className="p-4 text-center">✅</td>
+                  <td className="p-4 text-center">✅</td>
+                  <td className="p-4 text-center">✅</td>
+                </tr>
+                <tr>
+                  <td className="p-4 font-medium">Job Board Access</td>
+                  <td className="p-4 text-center">✅</td>
+                  <td className="p-4 text-center">✅</td>
+                  <td className="p-4 text-center">✅</td>
+                </tr>
+                <tr>
+                  <td className="p-4 font-medium">Email Support</td>
+                  <td className="p-4 text-center">✅</td>
+                  <td className="p-4 text-center">✅</td>
+                  <td className="p-4 text-center">✅</td>
+                </tr>
+                <tr>
+                  <td className="p-4 font-medium">Priority Support</td>
+                  <td className="p-4 text-center">❌</td>
+                  <td className="p-4 text-center">✅</td>
+                  <td className="p-4 text-center">✅</td>
+                </tr>
+                <tr>
+                  <td className="p-4 font-medium">Material List Generator</td>
+                  <td className="p-4 text-center">❌</td>
+                  <td className="p-4 text-center">❌</td>
+                  <td className="p-4 text-center">✅</td>
+                </tr>
+                <tr>
+                  <td className="p-4 font-medium">Book Store Access</td>
+                  <td className="p-4 text-center">❌</td>
+                  <td className="p-4 text-center">❌</td>
+                  <td className="p-4 text-center">✅</td>
+                </tr>
+                <tr>
+                  <td className="p-4 font-medium">White-Glove Support</td>
+                  <td className="p-4 text-center">❌</td>
+                  <td className="p-4 text-center">❌</td>
+                  <td className="p-4 text-center">✅</td>
+                </tr>
+                <tr>
                   <td className="p-4 font-medium">Referral Commissions</td>
                   <td className="p-4 text-center">10%</td>
                   <td className="p-4 text-center">10%</td>
