@@ -4325,6 +4325,7 @@ Start your journey at laplumbprep.com/courses
 
   // Add new stats endpoint for overview counts
   app.get("/api/admin/course-content/:courseId/stats", async (req: any, res) => {
+    console.log('🔧 ADMIN STATS API CALLED for course:', req.params.courseId);
     if (!req.isAuthenticated()) {
       return res.status(401).json({ message: "Not authenticated" });
     }
