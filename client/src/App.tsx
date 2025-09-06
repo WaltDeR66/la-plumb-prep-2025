@@ -34,6 +34,7 @@ import BulkQuestionImport from "@/pages/admin/bulk-question-import";
 import BulkFlashcardImport from "@/pages/admin/bulk-flashcard-import";
 import BulkStudyNotesImport from "@/pages/admin/bulk-studynotes-import";
 import BulkStudyPlanImport from "@/pages/admin/bulk-studyplan-import";
+import ContentImport from "@/pages/admin/content-import";
 import JobAnalytics from "@/pages/employer/job-analytics";
 import Privacy from "@/pages/privacy";
 import Terms from "@/pages/terms";
@@ -94,6 +95,7 @@ function Router() {
           <Route path="/admin/flashcard-import" component={BulkFlashcardImport} />
           <Route path="/admin/study-notes-import" component={BulkStudyNotesImport} />
           <Route path="/admin/study-plan-import" component={BulkStudyPlanImport} />
+          <Route path="/admin/content-import" component={ContentImport} />
           <Route path="/admin/job-approval" component={JobApproval} />
           <Route path="/admin/beta-feedback" component={BetaFeedbackDashboard} />
           <Route path="/privacy" component={Privacy} />

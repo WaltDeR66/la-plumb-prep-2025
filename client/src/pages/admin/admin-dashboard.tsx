@@ -1,7 +1,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
-import { Users, MessageSquare, BarChart3, Settings, BookOpen, Upload, Clock } from "lucide-react";
+import { Users, MessageSquare, BarChart3, Settings, BookOpen, Upload, Clock, FileText } from "lucide-react";
 
 export default function AdminDashboard() {
   return (
@@ -140,6 +140,20 @@ export default function AdminDashboard() {
                 </CardTitle>
                 <CardDescription>
                   Import adaptive study plans with time-based sessions
+                </CardDescription>
+              </CardHeader>
+            </Card>
+          </Link>
+
+          <Link href="/admin/content-import">
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <FileText className="h-5 w-5" />
+                  AI Chat Content Import
+                </CardTitle>
+                <CardDescription>
+                  Import educational content for the AI mentor chat system
                 </CardDescription>
               </CardHeader>
             </Card>

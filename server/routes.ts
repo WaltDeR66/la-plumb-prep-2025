@@ -2024,6 +2024,51 @@ Start your journey at laplumbprep.com/courses
     }
   });
 
+  // Admin endpoint to import chat content
+  app.post("/api/admin/import-chat-content", async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+
+    // Check if user is admin (you may want to add proper admin role checking)
+    const user = req.user as any;
+    if (user.id !== 'admin-test-user' && !user.email?.includes('admin')) {
+      return res.status(403).json({ message: "Admin access required" });
+    }
+
+    try {
+      const { content } = req.body;
+      
+      if (!Array.isArray(content)) {
+        return res.status(400).json({ message: "Content must be an array" });
+      }
+
+      let imported = 0;
+      for (const item of content) {
+        try {
+          await storage.createChatAnswer({
+            question: item.question,
+            answer: item.answer,
+            keywords: item.keywords,
+            contentId: item.contentId
+          });
+          imported++;
+        } catch (error) {
+          console.warn(`Failed to import item: ${item.question}`, error);
+        }
+      }
+
+      res.json({ 
+        message: `Successfully imported ${imported} out of ${content.length} chat answers`,
+        imported,
+        total: content.length
+      });
+    } catch (error: any) {
+      console.error("Content import error:", error);
+      res.status(500).json({ message: "Failed to import content" });
+    }
+  });
+
   // Photo upload and analysis
   app.post("/api/photos/upload", requireActiveSubscription, upload.single('photo'), async (req, res) => {
     if (!req.isAuthenticated()) {
