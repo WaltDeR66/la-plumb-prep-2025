@@ -110,7 +110,7 @@ export default function Courses() {
     }
 
     if (!user) {
-      return { text: "Sign In to Enroll", disabled: false, variant: "primary" };
+      return { text: "Start Course", disabled: false, variant: "primary" };
     }
 
     if (isEnrolledIn(course.id)) {
