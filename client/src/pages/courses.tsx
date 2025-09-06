@@ -1,6 +1,6 @@
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useState, useEffect } from "react";
-import { Search, Users, BookOpen, CheckCircle } from "lucide-react";
+import { Search, Users, BookOpen, CheckCircle, HelpCircle, Upload, Clock, Mic, Brain } from "lucide-react";
 import { useLocation } from "wouter";
 import { AuthService, User } from "@/lib/auth";
 import { apiRequest, queryClient } from "@/lib/queryClient";
@@ -43,6 +43,30 @@ export default function Courses() {
   const { data: enrollments = [] } = useQuery({
     queryKey: ["/api/enrollments"],
     enabled: !!user,
+  });
+
+  // Fetch content stats for each course
+  const { data: contentStats } = useQuery({
+    queryKey: ["/api/admin/course-content", "all-stats"],
+    queryFn: async () => {
+      const stats: any = {};
+      for (const course of courses) {
+        try {
+          const courseStats = await apiRequest("GET", `/api/admin/course-content/${course.id}/stats`);
+          stats[course.id] = courseStats || { 
+            questions: 0, flashcards: 0, studyNotes: 0, 
+            studyPlans: 0, podcasts: 0, aiChat: 0 
+          };
+        } catch (error) {
+          stats[course.id] = { 
+            questions: 0, flashcards: 0, studyNotes: 0, 
+            studyPlans: 0, podcasts: 0, aiChat: 0 
+          };
+        }
+      }
+      return stats;
+    },
+    enabled: courses.length > 0,
   });
 
   // Get current user
@@ -261,15 +285,31 @@ export default function Courses() {
                     {course.description}
                   </p>
                   
-                  {/* Course Details */}
-                  <div className="space-y-2 mb-4">
-                    <div className="flex items-center text-sm text-gray-500">
-                      <span className="w-4 h-4 mr-2">⏱️</span>
-                      {course.duration}
+                  {/* Content Statistics */}
+                  <div className="grid grid-cols-2 gap-2 mb-4 text-xs">
+                    <div className="flex items-center text-gray-600">
+                      <HelpCircle className="w-3 h-3 mr-1" />
+                      {contentStats?.[course.id]?.questions || 0} Questions
                     </div>
-                    <div className="flex items-center text-sm text-gray-500">
-                      <span className="w-4 h-4 mr-2">📚</span>
-                      {course.lessons} lessons
+                    <div className="flex items-center text-gray-600">
+                      <Upload className="w-3 h-3 mr-1" />
+                      {contentStats?.[course.id]?.flashcards || 0} Flashcards
+                    </div>
+                    <div className="flex items-center text-gray-600">
+                      <BookOpen className="w-3 h-3 mr-1" />
+                      {contentStats?.[course.id]?.studyNotes || 0} Study Notes
+                    </div>
+                    <div className="flex items-center text-gray-600">
+                      <Clock className="w-3 h-3 mr-1" />
+                      {contentStats?.[course.id]?.studyPlans || 0} Study Plans
+                    </div>
+                    <div className="flex items-center text-gray-600">
+                      <Mic className="w-3 h-3 mr-1" />
+                      {contentStats?.[course.id]?.podcasts || 0} Podcasts
+                    </div>
+                    <div className="flex items-center text-gray-600">
+                      <Brain className="w-3 h-3 mr-1" />
+                      {contentStats?.[course.id]?.aiChat || 0} AI Chat
                     </div>
                   </div>
                   
