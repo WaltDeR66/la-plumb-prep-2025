@@ -41,10 +41,11 @@ interface QuizAttempt {
 interface InteractiveQuizProps {
   section: string;
   contentId: string;
+  title?: string;
   onComplete?: () => void;
 }
 
-export default function InteractiveQuiz({ section, contentId, onComplete }: InteractiveQuizProps) {
+export default function InteractiveQuiz({ section, contentId, title, onComplete }: InteractiveQuizProps) {
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [answers, setAnswers] = useState<{ [key: number]: number }>({});
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -188,7 +189,11 @@ export default function InteractiveQuiz({ section, contentId, onComplete }: Inte
   );
 
   const score = Math.round((answeredCount - incorrectQuestions.length) / questions.length * 100);
-  const passed = score >= 70;
+  
+  // Check if this is a chapter review (requires 80%) or regular quiz (requires 70%)
+  const isChapterReview = title?.toLowerCase().includes('chapter review') || false;
+  const requiredScore = isChapterReview ? 80 : 70;
+  const passed = score >= requiredScore;
 
   if (isSubmitted && showReview && incorrectQuestions.length > 0) {
     return (
@@ -275,7 +280,7 @@ export default function InteractiveQuiz({ section, contentId, onComplete }: Inte
                 Score: {score}% ({answeredCount - incorrectQuestions.length}/{questions.length} correct)
               </p>
               <p className="text-muted-foreground">
-                You need 70% or higher to pass. Study the code references above and try again.
+                You need {requiredScore}% or higher to pass. Study the code references above and try again.
               </p>
             </div>
             

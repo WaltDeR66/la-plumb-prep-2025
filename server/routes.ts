@@ -4926,11 +4926,18 @@ Start your journey at laplumbprep.com/courses
         return res.status(400).json({ error: "Questions data is required" });
       }
       
+      // Get content info to determine if this is a chapter review
+      const content = contentId ? await storage.getCourseContent(contentId) : null;
+      const isChapterReview = content?.title?.toLowerCase().includes('chapter review') || false;
+      
       // Calculate score
       const correctAnswers = questions.filter(q => q.isCorrect).length;
       const totalQuestions = questions.length;
       const score = Math.round((correctAnswers / totalQuestions) * 100);
-      const passed = score >= 70;
+      
+      // Check pass threshold: 80% for chapter reviews, 70% for regular quizzes
+      const requiredScore = isChapterReview ? 80 : 70;
+      const passed = score >= requiredScore;
       
       // Store quiz attempt if user is authenticated
       let attemptId = null;
@@ -4951,12 +4958,32 @@ Start your journey at laplumbprep.com/courses
           }))
         });
         attemptId = attempt.id;
+        
+        // If passed, unlock next section and update progress
+        if (passed && content) {
+          await storage.updateSectionProgress(
+            req.user.id,
+            content.courseId,
+            content.chapter!,
+            content.section!,
+            {
+              quizPassed: true,
+              highestScore: score,
+              attemptCount: 1,
+              lastAttemptAt: new Date(),
+            }
+          );
+          
+          // Unlock next section
+          await storage.unlockNextSection(req.user.id, content.courseId, content.chapter!, content.section!);
+        }
       }
       
       res.json({
         attemptId,
         score,
         passed,
+        requiredScore,
         correctAnswers,
         totalQuestions,
         timeSpent,

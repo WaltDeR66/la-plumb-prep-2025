@@ -280,6 +280,7 @@ export default function ContentViewer(props: ContentViewerProps) {
       <InteractiveQuiz 
         section={section}
         contentId={contentId}
+        title={content.title}
         onComplete={() => {
           handleComplete();
         }}
