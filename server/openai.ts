@@ -77,6 +77,11 @@ export async function analyzePlans(base64Image: string): Promise<{
     connections: string[];
     pipeLength?: number;
     pipeSize?: string;
+    position: {
+      x: number; // normalized coordinate 0-1 from left edge
+      y: number; // normalized coordinate 0-1 from top edge
+      confidence: number; // 0-1 confidence in position accuracy
+    };
   }>;
   codeCompliance: {
     issues: string[];
@@ -94,9 +99,14 @@ export async function analyzePlans(base64Image: string): Promise<{
           
           For numbered fittings, assign sequential numbers (1, 2, 3...) to each fitting, valve, fixture connection, and pipe run visible in the plans. Include precise measurements when visible on professional plans.
           
+          CRITICAL: For each numbered fitting, provide spatial coordinates as normalized values (0.0 to 1.0) where:
+          - x: 0.0 = left edge, 1.0 = right edge of the plan image
+          - y: 0.0 = top edge, 1.0 = bottom edge of the plan image
+          - confidence: 0.0-1.0 indicating how certain you are of the position
+          
           Respond with JSON in this format: {
             "materialList": [{"item": string, "quantity": number, "unit": string, "estimatedCost": number}],
-            "numberedFittings": [{"number": number, "description": string, "size": string, "type": string, "location": string, "connections": string[], "pipeLength": number, "pipeSize": string}],
+            "numberedFittings": [{"number": number, "description": string, "size": string, "type": string, "location": string, "connections": string[], "pipeLength": number, "pipeSize": string, "position": {"x": number, "y": number, "confidence": number}}],
             "codeCompliance": {"issues": string[], "recommendations": string[]},
             "totalEstimatedCost": number
           }`
@@ -106,7 +116,7 @@ export async function analyzePlans(base64Image: string): Promise<{
           content: [
             {
               type: "text",
-              text: "Analyze these plumbing plans and generate: 1) A comprehensive material list with quantities and costs, 2) A numbered fitting placement system where each fitting, valve, connection point, and pipe run gets a sequential number with detailed specifications including pipe lengths and sizes when visible on the plans, 3) Louisiana plumbing code compliance analysis. The numbered fittings should create a 'puzzle system' for plumbers doing rough-in work."
+              text: "Analyze these plumbing plans and generate: 1) A comprehensive material list with quantities and costs, 2) A numbered fitting placement system where each fitting, valve, connection point, and pipe run gets a sequential number with detailed specifications including pipe lengths, sizes, AND precise spatial coordinates (x,y as 0-1 normalized values) for accurate overlay positioning, 3) Louisiana plumbing code compliance analysis. The numbered fittings should create a 'puzzle system' for plumbers doing rough-in work with precise positioning data for professional installation diagrams."
             },
             {
               type: "image_url",
@@ -121,7 +131,25 @@ export async function analyzePlans(base64Image: string): Promise<{
       max_tokens: 1500,
     });
 
-    return JSON.parse(response.choices[0].message.content || "{}");
+    const rawResult = JSON.parse(response.choices[0].message.content || "{}");
+    
+    // Validate and sanitize coordinates
+    if (rawResult.numberedFittings) {
+      rawResult.numberedFittings = rawResult.numberedFittings.map((fitting: any) => ({
+        ...fitting,
+        position: fitting.position ? {
+          x: Math.max(0, Math.min(1, fitting.position.x || 0.5)),
+          y: Math.max(0, Math.min(1, fitting.position.y || 0.5)),
+          confidence: Math.max(0, Math.min(1, fitting.position.confidence || 0))
+        } : {
+          x: 0.5,
+          y: 0.5,
+          confidence: 0
+        }
+      }));
+    }
+    
+    return rawResult;
   } catch (error) {
     throw new Error("Failed to analyze plans: " + (error as Error).message);
   }
@@ -300,6 +328,11 @@ export async function generateNumberedFittingPDF(
       connections: string[];
       pipeLength?: number;
       pipeSize?: string;
+      position: {
+        x: number;
+        y: number;
+        confidence: number;
+      };
     }>;
     totalEstimatedCost: number;
   },
@@ -322,13 +355,79 @@ export async function generateNumberedFittingPDF(
     doc.fontSize(20).text('Numbered Fitting Placement Diagram', 50, 50);
     doc.fontSize(12).text(`Generated: ${new Date().toLocaleDateString()}`, 50, 80);
     
-    // Add plan image if available
+    // Add plan image with numbered overlays if available
     if (planImageBase64) {
       try {
         const imageBuffer = Buffer.from(planImageBase64, 'base64');
         doc.addPage();
         doc.fontSize(16).text('Construction Plan with Numbered Fittings', 50, 50);
-        doc.image(imageBuffer, 50, 80, { width: 500, height: 400 });
+        
+        // Define image placement bounds
+        const imageX = 50;
+        const imageY = 80;
+        const maxImageWidth = 500;
+        const maxImageHeight = 400;
+        
+        // Calculate image dimensions preserving aspect ratio
+        const image = doc.openImage(imageBuffer);
+        const originalWidth = image.width || 1;
+        const originalHeight = image.height || 1;
+        const aspectRatio = originalWidth / originalHeight;
+        
+        let scaledWidth, scaledHeight;
+        if (aspectRatio > maxImageWidth / maxImageHeight) {
+          // Image is wider relative to available space
+          scaledWidth = maxImageWidth;
+          scaledHeight = maxImageWidth / aspectRatio;
+        } else {
+          // Image is taller relative to available space
+          scaledHeight = maxImageHeight;
+          scaledWidth = maxImageHeight * aspectRatio;
+        }
+        
+        // Center the image in the available space
+        const centeredX = imageX + (maxImageWidth - scaledWidth) / 2;
+        const centeredY = imageY + (maxImageHeight - scaledHeight) / 2;
+        
+        // Place the plan image with preserved aspect ratio
+        doc.image(imageBuffer, centeredX, centeredY, { width: scaledWidth, height: scaledHeight });
+        
+        // Overlay numbered markers at precise coordinates
+        planAnalysis.numberedFittings.forEach((fitting) => {
+          if (fitting.position && fitting.position.confidence > 0.3) {
+            // Calculate actual position on the placed image with proper scaling
+            const markerX = centeredX + (fitting.position.x * scaledWidth);
+            const markerY = centeredY + (fitting.position.y * scaledHeight);
+            const markerRadius = 12;
+            
+            // Draw circular marker background
+            doc.circle(markerX, markerY, markerRadius)
+               .fillColor('#2563eb')
+               .fill();
+            
+            // Draw white border
+            doc.circle(markerX, markerY, markerRadius)
+               .strokeColor('#ffffff')
+               .lineWidth(2)
+               .stroke();
+            
+            // Add number text
+            doc.fillColor('#ffffff')
+               .fontSize(10)
+               .text(fitting.number.toString(), markerX - 6, markerY - 5, {
+                 width: 12,
+                 align: 'center'
+               });
+          }
+        });
+        
+        // Add legend for high-confidence vs low-confidence markers
+        const legendY = centeredY + scaledHeight + 20;
+        doc.fontSize(8).fillColor('#666666')
+           .text('● High confidence positioning (>70%)', 50, legendY)
+           .text('◐ Approximate positioning (30-70%)', 50, legendY + 15)
+           .text(`Image scaled to ${Math.round(scaledWidth)} × ${Math.round(scaledHeight)} pixels`, 50, legendY + 30);
+           
       } catch (error) {
         console.warn('Could not add plan image to PDF:', error);
       }
@@ -360,7 +459,18 @@ export async function generateNumberedFittingPDF(
         doc.text(`Connections: ${fitting.connections.join(', ')}`, 85, yPosition + 60);
       }
       
-      yPosition += 85;
+      // Add position confidence indicator
+      if (fitting.position) {
+        const confidenceText = fitting.position.confidence > 0.7 ? 
+          '● Precise positioning' : 
+          fitting.position.confidence > 0.3 ? 
+          '◐ Approximate positioning' : 
+          '○ General area only';
+        doc.fontSize(9).fillColor('#666666')
+           .text(confidenceText, 85, yPosition + 75);
+      }
+      
+      yPosition += 95;
     });
     
     // Material List Summary

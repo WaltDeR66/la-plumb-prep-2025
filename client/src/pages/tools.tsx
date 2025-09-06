@@ -525,6 +525,23 @@ export default function Tools() {
                                             {fitting.pipeSize} × {fitting.pipeLength}"
                                           </p>
                                         )}
+                                        {fitting.position && (
+                                          <div className="flex items-center gap-1 mt-1">
+                                            <span className={`text-xs ${
+                                              fitting.position.confidence > 0.7 ? 'text-green-600 dark:text-green-400' :
+                                              fitting.position.confidence > 0.3 ? 'text-yellow-600 dark:text-yellow-400' :
+                                              'text-gray-500 dark:text-gray-400'
+                                            }`}>
+                                              {fitting.position.confidence > 0.7 ? '●' :
+                                               fitting.position.confidence > 0.3 ? '◐' : '○'}
+                                            </span>
+                                            <span className="text-xs text-muted-foreground">
+                                              {fitting.position.confidence > 0.7 ? 'Precise location' :
+                                               fitting.position.confidence > 0.3 ? 'Approximate location' :
+                                               'General area'}
+                                            </span>
+                                          </div>
+                                        )}
                                       </div>
                                     </div>
                                   </div>
