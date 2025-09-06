@@ -32,7 +32,6 @@ export default function ContentManagement() {
   // Fetch course content stats for overview
   const { data: contentStats } = useQuery({
     queryKey: ["/api/admin/course-content", selectedCourse, "stats"],
-    queryFn: () => apiRequest("GET", `/api/admin/course-content/${selectedCourse}/stats`),
     enabled: !!selectedCourse,
   });
 
