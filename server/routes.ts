@@ -235,6 +235,100 @@ async function seedCourseContent() {
       isActive: true,
       sortOrder: 202
     },
+
+    // CHAPTER 3 REVIEW INTRODUCTION
+    {
+      id: "intro-chapter-3-review",
+      courseId,
+      title: "Chapter 3 Review Introduction - General Regulations Mastery",
+      type: "lesson",
+      chapter: 3,
+      section: 999,
+      content: {
+        "extracted": {
+          "title": "Chapter 3 Review Introduction - General Regulations Mastery",
+          "content": "# Chapter 3 Review Introduction - General Regulations Mastery\n\n## Chapter Overview - Foundation of Technical Requirements\n\nChapter 3 establishes the **fundamental technical framework** for all plumbing installations in Louisiana. This chapter bridges the administrative foundation of Chapter 1 with the specific technical requirements in subsequent chapters.\n\n### 🎯 Critical Concepts to Master for 80% Pass Threshold\n\n**Basic Principles (Section 301)**\n- 23 fundamental principles governing all plumbing work\n- Environmental sanitation goals and public health protection\n- Minimum requirements for water supply, drainage, and fixtures\n- Contamination prevention and proper waste disposal\n\n**Material Standards (Section 303)**\n- Approved materials and quality standards (ASTM, ASME, etc.)\n- Lead-free requirements for potable water systems\n- Material identification, marking, and installation requirements\n- Special materials specifications and limitations\n\n**Additional Technical Requirements**\n- Pipe protection, support, and installation standards\n- Testing procedures and compliance verification\n- Structural safety and construction coordination\n- Trenching, excavation, and backfill requirements\n\n### 📚 Integration Points - How Sections Work Together\n\n**Regulatory Framework:**\n1. **Section 301** establishes why (principles and goals)\n2. **Section 303** defines what (approved materials and standards)\n3. **Additional sections** specify how (installation and testing procedures)\n\n**Professional Foundation:**\nChapter 3 provides the technical framework that supports all specific installation requirements in subsequent chapters.\n\n### 🎓 Exam Preparation Strategy\n\n**High-Priority Topics:**\n- Basic principles and their practical applications\n- Material approval standards and lead-free requirements\n- Installation and testing procedures\n- Structural safety and protection requirements\n\n**Common Exam Scenarios:**\n- Principle-based problem solving and code interpretation\n- Material selection and compliance verification\n- Installation procedure and testing requirement questions\n- Safety and protection standard applications\n\n### 🔧 Real-World Integration\n\nMastering Chapter 3 enables you to:\n- **Apply fundamental principles** to unique installation challenges\n- **Select and verify appropriate materials** for all applications\n- **Follow proper installation procedures** ensuring code compliance\n- **Coordinate with other trades** while maintaining structural integrity\n- **Conduct proper testing** to verify system performance\n\n### ⚠️ Chapter Review Requirements\n\n**80% Pass Threshold:** This chapter review requires 80% to advance to Chapter 4 (Plumbing Fixtures). Chapter 3 provides the technical foundation for all subsequent specialized chapters.\n\n**Study Approach:**\n1. Master the 23 basic principles and their applications\n2. Understand material standards and approval requirements\n3. Learn installation procedures and testing methods\n4. Practice applying principles to real-world scenarios\n5. Focus on coordination with structural and safety requirements\n\n### 💡 Success Strategy\n\nThink of Chapter 3 as the \"technical constitution\" of Louisiana plumbing work. While Chapter 1 provided legal authority, Chapter 3 provides the technical framework that guides all specific installation requirements.\n\n### 📝 Connection to Future Chapters\n\nChapter 3 foundations support:\n- **Chapter 4**: Fixture installation using approved materials and principles\n- **Chapter 5**: Water heater installation following safety and material standards\n- **Chapter 6**: Water supply systems implementing contamination prevention\n- **All subsequent chapters**: Technical specifications built on these foundations\n\n---\n\n**Mastery Goal:** You should be able to apply basic plumbing principles, select appropriate materials, follow proper installation procedures, and ensure compliance with safety and testing requirements - providing the technical foundation for all specialized plumbing work.",
+          "extractedAt": "2025-01-30T22:24:00Z"
+        }
+      },
+      isActive: true,
+      sortOrder: 299
+    },
+
+    // CHAPTER 4 SECTION INTRODUCTIONS
+    {
+      id: "intro-section-401",
+      courseId,
+      title: "Section 401 Introduction - General Fixture Requirements",
+      type: "lesson",
+      chapter: 4,
+      section: 401,
+      content: {
+        "extracted": {
+          "title": "Section 401 Introduction - General Fixture Requirements",
+          "content": "# Section 401 Introduction - General Fixture Requirements\n\n## What This Section Establishes\n\nSection 401 sets the **fundamental requirements** for all plumbing fixtures in Louisiana. This section defines scope, prohibited fixtures, and basic installation standards that apply to all fixture types.\n\n### 🎯 Key Learning Objectives\n\nAfter studying this section, you will understand:\n- **Scope of fixture regulations** and what they cover\n- **Prohibited fixture types** and why they're not allowed\n- **Access requirements** for maintenance and repairs\n- **Basic installation standards** for all fixtures\n\n### 📋 Critical Concepts to Master\n\n**Fixture Scope and Standards**\n- Materials, design, installation, and quality requirements\n- How fixture regulations coordinate with other code chapters\n- Professional responsibility for proper fixture selection\n\n**Prohibited Fixtures**\n- Pan, valve, plunger, offset, and washout water closets\n- Fixtures with invisible seals or unventilated spaces\n- Floor type trough urinals and siphonage-prone designs\n- Health and safety reasons behind prohibitions\n\n**Access and Maintenance Requirements**\n- Concealed slip-joint connection access provisions\n- Waste and overflow fitting accessibility\n- Access panel and utility space requirements\n- Inspection and repair considerations\n\n### 🔧 Real-World Applications\n\nAs a Louisiana plumber, Section 401 knowledge helps you:\n- **Select appropriate fixtures** that meet Louisiana requirements\n- **Avoid prohibited fixtures** that will fail inspection\n- **Plan access provisions** for future maintenance needs\n- **Ensure proper installation** according to general standards\n\n### 🎓 Study Focus for Certification\n\n**Critical Requirements:**\n- Complete list of prohibited fixture types\n- Access requirements for concealed connections\n- General installation and quality standards\n- Coordination with material and installation chapters\n\n**Professional Application:**\nUnderstanding general fixture requirements helps you make appropriate selections and installations before moving to specific fixture types.\n\n### 📝 Connection to Other Sections\n\nSection 401 works with:\n- **Section 403**: Installation procedures and standards\n- **Section 405**: Location and spacing requirements\n- **Section 407**: Materials and performance standards\n- **Section 411**: Minimum fixture requirements for buildings\n\n### 💡 Professional Insight\n\nProper fixture selection and installation at the general level prevents costly problems during specific installation and inspection phases.\n\n---\n\n**Study Tip:** Section 401 answers 'What fixtures can I use and what are the basic rules?' - this foundation knowledge guides all specific fixture installation work.",
+          "extractedAt": "2025-01-30T22:25:00Z"
+        }
+      },
+      isActive: true,
+      sortOrder: 301
+    },
+
+    {
+      id: "intro-section-403",
+      courseId,
+      title: "Section 403 Introduction - Installation",
+      type: "lesson",
+      chapter: 4,
+      section: 403,
+      content: {
+        "extracted": {
+          "title": "Section 403 Introduction - Installation",
+          "content": "# Section 403 Introduction - Installation\n\n## What This Section Establishes\n\nSection 403 defines the **specific installation requirements** for all plumbing fixtures. This section ensures fixtures are properly positioned, supported, and sealed for optimal performance and accessibility.\n\n### 🎯 Key Learning Objectives\n\nAfter studying this section, you will understand:\n- **Cleaning access requirements** and fixture positioning\n- **Watertight joint specifications** for walls and floors\n- **Support requirements** for wall-hung fixtures\n- **Setting standards** for level, alignment, and spacing\n\n### 📋 Critical Concepts to Master\n\n**Access and Positioning**\n- Easy access for cleaning all fixture surfaces\n- Pipe routing to nearest walls when practical\n- Professional installation for long-term maintenance\n\n**Watertight Installations**\n- Wall and floor joint sealing requirements\n- Prevention of water damage and mold issues\n- Proper caulking and sealing techniques\n\n**Support and Mounting**\n- Wall-hung water closet support requirements\n- Concealed metal supporting members\n- Load distribution and structural considerations\n\n**Setting and Alignment**\n- Level installation and proper alignment standards\n- Minimum spacing requirements between fixtures\n- Center-to-center measurements and clearances\n\n### 🔧 Real-World Applications\n\nAs a Louisiana plumber, Section 403 knowledge helps you:\n- **Install fixtures properly** for long-term performance\n- **Prevent water damage** through proper sealing\n- **Meet spacing requirements** for code compliance\n- **Ensure structural support** for wall-hung fixtures\n\n### 🎓 Study Focus for Certification\n\n**Critical Installation Standards:**\n- Water closet and bidet spacing (15\" from centerline to walls)\n- Center-to-center spacing (30\" water closets, 24\" urinals)\n- Front clearance requirements (21\" minimum)\n- Wall-hung fixture support specifications\n\n**Professional Responsibility:**\nProper installation ensures code compliance, prevents water damage, and provides long-term fixture performance.\n\n### 📝 Connection to Other Sections\n\nSection 403 coordinates with:\n- **Section 401**: General requirements that govern installation\n- **Section 405**: Location requirements that affect installation\n- **Section 407**: Material standards for installation components\n- **Structural codes**: Building requirements for fixture support\n\n### 💡 Professional Tip\n\nMeasure twice, install once. Proper spacing and support prevent costly rework and ensure code compliance from the start.\n\n---\n\n**Study Tip:** Section 403 answers 'How do I install fixtures correctly?' - these standards ensure professional installation that meets code and performance requirements.",
+          "extractedAt": "2025-01-30T22:26:00Z"
+        }
+      },
+      isActive: true,
+      sortOrder: 302
+    },
+
+    // CHAPTER 4 REVIEW INTRODUCTION
+    {
+      id: "intro-chapter-4-review",
+      courseId,
+      title: "Chapter 4 Review Introduction - Plumbing Fixtures Mastery",
+      type: "lesson",
+      chapter: 4,
+      section: 999,
+      content: {
+        "extracted": {
+          "title": "Chapter 4 Review Introduction - Plumbing Fixtures Mastery",
+          "content": "# Chapter 4 Review Introduction - Plumbing Fixtures Mastery\n\n## Chapter Overview - Complete Fixture Installation Standards\n\nChapter 4 provides **comprehensive requirements** for all plumbing fixtures in Louisiana. This chapter covers selection, installation, location, materials, and minimum requirements for fixtures in all building types.\n\n### 🎯 Critical Concepts to Master for 80% Pass Threshold\n\n**General Requirements (Section 401)**\n- Scope of fixture regulations and prohibited fixture types\n- Access requirements for concealed connections\n- Basic installation standards for all fixtures\n- Health and safety reasons behind fixture prohibitions\n\n**Installation Standards (Section 403)**\n- Cleaning access and fixture positioning requirements\n- Watertight joint specifications and support standards\n- Setting, alignment, and spacing requirements\n- Professional installation for code compliance\n\n**Location Requirements (Section 405)**\n- Ventilation and lighting standards for fixture areas\n- Public restroom and food service facility requirements\n- Construction worker toilet facility provisions\n- Clearance and accessibility standards\n\n**Materials and Performance (Section 407)**\n- Approved fixture materials and construction standards\n- Performance requirements and testing specifications\n- Fixture fittings and accessory standards\n- Quality and durability requirements\n\n**Minimum Fixture Requirements (Section 411)**\n- Building occupancy fixture calculations\n- Specific requirements for different building types\n- Water closet, lavatory, and additional fixture minimums\n- Commercial and institutional facility requirements\n\n### 📚 Integration Points - How Sections Work Together\n\n**Complete Fixture Framework:**\n1. **Section 401** defines what fixtures can be used\n2. **Section 403** specifies how to install them\n3. **Section 405** determines where they can be located\n4. **Section 407** ensures proper materials and performance\n5. **Section 411** establishes minimum quantities required\n\n**Professional Application:**\nChapter 4 provides complete guidance for fixture selection, installation, and compliance in all building types.\n\n### 🎓 Exam Preparation Strategy\n\n**High-Priority Topics:**\n- Prohibited fixture types and reasons for prohibition\n- Installation spacing and clearance requirements\n- Minimum fixture calculations for different occupancies\n- Ventilation and location requirements\n- Material standards and performance requirements\n\n**Common Exam Scenarios:**\n- Fixture quantity calculations for specific building types\n- Installation spacing and support requirements\n- Location and ventilation requirement applications\n- Material selection and performance standard questions\n- Access and maintenance provision requirements\n\n### 🔧 Real-World Integration\n\nMastering Chapter 4 enables you to:\n- **Select appropriate fixtures** for any building type\n- **Calculate minimum fixture requirements** accurately\n- **Install fixtures properly** with correct spacing and support\n- **Meet location and ventilation requirements** for all applications\n- **Ensure material compliance** and long-term performance\n\n### ⚠️ Chapter Review Requirements\n\n**80% Pass Threshold:** This chapter review requires 80% to advance to Chapter 5 (Water Heaters). Fixture knowledge is essential for understanding complete plumbing system design.\n\n**Study Approach:**\n1. Master prohibited fixture types and selection criteria\n2. Learn installation spacing and support requirements\n3. Understand location and ventilation standards\n4. Practice fixture quantity calculations for different building types\n5. Study material and performance requirements\n\n### 💡 Success Strategy\n\nThink of Chapter 4 as \"fixture mastery\" - everything you need to know about selecting, installing, and calculating fixtures for complete code compliance.\n\n### 📝 Connection to Future Chapters\n\nChapter 4 fixture knowledge supports:\n- **Chapter 5**: Water heater connections to fixture supply systems\n- **Chapter 6**: Water supply sizing based on fixture requirements\n- **Chapter 7**: Drainage system sizing based on fixture units\n- **All subsequent chapters**: System design based on fixture loads\n\n---\n\n**Mastery Goal:** You should be able to select appropriate fixtures, calculate minimum requirements, install with proper spacing and support, ensure location compliance, and verify material standards - providing complete fixture expertise for any Louisiana plumbing project.",
+          "extractedAt": "2025-01-30T22:27:00Z"
+        }
+      },
+      isActive: true,
+      sortOrder: 399
+    },
+
+    // CHAPTER 5 SECTION INTRODUCTIONS  
+    {
+      id: "intro-section-501",
+      courseId,
+      title: "Section 501 Introduction - General Water Heater Requirements",
+      type: "lesson",
+      chapter: 5,
+      section: 501,
+      content: {
+        "extracted": {
+          "title": "Section 501 Introduction - General Water Heater Requirements",
+          "content": "# Section 501 Introduction - General Water Heater Requirements\n\n## What This Section Establishes\n\nSection 501 sets the **fundamental requirements** for water heaters and hot water systems in Louisiana. This section establishes scope, safety standards, and basic installation principles for all water heating equipment.\n\n### 🎯 Key Learning Objectives\n\nAfter studying this section, you will understand:\n- **Scope of water heater regulations** and what they cover\n- **Safety requirements** for installation and operation\n- **Basic installation standards** for all water heating equipment\n- **Coordination with other code chapters** and building systems\n\n### 📋 Critical Concepts to Master\n\n**Water Heater Scope**\n- Types of water heating equipment covered by regulations\n- Installation, safety, and performance requirements\n- Professional responsibility for proper equipment selection\n\n**Safety Standards**\n- Temperature and pressure relief requirements\n- Combustion air and venting provisions\n- Electrical safety and grounding requirements\n- Emergency shutdown and safety device provisions\n\n**Installation Principles**\n- Accessibility for maintenance and service\n- Clearance requirements for safe operation\n- Support and mounting specifications\n- Connection to plumbing and building systems\n\n### 🔧 Real-World Applications\n\nAs a Louisiana plumber, Section 501 knowledge helps you:\n- **Select appropriate water heaters** for specific applications\n- **Ensure safety compliance** in all installations\n- **Plan proper installation** with adequate access and clearances\n- **Coordinate with other trades** for complete system integration\n\n### 🎓 Study Focus for Certification\n\n**Critical Safety Requirements:**\n- Temperature and pressure relief valve specifications\n- Combustion air and venting requirements\n- Electrical connection and grounding standards\n- Emergency safety device requirements\n\n**Professional Application:**\nUnderstanding general water heater requirements provides the foundation for all specific installation and safety procedures.\n\n### 📝 Connection to Other Sections\n\nSection 501 works with:\n- **Section 503**: Installation procedures and requirements\n- **Section 505**: Safety device and relief valve requirements\n- **Section 507**: Venting and combustion air requirements\n- **Chapter 6**: Water supply connections and sizing\n\n### 💡 Professional Insight\n\nWater heater safety is paramount. Proper installation prevents scalding, explosion, and carbon monoxide hazards that can be life-threatening.\n\n---\n\n**Study Tip:** Section 501 answers 'What are the basic safety and installation requirements for water heaters?' - this foundation ensures safe, code-compliant installations.",
+          "extractedAt": "2025-01-30T22:28:00Z"
+        }
+      },
+      isActive: true,
+      sortOrder: 401
+    },
     {
       id: "810cafa9-6024-4bdc-a3c5-266490062114",
       courseId,
