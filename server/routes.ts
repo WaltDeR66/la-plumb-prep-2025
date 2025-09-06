@@ -4775,6 +4775,50 @@ Start your journey at laplumbprep.com/courses
     }
   });
 
+  // Amazon Affiliate Product Search Routes
+  app.get("/api/amazon/search", async (req, res) => {
+    try {
+      const { query, category, maxResults } = req.query;
+      
+      const { amazonAffiliate } = await import('./amazon-affiliate');
+      
+      const products = await amazonAffiliate.searchProducts({
+        query: query as string || '',
+        category: category as string,
+        maxResults: maxResults ? parseInt(maxResults as string) : 12
+      });
+      
+      res.json({ products });
+    } catch (error: any) {
+      console.error("Error searching Amazon products:", error);
+      res.status(500).json({ message: "Failed to search products" });
+    }
+  });
+
+  app.get("/api/amazon/featured", async (req, res) => {
+    try {
+      const { amazonAffiliate } = await import('./amazon-affiliate');
+      const products = await amazonAffiliate.getFeaturedProducts();
+      
+      res.json({ products });
+    } catch (error: any) {
+      console.error("Error getting featured products:", error);
+      res.status(500).json({ message: "Failed to get featured products" });
+    }
+  });
+
+  app.get("/api/amazon/tools", async (req, res) => {
+    try {
+      const { amazonAffiliate } = await import('./amazon-affiliate');
+      const products = await amazonAffiliate.getPopularTools();
+      
+      res.json({ products });
+    } catch (error: any) {
+      console.error("Error getting popular tools:", error);
+      res.status(500).json({ message: "Failed to get popular tools" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

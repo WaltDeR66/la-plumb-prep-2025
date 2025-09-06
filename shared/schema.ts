@@ -31,6 +31,7 @@ export const payoutStatusEnum = pgEnum("payout_status", ["pending", "processing"
 export const achievementTypeEnum = pgEnum("achievement_type", ["course_completion", "quiz_mastery", "study_streak", "first_login", "perfect_score", "speed_demon", "social_sharer", "mentor_helper"]);
 export const questionDifficultyEnum = pgEnum("question_difficulty", ["easy", "medium", "hard", "very_hard"]);
 export const competitionStatusEnum = pgEnum("competition_status", ["upcoming", "active", "completed", "cancelled"]);
+export const productSearchCategoryEnum = pgEnum("product_search_category", ["tools", "pipe_fittings", "valves", "safety_equipment", "measuring_tools", "books", "supplies", "all"]);
 
 // Users table
 export const users = pgTable("users", {

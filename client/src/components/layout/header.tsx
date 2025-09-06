@@ -24,6 +24,7 @@ export default function Header() {
     { name: "Competitions", href: "/competitions" },
     { name: "Tools", href: "/tools/ai-pricing" },
     { name: "Store", href: "/store" },
+    { name: "Amazon Tools", href: "/amazon-products" },
     { name: "Jobs", href: "/jobs" },
   ];
 
@@ -68,7 +69,7 @@ export default function Header() {
                   className={`text-sm font-medium transition-colors hover:text-primary cursor-pointer ${
                     location === item.href ? 'text-primary' : 'text-foreground'
                   }`}
-                  data-testid={`nav-link-${item.name.toLowerCase()}`}
+                  data-testid={`nav-link-${item.name.toLowerCase().replace(/\s+/g, '-')}`}
                 >
                   {item.name}
                 </span>
