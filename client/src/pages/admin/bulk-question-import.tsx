@@ -268,13 +268,25 @@ export default function BulkQuestionImport() {
                   id="section"
                   inputMode="numeric"
                   pattern="[0-9]*"
-                  placeholder="e.g., 101"
+                  placeholder="e.g., 101, 301, 619"
                   value={selectedSection}
                   onChange={(e) => setSelectedSection(e.target.value.replace(/\D/g, ''))}
                   data-testid="input-section"
                   className="w-full"
                 />
-                <p className="text-sm text-muted-foreground mt-1">Enter a section number (e.g., 101, 203)</p>
+                <div className="text-sm text-muted-foreground mt-1">
+                  <p className="font-medium">Common section examples:</p>
+                  <div className="grid grid-cols-2 gap-1 mt-1 text-xs">
+                    <span>• 101 - Title and Adoption</span>
+                    <span>• 301 - General Requirements</span>
+                    <span>• 401 - Fixture Requirements</span>
+                    <span>• 501 - Water Heater Installation</span>
+                    <span>• 601 - Water Supply System</span>
+                    <span>• 701 - Drainage System Design</span>
+                    <span>• 801 - Indirect Waste Systems</span>
+                    <span>• 901 - Vent System Requirements</span>
+                  </div>
+                </div>
               </div>
               <div>
                 <Label htmlFor="difficulty">Question Difficulty</Label>
