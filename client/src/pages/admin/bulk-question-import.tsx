@@ -246,14 +246,19 @@ export default function BulkQuestionImport() {
                     <SelectValue placeholder="Select chapter" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="Chapter 1">Chapter 1 - Plumbing Code</SelectItem>
-                    <SelectItem value="Chapter 2">Chapter 2 - Water Supply</SelectItem>
-                    <SelectItem value="Chapter 3">Chapter 3 - Drainage</SelectItem>
-                    <SelectItem value="Chapter 4">Chapter 4 - Gas Piping</SelectItem>
-                    <SelectItem value="Chapter 5">Chapter 5 - Fixtures</SelectItem>
-                    <SelectItem value="Chapter 6">Chapter 6 - Safety</SelectItem>
-                    <SelectItem value="Chapter 7">Chapter 7 - Testing</SelectItem>
-                    <SelectItem value="Chapter 8">Chapter 8 - Repairs</SelectItem>
+                    <SelectItem value="Chapter 1">Chapter 1 - Administration</SelectItem>
+                    <SelectItem value="Chapter 2">Chapter 2 - Definitions</SelectItem>
+                    <SelectItem value="Chapter 3">Chapter 3 - General Regulations</SelectItem>
+                    <SelectItem value="Chapter 4">Chapter 4 - Fixtures, Faucets and Fittings</SelectItem>
+                    <SelectItem value="Chapter 5">Chapter 5 - Water Heaters</SelectItem>
+                    <SelectItem value="Chapter 6">Chapter 6 - Water Supply and Distribution</SelectItem>
+                    <SelectItem value="Chapter 7">Chapter 7 - Sanitary Drainage</SelectItem>
+                    <SelectItem value="Chapter 8">Chapter 8 - Indirect/Special Waste</SelectItem>
+                    <SelectItem value="Chapter 9">Chapter 9 - Vents</SelectItem>
+                    <SelectItem value="Chapter 10">Chapter 10 - Traps, Interceptors and Separators</SelectItem>
+                    <SelectItem value="Chapter 11">Chapter 11 - Storm Drainage</SelectItem>
+                    <SelectItem value="Chapter 12">Chapter 12 - Special Piping and Storage Systems</SelectItem>
+                    <SelectItem value="Chapter 13">Chapter 13 - Referenced Standards</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
