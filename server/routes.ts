@@ -179,6 +179,62 @@ async function seedCourseContent() {
       isActive: true,
       sortOrder: 99
     },
+
+    // CHAPTER 2 DEFINITIONS REVIEW INTRODUCTION  
+    {
+      id: "intro-chapter-2-review",
+      courseId,
+      title: "Chapter 2 Review Introduction - Definitions Mastery",
+      type: "lesson",
+      chapter: 2,
+      section: 999,
+      content: {
+        "extracted": {
+          "title": "Chapter 2 Review Introduction - Definitions Mastery",
+          "content": "# Chapter 2 Review Introduction - Definitions Mastery\n\n## Chapter Overview - Technical Vocabulary Foundation\n\nChapter 2 provides the **comprehensive technical vocabulary** essential for understanding and applying all Louisiana plumbing code requirements. This chapter defines hundreds of plumbing terms, from basic components to complex systems.\n\n### 🎯 Critical Concepts to Master for 80% Pass Threshold\n\n**System Components**\n- Drainage system components and relationships\n- Water distribution system terminology\n- Venting system definitions and applications\n- Fixture classifications and requirements\n\n**Installation Terms**\n- Connection methods and joint types\n- Installation procedures and requirements\n- Testing and inspection terminology\n- Pipe sizing and capacity definitions\n\n**Materials and Standards**\n- Approved materials and their applications\n- Quality standards and specifications\n- Installation requirements for different materials\n- Compatibility and restriction definitions\n\n**Safety and Code Compliance**\n- Health and safety terminology\n- Cross-connection protection definitions\n- Emergency procedures and equipment\n- Compliance and enforcement terms\n\n### 📚 Study Strategy for Definitions\n\n**Since Chapter 2 is broken into 7 manageable lessons:**\n\n**Lesson 1**: Foundational plumbing terms and basic concepts\n**Lesson 2**: System components and their relationships  \n**Lesson 3**: Installation terminology and procedures\n**Lesson 4**: Materials, fittings, and connection methods\n**Lesson 5**: Inspection, testing, and compliance terms\n**Lesson 6**: Safety, health, and emergency definitions\n**Lesson 7**: Advanced concepts and specialized equipment\n\n### 🧠 Memorization Techniques\n\n**Group Related Terms:**\n- Study drainage terms together (soil pipe, waste pipe, vent pipe)\n- Learn fixture families (water closet, urinal, lavatory)\n- Master measurement terms (fixture units, flow rates, pressures)\n\n**Visual Connections:**\n- Connect definitions to actual plumbing components\n- Visualize systems while learning terminology\n- Relate terms to installation procedures you'll perform\n\n**Professional Context:**\n- Understand how inspectors use these terms\n- Practice using definitions in professional communication\n- Connect terms to real-world problem solving\n\n### 🎓 Exam Preparation Strategy\n\n**High-Priority Definition Categories:**\n- System component terminology (drainage, water supply, venting)\n- Installation and connection definitions\n- Testing and inspection vocabulary\n- Safety and health protection terms\n- Code compliance and enforcement definitions\n\n**Common Exam Patterns:**\n- Definition matching questions\n- Scenario-based term identification\n- System component relationship questions\n- Professional communication contexts\n\n### 🔧 Real-World Applications\n\nMastering Chapter 2 definitions enables you to:\n- **Communicate precisely** with inspectors and colleagues\n- **Understand technical specifications** and manufacturer instructions\n- **Read and interpret** plumbing plans and drawings correctly\n- **Troubleshoot problems** using proper technical vocabulary\n- **Explain work clearly** to clients using appropriate terms\n\n### ⚠️ Chapter Review Requirements\n\n**80% Pass Threshold:** This chapter review requires 80% to advance to Chapter 3 (General Regulations). Definitions are the foundation for all technical content that follows.\n\n**Study Approach:**\n1. Work through all 7 definition lessons systematically\n2. Create flashcards for challenging terms\n3. Practice using definitions in context\n4. Review relationships between related terms\n5. Test yourself on professional communication scenarios\n\n### 💡 Success Strategy\n\nThink of Chapter 2 as learning the \"language of plumbing.\" Every technical requirement in subsequent chapters assumes you understand these foundational definitions. Strong vocabulary mastery makes all other chapters much easier to understand and apply.\n\n### 📝 Connection to Future Chapters\n\nChapter 2 definitions support:\n- **Chapter 3**: General regulations and basic principles\n- **Chapter 4**: Fixtures and their specific requirements\n- **Chapter 5**: Water heaters and hot water systems\n- **All subsequent chapters**: Technical specifications and installation requirements\n\n---\n\n**Mastery Goal:** You should be able to define, use, and apply all key plumbing terminology correctly in professional contexts, enabling clear communication about technical requirements and proper system installation.",
+          "extractedAt": "2025-01-30T22:21:00Z"
+        }
+      },
+      isActive: true,
+      sortOrder: 199
+    },
+
+    // CHAPTER 3 SECTION INTRODUCTIONS
+    {
+      id: "intro-section-301",
+      courseId,
+      title: "Section 301 Introduction - General Regulations",
+      type: "lesson",
+      chapter: 3,
+      section: 301,
+      content: {
+        "extracted": {
+          "title": "Section 301 Introduction - General Regulations",
+          "content": "# Section 301 Introduction - General Regulations\n\n## What This Section Establishes\n\nSection 301 sets the **fundamental principles** that guide all plumbing work in Louisiana. This section establishes the basic sanitary and safety goals that underlie every technical requirement in the code.\n\n### 🎯 Key Learning Objectives\n\nAfter studying this section, you will understand:\n- **23 Basic Principles** that govern all plumbing installations\n- **Scope of general regulations** and how they apply\n- **Sanitary and safety goals** behind technical requirements\n- **How principles guide** code interpretation and application\n\n### 📋 Critical Concepts to Master\n\n**Basic Principles Framework**\n- Adequate, safe, and potable water supply requirements\n- Proper drainage system connections and separations\n- Minimum fixture requirements for different building types\n- Material and installation quality standards\n\n**Environmental Sanitation Goals**\n- Public health protection through proper plumbing design\n- Prevention of contamination and cross-connections\n- Proper waste treatment and disposal\n- Protection from freezing and structural damage\n\n### 🔧 Real-World Applications\n\nAs a Louisiana plumber, Section 301 knowledge helps you:\n- **Understand the \"why\"** behind specific code requirements\n- **Make sound decisions** when codes don't cover specific situations\n- **Explain to clients** the health and safety reasons for code compliance\n- **Apply principles** to unique installation challenges\n\n### 🎓 Study Focus for Certification\n\n**Critical Principles to Memorize:**\n- Principle 1: Adequate, safe, potable water supply requirements\n- Principle 2: Separate sewer connections for buildings\n- Principle 3: Minimum fixture requirements for dwellings\n- Principle 5: Water-seal trap requirements for fixtures\n- Principle 7: Backflow prevention and contamination protection\n\n**Professional Application:**\nThese principles provide the foundation for understanding why specific technical requirements exist and how to apply them correctly.\n\n### 📝 Connection to Other Sections\n\nSection 301 principles support:\n- **All technical chapters**: Provide the reasoning behind specific requirements\n- **Section 303**: Material standards that implement these principles\n- **Fixture chapters**: Minimum requirements and proper installation\n- **System design chapters**: Integration of principles into complete systems\n\n### 💡 Professional Insight\n\nWhen facing installation challenges not explicitly covered by code, return to these basic principles. They guide appropriate solutions that maintain health, safety, and sanitary objectives.\n\n---\n\n**Study Tip:** Section 301 answers 'What are we trying to achieve?' - understanding these principles makes all specific technical requirements more logical and easier to remember.",
+          "extractedAt": "2025-01-30T22:22:00Z"
+        }
+      },
+      isActive: true,
+      sortOrder: 201
+    },
+
+    {
+      id: "intro-section-303",
+      courseId,
+      title: "Section 303 Introduction - Materials",
+      type: "lesson",
+      chapter: 3,
+      section: 303,
+      content: {
+        "extracted": {
+          "title": "Section 303 Introduction - Materials",
+          "content": "# Section 303 Introduction - Materials\n\n## What This Section Establishes\n\nSection 303 defines the **approved materials and standards** for all plumbing installations in Louisiana. This comprehensive section ensures all components meet safety, durability, and performance requirements.\n\n### 🎯 Key Learning Objectives\n\nAfter studying this section, you will understand:\n- **Approved materials** for different plumbing applications\n- **Quality standards** and testing requirements\n- **Installation specifications** for various materials\n- **Lead-free requirements** and health protection standards\n\n### 📋 Critical Concepts to Master\n\n**Material Standards and Approval**\n- ASTM, ASME, and other recognized standards\n- Material identification and marking requirements\n- Installation according to manufacturer specifications\n- Quality control and testing procedures\n\n**Lead-Free Requirements**\n- NSF Standard 61 compliance for potable water\n- Lead content limitations for pipes, fittings, and fixtures\n- Solder and flux lead-free specifications\n- Exceptions for specific applications\n\n**Special Materials Specifications**\n- Lead requirements for safe pans and flashings\n- Copper specifications for different applications\n- Plastic pipe limitations and proper usage\n- Cleanout and fitting requirements\n\n### 🔧 Real-World Applications\n\nAs a Louisiana plumber, Section 303 knowledge helps you:\n- **Select appropriate materials** for specific installations\n- **Verify material compliance** with Louisiana requirements\n- **Install materials correctly** according to standards\n- **Ensure health protection** through proper material selection\n\n### 🎓 Study Focus for Certification\n\n**Critical Material Requirements:**\n- Lead-free standards for potable water systems\n- Approved plastic pipe applications and limitations\n- Material identification and marking requirements\n- Installation standards and manufacturer compliance\n\n**Professional Responsibility:**\nUsing only approved materials installed correctly ensures code compliance and protects public health.\n\n### 📝 Connection to Other Sections\n\nSection 303 supports:\n- **All installation chapters**: Provides material specifications\n- **Water supply chapters**: Ensures potable water protection\n- **Drainage chapters**: Defines approved drainage materials\n- **Protection sections**: Materials for pipe protection and support\n\n### 💡 Professional Tip\n\nAlways verify material markings and certifications before installation. Using non-approved materials can result in failed inspections and costly rework.\n\n---\n\n**Study Tip:** Section 303 answers 'What materials can I use and how?' - this knowledge is essential for proper material selection and installation compliance.",
+          "extractedAt": "2025-01-30T22:23:00Z"
+        }
+      },
+      isActive: true,
+      sortOrder: 202
+    },
     {
       id: "810cafa9-6024-4bdc-a3c5-266490062114",
       courseId,
