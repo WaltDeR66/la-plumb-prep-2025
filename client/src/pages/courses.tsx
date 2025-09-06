@@ -54,7 +54,8 @@ export default function Courses() {
       for (const course of courses) {
         try {
           console.log(`📊 Fetching stats for course ${course.id}`);
-          const courseStats = await apiRequest("GET", `/api/courses/${course.id}/stats`);
+          const response = await apiRequest("GET", `/api/courses/${course.id}/stats`);
+          const courseStats = await response.json();
           console.log(`✅ Got stats for ${course.id}:`, courseStats);
           stats[course.id] = courseStats || { 
             questions: 0, flashcards: 0, studyNotes: 0, 
