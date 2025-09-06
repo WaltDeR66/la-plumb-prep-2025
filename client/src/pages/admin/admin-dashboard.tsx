@@ -161,6 +161,20 @@ export default function AdminDashboard() {
             </Card>
           </Link>
 
+          <Link href="/admin/podcast-import">
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Upload className="h-5 w-5" />
+                  Podcast Import
+                </CardTitle>
+                <CardDescription>
+                  Import conversation content to create podcast episodes
+                </CardDescription>
+              </CardHeader>
+            </Card>
+          </Link>
+
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
