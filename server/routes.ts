@@ -4341,9 +4341,10 @@ Start your journey at laplumbprep.com/courses
       // Get all course content for this course
       const allContent = await storage.getCourseContent(courseId);
       
-      // Count individual questions and flashcards within content files
+      // Count individual questions from both quiz files AND imported questions
       const quizContent = allContent.filter(content => content.type === 'quiz');
-      console.log('Admin API: Found', quizContent.length, 'quiz files');
+      const questionContent = allContent.filter(content => content.type === 'question');
+      console.log('Admin API: Found', quizContent.length, 'quiz files and', questionContent.length, 'imported questions');
       const questions = quizContent
         .reduce((total, quiz) => {
           try {
@@ -4357,7 +4358,7 @@ Start your journey at laplumbprep.com/courses
             console.error('Error parsing quiz content:', error);
             return total;
           }
-        }, 0);
+        }, 0) + questionContent.length;
 
       const flashcardContent = allContent.filter(content => content.type === 'flashcards');
       const flashcards = flashcardContent
