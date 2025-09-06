@@ -46,44 +46,29 @@ export default function Courses() {
   });
 
   // Fetch content stats for each course using public endpoint
-  const { data: contentStats, isLoading: statsLoading, error: statsError } = useQuery({
+  const { data: contentStats } = useQuery({
     queryKey: ["/api/courses", "all-stats", courses.length],
     queryFn: async () => {
-      console.log('🔄 Starting to fetch content stats for', courses.length, 'courses');
       const stats: any = {};
       for (const course of courses) {
         try {
-          console.log(`📊 Fetching stats for course ${course.id}`);
           const response = await apiRequest("GET", `/api/courses/${course.id}/stats`);
           const courseStats = await response.json();
-          console.log(`✅ Got stats for ${course.id}:`, courseStats);
           stats[course.id] = courseStats || { 
             questions: 0, flashcards: 0, studyNotes: 0, 
             studyPlans: 0, podcasts: 0, aiChat: 0 
           };
         } catch (error) {
-          console.error(`❌ Failed to fetch stats for ${course.id}:`, error);
           stats[course.id] = { 
             questions: 0, flashcards: 0, studyNotes: 0, 
             studyPlans: 0, podcasts: 0, aiChat: 0 
           };
         }
       }
-      console.log('🎯 Final contentStats object:', stats);
       return stats;
     },
     enabled: courses.length > 0,
-    staleTime: 0,
-    refetchOnMount: true,
-  });
-
-  // Debug logging
-  console.log('🔍 Debug info:', {
-    coursesLength: courses.length,
-    contentStats,
-    statsLoading,
-    statsError,
-    enabled: courses.length > 0
+    staleTime: 5 * 60 * 1000, // 5 minutes
   });
 
   // Get current user
@@ -306,11 +291,7 @@ export default function Courses() {
                   <div className="grid grid-cols-2 gap-2 mb-4 text-xs">
                     <div className="flex items-center text-gray-600">
                       <HelpCircle className="w-3 h-3 mr-1" />
-                      {(() => {
-                        const questions = contentStats?.[course.id]?.questions || 0;
-                        console.log(`🏷️ Course ${course.id} questions display:`, questions, 'from contentStats:', contentStats?.[course.id]);
-                        return questions;
-                      })()} Questions
+                      {contentStats?.[course.id]?.questions || 0} Questions
                     </div>
                     <div className="flex items-center text-gray-600">
                       <Upload className="w-3 h-3 mr-1" />
