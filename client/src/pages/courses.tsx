@@ -45,14 +45,14 @@ export default function Courses() {
     enabled: !!user,
   });
 
-  // Fetch content stats for each course
+  // Fetch content stats for each course using public endpoint
   const { data: contentStats } = useQuery({
-    queryKey: ["/api/admin/course-content", "all-stats"],
+    queryKey: ["/api/courses", "all-stats"],
     queryFn: async () => {
       const stats: any = {};
       for (const course of courses) {
         try {
-          const courseStats = await apiRequest("GET", `/api/admin/course-content/${course.id}/stats`);
+          const courseStats = await apiRequest("GET", `/api/courses/${course.id}/stats`);
           stats[course.id] = courseStats || { 
             questions: 0, flashcards: 0, studyNotes: 0, 
             studyPlans: 0, podcasts: 0, aiChat: 0 

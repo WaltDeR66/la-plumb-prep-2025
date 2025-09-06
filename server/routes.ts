@@ -4362,6 +4362,31 @@ Start your journey at laplumbprep.com/courses
     }
   });
 
+  // Public endpoint for course content stats (no auth required)
+  app.get("/api/courses/:courseId/stats", async (req: any, res) => {
+    try {
+      const { courseId } = req.params;
+      
+      // Get all course content for this course
+      const allContent = await storage.getCourseContent(courseId);
+      
+      // Count by type - only return public stats
+      const stats = {
+        questions: allContent.filter(content => content.type === 'question').length,
+        flashcards: allContent.filter(content => content.type === 'flashcard').length,
+        studyNotes: allContent.filter(content => content.type === 'study_notes').length,
+        studyPlans: allContent.filter(content => content.type === 'study_plans').length,
+        podcasts: allContent.filter(content => content.type === 'podcast').length,
+        aiChat: allContent.filter(content => content.type === 'ai_chat' || content.type === 'chat').length
+      };
+      
+      res.json(stats);
+    } catch (error: any) {
+      console.error("Error fetching public course content stats:", error);
+      res.status(500).json({ error: "Failed to fetch course content stats" });
+    }
+  });
+
   // Add new lesson
   app.post("/api/admin/lessons", async (req: any, res) => {
     if (!req.isAuthenticated()) {
