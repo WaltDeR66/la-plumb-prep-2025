@@ -51,7 +51,6 @@ export default function CourseCard({ course, isEnrolled = false, progress = 0, i
   // Fetch course content statistics
   const { data: contentStats } = useQuery({
     queryKey: [`/api/courses/${course.id}/stats`],
-    queryFn: () => apiRequest("GET", `/api/courses/${course.id}/stats`),
     retry: false,
   });
 
