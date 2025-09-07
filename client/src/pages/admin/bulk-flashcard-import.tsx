@@ -152,15 +152,20 @@ export default function BulkFlashcardImport() {
     // Clean and normalize the text
     const cleanText = text.trim().replace(/\r\n/g, '\n').replace(/\r/g, '\n');
     
-    // Split by double blank lines (exactly what user is using)
+    // Split by double blank lines to separate flashcards
     const cardBlocks = cleanText.split(/\n\n\n+/).filter(block => block.trim());
     
-    // If no double blank lines found, try splitting by single blank lines and pair them
+    // If no triple blank lines found, try splitting by double blank lines
     let finalBlocks = cardBlocks;
     if (cardBlocks.length === 1) {
+      finalBlocks = cleanText.split(/\n\n\n/).filter(block => block.trim());
+    }
+    
+    // If still only one block, try splitting by double newlines and pairing them
+    if (finalBlocks.length === 1) {
       const singleBlocks = cleanText.split(/\n\n/).filter(block => block.trim());
       finalBlocks = [];
-      // Group every two blocks together (term, definition)
+      // Group every two blocks together (question, answer)
       for (let i = 0; i < singleBlocks.length; i += 2) {
         if (singleBlocks[i] && singleBlocks[i + 1]) {
           finalBlocks.push(`${singleBlocks[i]}\n\n${singleBlocks[i + 1]}`);
@@ -171,22 +176,22 @@ export default function BulkFlashcardImport() {
     finalBlocks.forEach((block, index) => {
       const trimmedBlock = block.trim();
       
-      // Split each block by single blank line to separate term from definition
+      // Split each block by single blank line to separate question from answer
       const parts = trimmedBlock.split(/\n\n/);
       
       if (parts.length >= 2) {
-        const term = parts[0]?.trim();
-        const definition = parts.slice(1).join('\n\n').trim();
+        const question = parts[0]?.trim();
+        const answer = parts.slice(1).join('\n\n').trim();
         
-        // Validate term and definition
-        if (term && definition && term.length > 2 && definition.length > 10) {
-          // Make sure term looks like a title (not too long, not multiple paragraphs)
-          const termLines = term.split('\n').filter(line => line.trim());
-          if (termLines.length <= 2 && term.length < 200) {
+        // Validate question and answer
+        if (question && answer && question.length > 2 && answer.length > 5) {
+          // Make sure question looks like a proper question or term
+          const questionLines = question.split('\n').filter(line => line.trim());
+          if (questionLines.length <= 3 && question.length < 300) {
             flashcards.push({
               id: crypto.randomUUID(),
-              front: term,
-              back: definition,
+              front: question,
+              back: answer,
               createdAt: new Date(),
             });
           }
@@ -292,28 +297,33 @@ export default function BulkFlashcardImport() {
           <CardContent>
             <div className="space-y-4 text-sm">
               <div>
-                <h4 className="font-semibold mb-2">Your Format: Term, Blank Line, Definition</h4>
+                <h4 className="font-semibold mb-2">Your Format: Question/Term, Blank Line, Answer/Definition</h4>
                 <pre className="bg-muted p-3 rounded text-xs">
 {`Louisiana State Plumbing Code (LSPC)
 
-The official title for the plumbing regulations adopted by the Department of Health and Hospitals, Office of Public Health in Louisiana, also referred to as "this code" or "this Part."
+This code refers to Part XIV (Plumbing) of the Sanitary Code, State of Louisiana (LAC 51:XIV), which is adopted by the Department of Health and Hospitals, Office of Public Health.
 
 
-Part XIV (Plumbing) of the Sanitary Code, State of Louisiana (LAC 51:XIV)
+Who adopts the LSPC?
 
-The specific section of the Sanitary Code that deals with plumbing, adopted by the Department of Health and Hospitals, Office of Public Health.
+The Department of Health and Hospitals, specifically the Office of Public Health, is responsible for adopting the Louisiana State Plumbing Code.
 
 
-Department of Health and Hospitals, Office of Public Health
+Synonymous terms for LSPC
 
-The agency responsible for adopting and promulgating the Louisiana State Plumbing Code.`}
+References to 'Louisiana State Plumbing Code,' 'this code,' or 'this Part' are all synonymous with 'Part XIV (Plumbing) of the Sanitary Code, State of Louisiana.'
+
+
+Authority for LSPC promulgation
+
+The primary authority for promulgating the sanitary code, including the LSPC, comes from R.S. 36:258(B) and specific provisions in Chapters 1 and 4 of Title 40 of the Louisiana Revised Statutes.`}
                 </pre>
               </div>
 
               <Alert>
                 <AlertCircle className="h-4 w-4" />
                 <AlertDescription>
-                  <strong>Format requirements:</strong> Term on first line, blank line, then definition. Separate each flashcard with double blank lines.
+                  <strong>Format requirements:</strong> Question or term on first line, blank line, then answer or definition. Separate each flashcard with double blank lines.
                 </AlertDescription>
               </Alert>
             </div>
@@ -340,17 +350,22 @@ The agency responsible for adopting and promulgating the Louisiana State Plumbin
 Example:
 Louisiana State Plumbing Code (LSPC)
 
-The official title for the plumbing regulations adopted by the Department of Health and Hospitals, Office of Public Health in Louisiana.
+This code refers to Part XIV (Plumbing) of the Sanitary Code, State of Louisiana (LAC 51:XIV), which is adopted by the Department of Health and Hospitals, Office of Public Health.
 
 
-Part XIV (Plumbing) of the Sanitary Code
+Who adopts the LSPC?
 
-The specific section of the Sanitary Code that deals with plumbing, adopted by the Department of Health and Hospitals, Office of Public Health.
+The Department of Health and Hospitals, specifically the Office of Public Health, is responsible for adopting the Louisiana State Plumbing Code.
 
 
-R.S. 36:258(B)
+When was the LSPC originally promulgated?
 
-The primary legal document that grants the authority for the Sanitary Code's promulgation.`}
+The Louisiana State Plumbing Code was originally promulgated by the Department of Health and Hospitals, Office of Public Health, in June 2002 (LR 28:1383).
+
+
+Authority for LSPC promulgation
+
+The primary authority for promulgating the sanitary code, including the LSPC, comes from R.S. 36:258(B) and specific provisions in Chapters 1 and 4 of Title 40 of the Louisiana Revised Statutes.`}
                   className="font-mono text-sm"
                 />
               </div>
