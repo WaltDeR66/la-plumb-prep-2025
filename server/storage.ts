@@ -72,7 +72,6 @@ import {
   userAchievements,
   monthlyCompetitions,
   competitionAttempts,
-  competitionQuestions,
   userPointsHistory
 } from "@shared/schema";
 import { db } from "./db";
