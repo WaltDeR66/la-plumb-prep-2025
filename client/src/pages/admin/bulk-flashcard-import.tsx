@@ -146,50 +146,48 @@ export default function BulkFlashcardImport() {
   const parseFlashcardsFromText = (text: string) => {
     const flashcards: any[] = [];
     
-    // Split by double newlines to separate flashcard blocks
-    const cardBlocks = text.split(/\n\s*\n\s*\n/).filter(block => block.trim());
+    // Clean and normalize the text
+    const cleanText = text.trim().replace(/\r\n/g, '\n').replace(/\r/g, '\n');
     
-    cardBlocks.forEach((block, index) => {
-      const lines = block.trim().split('\n').filter(line => line.trim());
-      if (lines.length < 3) return; // Need term + blank line + definition
-      
-      // Find the term (first non-empty line)
-      const term = lines[0].trim();
-      if (!term) return;
-      
-      // Find the definition (everything after the first empty line)
-      let definitionStartIndex = -1;
-      for (let i = 1; i < lines.length; i++) {
-        if (lines[i].trim() === '') {
-          definitionStartIndex = i + 1;
-          break;
+    // Split by double blank lines (exactly what user is using)
+    const cardBlocks = cleanText.split(/\n\n\n+/).filter(block => block.trim());
+    
+    // If no double blank lines found, try splitting by single blank lines and pair them
+    let finalBlocks = cardBlocks;
+    if (cardBlocks.length === 1) {
+      const singleBlocks = cleanText.split(/\n\n/).filter(block => block.trim());
+      finalBlocks = [];
+      // Group every two blocks together (term, definition)
+      for (let i = 0; i < singleBlocks.length; i += 2) {
+        if (singleBlocks[i] && singleBlocks[i + 1]) {
+          finalBlocks.push(`${singleBlocks[i]}\n\n${singleBlocks[i + 1]}`);
         }
       }
+    }
+    
+    finalBlocks.forEach((block, index) => {
+      const trimmedBlock = block.trim();
       
-      if (definitionStartIndex === -1 || definitionStartIndex >= lines.length) {
-        // Try alternative format - look for lines that don't end with period as term
-        const possibleDefinitionStart = lines.findIndex((line, idx) => 
-          idx > 0 && line.trim().length > 10 && 
-          (line.includes('The ') || line.includes('A ') || line.includes('An '))
-        );
+      // Split each block by single blank line to separate term from definition
+      const parts = trimmedBlock.split(/\n\n/);
+      
+      if (parts.length >= 2) {
+        const term = parts[0]?.trim();
+        const definition = parts.slice(1).join('\n\n').trim();
         
-        if (possibleDefinitionStart > 0) {
-          definitionStartIndex = possibleDefinitionStart;
-        } else {
-          return; // Can't find definition
+        // Validate term and definition
+        if (term && definition && term.length > 2 && definition.length > 10) {
+          // Make sure term looks like a title (not too long, not multiple paragraphs)
+          const termLines = term.split('\n').filter(line => line.trim());
+          if (termLines.length <= 2 && term.length < 200) {
+            flashcards.push({
+              id: crypto.randomUUID(),
+              front: term,
+              back: definition,
+              createdAt: new Date(),
+            });
+          }
         }
-      }
-      
-      // Extract definition text
-      const definition = lines.slice(definitionStartIndex).join(' ').trim();
-      
-      if (term.length > 3 && definition.length > 10) {
-        flashcards.push({
-          id: crypto.randomUUID(),
-          front: term,
-          back: definition,
-          createdAt: new Date(),
-        });
       }
     });
     
