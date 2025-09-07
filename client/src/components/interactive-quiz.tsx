@@ -125,6 +125,13 @@ export default function InteractiveQuiz({ section, contentId, title, onComplete 
   }
 
   if (!quizData?.questions?.length) {
+    console.log("❌ No questions found. Debug info:", {
+      quizData,
+      hasQuizData: !!quizData,
+      questionsArray: quizData?.questions,
+      questionsLength: quizData?.questions?.length,
+      section: section
+    });
     return (
       <Card>
         <CardContent className="p-6 text-center">
