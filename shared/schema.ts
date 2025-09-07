@@ -29,7 +29,7 @@ export const leadSourceEnum = pgEnum("lead_source", ["linkedin", "website", "ref
 export const paymentMethodEnum = pgEnum("payment_method", ["paypal", "stripe_transfer", "account_credit"]);
 export const payoutStatusEnum = pgEnum("payout_status", ["pending", "processing", "completed", "failed", "cancelled"]);
 export const achievementTypeEnum = pgEnum("achievement_type", ["course_completion", "quiz_mastery", "study_streak", "first_login", "perfect_score", "speed_demon", "social_sharer", "mentor_helper"]);
-export const questionDifficultyEnum = pgEnum("question_difficulty", ["easy", "medium", "hard", "very_hard"]);
+export const questionDifficultyEnum = pgEnum("question_difficulty", ["easy", "hard", "very_hard"]);
 export const competitionStatusEnum = pgEnum("competition_status", ["upcoming", "active", "completed", "cancelled"]);
 export const productSearchCategoryEnum = pgEnum("product_search_category", ["tools", "pipe_fittings", "valves", "safety_equipment", "measuring_tools", "books", "supplies", "all"]);
 

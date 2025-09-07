@@ -271,7 +271,6 @@ export default function BulkFlashcardImport() {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="easy">Easy - Basic recall</SelectItem>
-                    <SelectItem value="medium">Medium - Application</SelectItem>
                     <SelectItem value="hard">Hard - Analysis</SelectItem>
                     <SelectItem value="very_hard">Very Hard - Synthesis</SelectItem>
                   </SelectContent>
