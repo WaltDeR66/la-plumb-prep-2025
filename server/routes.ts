@@ -2476,27 +2476,20 @@ Start your journey at laplumbprep.com/courses
       const { message, context, conversationId } = req.body;
       const userId = (req.user as any).id;
 
-      // Try to get answer from database first for fast responses
-      const chatAnswer = await storage.getChatAnswer(message, context?.contentId);
-      
+      // Pure AI approach - always use OpenAI for intelligent, contextual responses
       let response = "";
-      if (chatAnswer) {
-        response = chatAnswer.answer;
-      } else {
-        // Use OpenAI for questions not in the database
-        try {
-          const aiResponse = await getMentorResponse(message, context);
-          response = aiResponse;
-        } catch (aiError) {
-          console.error("OpenAI error:", aiError);
-          response = `Great question about Louisiana Plumbing Code Section 101! 🎓\n\nI can help you learn about:\n\n• **Enforcement Authority** - Who enforces the code and how delegation works\n• **Legal Basis** - The statutory foundation (R.S. 36:258(B) and Title 40)\n• **Historical Notes** - Promulgation in 2002 and 2012 amendments\n• **Delegation Process** - How authority flows from state to local level\n• **Code Violations** - Stop-work orders and enforcement procedures\n\nTry clicking one of the suggested questions below, or ask me something specific about code administration!`;
-        }
+      try {
+        const aiResponse = await getMentorResponse(message, context);
+        response = aiResponse;
+      } catch (aiError) {
+        console.error("OpenAI error:", aiError);
+        response = `Great question about Louisiana Plumbing Code! 🎓\n\nI can help you learn about:\n\n• **Code Administration** - Enforcement, authority, and legal basis\n• **Installation Requirements** - Pipe sizing, fixtures, and connections\n• **Safety Standards** - Pressure testing, backflow prevention\n• **Compliance Issues** - Violations, permits, and inspections\n\nTry asking me something specific about any Louisiana plumbing code section!`;
       }
 
       res.json({ response });
     } catch (error: any) {
       console.error("Mentor chat error:", error);
-      res.status(500).json({ message: "Sorry, I'm having trouble right now. Please try asking about enforcement authority, legal basis, or historical notes." });
+      res.status(500).json({ message: "Sorry, I'm having trouble right now. Please try asking about any Louisiana plumbing code topic and I'll help!" });
     }
   });
 
