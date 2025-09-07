@@ -1155,11 +1155,11 @@ Start your journey at laplumbprep.com/courses
       try {
         // Send receipt email
         await emailService.sendWelcomeEmail(newUser.email, {
-          firstName: newUser.firstName,
+          firstName: newUser.firstName || 'User',
           planName: plan.charAt(0).toUpperCase() + plan.slice(1),
           username,
           tempPassword
-        } as any);
+        });
         
         console.log(`Welcome email sent to ${newUser.email}`);
       } catch (emailError) {
@@ -1263,9 +1263,12 @@ Start your journey at laplumbprep.com/courses
           await storage.createReferral({
             referrerId: user.referredBy,
             referredId: user.id,
-            commissionAmount: commissionAmount.toString(),
-            subscriptionTier: tier,
-            status: 'pending'
+            referrerPlanTier: 'basic',
+            referredPlanTier: tier,
+            referredPlanPrice: subscriptionPrice.toString(),
+            eligibleTier: tier,
+            commissionRate: '0.10',
+            commissionAmount: commissionAmount.toString()
           });
         } catch (error) {
           console.error('Referral commission creation failed:', error);
@@ -1502,11 +1505,11 @@ Start your journey at laplumbprep.com/courses
     
     try {
       const courseUpdates = [
-        { id: 1, duration: "2 months", lessons: 24, practiceQuestions: 150 },
-        { id: 2, duration: "1 month", lessons: 16, practiceQuestions: 75 },
-        { id: 3, duration: "1.5 months", lessons: 20, practiceQuestions: 100 },
-        { id: 4, duration: "2 months", lessons: 28, practiceQuestions: 125 },
-        { id: 5, duration: "3 months", lessons: 36, practiceQuestions: 200 }
+        { id: "5f02238b-afb2-4e7f-a488-96fb471fee56", duration: "2 months", lessons: 24, practiceQuestions: 150 },
+        { id: "b1f02238b-afb2-4e7f-a488-96fb471fee57", duration: "1 month", lessons: 16, practiceQuestions: 75 },
+        { id: "c2f02238b-afb2-4e7f-a488-96fb471fee58", duration: "1.5 months", lessons: 20, practiceQuestions: 100 },
+        { id: "d3f02238b-afb2-4e7f-a488-96fb471fee59", duration: "2 months", lessons: 28, practiceQuestions: 125 },
+        { id: "e4f02238b-afb2-4e7f-a488-96fb471fee60", duration: "3 months", lessons: 36, practiceQuestions: 200 }
       ];
 
       for (const update of courseUpdates) {
@@ -2118,7 +2121,8 @@ Start your journey at laplumbprep.com/courses
       
       // Get all course content to determine sections
       const content = await storage.getCourseContent(courseId);
-      const sections = [...new Set(content.map(c => c.section))].sort((a, b) => Number(a) - Number(b));
+      const sectionNumbers = content.map(c => c.section).filter((s): s is number => s !== null);
+      const sections = Array.from(new Set(sectionNumbers)).sort((a, b) => a - b);
       
       const sectionStatus = [];
       
