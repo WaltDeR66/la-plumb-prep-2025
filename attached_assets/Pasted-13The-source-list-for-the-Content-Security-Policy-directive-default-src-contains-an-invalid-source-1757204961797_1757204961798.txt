@@ -1,0 +1,97 @@
+13The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.Understand this error
+13The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?Understand this error
+13The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.Understand this error
+_app-13fb007fa4c7e944.js:38 
+      /////////////////////
+   ///////////////////////////
+  ////////@@@@@@@//////////////
+  ////////@@@@@@@//////////////
+  ////////@@@@@@@//////////////        Curious and driven?
+  ///////////////@@@@@@@///////        Work with us!
+  ///////////////@@@@@@@///////
+  ///////////////@@@@@@@///////        https://join.replit.com/hack.with.us
+  ////////@@@@@@@//////////////
+  ////////@@@@@@@//////////////
+  ////////@@@@@@#//////////////
+   ///////////////////////////
+      /////////////////////
+      
+PlumbingPrep:1 The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.Understand this error
+PlumbingPrep:1 The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?Understand this error
+PlumbingPrep:1 The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.Understand this error
+_app-13fb007fa4c7e944.js:38 [LaunchDarkly] LaunchDarkly client initialized
+stallwart.build.js:1 stallwart: failed ping 1
+5Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.Understand this error
+framework-4607d7617871b361.js:1 Unrecognized feature: 'ambient-light-sensor'.
+_ @ framework-4607d7617871b361.js:1Understand this warning
+framework-4607d7617871b361.js:1 Unrecognized feature: 'battery'.
+_ @ framework-4607d7617871b361.js:1Understand this warning
+framework-4607d7617871b361.js:1 Unrecognized feature: 'execution-while-not-rendered'.
+_ @ framework-4607d7617871b361.js:1Understand this warning
+framework-4607d7617871b361.js:1 Unrecognized feature: 'execution-while-out-of-viewport'.
+_ @ framework-4607d7617871b361.js:1Understand this warning
+framework-4607d7617871b361.js:1 Unrecognized feature: 'layout-animations'.
+_ @ framework-4607d7617871b361.js:1Understand this warning
+framework-4607d7617871b361.js:1 Unrecognized feature: 'legacy-image-formats'.
+_ @ framework-4607d7617871b361.js:1Understand this warning
+framework-4607d7617871b361.js:1 Unrecognized feature: 'navigation-override'.
+_ @ framework-4607d7617871b361.js:1Understand this warning
+framework-4607d7617871b361.js:1 Unrecognized feature: 'oversized-images'.
+_ @ framework-4607d7617871b361.js:1Understand this warning
+framework-4607d7617871b361.js:1 Unrecognized feature: 'publickey-credentials'.
+_ @ framework-4607d7617871b361.js:1Understand this warning
+framework-4607d7617871b361.js:1 Unrecognized feature: 'speaker-selection'.
+_ @ framework-4607d7617871b361.js:1Understand this warning
+framework-4607d7617871b361.js:1 Unrecognized feature: 'unoptimized-images'.
+_ @ framework-4607d7617871b361.js:1Understand this warning
+framework-4607d7617871b361.js:1 Unrecognized feature: 'unsized-media'.
+_ @ framework-4607d7617871b361.js:1Understand this warning
+framework-4607d7617871b361.js:1 Unrecognized feature: 'pointer-lock'.
+_ @ framework-4607d7617871b361.js:1Understand this warning
+framework-4607d7617871b361.js:1 Allow attribute will take precedence over 'allowfullscreen'.
+_ @ framework-4607d7617871b361.js:1Understand this warning
+framework-4607d7617871b361.js:1 Allow attribute will take precedence over 'allowpaymentrequest'.
+_ @ framework-4607d7617871b361.js:1Understand this warning
+PlumbingPrep:1 Banner not shown: beforeinstallpromptevent.preventDefault() called. The page must call beforeinstallpromptevent.prompt() to show the banner.
+PlumbingPrep:1 Uncaught (in promise) Error: A listener indicated an asynchronous response by returning true, but the message channel closed before a response was receivedUnderstand this error
+workspace_iframe.html?initialPath=%2F&id=%3Ar4g5%3A:32 Unrecognized feature: 'ambient-light-sensor'.Understand this warning
+workspace_iframe.html?initialPath=%2F&id=%3Ar4g5%3A:32 Unrecognized feature: 'battery'.Understand this warning
+workspace_iframe.html?initialPath=%2F&id=%3Ar4g5%3A:32 Unrecognized feature: 'execution-while-not-rendered'.Understand this warning
+workspace_iframe.html?initialPath=%2F&id=%3Ar4g5%3A:32 Unrecognized feature: 'execution-while-out-of-viewport'.Understand this warning
+workspace_iframe.html?initialPath=%2F&id=%3Ar4g5%3A:32 Unrecognized feature: 'layout-animations'.Understand this warning
+workspace_iframe.html?initialPath=%2F&id=%3Ar4g5%3A:32 Unrecognized feature: 'legacy-image-formats'.Understand this warning
+workspace_iframe.html?initialPath=%2F&id=%3Ar4g5%3A:32 Unrecognized feature: 'navigation-override'.Understand this warning
+workspace_iframe.html?initialPath=%2F&id=%3Ar4g5%3A:32 Unrecognized feature: 'oversized-images'.Understand this warning
+workspace_iframe.html?initialPath=%2F&id=%3Ar4g5%3A:32 Unrecognized feature: 'publickey-credentials'.Understand this warning
+workspace_iframe.html?initialPath=%2F&id=%3Ar4g5%3A:32 Unrecognized feature: 'speaker-selection'.Understand this warning
+workspace_iframe.html?initialPath=%2F&id=%3Ar4g5%3A:32 Unrecognized feature: 'unoptimized-images'.Understand this warning
+workspace_iframe.html?initialPath=%2F&id=%3Ar4g5%3A:32 Unrecognized feature: 'unsized-media'.Understand this warning
+workspace_iframe.html?initialPath=%2F&id=%3Ar4g5%3A:32 Allow attribute will take precedence over 'allowfullscreen'.Understand this warning
+workspace_iframe.html?initialPath=%2F&id=%3Ar4g5%3A:32 Allow attribute will take precedence over 'allowpaymentrequest'.Understand this warning
+5bc641dc-eb2e-4d1f-9c59-c8fd4cfdd712-00-25bov3acnlt93.spock.replit.dev/api/auth/me:1  Failed to load resource: the server responded with a status of 401 (Unauthorized)Understand this error
+Console.js:61 Warning: validateDOMNesting(...): <a> cannot appear as a descendant of <a>.
+    at a
+    at a
+    at https://5bc641dc-eb2e-4d1f-9c59-c8fd4cfdd712-00-25bov3acnlt93.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=fafccd14:337:18
+    at p
+    at div
+    at div
+    at div
+    at _c9 (https://5bc641dc-eb2e-4d1f-9c59-c8fd4cfdd712-00-25bov3acnlt93.spock.replit.dev/src/components/ui/card.tsx:114:12)
+    at div
+    at _c (https://5bc641dc-eb2e-4d1f-9c59-c8fd4cfdd712-00-25bov3acnlt93.spock.replit.dev/src/components/ui/card.tsx:20:11)
+    at div
+    at div
+    at div
+    at Login (https://5bc641dc-eb2e-4d1f-9c59-c8fd4cfdd712-00-25bov3acnlt93.spock.replit.dev/src/pages/auth/login.tsx:32:27)
+    at Route (https://5bc641dc-eb2e-4d1f-9c59-c8fd4cfdd712-00-25bov3acnlt93.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=fafccd14:323:16)
+    at Switch (https://5bc641dc-eb2e-4d1f-9c59-c8fd4cfdd712-00-25bov3acnlt93.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=fafccd14:379:17)
+    at main
+    at div
+    at Router
+    at Provider (https://5bc641dc-eb2e-4d1f-9c59-c8fd4cfdd712-00-25bov3acnlt93.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-OXZDJRWN.js?v=fafccd14:38:15)
+    at TooltipProvider (https://5bc641dc-eb2e-4d1f-9c59-c8fd4cfdd712-00-25bov3acnlt93.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=fafccd14:64:5)
+    at QueryClientProvider (https://5bc641dc-eb2e-4d1f-9c59-c8fd4cfdd712-00-25bov3acnlt93.spock.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=fafccd14:2805:3)
+    at App
+Mt.forEach.n.<computed> @ Console.js:61Understand this error
+stallwart.build.js:1 stallwart: failed ping 1
