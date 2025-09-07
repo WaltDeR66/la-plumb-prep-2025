@@ -193,6 +193,10 @@ export interface IStorage {
   startStudySession(userId: string, contentId: string, contentType: string): Promise<StudySession>;
   endStudySession(sessionId: string): Promise<StudySession>;
   getUserStudySessions(userId: string, contentId?: string): Promise<StudySession[]>;
+  
+  // Study notes methods
+  getStudyNotesByCourse(courseId: string): Promise<CourseContent[]>;
+  createStudyNote(studyNote: InsertCourseContent): Promise<CourseContent>;
   getStudySessionStats(userId: string): Promise<{ totalTime: number; sessionsCount: number; avgSessionTime: number }>;
   
   // Quiz attempt methods
@@ -1252,6 +1256,30 @@ export class DatabaseStorage implements IStorage {
       .from(studySessions)
       .where(and(...conditions))
       .orderBy(desc(studySessions.sessionStart));
+  }
+
+  // Study notes methods
+  async getStudyNotesByCourse(courseId: string): Promise<CourseContent[]> {
+    return await db
+      .select()
+      .from(courseContent)
+      .where(and(
+        eq(courseContent.courseId, courseId),
+        eq(courseContent.type, 'study-notes')
+      ))
+      .orderBy(courseContent.sortOrder, courseContent.title);
+  }
+
+  async createStudyNote(studyNote: InsertCourseContent): Promise<CourseContent> {
+    const [result] = await db
+      .insert(courseContent)
+      .values({
+        ...studyNote,
+        type: 'study-notes'
+      })
+      .returning();
+    
+    return result;
   }
 
   async getStudySessionStats(userId: string): Promise<{ totalTime: number; sessionsCount: number; avgSessionTime: number }> {
