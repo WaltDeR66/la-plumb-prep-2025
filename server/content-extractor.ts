@@ -317,26 +317,50 @@ export class ContentExtractor {
   private extractFlashcardsFromText(text: string): any[] {
     const cards: any[] = [];
     
-    // Look for term/definition patterns
-    const termPattern = /(.*?)[:]\s*(.*?)(?=\n|$)/gim;
-    const matches = text.match(termPattern);
+    // First try: Look for term/definition patterns separated by blank lines
+    // Format: "Term\n\nDefinition\n\n"
+    const blankLineSeparated = text.split(/\n\s*\n/);
     
-    if (matches) {
-      matches.slice(0, 15).forEach((match, index) => {
-        const parts = match.split(':');
-        if (parts.length >= 2) {
-          const front = parts[0].trim();
-          const back = parts.slice(1).join(':').trim();
-          
-          if (front.length > 3 && back.length > 3) {
+    if (blankLineSeparated.length >= 2) {
+      for (let i = 0; i < blankLineSeparated.length - 1; i += 2) {
+        const front = blankLineSeparated[i]?.trim();
+        const back = blankLineSeparated[i + 1]?.trim();
+        
+        if (front && back && front.length > 3 && back.length > 10) {
+          // Make sure front is concise (likely a term) and back is longer (definition)
+          if (front.length < 200 && !front.includes('\n')) {
             cards.push({
-              id: index,
+              id: cards.length,
               front: front,
               back: back
             });
           }
         }
-      });
+      }
+    }
+    
+    // Second try: Look for colon-separated patterns if blank line method didn't work
+    if (cards.length === 0) {
+      const termPattern = /(.*?)[:]\s*(.*?)(?=\n|$)/gim;
+      const matches = text.match(termPattern);
+      
+      if (matches) {
+        matches.slice(0, 15).forEach((match, index) => {
+          const parts = match.split(':');
+          if (parts.length >= 2) {
+            const front = parts[0].trim();
+            const back = parts.slice(1).join(':').trim();
+            
+            if (front.length > 3 && back.length > 3) {
+              cards.push({
+                id: index,
+                front: front,
+                back: back
+              });
+            }
+          }
+        });
+      }
     }
     
     return cards;
