@@ -4865,36 +4865,14 @@ Start your journey at laplumbprep.com/courses
       // Get all course content for this course
       const allContent = await storage.getCourseContent(courseId);
       
+      // Get actual content from dedicated tables
+      const competitionQuestions = await storage.getQuestionsByCourse(courseId);
+      const courseFlashcards = await storage.getFlashcardsByCourse(courseId);
+
       // Count individual items within content, not just content files
       const stats = {
-        questions: allContent
-          .filter(content => content.type === 'quiz')
-          .reduce((total, quiz) => {
-            try {
-              const contentObj = typeof quiz.content === 'string' ? JSON.parse(quiz.content) : quiz.content;
-              const extractedContent = contentObj?.extracted?.content || '';
-              // Count numbered questions like "**1. ", "**2. ", etc.
-              const questionMatches = extractedContent.match(/\*\*\d+\./g) || [];
-              return total + questionMatches.length;
-            } catch (error) {
-              console.error('Error parsing quiz content:', error);
-              return total;
-            }
-          }, 0),
-        flashcards: allContent
-          .filter(content => content.type === 'flashcards')
-          .reduce((total, flashcardSet) => {
-            try {
-              const contentObj = typeof flashcardSet.content === 'string' ? JSON.parse(flashcardSet.content) : flashcardSet.content;
-              const extractedContent = contentObj?.extracted?.content || '';
-              // Count flashcard pairs marked with "Front:" or "**Front:"
-              const flashcardMatches = extractedContent.match(/(\*\*)?Front:/g) || [];
-              return total + flashcardMatches.length;
-            } catch (error) {
-              console.error('Error parsing flashcard content:', error);
-              return total;
-            }
-          }, 0),
+        questions: competitionQuestions.length,
+        flashcards: courseFlashcards.length,
         studyNotes: allContent.filter(content => content.type === 'study-notes').length,
         studyPlans: allContent.filter(content => content.type === 'study-plan' || content.type === 'study-plans').length,
         podcasts: allContent.filter(content => content.type === 'podcast').length,
