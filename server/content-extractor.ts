@@ -317,8 +317,13 @@ export class ContentExtractor {
   private extractFlashcardsFromText(text: string): any[] {
     const cards: any[] = [];
     
+    // Debug logging
+    console.log('🎯 FLASHCARD PARSER - Input text length:', text.length);
+    console.log('🎯 FLASHCARD PARSER - First 200 chars:', text.substring(0, 200));
+    
     // Clean and normalize the text
     const cleanText = text.trim().replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+    console.log('🎯 FLASHCARD PARSER - Cleaned text length:', cleanText.length);
     
     // Simple approach: Split by empty lines and look for patterns
     const lines = cleanText.split('\n');
@@ -343,12 +348,21 @@ export class ContentExtractor {
       blocks.push(currentBlock.trim());
     }
     
+    console.log('🎯 FLASHCARD PARSER - Found blocks:', blocks.length);
+    blocks.forEach((block, i) => {
+      console.log(`🎯 Block ${i}: "${block.substring(0, 50)}..."`);
+    });
+    
     // Now pair up blocks as front/back of flashcards
     for (let i = 0; i < blocks.length - 1; i += 2) {
       const front = blocks[i];
       const back = blocks[i + 1];
       
       if (front && back) {
+        console.log(`🎯 FLASHCARD PARSER - Pairing block ${i} with ${i + 1}`);
+        console.log(`🎯 Front: "${front}"`);
+        console.log(`🎯 Back: "${back}"`);
+        
         // Basic validation: front should be shorter and more title-like
         const frontIsTitle = front.length < back.length && front.length < 150 && !front.includes('.');
         const backIsDefinition = back.length > 20;
@@ -359,14 +373,21 @@ export class ContentExtractor {
             front: front,
             back: back
           });
+          console.log(`🎯 FLASHCARD PARSER - Added card ${cards.length}`);
+        } else {
+          console.log(`🎯 FLASHCARD PARSER - Rejected pair: frontIsTitle=${frontIsTitle}, lengths=${front.length}/${back.length}`);
         }
       }
     }
     
+    console.log(`🎯 FLASHCARD PARSER - Method 1 result: ${cards.length} cards`);
+    
     // If no cards found with block pairing, try other methods
     if (cards.length === 0) {
+      console.log('🎯 FLASHCARD PARSER - Trying method 2: double line breaks');
       // Try splitting on double line breaks
       const sections = cleanText.split(/\n\s*\n\s*\n/);
+      console.log('🎯 Double line break sections:', sections.length);
       
       for (const section of sections) {
         const parts = section.split(/\n\s*\n/);
@@ -380,6 +401,7 @@ export class ContentExtractor {
               front: front,
               back: back
             });
+            console.log(`🎯 FLASHCARD PARSER - Method 2 added card: "${front}" -> "${back.substring(0, 50)}..."`);
           }
         }
       }
@@ -387,6 +409,7 @@ export class ContentExtractor {
     
     // Final fallback: colon-separated format
     if (cards.length === 0) {
+      console.log('🎯 FLASHCARD PARSER - Trying method 3: colon-separated');
       const colonPattern = /^(.+?):\s*(.+)$/gm;
       let match;
       
@@ -400,10 +423,12 @@ export class ContentExtractor {
             front: front,
             back: back
           });
+          console.log(`🎯 FLASHCARD PARSER - Method 3 added card: "${front}" -> "${back}"`);
         }
       }
     }
     
+    console.log(`🎯 FLASHCARD PARSER - FINAL RESULT: ${cards.length} cards extracted`);
     return cards;
   }
 
