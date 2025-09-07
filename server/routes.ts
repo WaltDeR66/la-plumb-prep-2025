@@ -5086,14 +5086,72 @@ Start your journey at laplumbprep.com/courses
         }
       });
       
-      // Create only new study plans
+      // Helper function to extract section number from content
+      const extractSectionInfo = (title: string, content: string) => {
+        // Look for section numbers in content (e.g., "Section 109", "§109", "section 109")
+        const sectionMatch = content.match(/(?:section|§)\s*(\d+)/i);
+        if (sectionMatch) {
+          return {
+            chapter: 1, // Default to chapter 1 for Louisiana Plumbing Code sections
+            section: parseInt(sectionMatch[1])
+          };
+        }
+        
+        // Look for section numbers in title
+        const titleSectionMatch = title.match(/(?:section|§)\s*(\d+)/i);
+        if (titleSectionMatch) {
+          return {
+            chapter: 1,
+            section: parseInt(titleSectionMatch[1])
+          };
+        }
+        
+        // Default fallback based on common sections
+        return {
+          chapter: 1,
+          section: 109 // Default to section 109 as seen in the content
+        };
+      };
+
+      // Helper function to determine difficulty based on time duration
+      const getDifficulty = (title: string, content: string) => {
+        const text = (title + ' ' + content).toLowerCase();
+        
+        // Check for time indicators
+        if (text.includes('5 minute') || text.includes('5-minute')) {
+          return 'easy';
+        } else if (text.includes('10 minute') || text.includes('10-minute')) {
+          return 'easy';
+        } else if (text.includes('15 minute') || text.includes('15-minute')) {
+          return 'hard';
+        } else if (text.includes('30 minute') || text.includes('30-minute')) {
+          return 'hard';
+        } else if (text.includes('1 hour') || text.includes('hour') || text.includes('60 minute')) {
+          return 'very_hard';
+        }
+        
+        // Default based on content length
+        if (content.length < 500) return 'easy';
+        if (content.length < 1500) return 'hard';
+        return 'very_hard';
+      };
+
+      // Create only new study plans with extracted metadata
       const createdStudyPlans = await Promise.all(
-        newStudyPlans.map((sp: any) => storage.createCourseContent({
-          courseId: sp.courseId,
-          type: 'study-plan',
-          title: sp.title,
-          content: sp.content
-        }))
+        newStudyPlans.map((sp: any) => {
+          const { chapter, section } = extractSectionInfo(sp.title, sp.content);
+          const difficulty = getDifficulty(sp.title, sp.content);
+          
+          return storage.createCourseContent({
+            courseId: sp.courseId,
+            type: 'study-plan',
+            title: sp.title,
+            content: sp.content,
+            chapter,
+            section,
+            difficulty
+          });
+        })
       );
       
       res.json({ 
