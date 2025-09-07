@@ -184,6 +184,10 @@ export const flashcards = pgTable("flashcards", {
   front: text("front").notNull(),
   back: text("back").notNull(),
   difficulty: text("difficulty"), // Optional difficulty level
+  chapter: integer("chapter"), // Chapter number
+  section: integer("section"), // Section number
+  codeReference: text("code_reference"), // Chapter and section reference string
+  category: text("category"), // Category/chapter description
   tags: text("tags").array(), // Optional tags for categorization
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
