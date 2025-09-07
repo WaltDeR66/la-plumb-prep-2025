@@ -5226,8 +5226,8 @@ Start your journey at laplumbprep.com/courses
         return res.status(400).json({ error: "courseId and questions array are required" });
       }
       
-      // Get existing questions for this course to check for duplicates
-      const existingQuestions = await storage.getQuestionsByCourse(courseId);
+      // Get all existing questions from entire database to check for duplicates
+      const existingQuestions = await storage.getAllActiveQuestions();
       
       // Create a set of existing question texts for faster lookup (normalized)
       // Normalize by removing extra spaces, punctuation variations, and converting to lowercase

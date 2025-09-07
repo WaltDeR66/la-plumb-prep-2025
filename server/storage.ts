@@ -1939,12 +1939,24 @@ export class DatabaseStorage implements IStorage {
     return questions;
   }
 
-  // Get questions for a course (using competition questions table)
-  async getQuestionsByCourse(courseId: string): Promise<any[]> {
+  // Get all active questions from database (for duplicate checking across entire database)
+  async getAllActiveQuestions(): Promise<any[]> {
     return await db
       .select()
       .from(competitionQuestions)
       .where(eq(competitionQuestions.isActive, true))
+      .orderBy(competitionQuestions.createdAt);
+  }
+
+  // Get questions filtered by courseId (for course statistics)
+  async getQuestionsByCourse(courseId: string): Promise<any[]> {
+    return await db
+      .select()
+      .from(competitionQuestions)
+      .where(and(
+        eq(competitionQuestions.isActive, true),
+        eq(competitionQuestions.courseId, courseId)
+      ))
       .orderBy(competitionQuestions.createdAt);
   }
 
