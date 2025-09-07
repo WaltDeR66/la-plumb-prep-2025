@@ -7,7 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Plus, BookOpen, HelpCircle, FileText, Video, Headphones, Upload, Mic, Clock, Brain } from "lucide-react";
+import { Plus, BookOpen, HelpCircle, FileText, Video, Headphones, Upload, Mic, Clock, Brain, MessageCircle } from "lucide-react";
 import { Link } from "wouter";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -299,6 +299,174 @@ export default function ContentManagement() {
                                     }`}>
                                       {item.difficulty ? item.difficulty.charAt(0).toUpperCase() + item.difficulty.slice(1) : 'Unknown'}
                                     </span>
+                                    <span className="font-semibold">{item.count}</span>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    )}
+
+                    {/* Study Notes Breakdown */}
+                    {safeStats.studyNotes > 0 && (
+                      <Card>
+                        <CardHeader>
+                          <CardTitle className="flex items-center gap-2">
+                            <FileText className="h-5 w-5" />
+                            Study Notes Breakdown ({safeStats.studyNotes} total)
+                          </CardTitle>
+                          <CardDescription>
+                            Distribution of study notes by chapter and section
+                          </CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                              <h4 className="font-semibold mb-3">By Chapter</h4>
+                              <div className="space-y-2">
+                                {safeStats.breakdowns?.studyNotes?.byChapter?.map((item: any, index: number) => (
+                                  <div key={index} className="flex justify-between items-center p-2 bg-muted rounded">
+                                    <span className="text-sm">Chapter {item.chapter}</span>
+                                    <span className="font-semibold">{item.count}</span>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                            
+                            <div>
+                              <h4 className="font-semibold mb-3">By Section</h4>
+                              <div className="space-y-2">
+                                {safeStats.breakdowns?.studyNotes?.bySection?.map((item: any, index: number) => (
+                                  <div key={index} className="flex justify-between items-center p-2 bg-muted rounded">
+                                    <span className="text-sm">Chapter {item.chapter} - Section {item.section}</span>
+                                    <span className="font-semibold">{item.count}</span>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    )}
+
+                    {/* Study Plans Breakdown */}
+                    {safeStats.studyPlans > 0 && (
+                      <Card>
+                        <CardHeader>
+                          <CardTitle className="flex items-center gap-2">
+                            <BookOpen className="h-5 w-5" />
+                            Study Plans Breakdown ({safeStats.studyPlans} total)
+                          </CardTitle>
+                          <CardDescription>
+                            Distribution of study plans by chapter and section
+                          </CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                              <h4 className="font-semibold mb-3">By Chapter</h4>
+                              <div className="space-y-2">
+                                {safeStats.breakdowns?.studyPlans?.byChapter?.map((item: any, index: number) => (
+                                  <div key={index} className="flex justify-between items-center p-2 bg-muted rounded">
+                                    <span className="text-sm">Chapter {item.chapter}</span>
+                                    <span className="font-semibold">{item.count}</span>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                            
+                            <div>
+                              <h4 className="font-semibold mb-3">By Section</h4>
+                              <div className="space-y-2">
+                                {safeStats.breakdowns?.studyPlans?.bySection?.map((item: any, index: number) => (
+                                  <div key={index} className="flex justify-between items-center p-2 bg-muted rounded">
+                                    <span className="text-sm">Chapter {item.chapter} - Section {item.section}</span>
+                                    <span className="font-semibold">{item.count}</span>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    )}
+
+                    {/* Podcasts Breakdown */}
+                    {safeStats.podcasts > 0 && (
+                      <Card>
+                        <CardHeader>
+                          <CardTitle className="flex items-center gap-2">
+                            <Mic className="h-5 w-5" />
+                            Podcasts Breakdown ({safeStats.podcasts} total)
+                          </CardTitle>
+                          <CardDescription>
+                            Distribution of podcasts by chapter and section
+                          </CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                              <h4 className="font-semibold mb-3">By Chapter</h4>
+                              <div className="space-y-2">
+                                {safeStats.breakdowns?.podcasts?.byChapter?.map((item: any, index: number) => (
+                                  <div key={index} className="flex justify-between items-center p-2 bg-muted rounded">
+                                    <span className="text-sm">Chapter {item.chapter}</span>
+                                    <span className="font-semibold">{item.count}</span>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                            
+                            <div>
+                              <h4 className="font-semibold mb-3">By Section</h4>
+                              <div className="space-y-2">
+                                {safeStats.breakdowns?.podcasts?.bySection?.map((item: any, index: number) => (
+                                  <div key={index} className="flex justify-between items-center p-2 bg-muted rounded">
+                                    <span className="text-sm">Chapter {item.chapter} - Section {item.section}</span>
+                                    <span className="font-semibold">{item.count}</span>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    )}
+
+                    {/* AI Chat Content Breakdown */}
+                    {safeStats.aiChat > 0 && (
+                      <Card>
+                        <CardHeader>
+                          <CardTitle className="flex items-center gap-2">
+                            <MessageCircle className="h-5 w-5" />
+                            AI Chat Content Breakdown ({safeStats.aiChat} total)
+                          </CardTitle>
+                          <CardDescription>
+                            Distribution of AI chat content by chapter and section
+                          </CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                              <h4 className="font-semibold mb-3">By Chapter</h4>
+                              <div className="space-y-2">
+                                {safeStats.breakdowns?.aiChat?.byChapter?.map((item: any, index: number) => (
+                                  <div key={index} className="flex justify-between items-center p-2 bg-muted rounded">
+                                    <span className="text-sm">Chapter {item.chapter}</span>
+                                    <span className="font-semibold">{item.count}</span>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                            
+                            <div>
+                              <h4 className="font-semibold mb-3">By Section</h4>
+                              <div className="space-y-2">
+                                {safeStats.breakdowns?.aiChat?.bySection?.map((item: any, index: number) => (
+                                  <div key={index} className="flex justify-between items-center p-2 bg-muted rounded">
+                                    <span className="text-sm">Chapter {item.chapter} - Section {item.section}</span>
                                     <span className="font-semibold">{item.count}</span>
                                   </div>
                                 ))}
