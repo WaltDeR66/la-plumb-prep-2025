@@ -135,6 +135,10 @@ export interface IStorage {
   // Breakdown methods for admin stats
   getQuestionBreakdowns(courseId: string): Promise<any>;
   getFlashcardBreakdowns(courseId: string): Promise<any>;
+  getCourseContentBreakdowns(courseId: string): Promise<any>;
+  getStudySessionBreakdowns(courseId: string): Promise<any>;
+  getEnrollmentBreakdowns(courseId: string): Promise<any>;
+  getUserProgressBreakdowns(courseId: string): Promise<any>;
   
   // Study companion methods
   getStudyCompanionConversations(userId: string): Promise<StudyCompanionMessage[]>;
