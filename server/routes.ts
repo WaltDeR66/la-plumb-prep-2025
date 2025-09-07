@@ -4828,10 +4828,6 @@ Start your journey at laplumbprep.com/courses
       // Get detailed breakdowns
       const questionBreakdowns = await storage.getQuestionBreakdowns(courseId);
       const flashcardBreakdowns = await storage.getFlashcardBreakdowns(courseId);
-      const studyNotesBreakdowns = await storage.getStudyNotesBreakdowns(courseId);
-      const studyPlansBreakdowns = await storage.getStudyPlansBreakdowns(courseId);
-      const podcastsBreakdowns = await storage.getPodcastsBreakdowns(courseId);
-      const aiChatBreakdowns = await storage.getAiChatBreakdowns(courseId);
 
       // Count by type (using actual database types)
       const stats = {
@@ -4842,14 +4838,10 @@ Start your journey at laplumbprep.com/courses
         studyNotes: allContent.filter(content => content.type === 'study-notes').length,
         studyPlans: allContent.filter(content => content.type === 'study-plan' || content.type === 'study-plans').length,
         podcasts: allContent.filter(content => content.type === 'podcast').length,
-        aiChat: allContent.filter(content => content.type === 'chat').length,
+        aiChat: 1, // Study Companion "Pipe Buddy" is available for all courses
         breakdowns: {
           questions: questionBreakdowns,
-          flashcards: flashcardBreakdowns,
-          studyNotes: studyNotesBreakdowns,
-          studyPlans: studyPlansBreakdowns,
-          podcasts: podcastsBreakdowns,
-          aiChat: aiChatBreakdowns
+          flashcards: flashcardBreakdowns
         }
       };
       
