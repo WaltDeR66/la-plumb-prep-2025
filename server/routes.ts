@@ -5190,11 +5190,12 @@ Start your journey at laplumbprep.com/courses
       // Get existing flashcards for this course to check for duplicates
       const existingFlashcards = await storage.getFlashcardsByCourse(courseId);
       
-      // Create a set of existing flashcard fronts for faster lookup (normalized)
-      const existingFlashcardFronts = new Set(
-        existingFlashcards.map((f: any) => 
-          f.front.toLowerCase().trim().replace(/\s+/g, ' ')
-        )
+      // Create a set of existing flashcard front+difficulty combinations for faster lookup
+      const existingFlashcardKeys = new Set(
+        existingFlashcards.map((f: any) => {
+          const normalizedFront = f.front.toLowerCase().trim().replace(/\s+/g, ' ');
+          return `${normalizedFront}|||${f.difficulty}`;
+        })
       );
       
       // Filter out duplicates and track them
@@ -5203,8 +5204,9 @@ Start your journey at laplumbprep.com/courses
       
       flashcards.forEach((f: any) => {
         const normalizedFront = f.front.toLowerCase().trim().replace(/\s+/g, ' ');
+        const flashcardKey = `${normalizedFront}|||${f.difficulty}`;
         
-        if (existingFlashcardFronts.has(normalizedFront)) {
+        if (existingFlashcardKeys.has(flashcardKey)) {
           duplicates.push(f);
         } else {
           newFlashcards.push({
@@ -5214,7 +5216,7 @@ Start your journey at laplumbprep.com/courses
             createdAt: new Date(),
           });
           // Add to set to prevent duplicates within this batch too
-          existingFlashcardFronts.add(normalizedFront);
+          existingFlashcardKeys.add(flashcardKey);
         }
       });
       
