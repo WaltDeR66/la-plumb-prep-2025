@@ -297,6 +297,18 @@ export class DatabaseStorage implements IStorage {
     return user;
   }
 
+  // Update user difficulty settings for adaptive learning
+  async updateUserDifficultySettings(userId: string, settings: {
+    preferredDifficulty?: 'easy' | 'hard' | 'very_hard';
+    currentSkillLevel?: 'easy' | 'hard' | 'very_hard';
+    adaptiveDifficultyEnabled?: boolean;
+  }): Promise<void> {
+    await db
+      .update(users)
+      .set({ ...settings, updatedAt: new Date() })
+      .where(eq(users.id, userId));
+  }
+
   async updateUserStripeInfo(id: string, stripeCustomerId: string, stripeSubscriptionId: string): Promise<User> {
     const [user] = await db
       .update(users)

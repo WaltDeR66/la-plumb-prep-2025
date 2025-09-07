@@ -60,6 +60,10 @@ export const users = pgTable("users", {
   // Beta testing fields
   isBetaTester: boolean("is_beta_tester").default(false),
   betaStartedAt: timestamp("beta_started_at"),
+  // Adaptive difficulty settings
+  preferredDifficulty: questionDifficultyEnum("preferred_difficulty").default("easy"),
+  currentSkillLevel: questionDifficultyEnum("current_skill_level").default("easy"),
+  adaptiveDifficultyEnabled: boolean("adaptive_difficulty_enabled").default(true),
   isActive: boolean("is_active").default(true),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),

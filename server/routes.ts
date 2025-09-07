@@ -5287,39 +5287,119 @@ Start your journey at laplumbprep.com/courses
     }
   });
 
+  // Adaptive Difficulty Settings Routes
+  
+  // Get user difficulty settings
+  app.get("/api/difficulty-settings", async (req: any, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+
+    try {
+      const user = await storage.getUser(req.user.id);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      res.json({
+        preferredDifficulty: user.preferredDifficulty || 'easy',
+        currentSkillLevel: user.currentSkillLevel || 'easy',
+        adaptiveDifficultyEnabled: user.adaptiveDifficultyEnabled !== false
+      });
+    } catch (error: any) {
+      console.error("Error getting difficulty settings:", error);
+      res.status(500).json({ error: "Failed to get difficulty settings" });
+    }
+  });
+
+  // Update user difficulty settings
+  app.post("/api/difficulty-settings", async (req: any, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+
+    try {
+      const { preferredDifficulty, currentSkillLevel, adaptiveDifficultyEnabled } = req.body;
+      
+      await storage.updateUserDifficultySettings(req.user.id, {
+        preferredDifficulty,
+        currentSkillLevel,
+        adaptiveDifficultyEnabled
+      });
+
+      res.json({ success: true });
+    } catch (error: any) {
+      console.error("Error updating difficulty settings:", error);
+      res.status(500).json({ error: "Failed to update difficulty settings" });
+    }
+  });
+
   // Interactive Quiz Routes
   
-  // Start a quiz for a specific section
+  // Start a quiz for a specific section with adaptive difficulty
   app.post("/api/quiz/:section/start", async (req: any, res) => {
     try {
       const { section } = req.params;
+      const { difficulty } = req.body; // Optional difficulty override
       
-      // Get questions for this section (20 random questions of mixed difficulty)
+      // Get questions for this section
       const allQuestions = await storage.getQuestionsBySection(section);
       
       if (allQuestions.length === 0) {
         return res.status(404).json({ error: "No questions found for this section" });
       }
+
+      // Determine user's difficulty preferences (default to easy for non-authenticated users)
+      let userDifficulty = 'easy';
+      let adaptiveEnabled = true;
       
-      // Select 20 questions with difficulty distribution
+      if (req.isAuthenticated?.()) {
+        const user = await storage.getUser(req.user.id);
+        if (user) {
+          userDifficulty = user.currentSkillLevel || 'easy';
+          adaptiveEnabled = user.adaptiveDifficultyEnabled !== false;
+        }
+      }
+
+      // Use override difficulty if provided, otherwise use user's adaptive level
+      const targetDifficulty = difficulty || (adaptiveEnabled ? userDifficulty : 'easy');
+      
+      // Adaptive difficulty distribution based on user's skill level
+      let questionDistribution: { easy: number; hard: number; very_hard: number };
+      
+      switch (targetDifficulty) {
+        case 'easy':
+          questionDistribution = { easy: 15, hard: 3, very_hard: 2 }; // Beginner friendly
+          break;
+        case 'hard':
+          questionDistribution = { easy: 8, hard: 8, very_hard: 4 }; // Intermediate
+          break;
+        case 'very_hard':
+          questionDistribution = { easy: 5, hard: 7, very_hard: 8 }; // Advanced
+          break;
+        default:
+          questionDistribution = { easy: 10, hard: 5, very_hard: 5 }; // Balanced
+      }
+      
+      // Filter questions by difficulty (treating medium as easy for compatibility)
       const easyQuestions = allQuestions.filter(q => q.difficulty === 'easy' || q.difficulty === 'medium');
       const hardQuestions = allQuestions.filter(q => q.difficulty === 'hard');
       const veryHardQuestions = allQuestions.filter(q => q.difficulty === 'very_hard');
       
-      // Mix difficulties: 10 easy/medium, 5 hard, 5 very_hard (adjust based on available questions)
+      // Select questions based on adaptive distribution
       const selectedQuestions = [
-        ...easyQuestions.slice(0, Math.min(10, easyQuestions.length)),
-        ...hardQuestions.slice(0, Math.min(5, hardQuestions.length)),
-        ...veryHardQuestions.slice(0, Math.min(5, veryHardQuestions.length))
+        ...easyQuestions.sort(() => Math.random() - 0.5).slice(0, Math.min(questionDistribution.easy, easyQuestions.length)),
+        ...hardQuestions.sort(() => Math.random() - 0.5).slice(0, Math.min(questionDistribution.hard, hardQuestions.length)),
+        ...veryHardQuestions.sort(() => Math.random() - 0.5).slice(0, Math.min(questionDistribution.very_hard, veryHardQuestions.length))
       ];
       
-      // If we don't have enough, fill with any available questions
+      // Fill remaining slots if needed
       if (selectedQuestions.length < 20) {
         const remaining = allQuestions.filter(q => !selectedQuestions.find(sq => sq.id === q.id));
-        selectedQuestions.push(...remaining.slice(0, 20 - selectedQuestions.length));
+        selectedQuestions.push(...remaining.sort(() => Math.random() - 0.5).slice(0, 20 - selectedQuestions.length));
       }
       
-      // Shuffle the questions
+      // Final shuffle and limit to 20 questions
       const shuffledQuestions = selectedQuestions.sort(() => Math.random() - 0.5).slice(0, 20);
       
       res.json({
@@ -5364,7 +5444,7 @@ Start your journey at laplumbprep.com/courses
       const requiredScore = isChapterReview ? 80 : 70;
       const passed = score >= requiredScore;
       
-      // Store quiz attempt if user is authenticated
+      // Store quiz attempt and update adaptive difficulty if user is authenticated
       let attemptId = null;
       if (req.isAuthenticated?.()) {
         const attempt = await storage.createQuizAttempt({
@@ -5382,6 +5462,30 @@ Start your journey at laplumbprep.com/courses
             isCorrect: q.isCorrect
           }))
         });
+
+        // Update user skill level based on performance (adaptive difficulty)
+        const user = await storage.getUser(req.user.id);
+        if (user && user.adaptiveDifficultyEnabled) {
+          let newSkillLevel = user.currentSkillLevel || 'easy';
+          
+          // Skill level progression logic
+          if (score >= 85 && user.currentSkillLevel === 'easy') {
+            newSkillLevel = 'hard'; // Promote to intermediate
+          } else if (score >= 90 && user.currentSkillLevel === 'hard') {
+            newSkillLevel = 'very_hard'; // Promote to advanced
+          } else if (score < 60 && user.currentSkillLevel === 'very_hard') {
+            newSkillLevel = 'hard'; // Demote to intermediate
+          } else if (score < 50 && user.currentSkillLevel === 'hard') {
+            newSkillLevel = 'easy'; // Demote to beginner
+          }
+          
+          // Update skill level if it changed
+          if (newSkillLevel !== user.currentSkillLevel) {
+            await storage.updateUserDifficultySettings(req.user.id, {
+              currentSkillLevel: newSkillLevel
+            });
+          }
+        }
         attemptId = attempt.id;
         
         // If passed, unlock next section and update progress
