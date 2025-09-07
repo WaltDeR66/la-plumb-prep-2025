@@ -25,6 +25,7 @@ export default function StudyCompanion() {
   const [isTyping, setIsTyping] = useState(false);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const [quizContext, setQuizContext] = useState<any>(null);
 
   // Fetch chat history
   const { data: chatHistory = [] } = useQuery({
@@ -38,7 +39,7 @@ export default function StudyCompanion() {
 
   const sendMessageMutation = useMutation({
     mutationFn: async (userMessage: string) => {
-      return await apiRequest("POST", "/api/study-companion/chat", {
+      return await apiRequest("POST", "/api/mentor/chat", {
         message: userMessage,
         context: userProgress
       });
@@ -56,6 +57,29 @@ export default function StudyCompanion() {
       setIsTyping(false);
     }
   });
+
+  // Check for quiz review context on mount and auto-start conversation
+  useEffect(() => {
+    const storedContext = sessionStorage.getItem('aiMentorContext');
+    if (storedContext) {
+      try {
+        const context = JSON.parse(storedContext);
+        if (context.type === 'quiz_review') {
+          setQuizContext(context);
+          // Clear the context from session storage
+          sessionStorage.removeItem('aiMentorContext');
+          
+          // Auto-start conversation with quiz context
+          const quizMessage = `I just completed the ${context.title} and got ${context.incorrectCount} questions wrong out of ${context.totalQuestions} total (${context.score}% score). Can you help me understand the questions I missed?\n\nHere are the questions I got wrong:\n\n${context.questions}`;
+          
+          setIsTyping(true);
+          sendMessageMutation.mutate(quizMessage);
+        }
+      } catch (error) {
+        console.error('Error parsing quiz context:', error);
+      }
+    }
+  }, [sendMessageMutation]);
 
   const handleSendMessage = async () => {
     if (!message.trim() || sendMessageMutation.isPending) return;

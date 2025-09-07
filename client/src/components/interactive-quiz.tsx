@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -14,7 +15,8 @@ import {
   XCircle, 
   BookOpen,
   RotateCcw,
-  ArrowRight
+  ArrowRight,
+  MessageCircle
 } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -53,6 +55,7 @@ export default function InteractiveQuiz({ section, contentId, title, onComplete 
   const [startTime] = useState(Date.now());
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const [, setLocation] = useLocation();
 
   // Fetch quiz questions for this section
   const { data: quizData, isLoading } = useQuery<QuizAttempt>({
@@ -183,6 +186,38 @@ export default function InteractiveQuiz({ section, contentId, title, onComplete 
     queryClient.invalidateQueries({ queryKey: [`/api/quiz/${section}`] });
   };
 
+  const handleGetAIHelp = () => {
+    // Create a summary of incorrect questions for AI context
+    const incorrectQuestionsText = incorrectQuestions.map((question, index) => {
+      const originalIndex = questions.findIndex(q => q.id === question.id);
+      const userAnswer = answers[originalIndex];
+      const correctAnswer = question.correctAnswer;
+      
+      return `Question ${originalIndex + 1}: ${question.question}\n` +
+        `Your answer: ${question.options[userAnswer]}\n` +
+        `Correct answer: ${question.options[correctAnswer]}\n` +
+        `${question.explanation ? `Explanation: ${question.explanation}\n` : ''}` +
+        `${question.codeReference ? `Code Reference: ${question.codeReference}\n` : ''}`;
+    }).join('\n---\n');
+
+    // Navigate to AI mentor with context about incorrect questions
+    const aiContext = {
+      type: 'quiz_review',
+      section: section,
+      title: title || `Section ${section} Quiz`,
+      incorrectCount: incorrectQuestions.length,
+      totalQuestions: questions.length,
+      score: score,
+      questions: incorrectQuestionsText
+    };
+
+    // Store context in session storage for the AI mentor to use
+    sessionStorage.setItem('aiMentorContext', JSON.stringify(aiContext));
+    
+    // Navigate to study companion (AI mentor)
+    setLocation('/study-companion');
+  };
+
   // Calculate results for review
   const incorrectQuestions = questions.filter((_, index) => 
     answers[index] !== undefined && answers[index] !== questions[index].correctAnswer
@@ -280,14 +315,31 @@ export default function InteractiveQuiz({ section, contentId, title, onComplete 
                 Score: {score}% ({answeredCount - incorrectQuestions.length}/{questions.length} correct)
               </p>
               <p className="text-muted-foreground">
-                You need {requiredScore}% or higher to pass. Study the code references above and try again.
+                You need {requiredScore}% or higher to pass. Get AI help to understand these topics better, or study the code references above and try again.
               </p>
             </div>
             
-            <Button onClick={handleRetry} className="w-full max-w-sm">
-              <RotateCcw className="w-4 h-4 mr-2" />
-              Retake Quiz
-            </Button>
+            <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
+              <Button 
+                onClick={handleGetAIHelp} 
+                variant="default"
+                className="w-full max-w-sm"
+                data-testid="button-get-ai-help"
+              >
+                <MessageCircle className="w-4 h-4 mr-2" />
+                Get AI Help with These Questions
+              </Button>
+              
+              <Button 
+                onClick={handleRetry} 
+                variant="outline"
+                className="w-full max-w-sm"
+                data-testid="button-retake-quiz"
+              >
+                <RotateCcw className="w-4 h-4 mr-2" />
+                Retake Quiz
+              </Button>
+            </div>
           </CardContent>
         </Card>
       </div>
