@@ -317,18 +317,38 @@ export class ContentExtractor {
   private extractFlashcardsFromText(text: string): any[] {
     const cards: any[] = [];
     
-    // First try: Look for term/definition patterns separated by blank lines
-    // Format: "Term\n\nDefinition\n\n"
-    const blankLineSeparated = text.split(/\n\s*\n/);
+    // Clean up the text
+    const cleanText = text.trim();
     
-    if (blankLineSeparated.length >= 2) {
-      for (let i = 0; i < blankLineSeparated.length - 1; i += 2) {
-        const front = blankLineSeparated[i]?.trim();
-        const back = blankLineSeparated[i + 1]?.trim();
+    // Method 1: Split on double blank lines first to separate flashcard pairs
+    let sections = cleanText.split(/\n\s*\n\s*\n/);
+    
+    // If no double blank lines, try splitting on single blank lines and group them
+    if (sections.length === 1) {
+      sections = cleanText.split(/\n\s*\n/);
+      
+      // Group sections into pairs (term, definition)
+      const pairs = [];
+      for (let i = 0; i < sections.length; i += 2) {
+        if (sections[i] && sections[i + 1]) {
+          pairs.push(`${sections[i]}\n\n${sections[i + 1]}`);
+        }
+      }
+      sections = pairs;
+    }
+    
+    // Now process each section as a potential flashcard
+    sections.forEach((section, index) => {
+      const parts = section.split(/\n\s*\n/);
+      
+      if (parts.length >= 2) {
+        const front = parts[0]?.trim();
+        const back = parts.slice(1).join('\n\n').trim();
         
-        if (front && back && front.length > 3 && back.length > 10) {
-          // Make sure front is concise (likely a term) and back is longer (definition)
-          if (front.length < 200 && !front.includes('\n')) {
+        if (front && back && front.length > 2 && back.length > 5) {
+          // Ensure front looks like a term (short, no multiple lines)
+          const frontLines = front.split('\n').filter(line => line.trim());
+          if (frontLines.length <= 2 && front.length < 300) {
             cards.push({
               id: cards.length,
               front: front,
@@ -337,12 +357,12 @@ export class ContentExtractor {
           }
         }
       }
-    }
+    });
     
-    // Second try: Look for colon-separated patterns if blank line method didn't work
+    // Fallback: Look for colon-separated patterns if blank line method didn't work
     if (cards.length === 0) {
       const termPattern = /(.*?)[:]\s*(.*?)(?=\n|$)/gim;
-      const matches = text.match(termPattern);
+      const matches = cleanText.match(termPattern);
       
       if (matches) {
         matches.slice(0, 15).forEach((match, index) => {
