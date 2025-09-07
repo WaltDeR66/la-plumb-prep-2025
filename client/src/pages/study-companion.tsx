@@ -28,7 +28,7 @@ export default function StudyCompanion() {
   const [quizContext, setQuizContext] = useState<any>(null);
 
   // Fetch chat history
-  const { data: chatHistory = [] } = useQuery({
+  const { data: chatHistory = [] } = useQuery<ChatMessage[]>({
     queryKey: ["/api/study-companion/chat"],
   });
 

@@ -88,7 +88,7 @@ export default function InteractiveQuiz({ section, contentId, title, onComplete 
         timeSpent
       });
     },
-    onSuccess: (result) => {
+    onSuccess: (result: any) => {
       setIsSubmitted(true);
       queryClient.invalidateQueries({ queryKey: [`/api/quiz/${section}`] });
       
@@ -101,10 +101,11 @@ export default function InteractiveQuiz({ section, contentId, title, onComplete 
       } else {
         toast({
           title: "Keep studying!",
-          description: `You scored ${result.score}%. Review the incorrect questions below.`,
+          description: `You scored ${result.score}%. Let's review your mistakes with AI help.`,
           variant: "destructive",
         });
-        setShowReview(true);
+        // Automatically redirect to AI chat instead of showing review
+        handleGetAIHelp();
       }
     },
     onError: (error: any) => {
@@ -187,6 +188,12 @@ export default function InteractiveQuiz({ section, contentId, title, onComplete 
   };
 
   const handleGetAIHelp = () => {
+    // Calculate results for AI context
+    const incorrectQuestions = questions.filter((_, index) => 
+      answers[index] !== undefined && answers[index] !== questions[index].correctAnswer
+    );
+    const score = Math.round((Object.keys(answers).length - incorrectQuestions.length) / questions.length * 100);
+
     // Create a summary of incorrect questions for AI context
     const incorrectQuestionsText = incorrectQuestions.map((question, index) => {
       const originalIndex = questions.findIndex(q => q.id === question.id);
@@ -218,133 +225,15 @@ export default function InteractiveQuiz({ section, contentId, title, onComplete 
     setLocation('/study-companion');
   };
 
-  // Calculate results for review
-  const incorrectQuestions = questions.filter((_, index) => 
+  // Calculate results for completion check
+  const score = Math.round((answeredCount - questions.filter((_, index) => 
     answers[index] !== undefined && answers[index] !== questions[index].correctAnswer
-  );
-
-  const score = Math.round((answeredCount - incorrectQuestions.length) / questions.length * 100);
+  ).length) / questions.length * 100);
   
   // Check if this is a chapter review (requires 80%) or regular quiz (requires 70%)
   const isChapterReview = title?.toLowerCase().includes('chapter review') || false;
   const requiredScore = isChapterReview ? 80 : 70;
   const passed = score >= requiredScore;
-
-  if (isSubmitted && showReview && incorrectQuestions.length > 0) {
-    return (
-      <div className="space-y-6">
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <XCircle className="w-5 h-5 text-red-500" />
-              Review Incorrect Answers
-            </CardTitle>
-            <p className="text-muted-foreground">
-              Review these questions and study the code references before retaking the quiz.
-            </p>
-          </CardHeader>
-        </Card>
-
-        {incorrectQuestions.map((question, reviewIndex) => {
-          const originalIndex = questions.findIndex(q => q.id === question.id);
-          const userAnswer = answers[originalIndex];
-          
-          return (
-            <Card key={question.id} className="border-red-200">
-              <CardHeader>
-                <CardTitle className="text-lg">
-                  Question {originalIndex + 1} - Incorrect
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <p className="font-medium">{question.question}</p>
-                
-                <div className="space-y-2">
-                  {question.options.map((option, optionIndex) => (
-                    <div 
-                      key={optionIndex}
-                      className={`p-3 rounded border ${
-                        optionIndex === question.correctAnswer 
-                          ? 'border-green-500 bg-green-50' 
-                          : optionIndex === userAnswer 
-                          ? 'border-red-500 bg-red-50'
-                          : 'border-gray-200'
-                      }`}
-                    >
-                      <div className="flex items-center gap-2">
-                        <span className="font-medium">
-                          {String.fromCharCode(65 + optionIndex)}.
-                        </span>
-                        <span>{option}</span>
-                        {optionIndex === question.correctAnswer && (
-                          <CheckCircle className="w-4 h-4 text-green-600 ml-auto" />
-                        )}
-                        {optionIndex === userAnswer && optionIndex !== question.correctAnswer && (
-                          <XCircle className="w-4 h-4 text-red-600 ml-auto" />
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                {question.explanation && (
-                  <div className="p-4 bg-blue-50 rounded border border-blue-200">
-                    <h4 className="font-medium text-blue-900 mb-2">Explanation:</h4>
-                    <p className="text-blue-800">{question.explanation}</p>
-                  </div>
-                )}
-
-                {question.codeReference && (
-                  <div className="p-4 bg-yellow-50 rounded border border-yellow-200">
-                    <div className="flex items-center gap-2 text-yellow-900">
-                      <BookOpen className="w-4 h-4" />
-                      <span className="font-medium">Code Reference:</span>
-                    </div>
-                    <p className="text-yellow-800 mt-1">{question.codeReference}</p>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          );
-        })}
-
-        <Card>
-          <CardContent className="p-6 text-center space-y-4">
-            <div className="space-y-2">
-              <p className="text-lg font-medium">
-                Score: {score}% ({answeredCount - incorrectQuestions.length}/{questions.length} correct)
-              </p>
-              <p className="text-muted-foreground">
-                You need {requiredScore}% or higher to pass. Get AI help to understand these topics better, or study the code references above and try again.
-              </p>
-            </div>
-            
-            <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
-              <Button 
-                onClick={handleGetAIHelp} 
-                variant="default"
-                className="w-full max-w-sm"
-                data-testid="button-get-ai-help"
-              >
-                <MessageCircle className="w-4 h-4 mr-2" />
-                Get AI Help with These Questions
-              </Button>
-              
-              <Button 
-                onClick={handleRetry} 
-                variant="outline"
-                className="w-full max-w-sm"
-                data-testid="button-retake-quiz"
-              >
-                <RotateCcw className="w-4 h-4 mr-2" />
-                Retake Quiz
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
 
   if (isSubmitted && passed) {
     return (
