@@ -177,6 +177,18 @@ export const chatAnswers = pgTable("chat_answers", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+// Flashcards for course study
+export const flashcards = pgTable("flashcards", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  courseId: text("course_id").notNull(),
+  front: text("front").notNull(),
+  back: text("back").notNull(),
+  difficulty: text("difficulty"), // Optional difficulty level
+  tags: text("tags").array(), // Optional tags for categorization
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
 // Photo uploads for code checking
 export const photoUploads = pgTable("photo_uploads", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
@@ -1002,6 +1014,13 @@ export const insertBetaFeedbackResponseSchema = createInsertSchema(betaFeedbackR
   completedAt: true
 });
 
+// Flashcard schema
+export const insertFlashcardSchema = createInsertSchema(flashcards).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true
+});
+
 // Types
 export type User = typeof users.$inferSelect;
 export type InsertUser = z.infer<typeof insertUserSchema>;
@@ -1024,6 +1043,8 @@ export type PrivateCodeBook = typeof privateCodeBooks.$inferSelect;
 export type InsertPrivateCodeBook = z.infer<typeof insertPrivateCodeBookSchema>;
 export type ChatAnswer = typeof chatAnswers.$inferSelect;
 export type InsertChatAnswer = z.infer<typeof insertChatAnswerSchema>;
+export type Flashcard = typeof flashcards.$inferSelect;
+export type InsertFlashcard = z.infer<typeof insertFlashcardSchema>;
 export type StudyCompanionMessage = typeof studyCompanionMessages.$inferSelect;
 export type InsertStudyCompanionMessage = z.infer<typeof insertStudyCompanionMessageSchema>;
 export type StudySession = typeof studySessions.$inferSelect;

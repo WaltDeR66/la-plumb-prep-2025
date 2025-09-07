@@ -16,6 +16,7 @@ import {
   courseContent,
   privateCodeBooks,
   chatAnswers,
+  flashcards,
   studySessions,
   quizAttempts,
   sectionProgress,
@@ -46,6 +47,8 @@ import {
   type InsertPrivateCodeBook,
   type ChatAnswer,
   type InsertChatAnswer,
+  type Flashcard,
+  type InsertFlashcard,
   type StudySession,
   type InsertStudySession,
   type QuizAttempt,
@@ -123,6 +126,10 @@ export interface IStorage {
   // AI mentor methods
   createMentorConversation(userId: string, messages: any[]): Promise<MentorConversation>;
   updateMentorConversation(id: string, messages: any[]): Promise<MentorConversation>;
+  
+  // Flashcard methods
+  getFlashcardsByCourse(courseId: string): Promise<Flashcard[]>;
+  createFlashcard(flashcard: InsertFlashcard): Promise<Flashcard>;
   getUserMentorConversations(userId: string): Promise<MentorConversation[]>;
   
   // Study companion methods
@@ -751,6 +758,23 @@ export class DatabaseStorage implements IStorage {
         eq(planUploads.userId, userId)
       ));
     return plan || undefined;
+  }
+
+  // Flashcard methods
+  async getFlashcardsByCourse(courseId: string): Promise<Flashcard[]> {
+    return await db
+      .select()
+      .from(flashcards)
+      .where(eq(flashcards.courseId, courseId))
+      .orderBy(desc(flashcards.createdAt));
+  }
+
+  async createFlashcard(flashcard: InsertFlashcard): Promise<Flashcard> {
+    const [created] = await db
+      .insert(flashcards)
+      .values(flashcard)
+      .returning();
+    return created;
   }
 
   async createReferral(referralData: InsertReferral): Promise<Referral> {
