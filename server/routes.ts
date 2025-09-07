@@ -5701,7 +5701,7 @@ Start your journey at laplumbprep.com/courses
             type: 'podcast',
             // Convert transcript to segments format for the podcast player
             segments: episode.transcript.split('\n').map((line: string, index: number) => ({
-              speaker: index % 2 === 0 ? "host" : "guest",
+              speaker: index % 2 === 0 ? "host" : "guest", 
               text: line.trim()
             })).filter((segment: any) => segment.text.length > 0)
           };
@@ -5711,10 +5711,12 @@ Start your journey at laplumbprep.com/courses
             type: 'podcast',
             title: episode.title,
             content: podcastContent,
-            // Use values from episode or defaults
+            // Convert duration from seconds to minutes (integer)
+            duration: Math.ceil((episode.duration || 180) / 60),
+            // Use values from episode metadata
             chapter: extractChapterNumber(episode.chapter || 'Chapter 1'),
             section: parseInt(episode.section) || 101,
-            difficulty: episode.difficulty || 'easy'
+            difficulty: (episode.difficulty || 'easy') as 'easy' | 'hard' | 'very_hard'
           });
         })
       );
