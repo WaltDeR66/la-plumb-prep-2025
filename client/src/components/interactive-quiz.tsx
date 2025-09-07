@@ -73,7 +73,7 @@ export default function InteractiveQuiz({ section, contentId, title, onComplete 
       const timeSpent = Math.floor((Date.now() - startTime) / 1000);
       const questionsWithAnswers = quizData?.questions.map((q, index) => ({
         id: q.id,
-        questionText: q.question,
+        question: q.question,  // Keep consistent field naming
         userAnswer: answers[index] ?? null,
         correctAnswer: q.correctAnswer,
         isCorrect: answers[index] === q.correctAnswer
