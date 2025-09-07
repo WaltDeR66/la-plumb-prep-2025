@@ -2159,11 +2159,12 @@ export class DatabaseStorage implements IStorage {
       .where(and(eq(courseContent.courseId, courseId), eq(courseContent.type, 'lesson')))
       .groupBy(courseContent.section);
 
-    // Add difficulty breakdown for lessons (easy, hard, very_hard)
+    // Add difficulty breakdown for lessons (easy, hard, very_hard) 
+    const totalLessons = lessons.reduce((sum, item) => sum + Number(item.count), 0);
     const difficulty = [
-      { difficulty: 'easy', count: Math.floor(lessons.reduce((sum, item) => sum + item.count, 0) * 0.4) },
-      { difficulty: 'hard', count: Math.floor(lessons.reduce((sum, item) => sum + item.count, 0) * 0.4) },
-      { difficulty: 'very_hard', count: Math.floor(lessons.reduce((sum, item) => sum + item.count, 0) * 0.2) }
+      { difficulty: 'easy', count: Math.floor(totalLessons * 0.4) },
+      { difficulty: 'hard', count: Math.floor(totalLessons * 0.4) },
+      { difficulty: 'very_hard', count: Math.floor(totalLessons * 0.2) }
     ];
 
     return {
