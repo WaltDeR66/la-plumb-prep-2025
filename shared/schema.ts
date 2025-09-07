@@ -290,6 +290,7 @@ export const courseContent = pgTable("course_content", {
   section: integer("section"),
   content: jsonb("content"), // Main content (HTML, quiz questions, etc.)
   duration: integer("duration"), // in minutes
+  difficulty: questionDifficultyEnum("difficulty"), // easy, hard, very_hard
   quizgeckoUrl: text("quizgecko_url"), // URL for QuizGecko content
   isActive: boolean("is_active").default(true),
   sortOrder: integer("sort_order").default(0),
