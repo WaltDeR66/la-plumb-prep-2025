@@ -368,7 +368,7 @@ export class DatabaseStorage implements IStorage {
     await this.updateCourse(courseId, {
       lessons: stats.lessons,
       practiceQuestions: stats.quizzes,
-      duration: stats.duration
+      duration: `${stats.duration} hours`
     });
   }
 
@@ -464,8 +464,9 @@ export class DatabaseStorage implements IStorage {
         ilike(jobs.company, `%${search}%`),
         ilike(jobs.location, `%${search}%`)
       );
-      query = query.where(and(baseCondition, searchCondition));
-      countQuery = countQuery.where(and(baseCondition, searchCondition));
+      baseCondition = and(baseCondition, searchCondition);
+      query = db.select().from(jobs).where(baseCondition);
+      countQuery = db.select({ count: count() }).from(jobs).where(baseCondition);
     }
     
     const jobsResult = await query
@@ -565,7 +566,7 @@ export class DatabaseStorage implements IStorage {
         requirements: jobs.requirements,
         benefits: jobs.benefits,
         status: jobs.status,
-        planType: jobs.planType,
+        isFeatured: jobs.isFeatured,
         createdAt: jobs.createdAt,
         daysRemaining: sql<number>`GREATEST(0, EXTRACT(DAY FROM (${jobs.expiresAt} - NOW())))`,
         applicationsCount: sql<number>`(SELECT COUNT(*) FROM ${jobApplications} WHERE ${jobApplications.jobId} = ${jobs.id})`
@@ -580,9 +581,9 @@ export class DatabaseStorage implements IStorage {
       .select({
         id: jobApplications.id,
         userId: jobApplications.userId,
-        name: users.name,
+        name: sql<string>`CONCAT(${users.firstName}, ' ', ${users.lastName})`,
         email: users.email,
-        phone: jobApplications.phone,
+        phone: users.phone,
         resumeUrl: jobApplications.resumeUrl,
         coverLetter: jobApplications.coverLetter,
         appliedAt: jobApplications.appliedAt
@@ -664,32 +665,32 @@ export class DatabaseStorage implements IStorage {
       
       // Calculate overall progress
       const totalStudyTime = studySessions.reduce((total, session) => {
-        const duration = session.endedAt && session.startedAt 
-          ? new Date(session.endedAt).getTime() - new Date(session.startedAt).getTime()
-          : 0;
+        const duration = session.sessionEnd && session.sessionStart 
+          ? new Date(session.sessionEnd).getTime() - new Date(session.sessionStart).getTime()
+          : session.durationSeconds ? session.durationSeconds * 1000 : 0;
         return total + (duration / (1000 * 60)); // Convert to minutes
       }, 0);
 
       const enrolledCourses = enrollments.map(e => e.courseId);
-      const recentTopics = [...new Set(studySessions
+      const recentTopics = Array.from(new Set(studySessions
         .slice(-5)
         .map(session => session.contentType)
         .filter(Boolean)
-      )];
+      ));
 
       return {
         enrolledCourses,
         overallProgress: enrollments.length > 0 
-          ? enrollments.reduce((avg, e) => avg + (e.progress || 0), 0) / enrollments.length 
+          ? enrollments.reduce((avg, e) => avg + Number(e.progress || 0), 0) / enrollments.length 
           : 0,
         totalStudyTime: Math.round(totalStudyTime),
         recentTopics,
         quizPerformance: quizAttempts.length > 0 
-          ? quizAttempts.reduce((avg, attempt) => avg + (attempt.score || 0), 0) / quizAttempts.length 
+          ? quizAttempts.reduce((avg, attempt) => avg + Number(attempt.score || 0), 0) / quizAttempts.length 
           : 0,
         studyStreak: this.calculateStudyStreak(studySessions),
         lastActivity: studySessions.length > 0 
-          ? studySessions[studySessions.length - 1].startedAt 
+          ? studySessions[studySessions.length - 1].sessionStart 
           : null
       };
     } catch (error) {
@@ -711,7 +712,7 @@ export class DatabaseStorage implements IStorage {
     
     // Simple streak calculation - count consecutive days with study sessions
     const sessionDates = studySessions
-      .map(session => new Date(session.startedAt).toDateString())
+      .map(session => new Date(session.sessionStart).toDateString())
       .reverse(); // Most recent first
     
     const uniqueDates = [...new Set(sessionDates)];
@@ -906,16 +907,16 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getMonthlyCommissions(userId: string, month?: string): Promise<any[]> {
-    let query = db
-      .select()
-      .from(monthlyCommissions)
-      .where(eq(monthlyCommissions.referrerId, userId));
-
+    const conditions = [eq(monthlyCommissions.referrerId, userId)];
+    
     if (month) {
-      query = query.where(eq(monthlyCommissions.commissionMonth, month));
+      conditions.push(eq(monthlyCommissions.commissionMonth, month));
     }
 
-    return await query;
+    return await db
+      .select()
+      .from(monthlyCommissions)
+      .where(and(...conditions));
   }
 
   async updateMonthlyCommission(commissionId: string, isPaid: boolean, paidAt?: Date): Promise<any> {
@@ -1306,11 +1307,11 @@ export class DatabaseStorage implements IStorage {
       .from(studySessions)
       .where(eq(studySessions.id, sessionId));
     
-    if (!existingSession) {
-      throw new Error('Study session not found');
+    if (!existingSession || !existingSession.sessionStart) {
+      throw new Error('Study session not found or has no start time');
     }
     
-    const durationSeconds = Math.floor((now.getTime() - existingSession.sessionStart.getTime()) / 1000);
+    const durationSeconds = Math.floor((now.getTime() - new Date(existingSession.sessionStart).getTime()) / 1000);
     
     const [session] = await db
       .update(studySessions)
@@ -1519,27 +1520,27 @@ export class DatabaseStorage implements IStorage {
   async getProducts(category?: string, search?: string, page = 1, limit = 20): Promise<{ products: Product[], total: number }> {
     const offset = (page - 1) * limit;
     
-    let query = db.select().from(products).where(eq(products.isActive, true));
-    let countQuery = db.select({ count: count() }).from(products).where(eq(products.isActive, true));
-    
     const conditions = [eq(products.isActive, true)];
     
-    if (category) {
-      conditions.push(eq(products.category, category));
+    if (category && category !== 'all') {
+      conditions.push(eq(products.category, category as any));
     }
     
     if (search) {
-      conditions.push(or(
+      const searchCondition = or(
         ilike(products.name, `%${search}%`),
         ilike(products.description, `%${search}%`),
         ilike(products.brand, `%${search}%`)
-      ));
+      );
+      if (searchCondition) {
+        conditions.push(searchCondition);
+      }
     }
     
-    if (conditions.length > 1) {
-      query = db.select().from(products).where(and(...conditions));
-      countQuery = db.select({ count: count() }).from(products).where(and(...conditions));
-    }
+    const finalCondition = conditions.length > 1 ? and(...conditions) : conditions[0];
+    
+    const query = db.select().from(products).where(finalCondition);
+    const countQuery = db.select({ count: count() }).from(products).where(finalCondition);
     
     const productsResult = await query
       .orderBy(desc(products.isFeatured), products.sortOrder, desc(products.createdAt))
@@ -2095,7 +2096,7 @@ export class DatabaseStorage implements IStorage {
   async updateStudySession(sessionId: string, updates: Partial<StudySession>): Promise<StudySession> {
     const [session] = await db
       .update(studySessions)
-      .set({ ...updates, updatedAt: new Date() })
+      .set(updates)
       .where(eq(studySessions.id, sessionId))
       .returning();
     
