@@ -127,11 +127,14 @@ export default function BulkFlashcardImport() {
     }
 
     // Update flashcards with current chapter and section values to prevent stale data
+    const chapterNumber = parseInt(selectedChapter.match(/\d+/)?.[0] || '0'); // Extract number from "Chapter 1"
+    const sectionNumber = parseInt(selectedSection); // Convert "101" to 101
+    
     const payloadFlashcards = previewFlashcards.map(fc => ({
       ...fc,
-      chapter: selectedChapter,
+      chapter: chapterNumber,
       category: selectedChapter,
-      section: selectedSection,
+      section: sectionNumber,
       codeReference: `${selectedChapter} - Section ${selectedSection}`,
       difficulty: selectedDifficulty
     }));
