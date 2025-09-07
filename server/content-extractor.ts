@@ -317,38 +317,28 @@ export class ContentExtractor {
   private extractFlashcardsFromText(text: string): any[] {
     const cards: any[] = [];
     
-    // Clean up the text
-    const cleanText = text.trim();
+    // Clean up the text and normalize line endings
+    const cleanText = text.trim().replace(/\r\n/g, '\n');
     
-    // Method 1: Split on double blank lines first to separate flashcard pairs
-    let sections = cleanText.split(/\n\s*\n\s*\n/);
+    // Split on double blank lines to get individual flashcard sections
+    const flashcardSections = cleanText.split(/\n\n\n+/);
     
-    // If no double blank lines, try splitting on single blank lines and group them
-    if (sections.length === 1) {
-      sections = cleanText.split(/\n\s*\n/);
+    // Process each section as a complete flashcard (term + definition)
+    flashcardSections.forEach((section, index) => {
+      const trimmedSection = section.trim();
       
-      // Group sections into pairs (term, definition)
-      const pairs = [];
-      for (let i = 0; i < sections.length; i += 2) {
-        if (sections[i] && sections[i + 1]) {
-          pairs.push(`${sections[i]}\n\n${sections[i + 1]}`);
-        }
-      }
-      sections = pairs;
-    }
-    
-    // Now process each section as a potential flashcard
-    sections.forEach((section, index) => {
-      const parts = section.split(/\n\s*\n/);
+      // Split each section on single blank line to separate term from definition
+      const parts = trimmedSection.split(/\n\n/);
       
       if (parts.length >= 2) {
         const front = parts[0]?.trim();
         const back = parts.slice(1).join('\n\n').trim();
         
-        if (front && back && front.length > 2 && back.length > 5) {
-          // Ensure front looks like a term (short, no multiple lines)
+        // Validate that we have good term/definition pair
+        if (front && back && front.length > 2 && back.length > 10) {
+          // Ensure front is reasonably short (like a term/title)
           const frontLines = front.split('\n').filter(line => line.trim());
-          if (frontLines.length <= 2 && front.length < 300) {
+          if (frontLines.length <= 3 && front.length < 200) {
             cards.push({
               id: cards.length,
               front: front,
@@ -359,7 +349,29 @@ export class ContentExtractor {
       }
     });
     
-    // Fallback: Look for colon-separated patterns if blank line method didn't work
+    // If double blank line separation didn't work, try alternating single sections
+    if (cards.length === 0) {
+      const allSections = cleanText.split(/\n\n/);
+      
+      // Group sections in pairs: [0,1], [2,3], [4,5], etc.
+      for (let i = 0; i < allSections.length - 1; i += 2) {
+        const front = allSections[i]?.trim();
+        const back = allSections[i + 1]?.trim();
+        
+        if (front && back && front.length > 2 && back.length > 10) {
+          const frontLines = front.split('\n').filter(line => line.trim());
+          if (frontLines.length <= 3 && front.length < 200) {
+            cards.push({
+              id: cards.length,
+              front: front,
+              back: back
+            });
+          }
+        }
+      }
+    }
+    
+    // Fallback: Look for colon-separated patterns
     if (cards.length === 0) {
       const termPattern = /(.*?)[:]\s*(.*?)(?=\n|$)/gim;
       const matches = cleanText.match(termPattern);
