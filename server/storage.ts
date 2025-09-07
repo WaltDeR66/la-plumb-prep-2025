@@ -892,6 +892,193 @@ export class DatabaseStorage implements IStorage {
     }
   }
 
+  // Payment methods
+  async updateUserPaymentPreferences(userId: string, paymentMethod: string, paypalEmail?: string, minimumPayout?: number): Promise<User> {
+    const updates: Partial<User> = {
+      preferredPaymentMethod: paymentMethod as any,
+      updatedAt: new Date()
+    };
+    
+    if (paypalEmail !== undefined) {
+      updates.paypalEmail = paypalEmail;
+    }
+    
+    if (minimumPayout !== undefined) {
+      updates.minimumPayout = minimumPayout.toString();
+    }
+
+    const [user] = await db
+      .update(users)
+      .set(updates)
+      .where(eq(users.id, userId))
+      .returning();
+    return user;
+  }
+
+  async getUserAccountBalance(userId: string): Promise<number> {
+    const user = await this.getUser(userId);
+    if (!user) return 0;
+    return parseFloat(user.accountBalance || "0");
+  }
+
+  async addAccountCredit(userId: string, amount: number, description: string, referenceId?: string): Promise<AccountCreditTransaction> {
+    const currentBalance = await this.getUserAccountBalance(userId);
+    const newBalance = currentBalance + amount;
+
+    // Update user balance
+    await this.updateUser(userId, { 
+      accountBalance: newBalance.toString() 
+    });
+
+    // Create transaction record
+    const [transaction] = await db
+      .insert(accountCreditTransactions)
+      .values({
+        userId,
+        amount: amount.toString(),
+        type: "credit",
+        description,
+        referenceId,
+        balanceBefore: currentBalance.toString(),
+        balanceAfter: newBalance.toString()
+      })
+      .returning();
+
+    return transaction;
+  }
+
+  async deductAccountCredit(userId: string, amount: number, description: string, referenceId?: string): Promise<AccountCreditTransaction> {
+    const currentBalance = await this.getUserAccountBalance(userId);
+    if (currentBalance < amount) {
+      throw new Error("Insufficient account balance");
+    }
+    
+    const newBalance = currentBalance - amount;
+
+    // Update user balance
+    await this.updateUser(userId, { 
+      accountBalance: newBalance.toString() 
+    });
+
+    // Create transaction record
+    const [transaction] = await db
+      .insert(accountCreditTransactions)
+      .values({
+        userId,
+        amount: (-amount).toString(),
+        type: "debit",
+        description,
+        referenceId,
+        balanceBefore: currentBalance.toString(),
+        balanceAfter: newBalance.toString()
+      })
+      .returning();
+
+    return transaction;
+  }
+
+  async getUserAccountTransactions(userId: string, page: number = 1, limit: number = 50): Promise<AccountCreditTransaction[]> {
+    const offset = (page - 1) * limit;
+    
+    return await db
+      .select()
+      .from(accountCreditTransactions)
+      .where(eq(accountCreditTransactions.userId, userId))
+      .orderBy(desc(accountCreditTransactions.createdAt))
+      .limit(limit)
+      .offset(offset);
+  }
+
+  // Payout methods
+  async createPayoutRequest(request: InsertPayoutRequest): Promise<PayoutRequest> {
+    const [payoutRequest] = await db
+      .insert(payoutRequests)
+      .values(request)
+      .returning();
+    return payoutRequest;
+  }
+
+  async getUserPayoutRequests(userId: string): Promise<PayoutRequest[]> {
+    return await db
+      .select()
+      .from(payoutRequests)
+      .where(eq(payoutRequests.userId, userId))
+      .orderBy(desc(payoutRequests.createdAt));
+  }
+
+  async getPendingPayoutRequests(): Promise<PayoutRequest[]> {
+    return await db
+      .select()
+      .from(payoutRequests)
+      .where(eq(payoutRequests.status, "pending"))
+      .orderBy(payoutRequests.requestedAt);
+  }
+
+  async updatePayoutRequestStatus(payoutId: string, status: string, transactionId?: string, failureReason?: string): Promise<PayoutRequest> {
+    const updates: any = {
+      status: status as any,
+      updatedAt: new Date()
+    };
+
+    if (status === "processing") {
+      updates.processedAt = new Date();
+    }
+    if (status === "completed") {
+      updates.completedAt = new Date();
+    }
+    if (transactionId) {
+      updates.transactionId = transactionId;
+    }
+    if (failureReason) {
+      updates.failureReason = failureReason;
+    }
+
+    const [payoutRequest] = await db
+      .update(payoutRequests)
+      .set(updates)
+      .where(eq(payoutRequests.id, payoutId))
+      .returning();
+
+    return payoutRequest;
+  }
+
+  async processAutomaticPayouts(): Promise<{ processed: number; total: number }> {
+    // This would implement automatic payout processing logic
+    // For now, return placeholder values
+    return { processed: 0, total: 0 };
+  }
+
+  async getUserEligibleCommissionsForPayout(userId: string): Promise<{ referrals: Referral[]; monthlyCommissions: MonthlyCommission[]; totalAmount: number }> {
+    // Get unpaid referrals
+    const unpaidReferrals = await db
+      .select()
+      .from(referrals)
+      .where(and(
+        eq(referrals.referrerId, userId),
+        eq(referrals.isPaid, false)
+      ));
+
+    // Get unpaid monthly commissions
+    const unpaidMonthlyCommissions = await db
+      .select()
+      .from(monthlyCommissions)
+      .where(and(
+        eq(monthlyCommissions.referrerId, userId),
+        eq(monthlyCommissions.isPaid, false)
+      ));
+
+    // Calculate total amount
+    const referralTotal = unpaidReferrals.reduce((sum, ref) => sum + parseFloat(ref.commissionAmount || "0"), 0);
+    const monthlyTotal = unpaidMonthlyCommissions.reduce((sum, comm) => sum + parseFloat(comm.commissionAmount || "0"), 0);
+    const totalAmount = referralTotal + monthlyTotal;
+
+    return {
+      referrals: unpaidReferrals,
+      monthlyCommissions: unpaidMonthlyCommissions,
+      totalAmount
+    };
+  }
+
   // Course content methods
   async getCourseContent(courseId: string): Promise<CourseContent[]> {
     const results = await db

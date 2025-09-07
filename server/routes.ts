@@ -3,7 +3,7 @@ import express from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { emailService } from "./email";
-import { insertUserSchema, insertJobSchema, insertJobApplicationSchema, insertCourseContentSchema, insertPrivateCodeBookSchema, insertCourseSchema, insertProductSchema, insertCartItemSchema, insertProductReviewSchema, insertReferralSchema, leadMagnetDownloads, studentLeadMagnetDownloads, competitionNotifications } from "@shared/schema";
+import { insertUserSchema, insertJobSchema, insertJobApplicationSchema, insertCourseContentSchema, insertPrivateCodeBookSchema, insertCourseSchema, insertProductSchema, insertCartItemSchema, insertProductReviewSchema, insertReferralSchema, leadMagnetDownloads, studentLeadMagnetDownloads, competitionNotifications, courses, users, jobs, products } from "@shared/schema";
 import { competitionNotificationService } from "./competitionNotifications";
 import { eq, and, or, desc, sql, count } from "drizzle-orm";
 import { db } from "./db";
