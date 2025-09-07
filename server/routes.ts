@@ -4826,20 +4826,9 @@ Start your journey at laplumbprep.com/courses
       
       const questions = competitionQuestions.length;
 
-      const flashcardContent = allContent.filter(content => content.type === 'flashcards');
-      const flashcards = flashcardContent
-        .reduce((total, flashcardSet) => {
-          try {
-            const contentObj = typeof flashcardSet.content === 'string' ? JSON.parse(flashcardSet.content) : flashcardSet.content;
-            const extractedContent = contentObj?.extracted?.content || '';
-            // Count flashcard items like "**Front:" or "**Q:" 
-            const flashcardMatches = extractedContent.match(/\*\*(Front:|Q:)/g) || [];
-            return total + flashcardMatches.length;
-          } catch (error) {
-            console.error('Error parsing flashcard content:', error);
-            return total;
-          }
-        }, 0);
+      // Get flashcards directly from flashcards table
+      const courseFlashcards = await storage.getFlashcardsByCourse(courseId);
+      const flashcards = courseFlashcards.length;
 
       // Count by type (using actual database types)
       const stats = {
