@@ -326,7 +326,7 @@ export default function ContentManagement() {
                           </CardDescription>
                         </CardHeader>
                         <CardContent>
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                             <div>
                               <h4 className="font-semibold mb-3">By Chapter</h4>
                               <div className="space-y-2">
@@ -350,6 +350,24 @@ export default function ContentManagement() {
                                 ))}
                               </div>
                             </div>
+                            
+                            <div>
+                              <h4 className="font-semibold mb-3">By Difficulty</h4>
+                              <div className="space-y-2">
+                                {safeStats.breakdowns?.lessons?.byDifficulty?.map((item: any, index: number) => (
+                                  <div key={index} className="flex justify-between items-center p-2 bg-muted rounded">
+                                    <span className={`text-sm px-2 py-1 rounded text-white ${
+                                      item.difficulty === 'easy' ? 'bg-green-500' :
+                                      item.difficulty === 'hard' ? 'bg-orange-500' :
+                                      'bg-red-500'
+                                    }`}>
+                                      {item.difficulty ? item.difficulty.charAt(0).toUpperCase() + item.difficulty.slice(1).replace('_', ' ') : 'Unknown'}
+                                    </span>
+                                    <span className="font-semibold">{item.count}</span>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
                           </div>
                         </CardContent>
                       </Card>
@@ -368,7 +386,7 @@ export default function ContentManagement() {
                           </CardDescription>
                         </CardHeader>
                         <CardContent>
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                             <div>
                               <h4 className="font-semibold mb-3">By Chapter</h4>
                               <div className="space-y-2">
@@ -392,6 +410,24 @@ export default function ContentManagement() {
                                 ))}
                               </div>
                             </div>
+                            
+                            <div>
+                              <h4 className="font-semibold mb-3">By Difficulty</h4>
+                              <div className="space-y-2">
+                                {safeStats.breakdowns?.studyNotes?.byDifficulty?.map((item: any, index: number) => (
+                                  <div key={index} className="flex justify-between items-center p-2 bg-muted rounded">
+                                    <span className={`text-sm px-2 py-1 rounded text-white ${
+                                      item.difficulty === 'easy' ? 'bg-green-500' :
+                                      item.difficulty === 'hard' ? 'bg-orange-500' :
+                                      'bg-red-500'
+                                    }`}>
+                                      {item.difficulty ? item.difficulty.charAt(0).toUpperCase() + item.difficulty.slice(1).replace('_', ' ') : 'Unknown'}
+                                    </span>
+                                    <span className="font-semibold">{item.count}</span>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
                           </div>
                         </CardContent>
                       </Card>
@@ -410,7 +446,7 @@ export default function ContentManagement() {
                           </CardDescription>
                         </CardHeader>
                         <CardContent>
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                             <div>
                               <h4 className="font-semibold mb-3">By Chapter</h4>
                               <div className="space-y-2">
@@ -434,6 +470,24 @@ export default function ContentManagement() {
                                 ))}
                               </div>
                             </div>
+                            
+                            <div>
+                              <h4 className="font-semibold mb-3">By Difficulty</h4>
+                              <div className="space-y-2">
+                                {safeStats.breakdowns?.studyPlans?.byDifficulty?.map((item: any, index: number) => (
+                                  <div key={index} className="flex justify-between items-center p-2 bg-muted rounded">
+                                    <span className={`text-sm px-2 py-1 rounded text-white ${
+                                      item.difficulty === 'easy' ? 'bg-green-500' :
+                                      item.difficulty === 'hard' ? 'bg-orange-500' :
+                                      'bg-red-500'
+                                    }`}>
+                                      {item.difficulty ? item.difficulty.charAt(0).toUpperCase() + item.difficulty.slice(1).replace('_', ' ') : 'Unknown'}
+                                    </span>
+                                    <span className="font-semibold">{item.count}</span>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
                           </div>
                         </CardContent>
                       </Card>
@@ -452,7 +506,7 @@ export default function ContentManagement() {
                           </CardDescription>
                         </CardHeader>
                         <CardContent>
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                             <div>
                               <h4 className="font-semibold mb-3">By Chapter</h4>
                               <div className="space-y-2">
@@ -471,6 +525,24 @@ export default function ContentManagement() {
                                 {safeStats.breakdowns?.podcasts?.bySection?.map((item: any, index: number) => (
                                   <div key={index} className="flex justify-between items-center p-2 bg-muted rounded">
                                     <span className="text-sm">{item.codeReference}</span>
+                                    <span className="font-semibold">{item.count}</span>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                            
+                            <div>
+                              <h4 className="font-semibold mb-3">By Difficulty</h4>
+                              <div className="space-y-2">
+                                {safeStats.breakdowns?.podcasts?.byDifficulty?.map((item: any, index: number) => (
+                                  <div key={index} className="flex justify-between items-center p-2 bg-muted rounded">
+                                    <span className={`text-sm px-2 py-1 rounded text-white ${
+                                      item.difficulty === 'easy' ? 'bg-green-500' :
+                                      item.difficulty === 'hard' ? 'bg-orange-500' :
+                                      'bg-red-500'
+                                    }`}>
+                                      {item.difficulty ? item.difficulty.charAt(0).toUpperCase() + item.difficulty.slice(1).replace('_', ' ') : 'Unknown'}
+                                    </span>
                                     <span className="font-semibold">{item.count}</span>
                                   </div>
                                 ))}
