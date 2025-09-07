@@ -127,11 +127,15 @@ export default function BulkStudyNotesImport() {
     }
 
     // Update study notes with current chapter and section values to prevent stale data
+    // Extract chapter number from "Chapter 1" format to integer
+    const chapterNumber = parseInt(selectedChapter.replace('Chapter ', ''));
+    const sectionNumber = parseInt(selectedSection);
+    
     const payloadNotes = previewNotes.map(note => ({
       ...note,
-      chapter: selectedChapter,
+      chapter: chapterNumber,
       category: selectedChapter,
-      section: selectedSection,
+      section: sectionNumber,
       codeReference: `${selectedChapter} - Section ${selectedSection}`,
       difficulty: selectedDifficulty
     }));
