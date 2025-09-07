@@ -1262,7 +1262,7 @@ Start your journey at laplumbprep.com/courses
           
           await storage.createReferral({
             referrerId: user.referredBy,
-            referredUserId: user.id,
+            referredId: user.id,
             commissionAmount: commissionAmount.toString(),
             subscriptionTier: tier,
             status: 'pending'
@@ -1763,56 +1763,51 @@ Start your journey at laplumbprep.com/courses
     try {
       const courseData = [
         {
-          id: "5f02238b-afb2-4e7f-a488-96fb471fee56",
           title: "Louisiana Journeyman Prep",
           description: "Comprehensive Louisiana plumbing code certification preparation course covering all aspects of state plumbing regulations and best practices.",
-          type: "journeyman",
+          type: "journeyman" as const,
           price: "39.99",
-          duration: 5,
+          duration: "5 months",
           lessons: 3,
           practiceQuestions: 3,
           isActive: true
         },
         {
-          id: "b1f02238b-afb2-4e7f-a488-96fb471fee57",
           title: "Louisiana Backflow Prevention Training",
           description: "Comprehensive training course covering backflow prevention testing, repairs, and field report completion. Learn proper testing procedures, equipment maintenance, and regulatory compliance for backflow prevention assemblies.",
-          type: "backflow",
+          type: "backflow" as const,
           price: "29.99",
-          duration: 8,
+          duration: "8 weeks",
           lessons: 12,
           practiceQuestions: 5,
           isActive: false
         },
         {
-          id: "c2f02238b-afb2-4e7f-a488-96fb471fee58",
           title: "Natural Gas Certification Prep",
           description: "Complete preparation for Louisiana natural gas certification covering safety protocols, installation procedures, and state regulations for natural gas systems.",
-          type: "natural_gas",
+          type: "natural_gas" as const,
           price: "34.99",
-          duration: 6,
+          duration: "6 months",
           lessons: 10,
           practiceQuestions: 4,
           isActive: false
         },
         {
-          id: "d3f02238b-afb2-4e7f-a488-96fb471fee59",
           title: "Medical Gas Installer Certification",
           description: "Specialized certification preparation for medical gas systems including oxygen, nitrous oxide, and vacuum systems in healthcare facilities.",
-          type: "medical_gas",
+          type: "medical_gas" as const,
           price: "44.99",
-          duration: 10,
+          duration: "10 months",
           lessons: 15,
           practiceQuestions: 6,
           isActive: false
         },
         {
-          id: "e4f02238b-afb2-4e7f-a488-96fb471fee60",
           title: "Louisiana Master Plumber Prep",
           description: "Advanced certification preparation for Louisiana master plumber license covering business practices, advanced code knowledge, and supervisory responsibilities.",
-          type: "master",
+          type: "master" as const,
           price: "59.99",
-          duration: 20,
+          duration: "20 months",
           lessons: 25,
           practiceQuestions: 12,
           isActive: false
@@ -1822,7 +1817,9 @@ Start your journey at laplumbprep.com/courses
       let addedCount = 0;
       for (const course of courseData) {
         try {
-          const existing = await storage.getCourse(course.id);
+          // Check if course with same title already exists
+          const courses = await storage.getCourses();
+          const existing = courses.find(c => c.title === course.title);
           if (!existing) {
             await storage.createCourse(course);
             addedCount++;
@@ -1881,56 +1878,51 @@ Start your journey at laplumbprep.com/courses
         console.log("Database empty, auto-seeding courses...");
         const courseData = [
           {
-            id: "5f02238b-afb2-4e7f-a488-96fb471fee56",
             title: "Louisiana Journeyman Prep",
             description: "Comprehensive Louisiana plumbing code certification preparation course covering all aspects of state plumbing regulations and best practices.",
-            type: "journeyman",
+            type: "journeyman" as const,
             price: "39.99",
-            duration: 5,
+            duration: "5 months",
             lessons: 3,
             practiceQuestions: 3,
             isActive: true
           },
           {
-            id: "b1f02238b-afb2-4e7f-a488-96fb471fee57",
             title: "Louisiana Backflow Prevention Training",
             description: "Comprehensive training course covering backflow prevention testing, repairs, and field report completion. Learn proper testing procedures, equipment maintenance, and regulatory compliance for backflow prevention assemblies.",
-            type: "backflow",
+            type: "backflow" as const,
             price: "29.99",
-            duration: 8,
+            duration: "8 weeks",
             lessons: 12,
             practiceQuestions: 5,
             isActive: false
           },
           {
-            id: "c2f02238b-afb2-4e7f-a488-96fb471fee58",
             title: "Natural Gas Certification Prep",
             description: "Complete preparation for Louisiana natural gas certification covering safety protocols, installation procedures, and state regulations for natural gas systems.",
-            type: "natural_gas",
+            type: "natural_gas" as const,
             price: "34.99",
-            duration: 6,
+            duration: "6 months",
             lessons: 10,
             practiceQuestions: 4,
             isActive: false
           },
           {
-            id: "d3f02238b-afb2-4e7f-a488-96fb471fee59",
             title: "Medical Gas Installer Certification",
             description: "Specialized certification preparation for medical gas systems including oxygen, nitrous oxide, and vacuum systems in healthcare facilities.",
-            type: "medical_gas",
+            type: "medical_gas" as const,
             price: "44.99",
-            duration: 10,
+            duration: "10 months",
             lessons: 15,
             practiceQuestions: 6,
             isActive: false
           },
           {
-            id: "e4f02238b-afb2-4e7f-a488-96fb471fee60",
             title: "Louisiana Master Plumber Prep",
             description: "Advanced certification preparation for Louisiana master plumber license covering business practices, advanced code knowledge, and supervisory responsibilities.",
-            type: "master",
+            type: "master" as const,
             price: "59.99",
-            duration: 20,
+            duration: "20 months",
             lessons: 25,
             practiceQuestions: 12,
             isActive: false
