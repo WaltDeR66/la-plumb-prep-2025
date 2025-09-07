@@ -182,6 +182,8 @@ export interface IStorage {
   createCourseContent(content: InsertCourseContent): Promise<CourseContent>;
   updateCourseContent(id: string, updates: Partial<CourseContent>): Promise<CourseContent>;
   deleteCourseContent(id: string): Promise<void>;
+  createLesson(lesson: InsertCourseContent): Promise<CourseContent>;
+  createChapter(chapter: InsertCourseContent): Promise<CourseContent>;
   
   // Private code book methods
   getPrivateCodeBooks(): Promise<PrivateCodeBook[]>;
@@ -197,6 +199,8 @@ export interface IStorage {
   startStudySession(userId: string, contentId: string, contentType: string): Promise<StudySession>;
   endStudySession(sessionId: string): Promise<StudySession>;
   getUserStudySessions(userId: string, contentId?: string): Promise<StudySession[]>;
+  createStudySession(data: InsertStudySession): Promise<StudySession>;
+  updateStudySession(sessionId: string, updates: Partial<StudySession>): Promise<StudySession>;
   
   // Study notes methods
   getStudyNotesByCourse(courseId: string): Promise<CourseContent[]>;
@@ -2072,6 +2076,39 @@ export class DatabaseStorage implements IStorage {
       .returning();
 
     return newCompetition;
+  }
+
+  // Additional study session methods
+  async createStudySession(data: InsertStudySession): Promise<StudySession> {
+    const [session] = await db
+      .insert(studySessions)
+      .values(data)
+      .returning();
+    
+    return session;
+  }
+
+  async updateStudySession(sessionId: string, updates: Partial<StudySession>): Promise<StudySession> {
+    const [session] = await db
+      .update(studySessions)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(studySessions.id, sessionId))
+      .returning();
+    
+    if (!session) {
+      throw new Error('Study session not found');
+    }
+    
+    return session;
+  }
+
+  // Course content wrapper methods
+  async createLesson(lesson: InsertCourseContent): Promise<CourseContent> {
+    return this.createCourseContent({ ...lesson, type: 'lesson' });
+  }
+
+  async createChapter(chapter: InsertCourseContent): Promise<CourseContent> {
+    return this.createCourseContent({ ...chapter, type: 'chapter' });
   }
 }
 
