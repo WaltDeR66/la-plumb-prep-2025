@@ -1563,8 +1563,8 @@ Start your journey at laplumbprep.com/courses
             
             // Only process if tier actually changed
             if (oldTier !== newTier) {
-              await storage.updateUser(user.id, { subscriptionTier: newTier });
-              await storage.processSubscriptionUpgrade(user.id, newTier, oldTier);
+              await storage.updateUser(user.id, { subscriptionTier: newTier as any });
+              await storage.processSubscriptionUpgrade(user.id, newTier, oldTier || 'basic');
             }
           }
           break;

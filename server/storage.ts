@@ -420,45 +420,6 @@ export class DatabaseStorage implements IStorage {
     return { employers: employersResult, total };
   }
 
-  async getEmployerJobsWithApplications(employerId: string): Promise<any[]> {
-    const employerJobs = await db
-      .select()
-      .from(jobs)
-      .where(eq(jobs.employerId, employerId))
-      .orderBy(desc(jobs.createdAt));
-    
-    const jobsWithApplications = await Promise.all(
-      employerJobs.map(async (job) => {
-        const applications = await this.getJobApplicationsWithUserDetails(job.id);
-        return { ...job, applications };
-      })
-    );
-    
-    return jobsWithApplications;
-  }
-
-  async getJobApplicationsWithUserDetails(jobId: string): Promise<any[]> {
-    return await db
-      .select({
-        id: jobApplications.id,
-        jobId: jobApplications.jobId,
-        userId: jobApplications.userId,
-        resumeUrl: jobApplications.resumeUrl,
-        coverLetter: jobApplications.coverLetter,
-        status: jobApplications.status,
-        appliedAt: jobApplications.appliedAt,
-        user: {
-          firstName: users.firstName,
-          lastName: users.lastName,
-          email: users.email,
-          phone: users.phone,
-        }
-      })
-      .from(jobApplications)
-      .innerJoin(users, eq(jobApplications.userId, users.id))
-      .where(eq(jobApplications.jobId, jobId))
-      .orderBy(desc(jobApplications.appliedAt));
-  }
 
   async getJobs(page = 1, limit = 10, search?: string, status?: string): Promise<{ jobs: Job[], total: number }> {
     const offset = (page - 1) * limit;
@@ -779,6 +740,17 @@ export class DatabaseStorage implements IStorage {
       .from(planUploads)
       .where(eq(planUploads.userId, userId))
       .orderBy(desc(planUploads.createdAt));
+  }
+
+  async getPlanUpload(planId: string, userId: string): Promise<PlanUpload | undefined> {
+    const [plan] = await db
+      .select()
+      .from(planUploads)
+      .where(and(
+        eq(planUploads.id, planId),
+        eq(planUploads.userId, userId)
+      ));
+    return plan || undefined;
   }
 
   async createReferral(referralData: InsertReferral): Promise<Referral> {
