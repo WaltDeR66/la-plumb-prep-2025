@@ -5618,6 +5618,103 @@ Start your journey at laplumbprep.com/courses
     }
   });
 
+  // Individual Podcast Import Route
+  app.post("/api/admin/podcasts", async (req: any, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+    
+    if (!req.user.email?.includes('admin') && req.user.subscriptionTier !== 'master') {
+      return res.status(403).json({ error: "Admin access required" });
+    }
+    
+    try {
+      const { title, description, hostName, guestName, segments, totalSegments, duration, status } = req.body;
+      
+      if (!title || !segments || !Array.isArray(segments)) {
+        return res.status(400).json({ error: "Title and segments array are required" });
+      }
+      
+      // Convert segments to podcast content format
+      const podcastContent = {
+        title,
+        description: description || "",
+        hostName: hostName || "Host",
+        guestName: guestName || "Guest",
+        segments,
+        totalSegments: totalSegments || segments.length,
+        duration: duration || Math.round(segments.length * 15),
+        status: status || "draft"
+      };
+      
+      const podcast = await storage.createCourseContent({
+        courseId: "5f02238b-afb2-4e7f-a488-96fb471fee56", // Default to Louisiana Journeyman course
+        type: 'podcast',
+        title: title,
+        content: podcastContent,
+        chapter: 1,
+        section: 101,
+        difficulty: 'easy'
+      });
+      
+      res.json({ success: true, podcast });
+    } catch (error: any) {
+      console.error("Error creating podcast:", error);
+      res.status(500).json({ error: "Failed to create podcast" });
+    }
+  });
+
+  // Bulk Podcast Import Route  
+  app.post("/api/admin/podcast/bulk-import", async (req: any, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+    
+    if (!req.user.email?.includes('admin') && req.user.subscriptionTier !== 'master') {
+      return res.status(403).json({ error: "Admin access required" });
+    }
+    
+    try {
+      const { courseId, chapter, section, difficulty, podcasts } = req.body;
+      
+      if (!courseId || !podcasts || !Array.isArray(podcasts)) {
+        return res.status(400).json({ error: "courseId and podcasts array are required" });
+      }
+      
+      // Helper function to extract chapter number from chapter string
+      const extractChapterNumber = (chapterStr: string) => {
+        if (!chapterStr) return 1;
+        const match = chapterStr.match(/chapter\s*(\d+)/i);
+        return match ? parseInt(match[1]) : 1;
+      };
+
+      // Create podcasts using the values from the interface
+      const createdPodcasts = await Promise.all(
+        podcasts.map((podcast: any) => {
+          return storage.createCourseContent({
+            courseId: courseId,
+            type: 'podcast',
+            title: podcast.title,
+            content: podcast.content || podcast,
+            // Use values from the interface
+            chapter: extractChapterNumber(chapter || 'Chapter 1'),
+            section: parseInt(section) || 101,
+            difficulty: difficulty || 'easy'
+          });
+        })
+      );
+      
+      res.json({ 
+        success: true, 
+        imported: createdPodcasts.length,
+        podcasts: createdPodcasts
+      });
+    } catch (error: any) {
+      console.error("Error bulk importing podcasts:", error);
+      res.status(500).json({ error: "Failed to import podcasts" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
