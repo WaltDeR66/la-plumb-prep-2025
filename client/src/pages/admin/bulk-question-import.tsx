@@ -19,7 +19,7 @@ export default function BulkQuestionImport() {
   const [questionsText, setQuestionsText] = useState("");
   const [previewQuestions, setPreviewQuestions] = useState<any[]>([]);
   const [importStatus, setImportStatus] = useState<"idle" | "parsing" | "previewing" | "importing" | "success">("idle");
-  const [selectedDifficulty, setSelectedDifficulty] = useState("medium");
+  const [selectedDifficulty, setSelectedDifficulty] = useState("easy");
   const [selectedChapter, setSelectedChapter] = useState("");
   const [selectedSection, setSelectedSection] = useState("");
 
@@ -282,7 +282,6 @@ export default function BulkQuestionImport() {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="easy">Easy</SelectItem>
-                    <SelectItem value="medium">Medium</SelectItem>
                     <SelectItem value="hard">Hard</SelectItem>
                     <SelectItem value="very_hard">Very Hard</SelectItem>
                   </SelectContent>
@@ -417,7 +416,6 @@ ANSWER: C"
                         <span className="bg-purple-100 text-purple-700 px-2 py-1 rounded">Section {selectedSection}</span>
                         <span className={`px-2 py-1 rounded ${
                           question.difficulty === 'easy' ? 'bg-green-100 text-green-700' :
-                          question.difficulty === 'medium' ? 'bg-yellow-100 text-yellow-700' :
                           question.difficulty === 'hard' ? 'bg-orange-100 text-orange-700' :
                           'bg-red-100 text-red-700'
                         }`}>
