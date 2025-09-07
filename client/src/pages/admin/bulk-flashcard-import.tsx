@@ -180,18 +180,18 @@ export default function BulkFlashcardImport() {
       const parts = trimmedBlock.split(/\n\n/);
       
       if (parts.length >= 2) {
-        const question = parts[0]?.trim();
-        const answer = parts.slice(1).join('\n\n').trim();
+        const front = parts[0]?.trim();
+        const back = parts.slice(1).join('\n\n').trim();
         
-        // Validate question and answer
-        if (question && answer && question.length > 2 && answer.length > 5) {
-          // Make sure question looks like a proper question or term
-          const questionLines = question.split('\n').filter(line => line.trim());
-          if (questionLines.length <= 3 && question.length < 300) {
+        // Validate front and back
+        if (front && back && front.length > 2 && back.length > 5) {
+          // Make sure front looks like a proper question or term
+          const frontLines = front.split('\n').filter(line => line.trim());
+          if (frontLines.length <= 3 && front.length < 300) {
             flashcards.push({
               id: crypto.randomUUID(),
-              front: question,
-              back: answer,
+              front: front,
+              back: back,
               createdAt: new Date(),
             });
           }
