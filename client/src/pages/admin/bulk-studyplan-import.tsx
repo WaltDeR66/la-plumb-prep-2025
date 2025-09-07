@@ -153,18 +153,25 @@ export default function BulkStudyPlanImport() {
   const parseStudyPlansFromText = (text: string) => {
     const studyPlans: any[] = [];
     
-    // Split by time duration headers (10 minutes, 15 minutes, etc.)
-    const timeSections = text.split(/(?=\d+\s+minutes?\n)/i);
+    // Split by time duration headers (10 minutes, 15 minutes, 1 hour, etc.)
+    const timeSections = text.split(/(?=\d+(?:\.\d+)?\s+(?:minutes?|hours?)\n)/i);
     
     timeSections.forEach((section, index) => {
       const lines = section.trim().split('\n').filter(line => line.trim());
       if (lines.length < 3) return;
       
-      // Extract duration from first line
-      const durationMatch = lines[0].match(/(\d+)\s+minutes?/i);
-      if (!durationMatch) return;
+      // Extract duration from first line - handle both minutes and hours
+      const minuteMatch = lines[0].match(/(\d+)\s+minutes?/i);
+      const hourMatch = lines[0].match(/(\d+(?:\.\d+)?)\s+hours?/i);
       
-      const duration = parseInt(durationMatch[1]);
+      let duration = 0;
+      if (minuteMatch) {
+        duration = parseInt(minuteMatch[1]);
+      } else if (hourMatch) {
+        duration = Math.round(parseFloat(hourMatch[1]) * 60); // Convert hours to minutes
+      } else {
+        return; // No valid duration found
+      }
       
       // Look for study plan content after the duration
       let planTitle = "";
