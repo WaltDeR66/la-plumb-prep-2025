@@ -36,16 +36,45 @@ export default function ContentManagement() {
   });
 
   const safeContent = courseContent || { lessons: [], chapters: [], questions: [] };
-  const safeStats = contentStats || { 
-    questions: 0, flashcards: 0, studyNotes: 0, 
-    studyPlans: 0, podcasts: 0, aiChat: 0, lessons: 0,
+  const safeStats = {
+    questions: (contentStats as any)?.questions || 0,
+    flashcards: (contentStats as any)?.flashcards || 0,
+    studyNotes: (contentStats as any)?.studyNotes || 0,
+    studyPlans: (contentStats as any)?.studyPlans || 0,
+    podcasts: (contentStats as any)?.podcasts || 0,
+    aiChat: (contentStats as any)?.aiChat || 0,
+    lessons: (contentStats as any)?.lessons || 0,
     breakdowns: {
-      questions: { byChapter: [], byDifficulty: [], bySection: [] },
-      flashcards: { byChapter: [], byDifficulty: [], bySection: [] },
-      lessons: { byChapter: [], byDifficulty: [], bySection: [] },
-      studyNotes: { byChapter: [], byDifficulty: [], bySection: [] },
-      studyPlans: { byChapter: [], byDifficulty: [], bySection: [] },
-      podcasts: { byChapter: [], byDifficulty: [], bySection: [] }
+      questions: {
+        byChapter: (contentStats as any)?.breakdowns?.questions?.byChapter || [],
+        byDifficulty: (contentStats as any)?.breakdowns?.questions?.byDifficulty || [],
+        bySection: (contentStats as any)?.breakdowns?.questions?.bySection || []
+      },
+      flashcards: {
+        byChapter: (contentStats as any)?.breakdowns?.flashcards?.byChapter || [],
+        byDifficulty: (contentStats as any)?.breakdowns?.flashcards?.byDifficulty || [],
+        bySection: (contentStats as any)?.breakdowns?.flashcards?.bySection || []
+      },
+      lessons: {
+        byChapter: (contentStats as any)?.breakdowns?.lessons?.byChapter || [],
+        byDifficulty: (contentStats as any)?.breakdowns?.lessons?.byDifficulty || [],
+        bySection: (contentStats as any)?.breakdowns?.lessons?.bySection || []
+      },
+      studyNotes: {
+        byChapter: (contentStats as any)?.breakdowns?.studyNotes?.byChapter || [],
+        byDifficulty: (contentStats as any)?.breakdowns?.studyNotes?.byDifficulty || [],
+        bySection: (contentStats as any)?.breakdowns?.studyNotes?.bySection || []
+      },
+      studyPlans: {
+        byChapter: (contentStats as any)?.breakdowns?.studyPlans?.byChapter || [],
+        byDifficulty: (contentStats as any)?.breakdowns?.studyPlans?.byDifficulty || [],
+        bySection: (contentStats as any)?.breakdowns?.studyPlans?.bySection || []
+      },
+      podcasts: {
+        byChapter: (contentStats as any)?.breakdowns?.podcasts?.byChapter || [],
+        byDifficulty: (contentStats as any)?.breakdowns?.podcasts?.byDifficulty || [],
+        bySection: (contentStats as any)?.breakdowns?.podcasts?.bySection || []
+      }
     }
   };
 
