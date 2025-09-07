@@ -2114,6 +2114,111 @@ export class DatabaseStorage implements IStorage {
   async createChapter(chapter: InsertCourseContent): Promise<CourseContent> {
     return this.createCourseContent({ ...chapter, type: 'chapter' });
   }
+
+  // Additional breakdown methods for all content types
+  async getCourseContentBreakdowns(courseId: string): Promise<any> {
+    const lessons = await db
+      .select({
+        chapter: courseContent.chapter,
+        count: sql<number>`COUNT(*)`
+      })
+      .from(courseContent)
+      .where(and(eq(courseContent.courseId, courseId), eq(courseContent.type, 'lesson')))
+      .groupBy(courseContent.chapter);
+
+    const sections = await db
+      .select({
+        section: courseContent.section,
+        count: sql<number>`COUNT(*)`
+      })
+      .from(courseContent)
+      .where(and(eq(courseContent.courseId, courseId), eq(courseContent.type, 'lesson')))
+      .groupBy(courseContent.section);
+
+    return {
+      byChapter: lessons.map(item => ({ category: `Chapter ${item.chapter}`, count: item.count })),
+      bySection: sections.map(item => ({ codeReference: `Section ${item.section}`, count: item.count })),
+      byDifficulty: [] // Lessons don't have difficulty
+    };
+  }
+
+  async getStudySessionBreakdowns(courseId: string): Promise<any> {
+    const chapters = await db
+      .select({
+        chapter: courseContent.chapter,
+        count: sql<number>`COUNT(*)`
+      })
+      .from(courseContent)
+      .where(and(eq(courseContent.courseId, courseId), eq(courseContent.type, 'study-notes')))
+      .groupBy(courseContent.chapter);
+
+    const sections = await db
+      .select({
+        section: courseContent.section,
+        count: sql<number>`COUNT(*)`
+      })
+      .from(courseContent)
+      .where(and(eq(courseContent.courseId, courseId), eq(courseContent.type, 'study-notes')))
+      .groupBy(courseContent.section);
+
+    return {
+      byChapter: chapters.map(item => ({ category: `Chapter ${item.chapter}`, count: item.count })),
+      bySection: sections.map(item => ({ codeReference: `Section ${item.section}`, count: item.count })),
+      byDifficulty: [] // Study notes don't have difficulty
+    };
+  }
+
+  async getEnrollmentBreakdowns(courseId: string): Promise<any> {
+    const chapters = await db
+      .select({
+        chapter: courseContent.chapter,
+        count: sql<number>`COUNT(*)`
+      })
+      .from(courseContent)
+      .where(and(eq(courseContent.courseId, courseId), eq(courseContent.type, 'study-plan')))
+      .groupBy(courseContent.chapter);
+
+    const sections = await db
+      .select({
+        section: courseContent.section,
+        count: sql<number>`COUNT(*)`
+      })
+      .from(courseContent)
+      .where(and(eq(courseContent.courseId, courseId), eq(courseContent.type, 'study-plan')))
+      .groupBy(courseContent.section);
+
+    return {
+      byChapter: chapters.map(item => ({ category: `Chapter ${item.chapter}`, count: item.count })),
+      bySection: sections.map(item => ({ codeReference: `Section ${item.section}`, count: item.count })),
+      byDifficulty: [] // Study plans don't have difficulty
+    };
+  }
+
+  async getUserProgressBreakdowns(courseId: string): Promise<any> {
+    const chapters = await db
+      .select({
+        chapter: courseContent.chapter,
+        count: sql<number>`COUNT(*)`
+      })
+      .from(courseContent)
+      .where(and(eq(courseContent.courseId, courseId), eq(courseContent.type, 'podcast')))
+      .groupBy(courseContent.chapter);
+
+    const sections = await db
+      .select({
+        section: courseContent.section,
+        count: sql<number>`COUNT(*)`
+      })
+      .from(courseContent)
+      .where(and(eq(courseContent.courseId, courseId), eq(courseContent.type, 'podcast')))
+      .groupBy(courseContent.section);
+
+    return {
+      byChapter: chapters.map(item => ({ category: `Chapter ${item.chapter}`, count: item.count })),
+      bySection: sections.map(item => ({ codeReference: `Section ${item.section}`, count: item.count })),
+      byDifficulty: [] // Podcasts don't have difficulty
+    };
+  }
 }
 
 export const storage = new DatabaseStorage();

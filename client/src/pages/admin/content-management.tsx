@@ -38,10 +38,14 @@ export default function ContentManagement() {
   const safeContent = courseContent || { lessons: [], chapters: [], questions: [] };
   const safeStats = contentStats || { 
     questions: 0, flashcards: 0, studyNotes: 0, 
-    studyPlans: 0, podcasts: 0, aiChat: 0,
+    studyPlans: 0, podcasts: 0, aiChat: 0, lessons: 0,
     breakdowns: {
       questions: { byChapter: [], byDifficulty: [], bySection: [] },
-      flashcards: { byChapter: [], byDifficulty: [], bySection: [] }
+      flashcards: { byChapter: [], byDifficulty: [], bySection: [] },
+      lessons: { byChapter: [], byDifficulty: [], bySection: [] },
+      studyNotes: { byChapter: [], byDifficulty: [], bySection: [] },
+      studyPlans: { byChapter: [], byDifficulty: [], bySection: [] },
+      podcasts: { byChapter: [], byDifficulty: [], bySection: [] }
     }
   };
 
@@ -185,7 +189,7 @@ export default function ContentManagement() {
                 </div>
 
                 {/* Detailed Breakdowns */}
-                {(safeStats.questions > 0 || safeStats.flashcards > 0) && (
+                {(safeStats.questions > 0 || safeStats.flashcards > 0 || safeStats.lessons > 0 || safeStats.studyNotes > 0 || safeStats.studyPlans > 0 || safeStats.podcasts > 0) && (
                   <div className="space-y-6">
                     <h2 className="text-2xl font-bold">Content Breakdowns</h2>
                     
@@ -299,6 +303,174 @@ export default function ContentManagement() {
                                     }`}>
                                       {item.difficulty ? item.difficulty.charAt(0).toUpperCase() + item.difficulty.slice(1) : 'Unknown'}
                                     </span>
+                                    <span className="font-semibold">{item.count}</span>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    )}
+
+                    {/* Lessons Breakdown */}
+                    {safeStats.lessons > 0 && (
+                      <Card>
+                        <CardHeader>
+                          <CardTitle className="flex items-center gap-2">
+                            <BookOpen className="h-5 w-5" />
+                            Lessons Breakdown ({safeStats.lessons} total)
+                          </CardTitle>
+                          <CardDescription>
+                            Distribution of lessons by chapter and section
+                          </CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                              <h4 className="font-semibold mb-3">By Chapter</h4>
+                              <div className="space-y-2">
+                                {safeStats.breakdowns?.lessons?.byChapter?.map((item: any, index: number) => (
+                                  <div key={index} className="flex justify-between items-center p-2 bg-muted rounded">
+                                    <span className="text-sm">{item.category}</span>
+                                    <span className="font-semibold">{item.count}</span>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                            
+                            <div>
+                              <h4 className="font-semibold mb-3">By Section</h4>
+                              <div className="space-y-2">
+                                {safeStats.breakdowns?.lessons?.bySection?.map((item: any, index: number) => (
+                                  <div key={index} className="flex justify-between items-center p-2 bg-muted rounded">
+                                    <span className="text-sm">{item.codeReference}</span>
+                                    <span className="font-semibold">{item.count}</span>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    )}
+
+                    {/* Study Notes Breakdown */}
+                    {safeStats.studyNotes > 0 && (
+                      <Card>
+                        <CardHeader>
+                          <CardTitle className="flex items-center gap-2">
+                            <FileText className="h-5 w-5" />
+                            Study Notes Breakdown ({safeStats.studyNotes} total)
+                          </CardTitle>
+                          <CardDescription>
+                            Distribution of study notes by chapter and section
+                          </CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                              <h4 className="font-semibold mb-3">By Chapter</h4>
+                              <div className="space-y-2">
+                                {safeStats.breakdowns?.studyNotes?.byChapter?.map((item: any, index: number) => (
+                                  <div key={index} className="flex justify-between items-center p-2 bg-muted rounded">
+                                    <span className="text-sm">{item.category}</span>
+                                    <span className="font-semibold">{item.count}</span>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                            
+                            <div>
+                              <h4 className="font-semibold mb-3">By Section</h4>
+                              <div className="space-y-2">
+                                {safeStats.breakdowns?.studyNotes?.bySection?.map((item: any, index: number) => (
+                                  <div key={index} className="flex justify-between items-center p-2 bg-muted rounded">
+                                    <span className="text-sm">{item.codeReference}</span>
+                                    <span className="font-semibold">{item.count}</span>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    )}
+
+                    {/* Study Plans Breakdown */}
+                    {safeStats.studyPlans > 0 && (
+                      <Card>
+                        <CardHeader>
+                          <CardTitle className="flex items-center gap-2">
+                            <Clock className="h-5 w-5" />
+                            Study Plans Breakdown ({safeStats.studyPlans} total)
+                          </CardTitle>
+                          <CardDescription>
+                            Distribution of study plans by chapter and section
+                          </CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                              <h4 className="font-semibold mb-3">By Chapter</h4>
+                              <div className="space-y-2">
+                                {safeStats.breakdowns?.studyPlans?.byChapter?.map((item: any, index: number) => (
+                                  <div key={index} className="flex justify-between items-center p-2 bg-muted rounded">
+                                    <span className="text-sm">{item.category}</span>
+                                    <span className="font-semibold">{item.count}</span>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                            
+                            <div>
+                              <h4 className="font-semibold mb-3">By Section</h4>
+                              <div className="space-y-2">
+                                {safeStats.breakdowns?.studyPlans?.bySection?.map((item: any, index: number) => (
+                                  <div key={index} className="flex justify-between items-center p-2 bg-muted rounded">
+                                    <span className="text-sm">{item.codeReference}</span>
+                                    <span className="font-semibold">{item.count}</span>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    )}
+
+                    {/* Podcasts Breakdown */}
+                    {safeStats.podcasts > 0 && (
+                      <Card>
+                        <CardHeader>
+                          <CardTitle className="flex items-center gap-2">
+                            <Headphones className="h-5 w-5" />
+                            Podcasts Breakdown ({safeStats.podcasts} total)
+                          </CardTitle>
+                          <CardDescription>
+                            Distribution of podcasts by chapter and section
+                          </CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                              <h4 className="font-semibold mb-3">By Chapter</h4>
+                              <div className="space-y-2">
+                                {safeStats.breakdowns?.podcasts?.byChapter?.map((item: any, index: number) => (
+                                  <div key={index} className="flex justify-between items-center p-2 bg-muted rounded">
+                                    <span className="text-sm">{item.category}</span>
+                                    <span className="font-semibold">{item.count}</span>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                            
+                            <div>
+                              <h4 className="font-semibold mb-3">By Section</h4>
+                              <div className="space-y-2">
+                                {safeStats.breakdowns?.podcasts?.bySection?.map((item: any, index: number) => (
+                                  <div key={index} className="flex justify-between items-center p-2 bg-muted rounded">
+                                    <span className="text-sm">{item.codeReference}</span>
                                     <span className="font-semibold">{item.count}</span>
                                   </div>
                                 ))}
