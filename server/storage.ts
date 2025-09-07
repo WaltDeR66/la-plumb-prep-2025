@@ -2139,7 +2139,7 @@ export class DatabaseStorage implements IStorage {
     return this.createCourseContent({ ...chapter, type: 'chapter' });
   }
 
-  // Additional breakdown methods for all content types
+  // Lessons breakdown - only chapter/section, no difficulty
   async getCourseContentBreakdowns(courseId: string): Promise<any> {
     const lessons = await db
       .select({
@@ -2159,18 +2159,10 @@ export class DatabaseStorage implements IStorage {
       .where(and(eq(courseContent.courseId, courseId), eq(courseContent.type, 'lesson')))
       .groupBy(courseContent.section);
 
-    // Add difficulty breakdown for lessons (easy, hard, very_hard) 
-    const totalLessons = lessons.reduce((sum, item) => sum + Number(item.count), 0);
-    const difficulty = [
-      { difficulty: 'easy', count: Math.floor(totalLessons * 0.4) },
-      { difficulty: 'hard', count: Math.floor(totalLessons * 0.4) },
-      { difficulty: 'very_hard', count: Math.floor(totalLessons * 0.2) }
-    ];
-
     return {
       byChapter: lessons.map(item => ({ category: `Chapter ${item.chapter}`, count: item.count })),
-      bySection: sections.map(item => ({ codeReference: `Section ${item.section}`, count: item.count })),
-      byDifficulty: difficulty
+      bySection: sections.map(item => ({ codeReference: `Section ${item.section}`, count: item.count }))
+      // No byDifficulty for lessons - they don't have meaningful difficulty levels
     };
   }
 
@@ -2262,6 +2254,7 @@ export class DatabaseStorage implements IStorage {
     };
   }
 
+  // Podcasts breakdown - only chapter/section, no difficulty
   async getUserProgressBreakdowns(courseId: string): Promise<any> {
     const chapters = await db
       .select({
@@ -2281,28 +2274,10 @@ export class DatabaseStorage implements IStorage {
       .where(and(eq(courseContent.courseId, courseId), eq(courseContent.type, 'podcast')))
       .groupBy(courseContent.section);
 
-    // Get real difficulty breakdown for podcasts from database
-    const difficultyResults = await db
-      .select({
-        difficulty: courseContent.difficulty,
-        count: sql<number>`COUNT(*)`
-      })
-      .from(courseContent)
-      .where(and(eq(courseContent.courseId, courseId), eq(courseContent.type, 'podcast')))
-      .groupBy(courseContent.difficulty);
-
-    // Ensure all difficulty levels are represented
-    const difficultyMap = new Map(difficultyResults.map(d => [d.difficulty, d.count]));
-    const difficulty = [
-      { difficulty: 'easy', count: difficultyMap.get('easy') || 0 },
-      { difficulty: 'hard', count: difficultyMap.get('hard') || 0 },
-      { difficulty: 'very_hard', count: difficultyMap.get('very_hard') || 0 }
-    ];
-
     return {
       byChapter: chapters.map(item => ({ category: `Chapter ${item.chapter}`, count: item.count })),
-      bySection: sections.map(item => ({ codeReference: `Section ${item.section}`, count: item.count })),
-      byDifficulty: difficulty
+      bySection: sections.map(item => ({ codeReference: `Section ${item.section}`, count: item.count }))
+      // No byDifficulty for podcasts - they're just educational content, not difficulty-based
     };
   }
 }
