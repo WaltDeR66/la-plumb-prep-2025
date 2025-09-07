@@ -2212,11 +2212,22 @@ export class DatabaseStorage implements IStorage {
       .where(and(eq(courseContent.courseId, courseId), eq(courseContent.type, 'study-plan')))
       .groupBy(courseContent.section);
 
-    // Add difficulty breakdown for study plans
+    // Get actual difficulty breakdown for study plans
+    const difficultyResults = await db
+      .select({
+        difficulty: courseContent.difficulty,
+        count: sql<number>`COUNT(*)`
+      })
+      .from(courseContent)
+      .where(and(eq(courseContent.courseId, courseId), eq(courseContent.type, 'study-plan')))
+      .groupBy(courseContent.difficulty);
+
+    // Ensure all difficulty levels are represented
+    const difficultyMap = new Map(difficultyResults.map(d => [d.difficulty, d.count]));
     const difficulty = [
-      { difficulty: 'easy', count: Math.floor(chapters.reduce((sum, item) => sum + item.count, 0) * 0.25) },
-      { difficulty: 'hard', count: Math.floor(chapters.reduce((sum, item) => sum + item.count, 0) * 0.45) },
-      { difficulty: 'very_hard', count: Math.floor(chapters.reduce((sum, item) => sum + item.count, 0) * 0.3) }
+      { difficulty: 'easy', count: difficultyMap.get('easy') || 0 },
+      { difficulty: 'hard', count: difficultyMap.get('hard') || 0 },
+      { difficulty: 'very_hard', count: difficultyMap.get('very_hard') || 0 }
     ];
 
     return {
