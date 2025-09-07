@@ -1101,14 +1101,17 @@ Start your journey at laplumbprep.com/courses
 
     try {
       // Verify payment was successful
-      const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
+      const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId, {
+        expand: ['payment_method']
+      });
       
       if (paymentIntent.status !== 'succeeded') {
         return res.status(400).json({ message: "Payment not successful" });
       }
 
-      // Extract customer info from payment intent
-      const billingDetails = paymentIntent.charges.data[0]?.billing_details;
+      // Extract customer info from payment method
+      const paymentMethod = paymentIntent.payment_method as any;
+      const billingDetails = paymentMethod?.billing_details;
       if (!billingDetails) {
         return res.status(400).json({ message: "Customer information not found" });
       }
@@ -1132,7 +1135,7 @@ Start your journey at laplumbprep.com/courses
       const customer = await stripe.customers.create({
         email: billingDetails.email || email,
         name: billingDetails.name,
-        payment_method: paymentIntent.payment_method,
+        payment_method: typeof paymentIntent.payment_method === 'string' ? paymentIntent.payment_method : paymentIntent.payment_method?.id,
       });
 
       // Get price ID from metadata
@@ -1141,7 +1144,7 @@ Start your journey at laplumbprep.com/courses
       const subscription = await stripe.subscriptions.create({
         customer: customer.id,
         items: [{ price: priceId }],
-        default_payment_method: paymentIntent.payment_method,
+        default_payment_method: typeof paymentIntent.payment_method === 'string' ? paymentIntent.payment_method : paymentIntent.payment_method?.id,
         expand: ['latest_invoice.payment_intent'],
       });
 
@@ -1156,7 +1159,7 @@ Start your journey at laplumbprep.com/courses
           planName: plan.charAt(0).toUpperCase() + plan.slice(1),
           username,
           tempPassword
-        });
+        } as any);
         
         console.log(`Welcome email sent to ${newUser.email}`);
       } catch (emailError) {
