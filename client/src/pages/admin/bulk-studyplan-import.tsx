@@ -317,48 +317,6 @@ export default function BulkStudyPlanImport() {
           </CardContent>
         </Card>
 
-        {/* Format Instructions */}
-        <Card className="mb-6">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Clock className="h-5 w-5" />
-              Louisiana Plumbing Code Study Plan Format
-            </CardTitle>
-            <CardDescription>Copy and paste adaptive study plans with time-based sessions</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4 text-sm">
-              <div>
-                <h4 className="font-semibold mb-2">Your Format: Time-based study sessions with structured content</h4>
-                <pre className="bg-muted p-3 rounded text-xs">
-{`10 minutes
-
-10-Minute Study Plan: LSPC Administration & Authority
-
-Minutes 0-2: Core Adoption & Naming
-Focus on how the Department of Health and Hospitals, Office of Public Health, adopts Part XIV (Plumbing) of the Sanitary Code...
-
-Minutes 2-5: Source of Authority
-Identify R.S. 36:258(B) as the first source of authority for the sanitary code...
-
-15 minutes
-
-15-Minute Study Plan: LSPC Administration & Authority
-
-Minutes 0-2: Recap & Core Adoption
-Quickly review that the Department of Health and Hospitals, Office of Public Health, adopts Part XIV...`}
-                </pre>
-              </div>
-
-              <Alert>
-                <AlertCircle className="h-4 w-4" />
-                <AlertDescription>
-                  <strong>Format requirements:</strong> Start with time duration (e.g., "10 minutes"), followed by study plan title and structured content with minute breakdowns.
-                </AlertDescription>
-              </Alert>
-            </div>
-          </CardContent>
-        </Card>
 
         {/* Study Plan Input */}
         <Card className="mb-6">

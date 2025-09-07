@@ -286,41 +286,6 @@ export default function BulkStudyNotesImport() {
           </CardContent>
         </Card>
 
-        {/* Format Instructions */}
-        <Card className="mb-6">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <BookOpen className="h-5 w-5" />
-              Louisiana Plumbing Code Study Notes Format
-            </CardTitle>
-            <CardDescription>Copy and paste structured study notes with headings and content</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4 text-sm">
-              <div>
-                <h4 className="font-semibold mb-2">Your Format: Heading followed by content paragraphs</h4>
-                <pre className="bg-muted p-3 rounded text-xs">
-{`Louisiana State Plumbing Code (LSPC) Adoption
-The Louisiana State Plumbing Code (LSPC) is established under Chapter 1, Subchapter A, General, §101 of administrative regulations.
-The Department of Health and Hospitals, Office of Public Health, formally adopts Part XIV (Plumbing) of the Sanitary Code for the state of Louisiana.
-"Part XIV (Plumbing) of the Sanitary Code, State of Louisiana" can be referred to as the "Louisiana State Plumbing Code," "this code," or "this Part."
-
-Authority and Promulgation
-The primary legal authority for establishing the sanitary code is R.S. 36:258(B).
-Additional provisions concerning the code are detailed in Chapters 1 and 4 of Title 40 of the Louisiana Revised Statutes.
-This Part of the code is promulgated following R.S. 40:4(A)(7) and R.S. 40:5(2)(3)(7)(9)(16)(17)(20).`}
-                </pre>
-              </div>
-
-              <Alert>
-                <AlertCircle className="h-4 w-4" />
-                <AlertDescription>
-                  <strong>Format requirements:</strong> Heading line followed by content paragraphs. Separate sections with blank lines.
-                </AlertDescription>
-              </Alert>
-            </div>
-          </CardContent>
-        </Card>
 
         {/* Study Notes Input */}
         <Card className="mb-6">

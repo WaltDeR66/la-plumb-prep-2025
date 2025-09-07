@@ -285,50 +285,6 @@ export default function BulkFlashcardImport() {
           </CardContent>
         </Card>
 
-        {/* Format Instructions */}
-        <Card className="mb-6">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <FileText className="h-5 w-5" />
-              Louisiana Plumbing Code Flashcard Format
-            </CardTitle>
-            <CardDescription>Copy and paste flashcards in your exact format</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4 text-sm">
-              <div>
-                <h4 className="font-semibold mb-2">Your Format: Question/Term, Blank Line, Answer/Definition</h4>
-                <pre className="bg-muted p-3 rounded text-xs">
-{`Louisiana State Plumbing Code (LSPC)
-
-This code refers to Part XIV (Plumbing) of the Sanitary Code, State of Louisiana (LAC 51:XIV), which is adopted by the Department of Health and Hospitals, Office of Public Health.
-
-
-Who adopts the LSPC?
-
-The Department of Health and Hospitals, specifically the Office of Public Health, is responsible for adopting the Louisiana State Plumbing Code.
-
-
-Synonymous terms for LSPC
-
-References to 'Louisiana State Plumbing Code,' 'this code,' or 'this Part' are all synonymous with 'Part XIV (Plumbing) of the Sanitary Code, State of Louisiana.'
-
-
-Authority for LSPC promulgation
-
-The primary authority for promulgating the sanitary code, including the LSPC, comes from R.S. 36:258(B) and specific provisions in Chapters 1 and 4 of Title 40 of the Louisiana Revised Statutes.`}
-                </pre>
-              </div>
-
-              <Alert>
-                <AlertCircle className="h-4 w-4" />
-                <AlertDescription>
-                  <strong>Format requirements:</strong> Question or term on first line, blank line, then answer or definition. Separate each flashcard with double blank lines.
-                </AlertDescription>
-              </Alert>
-            </div>
-          </CardContent>
-        </Card>
 
         {/* Flashcard Input */}
         <Card className="mb-6">

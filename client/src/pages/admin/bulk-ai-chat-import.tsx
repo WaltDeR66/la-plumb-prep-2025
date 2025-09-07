@@ -320,51 +320,6 @@ export default function BulkAIChatImport() {
           </CardContent>
         </Card>
 
-        {/* Format Instructions */}
-        <Card className="mb-6">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Brain className="h-5 w-5" />
-              Louisiana Plumbing Code AI Chat Format
-            </CardTitle>
-            <CardDescription>Copy and paste Q&A content or educational topics for the AI mentor</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4 text-sm">
-              <div>
-                <h4 className="font-semibold mb-2">Your Format: Questions and answers for AI mentor training</h4>
-                <pre className="bg-muted p-3 rounded text-xs">
-{`This section, §101, deals with the general administration of the Louisiana State Plumbing Code (LSPC). Essentially, it explains that the Department of Health and Hospitals has officially adopted Part XIV of the Sanitary Code, which is referred to as the Louisiana State Plumbing Code.
-
-🧠 Key Concept: Louisiana State Plumbing Code (LSPC)
-This is the official set of rules and regulations governing plumbing work in Louisiana, adopted by the state's Department of Health and Hospitals.
-
-Who enforces the LSPC?
-
-The Department of Health and Hospitals, Office of Public Health, is responsible for adopting the Louisiana State Plumbing Code.
-
-🧠 Key Concept: Enforcement Authority
-The "Department of Health and Hospitals, Office of Public Health" is the agency that adopts and oversees the Louisiana State Plumbing Code.
-
-What is the legal basis for the LSPC?
-
-The legal foundation for the Louisiana State Plumbing Code (LSPC) stems from specific Louisiana Revised Statutes (R.S.).
-
-💡 Key Information: Code History
-Promulgated: June 2002
-Amended: November 2012`}
-                </pre>
-              </div>
-
-              <Alert>
-                <AlertCircle className="h-4 w-4" />
-                <AlertDescription>
-                  <strong>Format requirements:</strong> Educational content with 🧠 Key Concepts, 💡 Key Information, and Q&A sections. Supports both structured lessons and simple Q&A format.
-                </AlertDescription>
-              </Alert>
-            </div>
-          </CardContent>
-        </Card>
 
         {/* AI Chat Content Input */}
         <Card className="mb-6">

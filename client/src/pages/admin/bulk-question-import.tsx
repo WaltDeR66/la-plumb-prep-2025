@@ -291,45 +291,6 @@ export default function BulkQuestionImport() {
           </CardContent>
         </Card>
 
-        {/* Format Instructions */}
-        <Card className="mb-6">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <FileText className="h-5 w-5" />
-              Supported Formats
-            </CardTitle>
-            <CardDescription>Copy and paste questions in any of these formats</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4 text-sm">
-              <div>
-                <h4 className="font-semibold mb-2">Your Format: Louisiana Plumbing Code Style</h4>
-                <pre className="bg-muted p-3 rounded text-xs">
-{`Which specific statutory provision grants the primary authority for the promulgation of the Louisiana State Plumbing Code as outlined in the text?
-A. LAC 51:XIV
-B. R.S. 40:5(2)(3)(7)(9)(16)(17)(20)
-C. R.S. 36:258(B)
-D. R.S. 40:4(A)(7)
-ANSWER: C
-
-Under what precise regulatory nomenclature is the Louisiana State Plumbing Code initially adopted?
-A. Chapters 1 and 4 of Title 40 of the Louisiana Revised Statutes
-B. Louisiana Revised Statutes Title 40
-C. Part XIV (Plumbing) of the Sanitary Code, State of Louisiana (LAC 51:XIV)
-D. Louisiana State Plumbing Code (LSPC)
-ANSWER: C`}
-                </pre>
-              </div>
-
-              <Alert>
-                <AlertCircle className="h-4 w-4" />
-                <AlertDescription>
-                  <strong>Required format:</strong> Each question must end with "ANSWER: [letter]" (e.g., "ANSWER: C")
-                </AlertDescription>
-              </Alert>
-            </div>
-          </CardContent>
-        </Card>
 
         {/* Question Input */}
         <Card className="mb-6">

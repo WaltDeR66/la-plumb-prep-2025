@@ -298,44 +298,6 @@ export default function BulkPodcastImport() {
           </CardContent>
         </Card>
 
-        {/* Format Instructions */}
-        <Card className="mb-6">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Mic className="h-5 w-5" />
-              Louisiana Plumbing Code Podcast Format
-            </CardTitle>
-            <CardDescription>Copy and paste episode content with conversation transcripts</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4 text-sm">
-              <div>
-                <h4 className="font-semibold mb-2">Your Format: Episode titles followed by conversation transcripts</h4>
-                <pre className="bg-muted p-3 rounded text-xs">
-{`Louisiana State Plumbing Code §101 Administration
-Did you know that the state of Louisiana operates under a very specific set of plumbing regulations? It's grounded in a comprehensive sanitary code designed to protect public health.
-Yes, it's officially called the Louisiana State Plumbing Code, or LSPC. It's actually Part XIV of Louisiana's Sanitary Code, which is fascinatingly detailed.
-Right, so anytime you see references to 'this code' or 'Part XIV', they're all pointing to this singular, authoritative document governing plumbing practices statewide.
-And what gives this code its legal teeth? Is there a specific legislative act that enables its creation and enforcement?
-Indeed, its authority primarily stems from R.S. 36:258(B), with further support from various chapters and sections within Title 40 of the Louisiana Revised Statutes.
-
-Louisiana State Plumbing Code §302 Approval
-The approval process for plumbing installations is quite structured, isn't it?
-Absolutely! The code establishes clear requirements for how plumbing systems must be approved before installation.
-Can you walk us through the typical approval process?
-Certainly! First, plans must be submitted showing compliance with all applicable code sections...`}
-                </pre>
-              </div>
-
-              <Alert>
-                <AlertCircle className="h-4 w-4" />
-                <AlertDescription>
-                  <strong>Format requirements:</strong> Section title starting with "Louisiana State Plumbing Code §XXX", followed by natural host-guest conversation. Separate episodes with blank lines.
-                </AlertDescription>
-              </Alert>
-            </div>
-          </CardContent>
-        </Card>
 
         {/* Podcast Input */}
         <Card className="mb-6">
