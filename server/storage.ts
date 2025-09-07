@@ -135,6 +135,10 @@ export interface IStorage {
   // Breakdown methods for admin stats
   getQuestionBreakdowns(courseId: string): Promise<any>;
   getFlashcardBreakdowns(courseId: string): Promise<any>;
+  getStudyNotesBreakdowns(courseId: string): Promise<any>;
+  getStudyPlansBreakdowns(courseId: string): Promise<any>;
+  getPodcastsBreakdowns(courseId: string): Promise<any>;
+  getAiChatBreakdowns(courseId: string): Promise<any>;
   
   // Study companion methods
   getStudyCompanionConversations(userId: string): Promise<StudyCompanionMessage[]>;
@@ -854,6 +858,116 @@ export class DatabaseStorage implements IStorage {
     return {
       byChapter: categoryBreakdown,
       byDifficulty: difficultyBreakdown,
+      bySection: sectionBreakdown
+    };
+  }
+
+  async getStudyNotesBreakdowns(courseId: string): Promise<any> {
+    const chapterBreakdown = await db
+      .select({
+        chapter: courseContent.chapter,
+        count: sql<number>`COUNT(*)`
+      })
+      .from(courseContent)
+      .where(and(eq(courseContent.courseId, courseId), eq(courseContent.type, 'study-notes')))
+      .groupBy(courseContent.chapter);
+
+    const sectionBreakdown = await db
+      .select({
+        section: courseContent.section,
+        chapter: courseContent.chapter,
+        count: sql<number>`COUNT(*)`
+      })
+      .from(courseContent)
+      .where(and(eq(courseContent.courseId, courseId), eq(courseContent.type, 'study-notes')))
+      .groupBy(courseContent.chapter, courseContent.section);
+
+    return {
+      byChapter: chapterBreakdown,
+      bySection: sectionBreakdown
+    };
+  }
+
+  async getStudyPlansBreakdowns(courseId: string): Promise<any> {
+    const chapterBreakdown = await db
+      .select({
+        chapter: courseContent.chapter,
+        count: sql<number>`COUNT(*)`
+      })
+      .from(courseContent)
+      .where(and(
+        eq(courseContent.courseId, courseId), 
+        or(eq(courseContent.type, 'study-plan'), eq(courseContent.type, 'study-plans'))
+      ))
+      .groupBy(courseContent.chapter);
+
+    const sectionBreakdown = await db
+      .select({
+        section: courseContent.section,
+        chapter: courseContent.chapter,
+        count: sql<number>`COUNT(*)`
+      })
+      .from(courseContent)
+      .where(and(
+        eq(courseContent.courseId, courseId), 
+        or(eq(courseContent.type, 'study-plan'), eq(courseContent.type, 'study-plans'))
+      ))
+      .groupBy(courseContent.chapter, courseContent.section);
+
+    return {
+      byChapter: chapterBreakdown,
+      bySection: sectionBreakdown
+    };
+  }
+
+  async getPodcastsBreakdowns(courseId: string): Promise<any> {
+    const chapterBreakdown = await db
+      .select({
+        chapter: courseContent.chapter,
+        count: sql<number>`COUNT(*)`
+      })
+      .from(courseContent)
+      .where(and(eq(courseContent.courseId, courseId), eq(courseContent.type, 'podcast')))
+      .groupBy(courseContent.chapter);
+
+    const sectionBreakdown = await db
+      .select({
+        section: courseContent.section,
+        chapter: courseContent.chapter,
+        count: sql<number>`COUNT(*)`
+      })
+      .from(courseContent)
+      .where(and(eq(courseContent.courseId, courseId), eq(courseContent.type, 'podcast')))
+      .groupBy(courseContent.chapter, courseContent.section);
+
+    return {
+      byChapter: chapterBreakdown,
+      bySection: sectionBreakdown
+    };
+  }
+
+  async getAiChatBreakdowns(courseId: string): Promise<any> {
+    const chapterBreakdown = await db
+      .select({
+        chapter: courseContent.chapter,
+        count: sql<number>`COUNT(*)`
+      })
+      .from(courseContent)
+      .where(and(eq(courseContent.courseId, courseId), eq(courseContent.type, 'chat')))
+      .groupBy(courseContent.chapter);
+
+    const sectionBreakdown = await db
+      .select({
+        section: courseContent.section,
+        chapter: courseContent.chapter,
+        count: sql<number>`COUNT(*)`
+      })
+      .from(courseContent)
+      .where(and(eq(courseContent.courseId, courseId), eq(courseContent.type, 'chat')))
+      .groupBy(courseContent.chapter, courseContent.section);
+
+    return {
+      byChapter: chapterBreakdown,
       bySection: sectionBreakdown
     };
   }
