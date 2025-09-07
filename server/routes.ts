@@ -4830,6 +4830,10 @@ Start your journey at laplumbprep.com/courses
       const courseFlashcards = await storage.getFlashcardsByCourse(courseId);
       const flashcards = courseFlashcards.length;
 
+      // Get detailed breakdowns
+      const questionBreakdowns = await storage.getQuestionBreakdowns(courseId);
+      const flashcardBreakdowns = await storage.getFlashcardBreakdowns(courseId);
+
       // Count by type (using actual database types)
       const stats = {
         lessons: allContent.filter(content => content.type === 'lesson').length,
@@ -4839,7 +4843,11 @@ Start your journey at laplumbprep.com/courses
         studyNotes: allContent.filter(content => content.type === 'study-notes').length,
         studyPlans: allContent.filter(content => content.type === 'study-plan' || content.type === 'study-plans').length,
         podcasts: allContent.filter(content => content.type === 'podcast').length,
-        aiChat: 1 // Study Companion "Pipe Buddy" is available for all courses
+        aiChat: 1, // Study Companion "Pipe Buddy" is available for all courses
+        breakdowns: {
+          questions: questionBreakdowns,
+          flashcards: flashcardBreakdowns
+        }
       };
       
       res.json(stats);

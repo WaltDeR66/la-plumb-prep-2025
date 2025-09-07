@@ -23,6 +23,7 @@ import {
   products,
   cartItems,
   productReviews,
+  competitionQuestions,
   type User, 
   type InsertUser,
   type Course,
@@ -131,6 +132,10 @@ export interface IStorage {
   getFlashcardsByCourse(courseId: string): Promise<Flashcard[]>;
   createFlashcard(flashcard: InsertFlashcard): Promise<Flashcard>;
   getUserMentorConversations(userId: string): Promise<MentorConversation[]>;
+  
+  // Breakdown methods for admin stats
+  getQuestionBreakdowns(courseId: string): Promise<any>;
+  getFlashcardBreakdowns(courseId: string): Promise<any>;
   
   // Study companion methods
   getStudyCompanionConversations(userId: string): Promise<StudyCompanionMessage[]>;
@@ -779,6 +784,75 @@ export class DatabaseStorage implements IStorage {
       .values(flashcard)
       .returning();
     return created;
+  }
+
+  // Breakdown methods for detailed admin statistics
+  async getQuestionBreakdowns(courseId: string): Promise<any> {
+    // Get breakdowns from competition_questions table
+    const categoryBreakdown = await db
+      .select({
+        category: competitionQuestions.category,
+        count: sql<number>`COUNT(*)`
+      })
+      .from(competitionQuestions)
+      .groupBy(competitionQuestions.category);
+
+    const difficultyBreakdown = await db
+      .select({
+        difficulty: competitionQuestions.difficulty,
+        count: sql<number>`COUNT(*)`
+      })
+      .from(competitionQuestions)
+      .groupBy(competitionQuestions.difficulty);
+
+    const sectionBreakdown = await db
+      .select({
+        codeReference: competitionQuestions.codeReference,
+        count: sql<number>`COUNT(*)`
+      })
+      .from(competitionQuestions)
+      .groupBy(competitionQuestions.codeReference);
+
+    return {
+      byChapter: categoryBreakdown,
+      byDifficulty: difficultyBreakdown,
+      bySection: sectionBreakdown
+    };
+  }
+
+  async getFlashcardBreakdowns(courseId: string): Promise<any> {
+    const categoryBreakdown = await db
+      .select({
+        category: flashcards.category,
+        count: sql<number>`COUNT(*)`
+      })
+      .from(flashcards)
+      .where(eq(flashcards.courseId, courseId))
+      .groupBy(flashcards.category);
+
+    const difficultyBreakdown = await db
+      .select({
+        difficulty: flashcards.difficulty,
+        count: sql<number>`COUNT(*)`
+      })
+      .from(flashcards)
+      .where(eq(flashcards.courseId, courseId))
+      .groupBy(flashcards.difficulty);
+
+    const sectionBreakdown = await db
+      .select({
+        codeReference: flashcards.codeReference,
+        count: sql<number>`COUNT(*)`
+      })
+      .from(flashcards)
+      .where(eq(flashcards.courseId, courseId))
+      .groupBy(flashcards.codeReference);
+
+    return {
+      byChapter: categoryBreakdown,
+      byDifficulty: difficultyBreakdown,
+      bySection: sectionBreakdown
+    };
   }
 
   async createReferral(referralData: InsertReferral): Promise<Referral> {

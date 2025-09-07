@@ -38,7 +38,11 @@ export default function ContentManagement() {
   const safeContent = courseContent || { lessons: [], chapters: [], questions: [] };
   const safeStats = contentStats || { 
     questions: 0, flashcards: 0, studyNotes: 0, 
-    studyPlans: 0, podcasts: 0, aiChat: 0 
+    studyPlans: 0, podcasts: 0, aiChat: 0,
+    breakdowns: {
+      questions: { byChapter: [], byDifficulty: [], bySection: [] },
+      flashcards: { byChapter: [], byDifficulty: [], bySection: [] }
+    }
   };
 
   const addLessonMutation = useMutation({
@@ -179,6 +183,133 @@ export default function ContentManagement() {
                     </CardContent>
                   </Card>
                 </div>
+
+                {/* Detailed Breakdowns */}
+                {(safeStats.questions > 0 || safeStats.flashcards > 0) && (
+                  <div className="space-y-6">
+                    <h2 className="text-2xl font-bold">Content Breakdowns</h2>
+                    
+                    {/* Questions Breakdown */}
+                    {safeStats.questions > 0 && (
+                      <Card>
+                        <CardHeader>
+                          <CardTitle className="flex items-center gap-2">
+                            <HelpCircle className="h-5 w-5" />
+                            Questions Breakdown ({safeStats.questions} total)
+                          </CardTitle>
+                          <CardDescription>
+                            Distribution of questions by chapter, section, and difficulty level
+                          </CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div>
+                              <h4 className="font-semibold mb-3">By Chapter</h4>
+                              <div className="space-y-2">
+                                {safeStats.breakdowns?.questions?.byChapter?.map((item: any, index: number) => (
+                                  <div key={index} className="flex justify-between items-center p-2 bg-muted rounded">
+                                    <span className="text-sm">{item.category}</span>
+                                    <span className="font-semibold">{item.count}</span>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                            
+                            <div>
+                              <h4 className="font-semibold mb-3">By Section</h4>
+                              <div className="space-y-2">
+                                {safeStats.breakdowns?.questions?.bySection?.map((item: any, index: number) => (
+                                  <div key={index} className="flex justify-between items-center p-2 bg-muted rounded">
+                                    <span className="text-sm">{item.codeReference}</span>
+                                    <span className="font-semibold">{item.count}</span>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                            
+                            <div>
+                              <h4 className="font-semibold mb-3">By Difficulty</h4>
+                              <div className="space-y-2">
+                                {safeStats.breakdowns?.questions?.byDifficulty?.map((item: any, index: number) => (
+                                  <div key={index} className="flex justify-between items-center p-2 bg-muted rounded">
+                                    <span className={`text-sm px-2 py-1 rounded text-white ${
+                                      item.difficulty === 'easy' ? 'bg-green-500' :
+                                      item.difficulty === 'hard' ? 'bg-orange-500' :
+                                      'bg-red-500'
+                                    }`}>
+                                      {item.difficulty.charAt(0).toUpperCase() + item.difficulty.slice(1)}
+                                    </span>
+                                    <span className="font-semibold">{item.count}</span>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    )}
+
+                    {/* Flashcards Breakdown */}
+                    {safeStats.flashcards > 0 && (
+                      <Card>
+                        <CardHeader>
+                          <CardTitle className="flex items-center gap-2">
+                            <Upload className="h-5 w-5" />
+                            Flashcards Breakdown ({safeStats.flashcards} total)
+                          </CardTitle>
+                          <CardDescription>
+                            Distribution of flashcards by chapter, section, and difficulty level
+                          </CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div>
+                              <h4 className="font-semibold mb-3">By Chapter</h4>
+                              <div className="space-y-2">
+                                {safeStats.breakdowns?.flashcards?.byChapter?.map((item: any, index: number) => (
+                                  <div key={index} className="flex justify-between items-center p-2 bg-muted rounded">
+                                    <span className="text-sm">{item.category}</span>
+                                    <span className="font-semibold">{item.count}</span>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                            
+                            <div>
+                              <h4 className="font-semibold mb-3">By Section</h4>
+                              <div className="space-y-2">
+                                {safeStats.breakdowns?.flashcards?.bySection?.map((item: any, index: number) => (
+                                  <div key={index} className="flex justify-between items-center p-2 bg-muted rounded">
+                                    <span className="text-sm">{item.codeReference}</span>
+                                    <span className="font-semibold">{item.count}</span>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                            
+                            <div>
+                              <h4 className="font-semibold mb-3">By Difficulty</h4>
+                              <div className="space-y-2">
+                                {safeStats.breakdowns?.flashcards?.byDifficulty?.map((item: any, index: number) => (
+                                  <div key={index} className="flex justify-between items-center p-2 bg-muted rounded">
+                                    <span className={`text-sm px-2 py-1 rounded text-white ${
+                                      item.difficulty === 'easy' ? 'bg-green-500' :
+                                      item.difficulty === 'hard' ? 'bg-orange-500' :
+                                      'bg-red-500'
+                                    }`}>
+                                      {item.difficulty ? item.difficulty.charAt(0).toUpperCase() + item.difficulty.slice(1) : 'Unknown'}
+                                    </span>
+                                    <span className="font-semibold">{item.count}</span>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    )}
+                  </div>
+                )}
               </div>
             </TabsContent>
 
