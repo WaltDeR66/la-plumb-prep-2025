@@ -63,7 +63,17 @@ export default function InteractiveQuiz({ section, contentId, title, onComplete 
         headers: { "Content-Type": "application/json" },
       });
       if (!response.ok) throw new Error("Failed to start quiz");
-      return response.json();
+      const data = await response.json();
+      
+      // DEBUG: Log what we actually receive
+      console.log("🔍 Quiz data received:", {
+        totalQuestions: data.questions?.length,
+        firstQuestion: data.questions?.[0],
+        firstQuestionText: data.questions?.[0]?.question,
+        sampleFields: data.questions?.[0] ? Object.keys(data.questions[0]) : []
+      });
+      
+      return data;
     },
   });
 
