@@ -1950,13 +1950,12 @@ export class DatabaseStorage implements IStorage {
 
   // Get questions filtered by courseId (for course statistics)
   async getQuestionsByCourse(courseId: string): Promise<any[]> {
+    // Since competitionQuestions don't have courseId, return all active questions for now
+    // TODO: Add proper course-question mapping based on codeReference or category
     return await db
       .select()
       .from(competitionQuestions)
-      .where(and(
-        eq(competitionQuestions.isActive, true),
-        eq(competitionQuestions.courseId, courseId)
-      ))
+      .where(eq(competitionQuestions.isActive, true))
       .orderBy(competitionQuestions.createdAt);
   }
 
