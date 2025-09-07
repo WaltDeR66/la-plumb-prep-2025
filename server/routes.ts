@@ -5675,10 +5675,10 @@ Start your journey at laplumbprep.com/courses
     }
     
     try {
-      const { courseId, chapter, section, difficulty, podcasts } = req.body;
+      const { courseId, episodes } = req.body;
       
-      if (!courseId || !podcasts || !Array.isArray(podcasts)) {
-        return res.status(400).json({ error: "courseId and podcasts array are required" });
+      if (!courseId || !episodes || !Array.isArray(episodes)) {
+        return res.status(400).json({ error: "courseId and episodes array are required" });
       }
       
       // Helper function to extract chapter number from chapter string
@@ -5688,18 +5688,33 @@ Start your journey at laplumbprep.com/courses
         return match ? parseInt(match[1]) : 1;
       };
 
-      // Create podcasts using the values from the interface
+      // Create podcasts using episode data from the frontend
       const createdPodcasts = await Promise.all(
-        podcasts.map((podcast: any) => {
+        episodes.map((episode: any) => {
+          // Build podcast content object with segments format expected by the player
+          const podcastContent = {
+            title: episode.title,
+            transcript: episode.transcript,
+            duration: episode.duration,
+            wordCount: episode.wordCount,
+            episodeNumber: episode.episodeNumber,
+            type: 'podcast',
+            // Convert transcript to segments format for the podcast player
+            segments: episode.transcript.split('\n').map((line: string, index: number) => ({
+              speaker: index % 2 === 0 ? "host" : "guest",
+              text: line.trim()
+            })).filter((segment: any) => segment.text.length > 0)
+          };
+
           return storage.createCourseContent({
             courseId: courseId,
             type: 'podcast',
-            title: podcast.title,
-            content: podcast.content || podcast,
-            // Use values from the interface
-            chapter: extractChapterNumber(chapter || 'Chapter 1'),
-            section: parseInt(section) || 101,
-            difficulty: difficulty || 'easy'
+            title: episode.title,
+            content: podcastContent,
+            // Use values from episode or defaults
+            chapter: extractChapterNumber(episode.chapter || 'Chapter 1'),
+            section: parseInt(episode.section) || 101,
+            difficulty: episode.difficulty || 'easy'
           });
         })
       );
