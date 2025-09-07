@@ -190,8 +190,8 @@ export default function BulkFlashcardImport() {
           if (firstPartLines.length <= 3 && firstPart.length < 300) {
             flashcards.push({
               id: crypto.randomUUID(),
-              front: secondPart,
-              back: firstPart,
+              front: firstPart,
+              back: secondPart,
               createdAt: new Date(),
             });
           }
