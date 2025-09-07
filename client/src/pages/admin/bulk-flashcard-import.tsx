@@ -18,7 +18,7 @@ export default function BulkFlashcardImport() {
   const [selectedCourse, setSelectedCourse] = useState("");
   const [selectedChapter, setSelectedChapter] = useState("");
   const [selectedSection, setSelectedSection] = useState("");
-  const [selectedDifficulty, setSelectedDifficulty] = useState("medium");
+  const [selectedDifficulty, setSelectedDifficulty] = useState("easy");
   const [flashcardsText, setFlashcardsText] = useState("");
   const [previewFlashcards, setPreviewFlashcards] = useState<any[]>([]);
   const [importStatus, setImportStatus] = useState<"idle" | "parsing" | "previewing" | "importing" | "success">("idle");
