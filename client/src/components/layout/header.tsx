@@ -106,7 +106,7 @@ export default function Header() {
                     <DropdownMenuContent>
                       <DropdownMenuItem asChild>
                         <Link href="/pricing?course=journeyman" className="cursor-pointer">
-                          Louisiana Journeyman Prep
+                          Journeyman Prep
                         </Link>
                       </DropdownMenuItem>
                       <DropdownMenuItem asChild>
@@ -116,12 +116,12 @@ export default function Header() {
                       </DropdownMenuItem>
                       <DropdownMenuItem asChild>
                         <Link href="/pricing?course=natural-gas" className="cursor-pointer">
-                          Natural Gas Certification
+                          Natural Gas Prep
                         </Link>
                       </DropdownMenuItem>
                       <DropdownMenuItem asChild>
                         <Link href="/pricing?course=medical-gas" className="cursor-pointer">
-                          Medical Gas Installer
+                          Medical Gas Prep
                         </Link>
                       </DropdownMenuItem>
                       <DropdownMenuItem asChild>
@@ -233,7 +233,7 @@ export default function Header() {
                               className="block text-sm font-medium transition-colors hover:text-primary cursor-pointer text-muted-foreground"
                               onClick={() => setIsOpen(false)}
                             >
-                              Louisiana Journeyman Prep
+                              Journeyman Prep
                             </span>
                           </Link>
                           <Link href="/pricing?course=backflow">
@@ -249,7 +249,7 @@ export default function Header() {
                               className="block text-sm font-medium transition-colors hover:text-primary cursor-pointer text-muted-foreground"
                               onClick={() => setIsOpen(false)}
                             >
-                              Natural Gas Certification
+                              Natural Gas Prep
                             </span>
                           </Link>
                           <Link href="/pricing?course=medical-gas">
@@ -257,7 +257,7 @@ export default function Header() {
                               className="block text-sm font-medium transition-colors hover:text-primary cursor-pointer text-muted-foreground"
                               onClick={() => setIsOpen(false)}
                             >
-                              Medical Gas Installer
+                              Medical Gas Prep
                             </span>
                           </Link>
                           <Link href="/pricing?course=master-plumber">
