@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Menu, Building2, ShoppingCart, ChevronDown } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import { Link, useLocation } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
@@ -109,25 +110,29 @@ export default function Header() {
                           Journeyman Prep
                         </Link>
                       </DropdownMenuItem>
-                      <DropdownMenuItem asChild>
-                        <Link href="/pricing?course=backflow" className="cursor-pointer">
-                          Backflow Prevention Prep
-                        </Link>
+                      <DropdownMenuItem className="cursor-default opacity-75">
+                        <div className="flex items-center justify-between w-full">
+                          <span>Backflow Prevention Prep</span>
+                          <Badge variant="secondary" className="ml-2 bg-yellow-100 text-yellow-800">Coming Soon</Badge>
+                        </div>
                       </DropdownMenuItem>
-                      <DropdownMenuItem asChild>
-                        <Link href="/pricing?course=natural-gas" className="cursor-pointer">
-                          Natural Gas Prep
-                        </Link>
+                      <DropdownMenuItem className="cursor-default opacity-75">
+                        <div className="flex items-center justify-between w-full">
+                          <span>Natural Gas Prep</span>
+                          <Badge variant="secondary" className="ml-2 bg-yellow-100 text-yellow-800">Coming Soon</Badge>
+                        </div>
                       </DropdownMenuItem>
-                      <DropdownMenuItem asChild>
-                        <Link href="/pricing?course=medical-gas" className="cursor-pointer">
-                          Medical Gas Prep
-                        </Link>
+                      <DropdownMenuItem className="cursor-default opacity-75">
+                        <div className="flex items-center justify-between w-full">
+                          <span>Medical Gas Prep</span>
+                          <Badge variant="secondary" className="ml-2 bg-yellow-100 text-yellow-800">Coming Soon</Badge>
+                        </div>
                       </DropdownMenuItem>
-                      <DropdownMenuItem asChild>
-                        <Link href="/pricing?course=master-plumber" className="cursor-pointer">
-                          Master Plumber Prep
-                        </Link>
+                      <DropdownMenuItem className="cursor-default opacity-75">
+                        <div className="flex items-center justify-between w-full">
+                          <span>Master Plumber Prep</span>
+                          <Badge variant="secondary" className="ml-2 bg-yellow-100 text-yellow-800">Coming Soon</Badge>
+                        </div>
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
@@ -236,38 +241,30 @@ export default function Header() {
                               Journeyman Prep
                             </span>
                           </Link>
-                          <Link href="/pricing?course=backflow">
-                            <span 
-                              className="block text-sm font-medium transition-colors hover:text-primary cursor-pointer text-muted-foreground"
-                              onClick={() => setIsOpen(false)}
-                            >
+                          <div className="flex items-center justify-between opacity-75">
+                            <span className="block text-sm font-medium text-muted-foreground">
                               Backflow Prevention Prep
                             </span>
-                          </Link>
-                          <Link href="/pricing?course=natural-gas">
-                            <span 
-                              className="block text-sm font-medium transition-colors hover:text-primary cursor-pointer text-muted-foreground"
-                              onClick={() => setIsOpen(false)}
-                            >
+                            <Badge variant="secondary" className="ml-2 bg-yellow-100 text-yellow-800 text-xs">Coming Soon</Badge>
+                          </div>
+                          <div className="flex items-center justify-between opacity-75">
+                            <span className="block text-sm font-medium text-muted-foreground">
                               Natural Gas Prep
                             </span>
-                          </Link>
-                          <Link href="/pricing?course=medical-gas">
-                            <span 
-                              className="block text-sm font-medium transition-colors hover:text-primary cursor-pointer text-muted-foreground"
-                              onClick={() => setIsOpen(false)}
-                            >
+                            <Badge variant="secondary" className="ml-2 bg-yellow-100 text-yellow-800 text-xs">Coming Soon</Badge>
+                          </div>
+                          <div className="flex items-center justify-between opacity-75">
+                            <span className="block text-sm font-medium text-muted-foreground">
                               Medical Gas Prep
                             </span>
-                          </Link>
-                          <Link href="/pricing?course=master-plumber">
-                            <span 
-                              className="block text-sm font-medium transition-colors hover:text-primary cursor-pointer text-muted-foreground"
-                              onClick={() => setIsOpen(false)}
-                            >
+                            <Badge variant="secondary" className="ml-2 bg-yellow-100 text-yellow-800 text-xs">Coming Soon</Badge>
+                          </div>
+                          <div className="flex items-center justify-between opacity-75">
+                            <span className="block text-sm font-medium text-muted-foreground">
                               Master Plumber Prep
                             </span>
-                          </Link>
+                            <Badge variant="secondary" className="ml-2 bg-yellow-100 text-yellow-800 text-xs">Coming Soon</Badge>
+                          </div>
                         </div>
                       </div>
                     );
