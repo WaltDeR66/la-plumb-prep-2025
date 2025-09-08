@@ -35,22 +35,54 @@ export default function ProductDetail() {
     enabled: !!params?.id,
   });
 
+  // Check if user is authenticated
+  const { data: user } = useQuery({
+    queryKey: ["/api/auth/me"],
+    retry: false,
+  });
+
   const addToCartMutation = useMutation({
     mutationFn: async ({ productId, quantity }: { productId: string; quantity: number }) => {
-      const response = await fetch("/api/cart", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ productId, quantity }),
-      });
-      if (!response.ok) throw new Error("Failed to add to cart");
-      return response.json();
+      // If user is authenticated, use API
+      if (user) {
+        const response = await fetch("/api/cart", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({ productId, quantity }),
+        });
+        if (!response.ok) throw new Error("Failed to add to cart");
+        return response.json();
+      } else {
+        // If not authenticated, use localStorage
+        const existingCart = JSON.parse(localStorage.getItem("guest-cart") || "[]");
+        const existingItem = existingCart.find((item: any) => item.productId === productId);
+        
+        if (existingItem) {
+          existingItem.quantity += quantity;
+        } else {
+          existingCart.push({ 
+            productId, 
+            quantity, 
+            product: product,
+            addedAt: new Date().toISOString() 
+          });
+        }
+        
+        localStorage.setItem("guest-cart", JSON.stringify(existingCart));
+        return { success: true };
+      }
     },
     onSuccess: () => {
       toast({
         title: "Added to cart",
-        description: "Product has been added to your cart successfully.",
+        description: user ? 
+          "Product has been added to your cart successfully." :
+          "Product added to cart. Sign in to save your cart across devices.",
       });
-      queryClient.invalidateQueries({ queryKey: ["/api/cart"] });
+      if (user) {
+        queryClient.invalidateQueries({ queryKey: ["/api/cart"] });
+      }
     },
     onError: (error: any) => {
       toast({
