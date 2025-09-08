@@ -2530,6 +2530,68 @@ Start your journey at laplumbprep.com/courses
     }
   });
 
+  // Generate AI-powered study plan
+  app.post("/api/generate-study-plan/:sectionNumber", async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+
+    // Admin-only endpoint for now
+    const user = req.user as any;
+    const isAdmin = user.email?.includes('admin') || user.email === 'admin@latrainer.com' || user.email === 'admin@laplumbprep.com';
+    if (!isAdmin) {
+      return res.status(403).json({ message: "Admin access required" });
+    }
+
+    try {
+      const { sectionNumber } = req.params;
+      const { courseId, duration = 45 } = req.body;
+      
+      if (!courseId) {
+        return res.status(400).json({ message: "Course ID is required" });
+      }
+
+      // Get the lesson content for this section to base the study plan on
+      const courseContent = await storage.getCourseContent(courseId);
+      const lessonContent = courseContent.find(item => 
+        item.section === sectionNumber && item.type === 'lesson'
+      );
+
+      if (!lessonContent) {
+        return res.status(404).json({ message: `No lesson content found for Section ${sectionNumber}` });
+      }
+
+      // Extract text content for AI processing
+      let textContent = '';
+      if (lessonContent.content) {
+        const content = lessonContent.content as any;
+        if (content.extracted?.content) {
+          textContent = content.extracted.content;
+        } else if (content.extracted?.text) {
+          textContent = content.extracted.text;
+        } else {
+          textContent = JSON.stringify(content);
+        }
+      }
+
+      if (!textContent || textContent.length < 100) {
+        return res.status(400).json({ message: "Insufficient lesson content to generate study plan" });
+      }
+
+      const { generateStudyPlan } = await import("./openai");
+      const studyPlan = await generateStudyPlan(sectionNumber, textContent, duration);
+      
+      res.json({
+        sectionNumber,
+        studyPlan,
+        basedOnLesson: lessonContent.title
+      });
+    } catch (error: any) {
+      console.error("Study plan generation error:", error);
+      res.status(500).json({ message: "Failed to generate study plan: " + error.message });
+    }
+  });
+
   // NOTE: AI chat import route removed - system now uses pure AI approach
   // No longer needed since we generate all responses dynamically with GPT-5
 
