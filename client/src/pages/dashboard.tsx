@@ -493,7 +493,7 @@ function SubscriptionManagement() {
   ];
 
   const currentPlan = pricingPlans.find(plan => plan.tier === user?.subscriptionTier) || pricingPlans[0];
-  const hasActiveSubscription = subscriptionStatus?.hasActiveSubscription;
+  const hasActiveSubscription = subscriptionStatus?.hasActiveSubscription || false;
 
   return (
     <div className="space-y-8">
@@ -523,7 +523,7 @@ function SubscriptionManagement() {
               {subscriptionStatus?.currentPeriodEnd && (
                 <p className="text-sm text-muted-foreground">
                   {hasActiveSubscription ? "Renews" : "Expires"} on{" "}
-                  {new Date(subscriptionStatus.currentPeriodEnd * 1000).toLocaleDateString()}
+                  {new Date((subscriptionStatus?.currentPeriodEnd || 0) * 1000).toLocaleDateString()}
                 </p>
               )}
 
