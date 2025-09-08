@@ -2166,19 +2166,30 @@ export class DatabaseStorage implements IStorage {
     };
   }
 
-  // Study Notes breakdown - simplified to just show total count
+  // Study Notes breakdown - chapter/section only, no difficulty
   async getStudySessionBreakdowns(courseId: string): Promise<any> {
-    const totalCount = await db
+    const chapters = await db
       .select({
+        chapter: courseContent.chapter,
         count: sql<number>`COUNT(*)`
       })
       .from(courseContent)
       .where(and(eq(courseContent.courseId, courseId), eq(courseContent.type, 'study-notes')))
-      .then(result => result[0]?.count || 0);
+      .groupBy(courseContent.chapter);
+
+    const sections = await db
+      .select({
+        section: courseContent.section,
+        count: sql<number>`COUNT(*)`
+      })
+      .from(courseContent)
+      .where(and(eq(courseContent.courseId, courseId), eq(courseContent.type, 'study-notes')))
+      .groupBy(courseContent.section);
 
     return {
-      totalCount: totalCount,
-      // No breakdowns - just show the simple count in the UI
+      byChapter: chapters.map(item => ({ category: `Chapter ${item.chapter}`, count: item.count })),
+      bySection: sections.map(item => ({ codeReference: `Section ${item.section}`, count: item.count }))
+      // No byDifficulty for study notes - they're informational content, not difficulty-based
     };
   }
 

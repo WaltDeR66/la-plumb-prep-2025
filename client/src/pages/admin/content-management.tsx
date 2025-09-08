@@ -343,22 +343,43 @@ export default function ContentManagement() {
                     )}
 
 
-                    {/* Study Notes - Simplified */}
+                    {/* Study Notes Breakdown */}
                     {safeStats.studyNotes > 0 && (
                       <Card>
                         <CardHeader>
                           <CardTitle className="flex items-center gap-2">
                             <FileText className="h-5 w-5" />
-                            Study Notes ({safeStats.studyNotes} total)
+                            Study Notes Breakdown ({safeStats.studyNotes} total)
                           </CardTitle>
                           <CardDescription>
-                            Comprehensive study notes for course content
+                            Distribution of study notes by chapter and section
                           </CardDescription>
                         </CardHeader>
                         <CardContent>
-                          <div className="text-center">
-                            <div className="text-4xl font-bold text-blue-600 mb-2">{safeStats.studyNotes}</div>
-                            <p className="text-muted-foreground">Study notes available</p>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                              <h4 className="font-semibold mb-3">By Chapter</h4>
+                              <div className="space-y-2">
+                                {safeStats.breakdowns?.studyNotes?.byChapter?.map((item: any, index: number) => (
+                                  <div key={index} className="flex justify-between items-center p-2 bg-muted rounded">
+                                    <span className="text-sm">{item.category}</span>
+                                    <span className="font-semibold">{item.count}</span>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                            
+                            <div>
+                              <h4 className="font-semibold mb-3">By Section</h4>
+                              <div className="space-y-2">
+                                {safeStats.breakdowns?.studyNotes?.bySection?.map((item: any, index: number) => (
+                                  <div key={index} className="flex justify-between items-center p-2 bg-muted rounded">
+                                    <span className="text-sm">{item.codeReference}</span>
+                                    <span className="font-semibold">{item.count}</span>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
                           </div>
                         </CardContent>
                       </Card>
