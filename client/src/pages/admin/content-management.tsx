@@ -184,17 +184,6 @@ export default function ContentManagement() {
                   </Card>
                   <Card>
                     <CardHeader className="flex flex-row items-center space-y-0 pb-2">
-                      <CardTitle className="text-sm font-medium">Study Plans</CardTitle>
-                      <Clock className="h-4 w-4 ml-auto text-muted-foreground" />
-                    </CardHeader>
-                    <CardContent>
-                      <div className="text-2xl font-bold" data-testid="text-studyplans-count">
-                        {safeStats.studyPlans}
-                      </div>
-                    </CardContent>
-                  </Card>
-                  <Card>
-                    <CardHeader className="flex flex-row items-center space-y-0 pb-2">
                       <CardTitle className="text-sm font-medium">Podcasts</CardTitle>
                       <Mic className="h-4 w-4 ml-auto text-muted-foreground" />
                     </CardHeader>
