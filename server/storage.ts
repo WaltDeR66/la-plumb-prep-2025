@@ -2166,47 +2166,19 @@ export class DatabaseStorage implements IStorage {
     };
   }
 
+  // Study Notes breakdown - simplified to just show total count
   async getStudySessionBreakdowns(courseId: string): Promise<any> {
-    const chapters = await db
+    const totalCount = await db
       .select({
-        chapter: courseContent.chapter,
         count: sql<number>`COUNT(*)`
       })
       .from(courseContent)
       .where(and(eq(courseContent.courseId, courseId), eq(courseContent.type, 'study-notes')))
-      .groupBy(courseContent.chapter);
-
-    const sections = await db
-      .select({
-        section: courseContent.section,
-        count: sql<number>`COUNT(*)`
-      })
-      .from(courseContent)
-      .where(and(eq(courseContent.courseId, courseId), eq(courseContent.type, 'study-notes')))
-      .groupBy(courseContent.section);
-
-    // Get actual difficulty breakdown for study notes
-    const difficultyResults = await db
-      .select({
-        difficulty: courseContent.difficulty,
-        count: sql<number>`COUNT(*)`
-      })
-      .from(courseContent)
-      .where(and(eq(courseContent.courseId, courseId), eq(courseContent.type, 'study-notes')))
-      .groupBy(courseContent.difficulty);
-
-    // Ensure all difficulty levels are represented
-    const difficultyMap = new Map(difficultyResults.map(d => [d.difficulty, d.count]));
-    const difficulty = [
-      { difficulty: 'easy', count: difficultyMap.get('easy') || 0 },
-      { difficulty: 'hard', count: difficultyMap.get('hard') || 0 },
-      { difficulty: 'very_hard', count: difficultyMap.get('very_hard') || 0 }
-    ];
+      .then(result => result[0]?.count || 0);
 
     return {
-      byChapter: chapters.map(item => ({ category: `Chapter ${item.chapter}`, count: item.count })),
-      bySection: sections.map(item => ({ codeReference: `Section ${item.section}`, count: item.count })),
-      byDifficulty: difficulty
+      totalCount: totalCount,
+      // No breakdowns - just show the simple count in the UI
     };
   }
 
