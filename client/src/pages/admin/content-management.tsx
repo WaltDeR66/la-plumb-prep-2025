@@ -184,6 +184,17 @@ export default function ContentManagement() {
                   </Card>
                   <Card>
                     <CardHeader className="flex flex-row items-center space-y-0 pb-2">
+                      <CardTitle className="text-sm font-medium">Study Plans</CardTitle>
+                      <Clock className="h-4 w-4 ml-auto text-muted-foreground" />
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-2xl font-bold" data-testid="text-studyplans-count">
+                        {safeStats.studyPlans}
+                      </div>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardHeader className="flex flex-row items-center space-y-0 pb-2">
                       <CardTitle className="text-sm font-medium">Podcasts</CardTitle>
                       <Mic className="h-4 w-4 ml-auto text-muted-foreground" />
                     </CardHeader>
@@ -207,7 +218,7 @@ export default function ContentManagement() {
                 </div>
 
                 {/* Detailed Breakdowns */}
-                {(safeStats.questions > 0 || safeStats.flashcards > 0 || safeStats.lessons > 0 || safeStats.studyNotes > 0 || safeStats.podcasts > 0) && (
+                {(safeStats.questions > 0 || safeStats.flashcards > 0 || safeStats.lessons > 0 || safeStats.studyNotes > 0 || safeStats.studyPlans > 0 || safeStats.podcasts > 0) && (
                   <div className="space-y-6">
                     <h2 className="text-2xl font-bold">Content Breakdowns</h2>
                     
@@ -374,6 +385,65 @@ export default function ContentManagement() {
                       </Card>
                     )}
 
+                    {/* Study Plans Breakdown */}
+                    {safeStats.studyPlans > 0 && (
+                      <Card>
+                        <CardHeader>
+                          <CardTitle className="flex items-center gap-2">
+                            <Clock className="h-5 w-5" />
+                            Study Plans Breakdown ({safeStats.studyPlans} total)
+                          </CardTitle>
+                          <CardDescription>
+                            Distribution of study plans by chapter and section
+                          </CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div>
+                              <h4 className="font-semibold mb-3">By Chapter</h4>
+                              <div className="space-y-2">
+                                {safeStats.breakdowns?.studyPlans?.byChapter?.map((item: any, index: number) => (
+                                  <div key={index} className="flex justify-between items-center p-2 bg-muted rounded">
+                                    <span className="text-sm">{item.category}</span>
+                                    <span className="font-semibold">{item.count}</span>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                            
+                            <div>
+                              <h4 className="font-semibold mb-3">By Section</h4>
+                              <div className="space-y-2">
+                                {safeStats.breakdowns?.studyPlans?.bySection?.map((item: any, index: number) => (
+                                  <div key={index} className="flex justify-between items-center p-2 bg-muted rounded">
+                                    <span className="text-sm">{item.codeReference}</span>
+                                    <span className="font-semibold">{item.count}</span>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                            
+                            <div>
+                              <h4 className="font-semibold mb-3">By Difficulty</h4>
+                              <div className="space-y-2">
+                                {safeStats.breakdowns?.studyPlans?.byDifficulty?.map((item: any, index: number) => (
+                                  <div key={index} className="flex justify-between items-center p-2 bg-muted rounded">
+                                    <span className={`text-sm px-2 py-1 rounded text-white ${
+                                      item.difficulty === 'easy' ? 'bg-green-500' :
+                                      item.difficulty === 'hard' ? 'bg-orange-500' :
+                                      'bg-red-500'
+                                    }`}>
+                                      {item.difficulty ? item.difficulty.charAt(0).toUpperCase() + item.difficulty.slice(1).replace('_', ' ') : 'Unknown'}
+                                    </span>
+                                    <span className="font-semibold">{item.count}</span>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    )}
 
                     {/* Podcasts Breakdown */}
                     {safeStats.podcasts > 0 && (
