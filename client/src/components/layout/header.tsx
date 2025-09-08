@@ -149,11 +149,6 @@ export default function Header() {
                     </DropdownMenuTrigger>
                     <DropdownMenuContent>
                       <DropdownMenuItem asChild>
-                        <Link href="/study-companion" className="cursor-pointer">
-                          AI Mentor Chat
-                        </Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem asChild>
                         <Link href="/tools" className="cursor-pointer">
                           Photo Code Checker
                         </Link>
@@ -308,14 +303,6 @@ export default function Header() {
                       <div key={item.name} className="space-y-2">
                         <span className="text-lg font-medium text-foreground">AI Tools</span>
                         <div className="ml-4 space-y-2">
-                          <Link href="/study-companion">
-                            <span 
-                              className="block text-sm font-medium transition-colors hover:text-primary cursor-pointer text-muted-foreground"
-                              onClick={() => setIsOpen(false)}
-                            >
-                              AI Mentor Chat
-                            </span>
-                          </Link>
                           <Link href="/tools">
                             <span 
                               className="block text-sm font-medium transition-colors hover:text-primary cursor-pointer text-muted-foreground"
