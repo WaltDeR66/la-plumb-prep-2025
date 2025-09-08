@@ -50,11 +50,11 @@ export default function Header() {
                 <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
                   <Building2 className="w-6 h-6 text-primary-foreground" />
                 </div>
-                <div>
-                  <h1 className="text-xl font-bold text-primary" data-testid="brand-name">
+                <div className="min-w-0 flex-shrink-0">
+                  <h1 className="text-xl font-bold text-primary whitespace-nowrap" data-testid="brand-name">
                     LA Plumb Prep
                   </h1>
-                  <p className="text-xs text-muted-foreground" data-testid="brand-tagline">
+                  <p className="text-xs text-muted-foreground whitespace-nowrap" data-testid="brand-tagline">
                     Official State Prep Course
                   </p>
                 </div>
