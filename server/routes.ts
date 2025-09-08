@@ -2536,11 +2536,16 @@ Start your journey at laplumbprep.com/courses
       return res.status(401).json({ message: "Not authenticated" });
     }
 
-    // Admin-only endpoint for now
+    // Allow authenticated users to generate study plans
     const user = req.user as any;
     const isAdmin = user.email?.includes('admin') || user.email === 'admin@latrainer.com' || user.email === 'admin@laplumbprep.com';
+    
+    // Check if user has active subscription (unless admin)
     if (!isAdmin) {
-      return res.status(403).json({ message: "Admin access required" });
+      const hasActiveSubscription = user.subscriptionTier && user.subscriptionTier !== 'free' && user.subscriptionStatus === 'active';
+      if (!hasActiveSubscription) {
+        return res.status(402).json({ message: "Active subscription required to generate AI study plans" });
+      }
     }
 
     try {

@@ -6,6 +6,11 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useToast } from "@/hooks/use-toast";
+import { apiRequest } from "@/lib/queryClient";
+import { useState } from "react";
 import AIMentorChat from "@/components/ai-mentor-chat";
 import { 
   BookOpen, 
@@ -19,7 +24,9 @@ import {
   HelpCircle,
   ChevronRight,
   ArrowLeft,
-  Lock
+  Lock,
+  Brain,
+  Plus
 } from "lucide-react";
 
 // Map friendly course identifiers to database UUIDs
@@ -422,45 +429,54 @@ export default function Lesson() {
           })}
         </TabsContent>
 
-        <TabsContent value="study-plans" className="space-y-4">
-          <div className="text-center py-8">
-            <div className="max-w-md mx-auto space-y-4">
-              <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
-                <Clock className="h-8 w-8 text-primary" />
-              </div>
-              <h3 className="text-xl font-semibold">Timed Study Sessions</h3>
-              <p className="text-muted-foreground text-sm mb-6">
-                Choose your study duration and start a structured, timed learning session.
-              </p>
-              <div className="space-y-4">
-                <Select onValueChange={(duration) => navigate(`/study-plans/${courseId}/${duration}/0`)}>
-                  <SelectTrigger className="w-full" data-testid="tab-study-plan-duration-select">
-                    <SelectValue placeholder="Select study duration" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="15" data-testid="tab-option-15-min">
-                      <div className="flex items-center gap-2">
-                        <Clock className="h-4 w-4" />
-                        15 Minutes - Quick Review
-                      </div>
-                    </SelectItem>
-                    <SelectItem value="30" data-testid="tab-option-30-min">
-                      <div className="flex items-center gap-2">
-                        <Clock className="h-4 w-4" />
-                        30 Minutes - Comprehensive Study
-                      </div>
-                    </SelectItem>
-                    <SelectItem value="60" data-testid="tab-option-60-min">
-                      <div className="flex items-center gap-2">
-                        <Clock className="h-4 w-4" />
-                        1 Hour - Deep Dive Learning
-                      </div>
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
-                <p className="text-xs text-muted-foreground">
-                  Structured content with timed sections and automatic progression
+        <TabsContent value="study-plans" className="space-y-6">
+          {/* AI Study Plan Generation */}
+          <StudentAIStudyPlanGenerator 
+            courseId={resolvedCourseId} 
+            sectionNumber={section} 
+          />
+          
+          {/* Pre-made Study Plans */}
+          <div className="border-t pt-6">
+            <div className="text-center py-4">
+              <div className="max-w-md mx-auto space-y-4">
+                <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
+                  <Clock className="h-6 w-6 text-primary" />
+                </div>
+                <h3 className="text-lg font-semibold">Pre-Made Study Sessions</h3>
+                <p className="text-muted-foreground text-sm mb-4">
+                  Choose from structured, timed learning sessions.
                 </p>
+                <div className="space-y-4">
+                  <Select onValueChange={(duration) => navigate(`/study-plans/${courseId}/${duration}/0`)}>
+                    <SelectTrigger className="w-full" data-testid="tab-study-plan-duration-select">
+                      <SelectValue placeholder="Select study duration" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="15" data-testid="tab-option-15-min">
+                        <div className="flex items-center gap-2">
+                          <Clock className="h-4 w-4" />
+                          15 Minutes - Quick Review
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="30" data-testid="tab-option-30-min">
+                        <div className="flex items-center gap-2">
+                          <Clock className="h-4 w-4" />
+                          30 Minutes - Comprehensive Study
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="60" data-testid="tab-option-60-min">
+                        <div className="flex items-center gap-2">
+                          <Clock className="h-4 w-4" />
+                          1 Hour - Deep Dive Learning
+                        </div>
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <p className="text-xs text-muted-foreground">
+                    Structured content with timed sections and automatic progression
+                  </p>
+                </div>
               </div>
             </div>
           </div>
@@ -495,6 +511,179 @@ export default function Lesson() {
           </Link>
         </Button>
       </div>
+    </div>
+  );
+}
+
+function StudentAIStudyPlanGenerator({ 
+  courseId, 
+  sectionNumber 
+}: { 
+  courseId: string; 
+  sectionNumber: string; 
+}) {
+  const { toast } = useToast();
+  const [duration, setDuration] = useState("45");
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [generatedPlan, setGeneratedPlan] = useState<any>(null);
+  const [showPlan, setShowPlan] = useState(false);
+
+  const generateStudyPlan = async () => {
+    if (!courseId || !sectionNumber) {
+      toast({
+        title: "Missing information",
+        description: "Unable to generate study plan for this section",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setIsGenerating(true);
+    setGeneratedPlan(null);
+
+    try {
+      const response = await apiRequest("POST", `/api/generate-study-plan/${sectionNumber}`, {
+        courseId,
+        duration: parseInt(duration)
+      });
+
+      setGeneratedPlan(response);
+      setShowPlan(true);
+      toast({
+        title: "AI Study Plan Generated!",
+        description: `Your personalized ${duration}-minute study plan is ready`,
+        variant: "default"
+      });
+    } catch (error: any) {
+      console.error("Study plan generation error:", error);
+      if (error.status === 402) {
+        toast({
+          title: "Subscription Required",
+          description: "Upgrade your plan to generate personalized AI study plans",
+          variant: "destructive"
+        });
+      } else {
+        toast({
+          title: "Generation Failed",
+          description: error.message || "Failed to generate study plan. Please try again.",
+          variant: "destructive"
+        });
+      }
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  const startStudyPlan = () => {
+    if (generatedPlan) {
+      // Scroll to top and show the plan
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      {/* AI Study Plan Header */}
+      <div className="text-center">
+        <div className="w-16 h-16 rounded-full bg-blue-100 flex items-center justify-center mx-auto mb-4">
+          <Brain className="h-8 w-8 text-blue-600" />
+        </div>
+        <h3 className="text-xl font-semibold mb-2">AI-Generated Study Plan</h3>
+        <p className="text-muted-foreground text-sm max-w-md mx-auto mb-6">
+          Generate a personalized study plan based on this section's content using AI
+        </p>
+      </div>
+
+      {/* Configuration */}
+      <Card className="max-w-md mx-auto">
+        <CardContent className="p-6">
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="duration" className="text-sm font-medium">
+                Study Duration
+              </Label>
+              <Select value={duration} onValueChange={setDuration} disabled={isGenerating}>
+                <SelectTrigger className="w-full mt-2">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="30">30 minutes</SelectItem>
+                  <SelectItem value="45">45 minutes</SelectItem>
+                  <SelectItem value="60">60 minutes</SelectItem>
+                  <SelectItem value="90">90 minutes</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <Button
+              onClick={generateStudyPlan}
+              disabled={isGenerating}
+              className="w-full"
+              data-testid="button-generate-ai-study-plan"
+            >
+              {isGenerating ? (
+                <>
+                  <Brain className="h-4 w-4 mr-2 animate-spin" />
+                  Generating Your Plan...
+                </>
+              ) : (
+                <>
+                  <Brain className="h-4 w-4 mr-2" />
+                  Generate AI Study Plan
+                </>
+              )}
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Generated Study Plan Display */}
+      {generatedPlan && showPlan && (
+        <Card className="max-w-4xl mx-auto border-2 border-green-200 bg-green-50/50">
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle className="text-green-800 flex items-center gap-2">
+                  <Brain className="h-5 w-5" />
+                  {generatedPlan.studyPlan.title}
+                </CardTitle>
+                <p className="text-green-700 text-sm mt-2">
+                  Duration: {generatedPlan.studyPlan.estimatedDuration} minutes • 
+                  Based on: {generatedPlan.basedOnLesson}
+                </p>
+              </div>
+              <Button variant="outline" size="sm" onClick={() => setShowPlan(false)}>
+                ×
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="bg-white rounded-lg p-4 max-h-96 overflow-y-auto mb-4">
+              <div className="prose prose-sm max-w-none">
+                <div className="whitespace-pre-wrap text-sm leading-relaxed">
+                  {generatedPlan.studyPlan.content}
+                </div>
+              </div>
+            </div>
+            
+            <div className="flex gap-3 justify-center">
+              <Button onClick={startStudyPlan} className="flex items-center gap-2">
+                <Play className="h-4 w-4" />
+                Start Study Session
+              </Button>
+              <Button 
+                variant="outline"
+                onClick={() => {
+                  setGeneratedPlan(null);
+                  setShowPlan(false);
+                }}
+              >
+                Generate New Plan
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }
