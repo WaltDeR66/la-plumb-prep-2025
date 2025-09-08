@@ -63,7 +63,7 @@ export default function Header() {
           </Link>
           
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center space-x-8" data-testid="desktop-nav">
+          <nav className="hidden md:flex items-center space-x-8 mr-8" data-testid="desktop-nav">
             {navigation.map((item) => (
               <Link key={item.name} href={item.href}>
                 <span 
@@ -79,7 +79,7 @@ export default function Header() {
           </nav>
           
           {/* Desktop Auth Buttons */}
-          <div className="hidden md:flex items-center space-x-12">
+          <div className="hidden md:flex items-center space-x-4">
             <Link href="/bulk-enrollment">
               <Button variant="outline" size="sm" data-testid="button-bulk-enrollment" className="flex flex-col h-auto py-1 px-3">
                 <span className="text-xs leading-tight">Bulk</span>
