@@ -4783,7 +4783,7 @@ Start your journey at laplumbprep.com/courses
       // Get detailed breakdowns
       const questionBreakdowns = await storage.getQuestionBreakdowns(courseId);
       const flashcardBreakdowns = await storage.getFlashcardBreakdowns(courseId);
-      const lessonBreakdowns = await storage.getCourseContentBreakdowns(courseId);
+      // Lessons breakdown removed - not needed in admin interface
       const studyNotesBreakdowns = await storage.getStudySessionBreakdowns(courseId);
       const studyPlansBreakdowns = await storage.getEnrollmentBreakdowns(courseId);
       const podcastBreakdowns = await storage.getUserProgressBreakdowns(courseId);
@@ -4801,7 +4801,7 @@ Start your journey at laplumbprep.com/courses
         breakdowns: {
           questions: questionBreakdowns,
           flashcards: flashcardBreakdowns,
-          lessons: lessonBreakdowns,
+          // lessons: lessonBreakdowns, // Removed - lessons don't need breakdown display
           studyNotes: studyNotesBreakdowns,
           studyPlans: studyPlansBreakdowns,
           podcasts: podcastBreakdowns
