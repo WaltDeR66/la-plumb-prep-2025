@@ -415,7 +415,7 @@ function SubscriptionManagement() {
     queryKey: ["/api/auth/me"],
   });
 
-  const { data: subscriptionStatus } = useQuery({
+  const { data: subscriptionStatus } = useQuery<any>({
     queryKey: ['/api/subscription-status'],
     retry: false,
   });
