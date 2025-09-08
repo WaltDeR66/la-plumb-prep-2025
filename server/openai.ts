@@ -519,6 +519,68 @@ export async function generateNumberedFittingPDF(
   }
 }
 
+export async function generateStudyPlan(
+  sectionNumber: string,
+  lessonContent: string,
+  duration: number = 45
+): Promise<{
+  title: string;
+  content: string;
+  estimatedDuration: number;
+}> {
+  try {
+    const response = await openai.chat.completions.create({
+      // the newest OpenAI model is "gpt-5" which was released August 7, 2025. do not change this unless explicitly requested by the user
+      model: "gpt-4o",
+      messages: [
+        {
+          role: "system",
+          content: `You are an expert Louisiana plumbing instructor creating comprehensive study plans for Louisiana State Plumbing Code certification. Create a structured study plan that helps students master the material effectively.
+
+          Your study plans should:
+          - Be practical and time-efficient
+          - Include active learning techniques  
+          - Reference specific LSPC section numbers
+          - Include real-world applications
+          - Have clear time segments with activities
+          - Include review and practice opportunities
+          - Be engaging and motivational
+          
+          Format with clear sections using markdown:
+          - Introduction with objectives
+          - Time-segmented learning activities (**Minutes X-Y: Activity Name**)
+          - Key concepts to master
+          - Practice questions or scenarios
+          - Review summary
+          - Next steps
+          
+          Respond with JSON: {
+            "title": string,
+            "content": string (markdown formatted),
+            "estimatedDuration": number (minutes)
+          }`
+        },
+        {
+          role: "user",
+          content: `Create a comprehensive ${duration}-minute study plan for Louisiana State Plumbing Code Section ${sectionNumber}.
+
+          Base the study plan on this lesson content:
+          ${lessonContent.substring(0, 2000)}...
+          
+          The study plan should be self-contained and help students thoroughly understand Section ${sectionNumber} concepts, regulations, and practical applications.`
+        }
+      ],
+      response_format: { type: "json_object" },
+      max_tokens: 2000,
+      temperature: 0.7,
+    });
+
+    return JSON.parse(response.choices[0].message.content || "{}");
+  } catch (error) {
+    throw new Error("Failed to generate study plan: " + (error as Error).message);
+  }
+}
+
 export async function reviewJobPosting(
   title: string, 
   description: string, 
