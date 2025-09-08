@@ -111,7 +111,7 @@ export default function Header() {
                       </DropdownMenuItem>
                       <DropdownMenuItem asChild>
                         <Link href="/pricing?course=backflow" className="cursor-pointer">
-                          Backflow Prevention Training
+                          Backflow Prevention Prep
                         </Link>
                       </DropdownMenuItem>
                       <DropdownMenuItem asChild>
@@ -241,7 +241,7 @@ export default function Header() {
                               className="block text-sm font-medium transition-colors hover:text-primary cursor-pointer text-muted-foreground"
                               onClick={() => setIsOpen(false)}
                             >
-                              Backflow Prevention Training
+                              Backflow Prevention Prep
                             </span>
                           </Link>
                           <Link href="/pricing?course=natural-gas">
