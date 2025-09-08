@@ -435,51 +435,6 @@ export default function Lesson() {
             courseId={resolvedCourseId} 
             sectionNumber={section} 
           />
-          
-          {/* Pre-made Study Plans */}
-          <div className="border-t pt-6">
-            <div className="text-center py-4">
-              <div className="max-w-md mx-auto space-y-4">
-                <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
-                  <Clock className="h-6 w-6 text-primary" />
-                </div>
-                <h3 className="text-lg font-semibold">Pre-Made Study Sessions</h3>
-                <p className="text-muted-foreground text-sm mb-4">
-                  Choose from structured, timed learning sessions.
-                </p>
-                <div className="space-y-4">
-                  <Select onValueChange={(duration) => navigate(`/study-plans/${courseId}/${duration}/0`)}>
-                    <SelectTrigger className="w-full" data-testid="tab-study-plan-duration-select">
-                      <SelectValue placeholder="Select study duration" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="15" data-testid="tab-option-15-min">
-                        <div className="flex items-center gap-2">
-                          <Clock className="h-4 w-4" />
-                          15 Minutes - Quick Review
-                        </div>
-                      </SelectItem>
-                      <SelectItem value="30" data-testid="tab-option-30-min">
-                        <div className="flex items-center gap-2">
-                          <Clock className="h-4 w-4" />
-                          30 Minutes - Comprehensive Study
-                        </div>
-                      </SelectItem>
-                      <SelectItem value="60" data-testid="tab-option-60-min">
-                        <div className="flex items-center gap-2">
-                          <Clock className="h-4 w-4" />
-                          1 Hour - Deep Dive Learning
-                        </div>
-                      </SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <p className="text-xs text-muted-foreground">
-                    Structured content with timed sections and automatic progression
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
         </TabsContent>
       </Tabs>
 
