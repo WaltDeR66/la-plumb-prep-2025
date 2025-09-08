@@ -53,10 +53,11 @@ export default function PodcastView() {
   }
 
   // Extract podcast content safely
-  const podcastContent = content?.content?.extracted?.transcript || 
-                        content?.content?.extracted?.content || 
-                        content?.content?.extracted?.text || 
-                        content?.content?.text || 
+  const podcastContent = (content as any)?.content?.extracted?.transcript || 
+                        (content as any)?.content?.extracted?.content || 
+                        (content as any)?.content?.extracted?.text || 
+                        (content as any)?.content?.podcast?.transcript ||
+                        (content as any)?.content?.text || 
                         'No podcast content available';
 
   // Check for autostart from URL
