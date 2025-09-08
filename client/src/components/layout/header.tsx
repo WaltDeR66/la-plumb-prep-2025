@@ -81,8 +81,9 @@ export default function Header() {
           {/* Desktop Auth Buttons */}
           <div className="hidden md:flex items-center space-x-12">
             <Link href="/bulk-enrollment">
-              <Button variant="outline" size="sm" data-testid="button-bulk-enrollment">
-                Bulk Enrollment
+              <Button variant="outline" size="sm" data-testid="button-bulk-enrollment" className="flex flex-col h-auto py-1 px-3">
+                <span className="text-xs leading-tight">Bulk</span>
+                <span className="text-xs leading-tight">Enrollment</span>
               </Button>
             </Link>
             <Link href="/employer-portal">
