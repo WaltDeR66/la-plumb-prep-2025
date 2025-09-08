@@ -410,6 +410,41 @@ export default function Pricing() {
         </div>
       </section>
 
+      {/* Bulk Enrollment Section */}
+      <section className="py-20" data-testid="bulk-enrollment-section">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <Card className="bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-200">
+            <CardContent className="p-8 text-center">
+              <h2 className="text-2xl font-bold mb-4">Need Training for Multiple Employees?</h2>
+              <p className="text-muted-foreground mb-6">
+                Get special pricing for bulk enrollments. Perfect for plumbing companies training multiple technicians.
+              </p>
+              <div className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                  <div className="flex items-center justify-center space-x-2">
+                    <CheckCircle className="w-4 h-4 text-green-600" />
+                    <span>Volume Discounts</span>
+                  </div>
+                  <div className="flex items-center justify-center space-x-2">
+                    <CheckCircle className="w-4 h-4 text-green-600" />
+                    <span>Progress Tracking</span>
+                  </div>
+                  <div className="flex items-center justify-center space-x-2">
+                    <CheckCircle className="w-4 h-4 text-green-600" />
+                    <span>Company Reports</span>
+                  </div>
+                </div>
+                <Link href="/bulk-enrollment">
+                  <Button size="lg" className="bg-primary hover:bg-primary/90">
+                    Get Bulk Enrollment Pricing
+                  </Button>
+                </Link>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </section>
+
       {/* CTA Section */}
       <section className="py-20 gradient-hero text-white" data-testid="pricing-cta">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">

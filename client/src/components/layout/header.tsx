@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Menu, Building2, ShoppingCart } from "lucide-react";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Menu, Building2, ShoppingCart, ChevronDown } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
@@ -52,10 +53,8 @@ export default function Header() {
 
   const navigation = [
     { name: "Courses", href: "/courses" },
-    { name: "Competitions", href: "/competitions" },
-    { name: "Tools", href: "/tools/ai-pricing" },
+    { name: "AI Tools", href: "/tools/ai-pricing" },
     { name: "Store", href: "/store" },
-    { name: "Amazon Tools", href: "/amazon-products" },
     { name: "Jobs", href: "/jobs" },
   ];
 
@@ -94,18 +93,44 @@ export default function Header() {
           
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-8 mr-8" data-testid="desktop-nav">
-            {navigation.map((item) => (
-              <Link key={item.name} href={item.href}>
-                <span 
-                  className={`text-sm font-medium transition-colors hover:text-primary cursor-pointer ${
-                    location === item.href ? 'text-primary' : 'text-foreground'
-                  }`}
-                  data-testid={`nav-link-${item.name.toLowerCase().replace(/\s+/g, '-')}`}
-                >
-                  {item.name}
-                </span>
-              </Link>
-            ))}
+            {navigation.map((item) => {
+              if (item.name === "Store") {
+                return (
+                  <DropdownMenu key={item.name}>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" className="flex items-center space-x-1 text-sm font-medium">
+                        <span>Store</span>
+                        <ChevronDown className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent>
+                      <DropdownMenuItem asChild>
+                        <Link href="/store" className="cursor-pointer">
+                          LA Plumb Store
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link href="/amazon-products" className="cursor-pointer">
+                          Amazon Tools
+                        </Link>
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                );
+              }
+              return (
+                <Link key={item.name} href={item.href}>
+                  <span 
+                    className={`text-sm font-medium transition-colors hover:text-primary cursor-pointer ${
+                      location === item.href ? 'text-primary' : 'text-foreground'
+                    }`}
+                    data-testid={`nav-link-${item.name.toLowerCase().replace(/\s+/g, '-')}`}
+                  >
+                    {item.name}
+                  </span>
+                </Link>
+              );
+            })}
           </nav>
           
           {/* Desktop Auth Buttons */}
@@ -119,17 +144,6 @@ export default function Header() {
                     {totalCartItems}
                   </span>
                 )}
-              </Button>
-            </Link>
-            <Link href="/bulk-enrollment">
-              <Button variant="outline" size="sm" data-testid="button-bulk-enrollment" className="flex flex-col h-auto py-1 px-3">
-                <span className="text-xs leading-tight">Bulk</span>
-                <span className="text-xs leading-tight">Enrollment</span>
-              </Button>
-            </Link>
-            <Link href="/employer-portal">
-              <Button variant="outline" size="sm" data-testid="button-employer-portal">
-                Post a Job
               </Button>
             </Link>
             {user ? (
@@ -152,18 +166,11 @@ export default function Header() {
                 </Button>
               </div>
             ) : (
-              <>
-                <Link href="/login">
-                  <Button variant="ghost" data-testid="button-sign-in">
-                    Sign In
-                  </Button>
-                </Link>
-                <Link href="/pricing">
-                  <Button data-testid="button-start-trial">
-                    Get 50% Off First Month
-                  </Button>
-                </Link>
-              </>
+              <Link href="/pricing">
+                <Button data-testid="button-start-trial">
+                  Get Started
+                </Button>
+              </Link>
             )}
           </div>
 
@@ -176,19 +183,46 @@ export default function Header() {
             </SheetTrigger>
             <SheetContent side="right" className="w-[300px] sm:w-[400px]">
               <nav className="flex flex-col space-y-4 mt-6" data-testid="mobile-nav">
-                {navigation.map((item) => (
-                  <Link key={item.name} href={item.href}>
-                    <span 
-                      className={`text-lg font-medium transition-colors hover:text-primary cursor-pointer ${
-                        location === item.href ? 'text-primary' : 'text-foreground'
-                      }`}
-                      onClick={() => setIsOpen(false)}
-                      data-testid={`mobile-nav-link-${item.name.toLowerCase()}`}
-                    >
-                      {item.name}
-                    </span>
-                  </Link>
-                ))}
+                {navigation.map((item) => {
+                  if (item.name === "Store") {
+                    return (
+                      <div key={item.name} className="space-y-2">
+                        <span className="text-lg font-medium text-foreground">Store</span>
+                        <div className="ml-4 space-y-2">
+                          <Link href="/store">
+                            <span 
+                              className="block text-sm font-medium transition-colors hover:text-primary cursor-pointer text-muted-foreground"
+                              onClick={() => setIsOpen(false)}
+                            >
+                              LA Plumb Store
+                            </span>
+                          </Link>
+                          <Link href="/amazon-products">
+                            <span 
+                              className="block text-sm font-medium transition-colors hover:text-primary cursor-pointer text-muted-foreground"
+                              onClick={() => setIsOpen(false)}
+                            >
+                              Amazon Tools
+                            </span>
+                          </Link>
+                        </div>
+                      </div>
+                    );
+                  }
+                  return (
+                    <Link key={item.name} href={item.href}>
+                      <span 
+                        className={`text-lg font-medium transition-colors hover:text-primary cursor-pointer ${
+                          location === item.href ? 'text-primary' : 'text-foreground'
+                        }`}
+                        onClick={() => setIsOpen(false)}
+                        data-testid={`mobile-nav-link-${item.name.toLowerCase()}`}
+                      >
+                        {item.name}
+                      </span>
+                    </Link>
+                  );
+                })}
                 <div className="border-t pt-4 mt-4">
                   {user ? (
                     <div className="space-y-3">

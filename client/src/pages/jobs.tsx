@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Search, MapPin, Clock, DollarSign, Briefcase, Filter, BookOpen, Lock } from "lucide-react";
+import { Search, MapPin, Clock, DollarSign, Briefcase, Filter, BookOpen, Lock, Plus } from "lucide-react";
 import { Link } from "wouter";
 import JobCard from "@/components/job-card";
 
@@ -66,7 +66,7 @@ export default function Jobs() {
               Connect with top employers across Louisiana. Find your next opportunity in residential, commercial, 
               or specialized plumbing work.
             </p>
-            <div className="flex items-center justify-center space-x-8 text-blue-100">
+            <div className="flex items-center justify-center space-x-8 text-blue-100 mb-8">
               <div className="flex items-center space-x-2">
                 <Briefcase className="w-5 h-5" />
                 <span>47 Active Jobs</span>
@@ -80,6 +80,12 @@ export default function Jobs() {
                 <span>Competitive Salaries</span>
               </div>
             </div>
+            <Link href="/employer-portal">
+              <Button size="lg" variant="secondary" className="bg-white/10 hover:bg-white/20 text-white border-white/20">
+                <Plus className="w-4 h-4 mr-2" />
+                Post a Job
+              </Button>
+            </Link>
           </div>
         </div>
       </section>

@@ -202,14 +202,21 @@ export default function Cart() {
 
                 {!user && (
                   <div className="bg-blue-50 p-3 rounded-lg">
-                    <p className="text-sm text-blue-800">
+                    <p className="text-sm text-blue-800 mb-2">
                       Sign in to save your cart and complete your purchase
                     </p>
-                    <Link href="/login">
-                      <Button variant="outline" size="sm" className="mt-2 w-full">
-                        Sign In
-                      </Button>
-                    </Link>
+                    <div className="space-y-2">
+                      <Link href="/login">
+                        <Button variant="outline" size="sm" className="w-full">
+                          Sign In
+                        </Button>
+                      </Link>
+                      <Link href="/register">
+                        <Button size="sm" className="w-full">
+                          Create Account
+                        </Button>
+                      </Link>
+                    </div>
                   </div>
                 )}
 
