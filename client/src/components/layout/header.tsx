@@ -79,7 +79,7 @@ export default function Header() {
           </nav>
           
           {/* Desktop Auth Buttons */}
-          <div className="hidden md:flex items-center space-x-5">
+          <div className="hidden md:flex items-center space-x-8">
             <Link href="/bulk-enrollment">
               <Button variant="outline" size="sm" data-testid="button-bulk-enrollment">
                 Bulk Enrollment
