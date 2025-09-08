@@ -148,52 +148,6 @@ export default function ContentManagement() {
             <TabsContent value="overview">
               <div className="space-y-6">
                 {/* Content Statistics */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  <Card>
-                    <CardHeader className="flex flex-row items-center space-y-0 pb-2">
-                      <CardTitle className="text-sm font-medium">Questions</CardTitle>
-                      <HelpCircle className="h-4 w-4 ml-auto text-muted-foreground" />
-                    </CardHeader>
-                    <CardContent>
-                      <div className="text-2xl font-bold" data-testid="text-questions-count">
-                        {safeStats.questions}
-                      </div>
-                    </CardContent>
-                  </Card>
-                  <Card>
-                    <CardHeader className="flex flex-row items-center space-y-0 pb-2">
-                      <CardTitle className="text-sm font-medium">Flashcards</CardTitle>
-                      <Upload className="h-4 w-4 ml-auto text-muted-foreground" />
-                    </CardHeader>
-                    <CardContent>
-                      <div className="text-2xl font-bold" data-testid="text-flashcards-count">
-                        {safeStats.flashcards}
-                      </div>
-                    </CardContent>
-                  </Card>
-                  <Card>
-                    <CardHeader className="flex flex-row items-center space-y-0 pb-2">
-                      <CardTitle className="text-sm font-medium">Podcasts</CardTitle>
-                      <Mic className="h-4 w-4 ml-auto text-muted-foreground" />
-                    </CardHeader>
-                    <CardContent>
-                      <div className="text-2xl font-bold" data-testid="text-podcasts-count">
-                        {safeStats.podcasts}
-                      </div>
-                    </CardContent>
-                  </Card>
-                  <Card>
-                    <CardHeader className="flex flex-row items-center space-y-0 pb-2">
-                      <CardTitle className="text-sm font-medium">AI Chat Content</CardTitle>
-                      <Brain className="h-4 w-4 ml-auto text-muted-foreground" />
-                    </CardHeader>
-                    <CardContent>
-                      <div className="text-2xl font-bold" data-testid="text-aichat-count">
-                        {safeStats.aiChat}
-                      </div>
-                    </CardContent>
-                  </Card>
-                </div>
 
                 {/* Detailed Breakdowns */}
                 {(safeStats.questions > 0 || safeStats.flashcards > 0 || safeStats.lessons > 0 || safeStats.studyNotes > 0 || safeStats.podcasts > 0) && (
