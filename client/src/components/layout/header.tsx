@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Menu, Building2 } from "lucide-react";
+import { Menu, Building2, ShoppingCart } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
@@ -11,6 +11,7 @@ import type { User } from "@/../../shared/schema";
 export default function Header() {
   const [location] = useLocation();
   const [isOpen, setIsOpen] = useState(false);
+  const [guestCartCount, setGuestCartCount] = useState(0);
 
   const { data: user } = useQuery<User>({
     queryKey: ["/api/auth/me"],
@@ -18,6 +19,36 @@ export default function Header() {
     staleTime: 30000, // 30 seconds
     enabled: true, // Always enabled but non-blocking
   });
+
+  const { data: cartItems } = useQuery({
+    queryKey: ["/api/cart"],
+    enabled: !!user,
+    retry: false,
+  });
+
+  // Update guest cart count from localStorage
+  useEffect(() => {
+    const updateGuestCartCount = () => {
+      const guestCart = JSON.parse(localStorage.getItem("guest-cart") || "[]");
+      const totalItems = guestCart.reduce((sum: number, item: any) => sum + (item.quantity || 0), 0);
+      setGuestCartCount(totalItems);
+    };
+
+    updateGuestCartCount();
+    // Listen for storage changes (when cart is updated on other tabs)
+    window.addEventListener('storage', updateGuestCartCount);
+    // Listen for custom cart update events
+    window.addEventListener('cartUpdated', updateGuestCartCount);
+
+    return () => {
+      window.removeEventListener('storage', updateGuestCartCount);
+      window.removeEventListener('cartUpdated', updateGuestCartCount);
+    };
+  }, []);
+
+  const totalCartItems = user 
+    ? (cartItems?.reduce((sum: number, item: any) => sum + (item.quantity || 0), 0) || 0)
+    : guestCartCount;
 
   const navigation = [
     { name: "Courses", href: "/courses" },
@@ -79,6 +110,17 @@ export default function Header() {
           
           {/* Desktop Auth Buttons */}
           <div className="hidden md:flex items-center space-x-4">
+            {/* Cart Icon */}
+            <Link href="/cart">
+              <Button variant="outline" size="sm" className="relative" data-testid="button-cart">
+                <ShoppingCart className="h-4 w-4" />
+                {totalCartItems > 0 && (
+                  <span className="absolute -top-2 -right-2 bg-primary text-primary-foreground text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                    {totalCartItems}
+                  </span>
+                )}
+              </Button>
+            </Link>
             <Link href="/bulk-enrollment">
               <Button variant="outline" size="sm" data-testid="button-bulk-enrollment" className="flex flex-col h-auto py-1 px-3">
                 <span className="text-xs leading-tight">Bulk</span>

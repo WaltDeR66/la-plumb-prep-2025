@@ -22,6 +22,7 @@ import Login from "@/pages/auth/login";
 import Register from "@/pages/auth/register";
 import Store from "@/pages/store";
 import ProductDetail from "@/pages/product-detail";
+import Cart from "@/pages/cart";
 import AIToolsPricing from "@/pages/ai-tools-pricing";
 import PlanAnalysisTool from "@/pages/plan-analysis-tool";
 import PayPerUseCheckout from "@/pages/pay-per-use-checkout";
@@ -85,6 +86,7 @@ function Router() {
           <Route path="/dashboard" component={Dashboard} />
           <Route path="/store" component={Store} />
           <Route path="/store/product/:id" component={ProductDetail} />
+          <Route path="/cart" component={Cart} />
           <Route path="/amazon-products" component={AmazonProducts} />
           <Route path="/course/:courseId" component={CourseContent} />
           <Route path="/course/:courseId/lesson/:section" component={Lesson} />

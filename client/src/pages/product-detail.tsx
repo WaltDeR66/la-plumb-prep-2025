@@ -70,6 +70,8 @@ export default function ProductDetail() {
         }
         
         localStorage.setItem("guest-cart", JSON.stringify(existingCart));
+        // Dispatch custom event to update cart count in header
+        window.dispatchEvent(new Event('cartUpdated'));
         return { success: true };
       }
     },
