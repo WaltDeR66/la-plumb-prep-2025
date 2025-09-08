@@ -52,9 +52,9 @@ export default function Header() {
     : guestCartCount;
 
   const navigation = [
-    { name: "Courses", href: "/courses" },
+    { name: "Courses", href: "#" }, // Now handled as dropdown
     { name: "AI Tools", href: "/tools/ai-pricing" },
-    { name: "Store", href: "/store" },
+    { name: "Store", href: "#" }, // Now handled as dropdown
     { name: "Jobs", href: "/jobs" },
   ];
 
@@ -94,6 +94,45 @@ export default function Header() {
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-8 mr-8" data-testid="desktop-nav">
             {navigation.map((item) => {
+              if (item.name === "Courses") {
+                return (
+                  <DropdownMenu key={item.name}>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" className="flex items-center space-x-1 text-sm font-medium">
+                        <span>Courses</span>
+                        <ChevronDown className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent>
+                      <DropdownMenuItem asChild>
+                        <Link href="/pricing?course=journeyman" className="cursor-pointer">
+                          Louisiana Journeyman Prep
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link href="/pricing?course=backflow" className="cursor-pointer">
+                          Backflow Prevention Training
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link href="/pricing?course=natural-gas" className="cursor-pointer">
+                          Natural Gas Certification
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link href="/pricing?course=medical-gas" className="cursor-pointer">
+                          Medical Gas Installer
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link href="/pricing?course=master-plumber" className="cursor-pointer">
+                          Master Plumber Prep
+                        </Link>
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                );
+              }
               if (item.name === "Store") {
                 return (
                   <DropdownMenu key={item.name}>
@@ -184,6 +223,55 @@ export default function Header() {
             <SheetContent side="right" className="w-[300px] sm:w-[400px]">
               <nav className="flex flex-col space-y-4 mt-6" data-testid="mobile-nav">
                 {navigation.map((item) => {
+                  if (item.name === "Courses") {
+                    return (
+                      <div key={item.name} className="space-y-2">
+                        <span className="text-lg font-medium text-foreground">Courses</span>
+                        <div className="ml-4 space-y-2">
+                          <Link href="/pricing?course=journeyman">
+                            <span 
+                              className="block text-sm font-medium transition-colors hover:text-primary cursor-pointer text-muted-foreground"
+                              onClick={() => setIsOpen(false)}
+                            >
+                              Louisiana Journeyman Prep
+                            </span>
+                          </Link>
+                          <Link href="/pricing?course=backflow">
+                            <span 
+                              className="block text-sm font-medium transition-colors hover:text-primary cursor-pointer text-muted-foreground"
+                              onClick={() => setIsOpen(false)}
+                            >
+                              Backflow Prevention Training
+                            </span>
+                          </Link>
+                          <Link href="/pricing?course=natural-gas">
+                            <span 
+                              className="block text-sm font-medium transition-colors hover:text-primary cursor-pointer text-muted-foreground"
+                              onClick={() => setIsOpen(false)}
+                            >
+                              Natural Gas Certification
+                            </span>
+                          </Link>
+                          <Link href="/pricing?course=medical-gas">
+                            <span 
+                              className="block text-sm font-medium transition-colors hover:text-primary cursor-pointer text-muted-foreground"
+                              onClick={() => setIsOpen(false)}
+                            >
+                              Medical Gas Installer
+                            </span>
+                          </Link>
+                          <Link href="/pricing?course=master-plumber">
+                            <span 
+                              className="block text-sm font-medium transition-colors hover:text-primary cursor-pointer text-muted-foreground"
+                              onClick={() => setIsOpen(false)}
+                            >
+                              Master Plumber Prep
+                            </span>
+                          </Link>
+                        </div>
+                      </div>
+                    );
+                  }
                   if (item.name === "Store") {
                     return (
                       <div key={item.name} className="space-y-2">
