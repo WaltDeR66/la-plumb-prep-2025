@@ -54,7 +54,7 @@ export default function Header() {
 
   const navigation = [
     { name: "Courses", href: "#" }, // Now handled as dropdown
-    { name: "AI Tools", href: "/tools/ai-pricing" },
+    { name: "AI Tools", href: "#" }, // Now handled as dropdown
     { name: "Store", href: "#" }, // Now handled as dropdown
     { name: "Jobs", href: "/jobs" },
   ];
@@ -133,6 +133,40 @@ export default function Header() {
                           <span>Master Plumber Prep</span>
                           <Badge variant="secondary" className="ml-2 bg-yellow-100 text-yellow-800">Coming Soon</Badge>
                         </div>
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                );
+              }
+              if (item.name === "AI Tools") {
+                return (
+                  <DropdownMenu key={item.name}>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" className="flex items-center space-x-1 text-sm font-medium">
+                        <span>AI Tools</span>
+                        <ChevronDown className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent>
+                      <DropdownMenuItem asChild>
+                        <Link href="/study-companion" className="cursor-pointer">
+                          AI Mentor Chat
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link href="/tools" className="cursor-pointer">
+                          Photo Code Checker
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link href="/plan-analysis-tool" className="cursor-pointer">
+                          Plan Analysis Tool
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link href="/ai-tools-pricing" className="cursor-pointer">
+                          Pipe Sizing Calculator
+                        </Link>
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
@@ -265,6 +299,47 @@ export default function Header() {
                             </span>
                             <Badge variant="secondary" className="ml-2 bg-yellow-100 text-yellow-800 text-xs">Coming Soon</Badge>
                           </div>
+                        </div>
+                      </div>
+                    );
+                  }
+                  if (item.name === "AI Tools") {
+                    return (
+                      <div key={item.name} className="space-y-2">
+                        <span className="text-lg font-medium text-foreground">AI Tools</span>
+                        <div className="ml-4 space-y-2">
+                          <Link href="/study-companion">
+                            <span 
+                              className="block text-sm font-medium transition-colors hover:text-primary cursor-pointer text-muted-foreground"
+                              onClick={() => setIsOpen(false)}
+                            >
+                              AI Mentor Chat
+                            </span>
+                          </Link>
+                          <Link href="/tools">
+                            <span 
+                              className="block text-sm font-medium transition-colors hover:text-primary cursor-pointer text-muted-foreground"
+                              onClick={() => setIsOpen(false)}
+                            >
+                              Photo Code Checker
+                            </span>
+                          </Link>
+                          <Link href="/plan-analysis-tool">
+                            <span 
+                              className="block text-sm font-medium transition-colors hover:text-primary cursor-pointer text-muted-foreground"
+                              onClick={() => setIsOpen(false)}
+                            >
+                              Plan Analysis Tool
+                            </span>
+                          </Link>
+                          <Link href="/ai-tools-pricing">
+                            <span 
+                              className="block text-sm font-medium transition-colors hover:text-primary cursor-pointer text-muted-foreground"
+                              onClick={() => setIsOpen(false)}
+                            >
+                              Pipe Sizing Calculator
+                            </span>
+                          </Link>
                         </div>
                       </div>
                     );
