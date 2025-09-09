@@ -126,6 +126,16 @@ export default function Header() {
                           Pipe Sizing Calculator
                         </Link>
                       </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link href="/tools#pipe-sizing" className="cursor-pointer">
+                          Pressure Loss Calculator
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link href="/tools#pipe-sizing" className="cursor-pointer">
+                          Flow Rate Calculator
+                        </Link>
+                      </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
                 );
@@ -312,6 +322,12 @@ export default function Header() {
                         </Link>
                         <Link href="/tools#pipe-sizing" className="block text-gray-600 dark:text-gray-300">
                           Pipe Sizing Calculator
+                        </Link>
+                        <Link href="/tools#pipe-sizing" className="block text-gray-600 dark:text-gray-300">
+                          Pressure Loss Calculator
+                        </Link>
+                        <Link href="/tools#pipe-sizing" className="block text-gray-600 dark:text-gray-300">
+                          Flow Rate Calculator
                         </Link>
                       </div>
                     </div>
