@@ -150,12 +150,6 @@ export default function CourseCard({ course, isEnrolled = false, progress = 0, i
                   Coming Soon
                 </Badge>
               )}
-              {isCompleted && (
-                <Badge className="bg-green-100 text-green-800" data-testid="completed-badge">
-                  <CheckCircle className="w-3 h-3 mr-1" />
-                  Completed
-                </Badge>
-              )}
             </div>
           </div>
 
@@ -197,16 +191,6 @@ export default function CourseCard({ course, isEnrolled = false, progress = 0, i
             </div>
           </div>
 
-          {/* Progress Bar (for enrolled courses) */}
-          {isEnrolled && (
-            <div className="space-y-2" data-testid={`course-progress-${course.id}`}>
-              <div className="flex justify-between text-sm">
-                <span>Progress</span>
-                <span>{progress}%</span>
-              </div>
-              <Progress value={progress} className="h-2" />
-            </div>
-          )}
 
           {/* Features */}
           <div className="space-y-2">
