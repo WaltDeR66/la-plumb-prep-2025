@@ -77,6 +77,8 @@ function Router() {
           <Route path="/tools/ai-pricing" component={AIToolsPricing} />
           <Route path="/tools/plan-analysis" component={PlanAnalysisTool} />
           <Route path="/plan-analysis-tool" component={PlanAnalysisTool} />
+          <Route path="/ai-photo-analysis" component={Tools} />
+          <Route path="/ai-tools-pricing" component={AIToolsPricing} />
           <Route path="/pay-per-use" component={PayPerUseCheckout} />
           <Route path="/jobs" component={Jobs} />
           <Route path="/pricing" component={Pricing} />
@@ -98,8 +100,10 @@ function Router() {
           <Route path="/study-plans/:courseId/:duration/:itemIndex" component={StudyPlanItem} />
           <Route path="/login" component={Login} />
           <Route path="/register" component={Register} />
+          <Route path="/apprentice-signup" component={Register} />
           <Route path="/auth/login" component={Login} />
           <Route path="/auth/register" component={Register} />
+          <Route path="/employer-signup" component={EmployerPortal} />
           <Route path="/employer-portal" component={EmployerPortal} />
           <Route path="/employer/dashboard" component={EmployerDashboard} />
           <Route path="/employer/analytics" component={JobAnalytics} />
