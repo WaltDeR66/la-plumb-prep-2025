@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -7,6 +8,16 @@ import heroImage from "@assets/generated_images/Louisiana_plumbing_prep_hero_ima
 import BetaBanner from "@/components/beta-banner";
 
 export default function Home() {
+  useEffect(() => {
+    document.title = "LA Plumb Prep - Louisiana Plumbing Certification Training & Exam Prep";
+    
+    // Update meta description
+    const metaDescription = document.querySelector('meta[name="description"]');
+    if (metaDescription) {
+      metaDescription.setAttribute('content', 'Master Louisiana plumbing codes with professional certification training. Journeyman prep courses, AI-powered tools, practice exams, and expert mentoring for Louisiana plumbers.');
+    }
+  }, []);
+
   const courses = [
     {
       id: "journeyman",

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -11,6 +11,16 @@ export default function Pricing() {
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
   const [isAnnual, setIsAnnual] = useState(false);
   const [isBetaTester] = useState(true); // Would come from user session/API in real app
+
+  useEffect(() => {
+    document.title = "Pricing - Louisiana Plumbing Certification Training Plans | LA Plumb Prep";
+    
+    // Update meta description
+    const metaDescription = document.querySelector('meta[name="description"]');
+    if (metaDescription) {
+      metaDescription.setAttribute('content', 'Choose your Louisiana plumbing certification training plan. Basic, Professional, and Master tiers with AI tools, practice exams, and expert mentoring. 50% off first month.');
+    }
+  }, []);
 
   const calculatePrice = (basePrice: number, isAnnual: boolean, isBeta: boolean) => {
     if (isAnnual && isBeta) {
