@@ -7,7 +7,7 @@ import { insertUserSchema, insertJobSchema, insertJobApplicationSchema, insertCo
 import { competitionNotificationService } from "./competitionNotifications";
 import { eq, and, or, desc, sql, count } from "drizzle-orm";
 import { db } from "./db";
-import { analyzePhoto, analyzePlans, getMentorResponse, calculatePipeSize, reviewJobPosting, generateNumberedFittingPDF } from "./openai";
+import { analyzePhoto, analyzePlans, getMentorResponse, calculatePipeSize, reviewJobPosting, generateNumberedFittingPDF, generateStudyPlan } from "./openai";
 import { calculateReferralCommission, isValidSubscriptionTier } from "@shared/referral-utils";
 import { contentExtractor } from "./content-extractor";
 import { emailAutomation } from "./email-automation";
@@ -2491,6 +2491,61 @@ Start your journey at laplumbprep.com/courses
     } catch (error: any) {
       console.error("Mentor chat error:", error);
       res.status(500).json({ message: "Sorry, I'm having trouble right now. Please try asking about any Louisiana plumbing code topic and I'll help!" });
+    }
+  });
+
+  // AI Study Plan Generation
+  app.post("/api/generate-study-plan/:section", requireActiveSubscription, async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+
+    try {
+      const { section } = req.params;
+      const { courseId, duration } = req.body;
+
+      // Validate required parameters
+      if (!section || !courseId || !duration) {
+        return res.status(400).json({ message: "Section, courseId, and duration are required" });
+      }
+
+      // Get section content to provide context for study plan generation
+      const sectionContent = await storage.getCourseContent(courseId);
+      const relevantContent = sectionContent.filter(content => 
+        content.section?.toString() === section.toString()
+      );
+
+      if (relevantContent.length === 0) {
+        return res.status(404).json({ message: "No content found for this section" });
+      }
+
+      // Extract lesson content for context
+      const lessonContent = relevantContent
+        .map(content => {
+          if (content.content && typeof content.content === 'object') {
+            return content.content.extracted?.content || content.content.description || '';
+          }
+          return content.content || '';
+        })
+        .join('\n\n')
+        .substring(0, 3000); // Limit content length
+
+      // Generate AI study plan
+      const studyPlan = await generateStudyPlan(section, lessonContent, parseInt(duration));
+
+      res.json({
+        success: true,
+        studyPlan: {
+          title: studyPlan.title,
+          content: studyPlan.content,
+          estimatedDuration: studyPlan.estimatedDuration,
+          sectionNumber: section,
+          generatedAt: new Date().toISOString()
+        }
+      });
+    } catch (error: any) {
+      console.error("Study plan generation error:", error);
+      res.status(500).json({ message: error.message || "Failed to generate study plan" });
     }
   });
 
