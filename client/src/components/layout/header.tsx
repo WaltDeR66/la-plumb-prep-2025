@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Menu, Building2, ChevronDown } from "lucide-react";
+import { Menu, Building2, ChevronDown, User as UserIcon } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Link, useLocation } from "wouter";
 import { useQuery } from "@tanstack/react-query";
@@ -222,7 +222,7 @@ export default function Header() {
                   <DropdownMenuTrigger asChild>
                     <Button variant="outline" size="sm" data-testid="user-menu-trigger">
                       <div className="flex items-center space-x-2">
-                        <User className="h-4 w-4" />
+                        <UserIcon className="h-4 w-4" />
                         <span className="hidden lg:inline">
                           {user?.firstName || 'User'}
                         </span>
