@@ -61,62 +61,62 @@ export class AmazonAffiliateService {
       {
         title: "RIDGID 31632 Model 103 Close Quarters Tubing Cutter",
         price: "$23.97",
-        image: "https://images.unsplash.com/photo-1504148455328-c376907d081c?w=300&h=300&fit=crop&crop=center",
-        url: `https://www.amazon.com/s?k=RIDGID+tubing+cutter&tag=${this.associateTag}&linkCode=ll2&linkId=example`,
+        image: "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjMwMCIgdmlld0JveD0iMCAwIDMwMCAzMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIzMDAiIGhlaWdodD0iMzAwIiBmaWxsPSIjRjNGNEY2Ii8+Cjx0ZXh0IHg9IjE1MCIgeT0iMTUwIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzZCNzI4MCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZG9taW5hbnQtYmFzZWxpbmU9Im1pZGRsZSI+UklER0lEIFR1YmluZyBDdXR0ZXI8L3RleHQ+Cjwvc3ZnPg==",
+        url: `https://www.amazon.com/dp/B000BQTCPQ?tag=${this.associateTag}`,
         rating: "4.5",
         reviews: "1,203",
         category: "tools",
-        asin: "search"
+        asin: "B000BQTCPQ"
       },
       {
         title: "SharkBite U720A 1/2-Inch Slip Coupling, 2-Pack",
         price: "$8.47",
-        image: "https://images.unsplash.com/photo-1621905251918-48416bd8575a?w=300&h=300&fit=crop&crop=center",
-        url: `https://www.amazon.com/s?k=SharkBite+slip+coupling&tag=${this.associateTag}&linkCode=ll2&linkId=example`,
+        image: "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjMwMCIgdmlld0JveD0iMCAwIDMwMCAzMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIzMDAiIGhlaWdodD0iMzAwIiBmaWxsPSIjRjNGNEY2Ii8+Cjx0ZXh0IHg9IjE1MCIgeT0iMTUwIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzZCNzI4MCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZG9taW5hbnQtYmFzZWxpbmU9Im1pZGRsZSI+U2hhcmtCaXRlIENvdXBsaW5nPC90ZXh0Pgo8L3N2Zz4=",
+        url: `https://www.amazon.com/dp/B004I9YBRQ?tag=${this.associateTag}`,
         rating: "4.6",
         reviews: "2,154",
         category: "pipe_fittings",
-        asin: "search"
+        asin: "B004I9YBRQ"
       },
       {
         title: "DEWALT Pipe Threading Machine, Heavy Duty (DWPN50)",
         price: "$2,397.00",
-        image: "https://images.unsplash.com/photo-1572981779307-38b8cabb2407?w=300&h=300&fit=crop&crop=center",
-        url: `https://www.amazon.com/s?k=DEWALT+pipe+threading+machine&tag=${this.associateTag}&linkCode=ll2&linkId=example`,
+        image: "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjMwMCIgdmlld0JveD0iMCAwIDMwMCAzMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIzMDAiIGhlaWdodD0iMzAwIiBmaWxsPSIjRkZEQjAwIi8+Cjx0ZXh0IHg9IjE1MCIgeT0iMTUwIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzAwMCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZG9taW5hbnQtYmFzZWxpbmU9Im1pZGRsZSI+REVXQUxUIFRocmVhZGluZyBNYWNoaW5lPC90ZXh0Pgo8L3N2Zz4=",
+        url: `https://www.amazon.com/dp/B00I4V5ZSS?tag=${this.associateTag}`,
         rating: "4.7",
         reviews: "89",
         category: "tools",
-        asin: "search"
+        asin: "B00I4V5ZSS"
       },
       {
         title: "General Tools & Instruments 1/8 Digital Pipe Locator",
         price: "$89.99",
-        image: "https://images.unsplash.com/photo-1581094794329-c8112a89af12?w=300&h=300&fit=crop&crop=center",
-        url: `https://www.amazon.com/s?k=digital+pipe+locator&tag=${this.associateTag}&linkCode=ll2&linkId=example`,
+        image: "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjMwMCIgdmlld0JveD0iMCAwIDMwMCAzMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIzMDAiIGhlaWdodD0iMzAwIiBmaWxsPSIjMTBCOTgxIi8+Cjx0ZXh0IHg9IjE1MCIgeT0iMTUwIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZm9udC1zaXplPSIxNCIgZmlsbD0iI2ZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZG9taW5hbnQtYmFzZWxpbmU9Im1pZGRsZSI+RGlnaXRhbCBQaXBlIExvY2F0b3I8L3RleHQ+Cjwvc3ZnPg==",
+        url: `https://www.amazon.com/dp/B00K2MZKXW?tag=${this.associateTag}`,
         rating: "4.1",
         reviews: "342",
         category: "measuring_tools",
-        asin: "search"
+        asin: "B00K2MZKXW"
       },
       {
         title: "Milwaukee M12 Fuel Hackzall Reciprocating Saw Kit",
         price: "$199.00",
-        image: "https://images.unsplash.com/photo-1504148455328-c376907d081c?w=300&h=300&fit=crop&crop=center",
-        url: `https://www.amazon.com/s?k=Milwaukee+M12+hackzall&tag=${this.associateTag}&linkCode=ll2&linkId=example`,
+        image: "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjMwMCIgdmlld0JveD0iMCAwIDMwMCAzMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIzMDAiIGhlaWdodD0iMzAwIiBmaWxsPSIjREMxNjI2Ii8+Cjx0ZXh0IHg9IjE1MCIgeT0iMTUwIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZm9udC1zaXplPSIxNCIgZmlsbD0iI2ZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZG9taW5hbnQtYmFzZWxpbmU9Im1pZGRsZSI+TWlsd2F1a2VlIEhhY2t6YWxsPC90ZXh0Pgo8L3N2Zz4=",
+        url: `https://www.amazon.com/dp/B07D7Z1VPR?tag=${this.associateTag}`,
         rating: "4.8",
         reviews: "567",
         category: "tools",
-        asin: "search"
+        asin: "B07D7Z1VPR"
       },
       {
         title: "Legend Valve 101-143NL T-451 FIP Ball Valve, Bronze",
         price: "$22.95",
-        image: "https://images.unsplash.com/photo-1589939705384-5185137a7f0f?w=300&h=300&fit=crop&crop=center",
-        url: `https://www.amazon.com/s?k=FIP+ball+valve+bronze&tag=${this.associateTag}&linkCode=ll2&linkId=example`,
+        image: "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjMwMCIgdmlld0JveD0iMCAwIDMwMCAzMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIzMDAiIGhlaWdodD0iMzAwIiBmaWxsPSIjQzA2NTAwIi8+Cjx0ZXh0IHg9IjE1MCIgeT0iMTUwIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZm9udC1zaXplPSIxNCIgZmlsbD0iI2ZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZG9taW5hbnQtYmFzZWxpbmU9Im1pZGRsZSI+QnJvbnplIEJhbGwgVmFsdmU8L3RleHQ+Cjwvc3ZnPg==",
+        url: `https://www.amazon.com/dp/B008L8KPTY?tag=${this.associateTag}`,
         rating: "4.4",
         reviews: "198",
         category: "valves",
-        asin: "search"
+        asin: "B008L8KPTY"
       }
     ];
 
