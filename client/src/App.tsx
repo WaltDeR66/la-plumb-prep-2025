@@ -65,6 +65,11 @@ import StudyPlans from "@/pages/study-plans";
 import StudyPlanItem from "@/pages/study-plan-item";
 import StoreManager from "@/pages/admin/store-manager";
 import AIPhotoPricing from "@/pages/ai-photo-pricing";
+import LouisianaJourneymanPrepPricing from "@/pages/louisiana-journeyman-prep-pricing";
+import MasterPlumberPrepPricing from "@/pages/master-plumber-prep-pricing";
+import BackflowPreventionPricing from "@/pages/backflow-prevention-pricing";
+import NaturalGasCertificationPricing from "@/pages/natural-gas-certification-pricing";
+import MedicalGasInstallerPricing from "@/pages/medical-gas-installer-pricing";
 
 function Router() {
   return (
@@ -82,6 +87,11 @@ function Router() {
           <Route path="/ai-photo-pricing" component={AIPhotoPricing} />
           <Route path="/ai-tools-pricing" component={AIToolsPricing} />
           <Route path="/pay-per-use" component={PayPerUseCheckout} />
+          <Route path="/louisiana-journeyman-prep-pricing" component={LouisianaJourneymanPrepPricing} />
+          <Route path="/master-plumber-prep-pricing" component={MasterPlumberPrepPricing} />
+          <Route path="/backflow-prevention-pricing" component={BackflowPreventionPricing} />
+          <Route path="/natural-gas-certification-pricing" component={NaturalGasCertificationPricing} />
+          <Route path="/medical-gas-installer-pricing" component={MedicalGasInstallerPricing} />
           <Route path="/jobs" component={Jobs} />
           <Route path="/pricing" component={Pricing} />
           <Route path="/subscribe" component={Subscribe} />
