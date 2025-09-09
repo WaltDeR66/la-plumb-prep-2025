@@ -165,7 +165,7 @@ export default function Header() {
                         </Link>
                       </DropdownMenuItem>
                       <DropdownMenuItem asChild>
-                        <Link href="/apprentice-signup" className="cursor-pointer">
+                        <Link href="/pricing" className="cursor-pointer">
                           Register Apprentices
                         </Link>
                       </DropdownMenuItem>
@@ -333,7 +333,7 @@ export default function Header() {
                         <Link href="/employer-signup" className="block text-gray-600 dark:text-gray-300">
                           Post Job Openings
                         </Link>
-                        <Link href="/apprentice-signup" className="block text-gray-600 dark:text-gray-300">
+                        <Link href="/pricing" className="block text-gray-600 dark:text-gray-300">
                           Register Apprentices
                         </Link>
                         <Link href="/plan-analysis-tool" className="block text-gray-600 dark:text-gray-300">
