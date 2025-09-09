@@ -5,8 +5,14 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/componen
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Star, Search, ShoppingCart } from "lucide-react";
+import { Star, Search, ExternalLink } from "lucide-react";
 import { Link } from "wouter";
+
+// Amazon affiliate utility
+const buildAmazonUrl = (productName: string, price: string) => {
+  const searchTerm = encodeURIComponent(productName);
+  return `https://www.amazon.com/s?k=${searchTerm}&tag=laplumbprep-20&linkCode=ur2&linkId=${Math.random().toString(36).substring(2)}&camp=1789&creative=9325`;
+};
 
 export default function Store() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -147,11 +153,14 @@ export default function Store() {
                     </div>
                   </CardContent>
                   <CardFooter className="p-4 pt-0">
-                    <Link href={`/store/product/${product.id}`} className="w-full">
-                      <Button className="w-full" data-testid="view-product-button">
-                        View Details
-                      </Button>
-                    </Link>
+                    <Button 
+                      className="w-full" 
+                      data-testid="shop-amazon-button"
+                      onClick={() => window.open(buildAmazonUrl(product.name, product.price), '_blank', 'noopener,noreferrer')}
+                    >
+                      <ExternalLink className="w-4 h-4 mr-2" />
+                      Shop on Amazon
+                    </Button>
                   </CardFooter>
                 </Card>
               ))}
@@ -232,11 +241,14 @@ export default function Store() {
                 </div>
               </CardContent>
               <CardFooter className="p-4 pt-0">
-                <Link href={`/store/product/${product.id}`} className="w-full">
-                  <Button className="w-full" data-testid="view-product-button">
-                    View Details
-                  </Button>
-                </Link>
+                <Button 
+                  className="w-full" 
+                  data-testid="shop-amazon-button"
+                  onClick={() => window.open(buildAmazonUrl(product.name, product.price), '_blank', 'noopener,noreferrer')}
+                >
+                  <ExternalLink className="w-4 h-4 mr-2" />
+                  Shop on Amazon
+                </Button>
               </CardFooter>
             </Card>
           ))}
@@ -270,7 +282,7 @@ export default function Store() {
         {/* Empty State */}
         {(!productsData?.products || productsData?.products?.length === 0) && !isLoading && (
           <div className="text-center py-12" data-testid="empty-state">
-            <ShoppingCart className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+            <Search className="w-16 h-16 text-gray-400 mx-auto mb-4" />
             <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
               No products found
             </h3>

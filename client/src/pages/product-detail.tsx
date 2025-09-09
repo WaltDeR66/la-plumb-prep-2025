@@ -1,19 +1,19 @@
-import { useState } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { useRoute } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
-import { Star, ShoppingCart, ExternalLink, ChevronLeft, Plus, Minus } from "lucide-react";
+import { Star, ExternalLink, ChevronLeft } from "lucide-react";
 import { Link } from "wouter";
-import { useToast } from "@/hooks/use-toast";
+
+// Amazon affiliate utility
+const buildAmazonUrl = (productName: string, price: string) => {
+  const searchTerm = encodeURIComponent(productName);
+  return `https://www.amazon.com/s?k=${searchTerm}&tag=laplumbprep-20&linkCode=ur2&linkId=${Math.random().toString(36).substring(2)}&camp=1789&creative=9325`;
+};
 
 export default function ProductDetail() {
   const [, params] = useRoute("/store/product/:id");
-  const [quantity, setQuantity] = useState(1);
-  const { toast } = useToast();
-  const queryClient = useQueryClient();
 
   const { data: product, isLoading } = useQuery({
     queryKey: ["/api/products", params?.id],
@@ -35,65 +35,6 @@ export default function ProductDetail() {
     enabled: !!params?.id,
   });
 
-  // Check if user is authenticated
-  const { data: user } = useQuery({
-    queryKey: ["/api/auth/me"],
-    retry: false,
-  });
-
-  const addToCartMutation = useMutation({
-    mutationFn: async ({ productId, quantity }: { productId: string; quantity: number }) => {
-      // If user is authenticated, use API
-      if (user) {
-        const response = await fetch("/api/cart", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          credentials: "include",
-          body: JSON.stringify({ productId, quantity }),
-        });
-        if (!response.ok) throw new Error("Failed to add to cart");
-        return response.json();
-      } else {
-        // If not authenticated, use localStorage
-        const existingCart = JSON.parse(localStorage.getItem("guest-cart") || "[]");
-        const existingItem = existingCart.find((item: any) => item.productId === productId);
-        
-        if (existingItem) {
-          existingItem.quantity += quantity;
-        } else {
-          existingCart.push({ 
-            productId, 
-            quantity, 
-            product: product,
-            addedAt: new Date().toISOString() 
-          });
-        }
-        
-        localStorage.setItem("guest-cart", JSON.stringify(existingCart));
-        // Dispatch custom event to update cart count in header
-        window.dispatchEvent(new Event('cartUpdated'));
-        return { success: true };
-      }
-    },
-    onSuccess: () => {
-      toast({
-        title: "Added to cart",
-        description: user ? 
-          "Product has been added to your cart successfully." :
-          "Product added to cart. Sign in to save your cart across devices.",
-      });
-      if (user) {
-        queryClient.invalidateQueries({ queryKey: ["/api/cart"] });
-      }
-    },
-    onError: (error: any) => {
-      toast({
-        title: "Error",
-        description: error.message || "Failed to add product to cart",
-        variant: "destructive",
-      });
-    },
-  });
 
   const renderStars = (rating: number) => {
     return Array.from({ length: 5 }, (_, i) => (
@@ -110,15 +51,9 @@ export default function ProductDetail() {
     return `$${parseFloat(price).toFixed(2)}`;
   };
 
-  const handleAddToCart = () => {
-    if (product) {
-      addToCartMutation.mutate({ productId: product.id, quantity });
-    }
-  };
-
   const handleBuyOnAmazon = () => {
-    if (product?.amazonUrl) {
-      window.open(product.amazonUrl, "_blank", "noopener,noreferrer");
+    if (product) {
+      window.open(buildAmazonUrl(product.name, product.price), "_blank", "noopener,noreferrer");
     }
   };
 
@@ -245,55 +180,20 @@ export default function ProductDetail() {
                 </div>
               )}
 
-              {/* Quantity and Add to Cart */}
-              <div className="space-y-4 mb-6">
-                <div className="flex items-center gap-4">
-                  <span className="font-medium text-gray-900 dark:text-white" data-testid="quantity-label">
-                    Quantity:
-                  </span>
-                  <div className="flex items-center border rounded-md" data-testid="quantity-selector">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                      data-testid="quantity-decrease"
-                    >
-                      <Minus className="w-4 h-4" />
-                    </Button>
-                    <span className="px-3 py-2 min-w-[3rem] text-center" data-testid="quantity-value">
-                      {quantity}
-                    </span>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => setQuantity(quantity + 1)}
-                      data-testid="quantity-increase"
-                    >
-                      <Plus className="w-4 h-4" />
-                    </Button>
-                  </div>
-                </div>
-
-                <div className="flex gap-4">
-                  <Button
-                    onClick={handleAddToCart}
-                    disabled={addToCartMutation.isPending}
-                    className="flex-1"
-                    data-testid="add-to-cart-button"
-                  >
-                    <ShoppingCart className="w-4 h-4 mr-2" />
-                    {addToCartMutation.isPending ? "Adding..." : "Add to Cart"}
-                  </Button>
-                  <Button
-                    onClick={handleBuyOnAmazon}
-                    variant="outline"
-                    className="flex-1"
-                    data-testid="buy-on-amazon-button"
-                  >
-                    <ExternalLink className="w-4 h-4 mr-2" />
-                    Buy on Amazon
-                  </Button>
-                </div>
+              {/* Shop on Amazon */}
+              <div className="mb-6">
+                <Button
+                  onClick={handleBuyOnAmazon}
+                  size="lg"
+                  className="w-full"
+                  data-testid="shop-on-amazon-button"
+                >
+                  <ExternalLink className="w-5 h-5 mr-2" />
+                  Shop on Amazon
+                </Button>
+                <p className="text-sm text-gray-500 mt-2 text-center">
+                  Redirects to Amazon with our affiliate partnership
+                </p>
               </div>
 
               {/* Category */}
