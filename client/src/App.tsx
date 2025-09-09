@@ -76,6 +76,7 @@ function Router() {
           <Route path="/tools" component={Tools} />
           <Route path="/tools/ai-pricing" component={AIToolsPricing} />
           <Route path="/tools/plan-analysis" component={PlanAnalysisTool} />
+          <Route path="/plan-analysis-tool" component={PlanAnalysisTool} />
           <Route path="/pay-per-use" component={PayPerUseCheckout} />
           <Route path="/jobs" component={Jobs} />
           <Route path="/pricing" component={Pricing} />
