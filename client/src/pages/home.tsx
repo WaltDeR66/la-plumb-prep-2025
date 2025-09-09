@@ -511,7 +511,7 @@ export default function Home() {
               Choose Your Learning Path
             </h2>
             <p className="text-xl text-muted-foreground max-w-3xl mx-auto" data-testid="pricing-description">
-              Flexible pricing plans designed for every stage of your plumbing career. Start with a 7-day free trial.
+              Flexible pricing plans designed for every stage of your plumbing career. Choose the plan that fits your needs.
             </p>
           </div>
           
@@ -547,7 +547,7 @@ export default function Home() {
                   
                   <Link href="/pricing">
                     <Button className="w-full" size="lg" data-testid={`button-trial-${plan.name.toLowerCase()}`}>
-                      Start 7-Day Free Trial
+                      Choose Plan
                     </Button>
                   </Link>
                 </CardContent>
@@ -556,7 +556,7 @@ export default function Home() {
           </div>
           
           <div className="text-center mt-12">
-            <p className="text-muted-foreground mb-4">All plans include 7-day free trial • Cancel anytime • No setup fees</p>
+            <p className="text-muted-foreground mb-4">Cancel anytime • Pro-rated billing • No setup fees</p>
             <div className="flex items-center justify-center space-x-8 text-sm text-muted-foreground">
               <div className="flex items-center space-x-2">
                 <CheckCircle className="w-5 h-5 text-green-600" />

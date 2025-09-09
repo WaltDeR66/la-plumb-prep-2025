@@ -353,7 +353,7 @@ export default function Register() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
             <div className="flex items-center space-x-2">
               <CheckCircle className="w-4 h-4 text-green-500" />
-              <span>7-day free trial on any plan</span>
+              <span>Access to all certification courses</span>
             </div>
             <div className="flex items-center space-x-2">
               <CheckCircle className="w-4 h-4 text-green-500" />
