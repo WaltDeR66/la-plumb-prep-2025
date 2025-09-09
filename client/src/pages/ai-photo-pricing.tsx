@@ -26,11 +26,12 @@ export default function AIPhotoPricing() {
     enabled: !!user,
   });
 
-  // Pay-per-use photo analysis
+  // Pay-per-use photo analysis with payment collection
   const analyzePhotoPayment = useMutation({
-    mutationFn: async (file: File) => {
+    mutationFn: async ({ file, paymentMethodId }: { file: File, paymentMethodId: string }) => {
       const formData = new FormData();
       formData.append('photo', file);
+      formData.append('paymentMethodId', paymentMethodId);
       
       const response = await fetch("/api/photo-analysis/pay-per-use", {
         method: "POST",
@@ -42,12 +43,14 @@ export default function AIPhotoPricing() {
     },
     onSuccess: (data) => {
       setAnalysis(data);
+      setIsAnalyzing(false);
       toast({
         title: "Analysis Complete",
         description: `Charged $${data.cost} for professional analysis.`,
       });
     },
     onError: (error: any) => {
+      setIsAnalyzing(false);
       toast({
         title: "Analysis Failed",
         description: error.message || "Failed to analyze photo",
@@ -56,14 +59,28 @@ export default function AIPhotoPricing() {
     },
   });
 
-  // Create payment session for photo analysis credits (bulk purchase)
-  const purchasePhotoAnalysis = useMutation({
-    mutationFn: async ({ credits }: { credits: number }) => {
-      const response = await fetch("/api/create-photo-analysis-payment", {
+  // Create payment intent for pay-per-use
+  const createPaymentIntent = useMutation({
+    mutationFn: async () => {
+      const response = await fetch("/api/create-photo-payment-intent", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({ credits }),
+        body: JSON.stringify({ amount: 499 }), // $4.99
+      });
+      if (!response.ok) throw new Error("Failed to create payment intent");
+      return response.json();
+    },
+  });
+
+  // Create payment session for photo analysis credits (bulk purchase)
+  const purchasePhotoAnalysis = useMutation({
+    mutationFn: async ({ credits, amount, planName }: { credits: number, amount: number, planName: string }) => {
+      const response = await fetch("/api/create-photo-credits-payment", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ credits, amount, planName }),
       });
       if (!response.ok) throw new Error("Failed to create payment session");
       return response.json();
@@ -146,7 +163,7 @@ export default function AIPhotoPricing() {
     }
   };
 
-  const handlePayPerUseAnalysis = () => {
+  const handlePayPerUseAnalysis = async () => {
     if (!selectedFile) return;
     
     if (!user) {
@@ -158,10 +175,24 @@ export default function AIPhotoPricing() {
     }
 
     setIsAnalyzing(true);
-    analyzePhotoPayment.mutate(selectedFile);
+    
+    try {
+      // Create payment intent
+      const paymentData = await createPaymentIntent.mutateAsync();
+      
+      // Redirect to Stripe Checkout for payment
+      window.location.href = paymentData.url;
+    } catch (error: any) {
+      setIsAnalyzing(false);
+      toast({
+        title: "Payment Error",
+        description: error.message || "Failed to initialize payment",
+        variant: "destructive",
+      });
+    }
   };
 
-  const handlePurchase = (credits: number) => {
+  const handlePurchase = (plan: any) => {
     if (!user) {
       toast({
         title: "Sign in required",
@@ -171,7 +202,11 @@ export default function AIPhotoPricing() {
     }
     
     setIsProcessing(true);
-    purchasePhotoAnalysis.mutate({ credits });
+    purchasePhotoAnalysis.mutate({ 
+      credits: plan.credits, 
+      amount: plan.price,
+      planName: plan.name
+    });
   };
 
   return (
@@ -370,7 +405,7 @@ export default function AIPhotoPricing() {
                   className="w-full" 
                   size="lg"
                   variant={plan.popular ? "default" : "outline"}
-                  onClick={() => handlePurchase(plan.credits)}
+                  onClick={() => handlePurchase(plan)}
                   disabled={isProcessing}
                 >
                   {isProcessing ? "Processing..." : `Purchase ${plan.credits} Credits`}

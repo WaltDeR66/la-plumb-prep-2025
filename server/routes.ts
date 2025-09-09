@@ -2636,63 +2636,80 @@ Start your journey at laplumbprep.com/courses
     }
   });
 
-  // Pay-per-use photo analysis
-  app.post("/api/photo-analysis/pay-per-use", upload.single('photo'), async (req, res) => {
+  // Create payment intent for pay-per-use photo analysis
+  app.post("/api/create-photo-payment-intent", async (req, res) => {
     if (!req.isAuthenticated()) {
       return res.status(401).json({ message: "Not authenticated" });
     }
 
     try {
-      if (!req.file) {
-        return res.status(400).json({ message: "No file uploaded" });
-      }
-
-      const userId = (req.user as any).id;
-      const filename = req.file.filename;
-      const filePath = req.file.path;
+      const { amount } = req.body; // $4.99 = 499 cents
       
-      // Convert to base64 for AI analysis
-      const imageBuffer = fs.readFileSync(filePath);
-      const base64Image = imageBuffer.toString('base64');
-
-      // Create Stripe payment for $4.99
-      const paymentIntent = await stripe.paymentIntents.create({
-        amount: 499, // $4.99 in cents
-        currency: 'usd',
-        customer: (req.user as any).stripeCustomerId,
-        description: 'AI Photo Code Analysis',
-        confirm: true,
+      const session = await stripe.checkout.sessions.create({
         payment_method_types: ['card'],
-        // Use customer's default payment method if available
-        setup_future_usage: 'off_session',
+        line_items: [{
+          price_data: {
+            currency: 'usd',
+            product_data: {
+              name: 'AI Photo Code Analysis',
+              description: 'Professional plumbing code compliance analysis',
+            },
+            unit_amount: amount,
+          },
+          quantity: 1,
+        }],
+        mode: 'payment',
+        success_url: `${process.env.DOMAIN || 'http://localhost:5000'}/ai-photo-analysis?success=true`,
+        cancel_url: `${process.env.DOMAIN || 'http://localhost:5000'}/ai-photo-analysis?canceled=true`,
+        metadata: {
+          type: 'photo-analysis-pay-per-use',
+          userId: (req.user as any).id,
+        },
       });
 
-      if (paymentIntent.status !== 'succeeded') {
-        return res.status(400).json({ message: "Payment failed" });
-      }
-      
-      // Analyze photo with AI
-      const analysis = await analyzePhoto(base64Image);
-      
-      // Save to database with payment info
-      const upload = await storage.createPhotoUpload(
-        userId,
-        filename,
-        `/uploads/${filename}`,
-        {
-          ...analysis,
-          paymentId: paymentIntent.id,
-          cost: 4.99
-        }
-      );
-
-      res.json({
-        ...analysis,
-        cost: 4.99,
-        paymentId: paymentIntent.id
-      });
+      res.json({ url: session.url });
     } catch (error: any) {
-      console.error('Pay-per-use photo analysis error:', error);
+      console.error('Create photo payment intent error:', error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Bulk credit packages (these need Stripe products)
+  app.post("/api/create-photo-credits-payment", async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+
+    try {
+      const { credits, amount, planName } = req.body;
+      
+      const session = await stripe.checkout.sessions.create({
+        payment_method_types: ['card'],
+        line_items: [{
+          price_data: {
+            currency: 'usd',
+            product_data: {
+              name: `Photo Analysis Credits - ${planName}`,
+              description: `${credits} AI photo analysis credits`,
+            },
+            unit_amount: Math.round(amount * 100), // Convert to cents
+          },
+          quantity: 1,
+        }],
+        mode: 'payment',
+        success_url: `${process.env.DOMAIN || 'http://localhost:5000'}/ai-photo-analysis?success=true`,
+        cancel_url: `${process.env.DOMAIN || 'http://localhost:5000'}/ai-photo-analysis?canceled=true`,
+        metadata: {
+          type: 'photo-analysis-credits',
+          userId: (req.user as any).id,
+          credits: credits.toString(),
+          planName,
+        },
+      });
+
+      res.json({ url: session.url });
+    } catch (error: any) {
+      console.error('Create photo credits payment error:', error);
       res.status(500).json({ message: error.message });
     }
   });
