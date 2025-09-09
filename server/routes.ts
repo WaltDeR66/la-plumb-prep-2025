@@ -26,6 +26,7 @@ async function resolveCourseId(courseId: string): Promise<string | null> {
   // Handle friendly course identifiers
   const courseMapping: { [key: string]: string } = {
     'journeyman-prep': '5f02238b-afb2-4e7f-a488-96fb471fee56',
+    'louisiana-journeyman-prep': '5f02238b-afb2-4e7f-a488-96fb471fee56',
     'backflow-prevention': 'b1f02238b-afb2-4e7f-a488-96fb471fee57',
     'natural-gas': 'c2f02238b-afb2-4e7f-a488-96fb471fee58',
     'medical-gas': 'd3f02238b-afb2-4e7f-a488-96fb471fee59',
