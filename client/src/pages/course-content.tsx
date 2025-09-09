@@ -230,7 +230,43 @@ export default function CourseContent() {
         ) : (
           sections.map((section) => {
             const sectionItems = contentBySection[section];
-            const sectionTitle = sectionItems[0]?.title.split(' - ')[0] || `Section ${section}`;
+            
+            // Create proper section titles based on section numbers
+            const getSectionInfo = (sectionNum: string) => {
+              const num = Number(sectionNum);
+              switch (num) {
+                case 1:
+                  return { title: "Basic Principles and Definitions", subtitle: "Course Introduction" };
+                case 101:
+                  return { title: "Administration", subtitle: "LSPC 101 Administration" };
+                case 103:
+                  return { title: "Availability", subtitle: "Louisiana State Plumbing Code §103 Availability" };
+                case 105:
+                  return { title: "Effective Date and Edition", subtitle: "Effective Date and Edition of the Louisiana State Plumbing Code" };
+                case 107:
+                  return { title: "Purpose and Scope", subtitle: "Louisiana State Plumbing Code §107 Purpose and Scope" };
+                case 109:
+                  return { title: "Permitting and Inspection Limitations", subtitle: "Permitting and Inspection Limitations" };
+                case 301:
+                  return { title: "General Regulations", subtitle: "Section 301 Introduction - General Regulations" };
+                case 303:
+                  return { title: "Materials", subtitle: "Section 303 Introduction - Materials" };
+                case 401:
+                  return { title: "General Fixture Requirements", subtitle: "Section 401 Introduction - General Fixture Requirements" };
+                case 403:
+                  return { title: "Installation", subtitle: "Section 403 Introduction - Installation" };
+                case 501:
+                  return { title: "General Water Heater Requirements", subtitle: "Section 501 Introduction - General Water Heater Requirements" };
+                case 999:
+                  return { title: "Chapter Review Introduction", subtitle: "Chapter 1 Review Introduction - Administration Mastery" };
+                default:
+                  return { title: `Section ${sectionNum}`, subtitle: sectionItems[0]?.title.split(' - ')[0] || `Section ${sectionNum}` };
+              }
+            };
+            
+            const sectionInfo = getSectionInfo(section);
+            const sectionTitle = sectionInfo.title;
+            const sectionSubtitle = sectionInfo.subtitle;
             
             // Calculate lesson progress (placeholder for now)
             const progress = 0;
@@ -267,10 +303,10 @@ export default function CourseContent() {
                         )}
                       </div>
                       <h3 className="text-lg font-semibold text-foreground mb-1" data-testid={`lesson-title-${section}`}>
-                        Louisiana State Plumbing Code §{section}
+                        {sectionTitle}
                       </h3>
                       <p className="text-sm text-muted-foreground mb-3" data-testid={`lesson-description-${section}`}>
-                        {sectionTitle}
+                        {sectionSubtitle}
                       </p>
                       
                       {/* Progress bar for enrolled users */}
