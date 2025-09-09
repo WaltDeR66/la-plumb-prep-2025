@@ -2600,7 +2600,7 @@ Start your journey at laplumbprep.com/courses
   // NOTE: AI chat import route removed - system now uses pure AI approach
   // No longer needed since we generate all responses dynamically with GPT-5
 
-  // Photo upload and analysis
+  // Photo upload and analysis (subscription required)
   app.post("/api/photos/upload", requireActiveSubscription, upload.single('photo'), async (req, res) => {
     if (!req.isAuthenticated()) {
       return res.status(401).json({ message: "Not authenticated" });
@@ -2632,6 +2632,67 @@ Start your journey at laplumbprep.com/courses
 
       res.json(upload);
     } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Pay-per-use photo analysis
+  app.post("/api/photo-analysis/pay-per-use", upload.single('photo'), async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+
+    try {
+      if (!req.file) {
+        return res.status(400).json({ message: "No file uploaded" });
+      }
+
+      const userId = (req.user as any).id;
+      const filename = req.file.filename;
+      const filePath = req.file.path;
+      
+      // Convert to base64 for AI analysis
+      const imageBuffer = fs.readFileSync(filePath);
+      const base64Image = imageBuffer.toString('base64');
+
+      // Create Stripe payment for $4.99
+      const paymentIntent = await stripe.paymentIntents.create({
+        amount: 499, // $4.99 in cents
+        currency: 'usd',
+        customer: (req.user as any).stripeCustomerId,
+        description: 'AI Photo Code Analysis',
+        confirm: true,
+        payment_method_types: ['card'],
+        // Use customer's default payment method if available
+        setup_future_usage: 'off_session',
+      });
+
+      if (paymentIntent.status !== 'succeeded') {
+        return res.status(400).json({ message: "Payment failed" });
+      }
+      
+      // Analyze photo with AI
+      const analysis = await analyzePhoto(base64Image);
+      
+      // Save to database with payment info
+      const upload = await storage.createPhotoUpload(
+        userId,
+        filename,
+        `/uploads/${filename}`,
+        {
+          ...analysis,
+          paymentId: paymentIntent.id,
+          cost: 4.99
+        }
+      );
+
+      res.json({
+        ...analysis,
+        cost: 4.99,
+        paymentId: paymentIntent.id
+      });
+    } catch (error: any) {
+      console.error('Pay-per-use photo analysis error:', error);
       res.status(500).json({ message: error.message });
     }
   });

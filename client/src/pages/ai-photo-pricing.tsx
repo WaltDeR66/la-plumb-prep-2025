@@ -3,13 +3,16 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle, Camera, FileText, Clock, Star, ArrowRight } from "lucide-react";
+import { CheckCircle, Camera, FileText, Clock, Star, ArrowRight, Upload } from "lucide-react";
 import { Link } from "wouter";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 
 export default function AIPhotoPricing() {
   const [isProcessing, setIsProcessing] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [analysis, setAnalysis] = useState<any>(null);
   const { toast } = useToast();
 
   // Check authentication and subscription status
@@ -23,7 +26,37 @@ export default function AIPhotoPricing() {
     enabled: !!user,
   });
 
-  // Create payment session for photo analysis credits
+  // Pay-per-use photo analysis
+  const analyzePhotoPayment = useMutation({
+    mutationFn: async (file: File) => {
+      const formData = new FormData();
+      formData.append('photo', file);
+      
+      const response = await fetch("/api/photo-analysis/pay-per-use", {
+        method: "POST",
+        credentials: "include",
+        body: formData,
+      });
+      if (!response.ok) throw new Error("Failed to process photo analysis");
+      return response.json();
+    },
+    onSuccess: (data) => {
+      setAnalysis(data);
+      toast({
+        title: "Analysis Complete",
+        description: `Charged $${data.cost} for professional analysis.`,
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Analysis Failed",
+        description: error.message || "Failed to analyze photo",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Create payment session for photo analysis credits (bulk purchase)
   const purchasePhotoAnalysis = useMutation({
     mutationFn: async ({ credits }: { credits: number }) => {
       const response = await fetch("/api/create-photo-analysis-payment", {
@@ -97,6 +130,37 @@ export default function AIPhotoPricing() {
     },
   ];
 
+  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      if (file.size > 10 * 1024 * 1024) { // 10MB limit
+        toast({
+          title: "File too large",
+          description: "Please choose a file smaller than 10MB.",
+          variant: "destructive",
+        });
+        return;
+      }
+      setSelectedFile(file);
+      setAnalysis(null);
+    }
+  };
+
+  const handlePayPerUseAnalysis = () => {
+    if (!selectedFile) return;
+    
+    if (!user) {
+      toast({
+        title: "Sign in required",
+        description: "Please sign in to use photo analysis",
+      });
+      return;
+    }
+
+    setIsAnalyzing(true);
+    analyzePhotoPayment.mutate(selectedFile);
+  };
+
   const handlePurchase = (credits: number) => {
     if (!user) {
       toast({
@@ -125,6 +189,120 @@ export default function AIPhotoPricing() {
             Get instant code compliance checking and professional installation reviews using our advanced AI technology
           </p>
         </div>
+
+        {/* Pay-Per-Use Analysis Tool */}
+        <Card className="mb-12 bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
+          <CardHeader className="text-center">
+            <CardTitle className="text-2xl text-blue-900">Try Analysis Now - Pay Per Use</CardTitle>
+            <CardDescription className="text-blue-700">
+              $4.99 per photo analysis - Only pay when you use it
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              {/* Upload Section */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold">Upload Photo</h3>
+                <div className="border-2 border-dashed border-blue-300 rounded-lg p-8 text-center bg-white">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleFileSelect}
+                    className="hidden"
+                    id="photo-upload"
+                  />
+                  <label
+                    htmlFor="photo-upload"
+                    className="cursor-pointer flex flex-col items-center"
+                  >
+                    <Camera className="h-12 w-12 text-blue-400 mb-4" />
+                    <span className="text-lg font-medium text-blue-700 mb-2">
+                      Choose photo to analyze
+                    </span>
+                    <span className="text-sm text-blue-600">
+                      Max 10MB • JPG, PNG, HEIC
+                    </span>
+                  </label>
+                </div>
+
+                {selectedFile && (
+                  <div className="bg-green-50 p-4 rounded-lg border border-green-200">
+                    <div className="flex items-center">
+                      <CheckCircle className="h-5 w-5 text-green-600 mr-2" />
+                      <span className="font-medium text-green-800">
+                        {selectedFile.name}
+                      </span>
+                    </div>
+                  </div>
+                )}
+
+                <Button
+                  onClick={handlePayPerUseAnalysis}
+                  disabled={!selectedFile || isAnalyzing}
+                  className="w-full"
+                  size="lg"
+                >
+                  {isAnalyzing ? (
+                    <>
+                      <Clock className="h-4 w-4 mr-2 animate-spin" />
+                      Analyzing...
+                    </>
+                  ) : (
+                    <>
+                      <Camera className="h-4 w-4 mr-2" />
+                      Analyze Photo ($4.99)
+                    </>
+                  )}
+                </Button>
+              </div>
+
+              {/* Results Section */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold">Analysis Results</h3>
+                <div className="bg-white rounded-lg p-6 border border-gray-200 min-h-[200px]">
+                  {!analysis ? (
+                    <div className="text-center py-8 text-gray-500">
+                      Upload and analyze a photo to see professional results
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      <div className={`p-4 rounded-lg ${analysis.isCompliant ? 'bg-green-50' : 'bg-yellow-50'}`}>
+                        <div className="flex items-center mb-2">
+                          <CheckCircle className={`h-5 w-5 mr-2 ${analysis.isCompliant ? 'text-green-600' : 'text-yellow-600'}`} />
+                          <span className={`font-medium ${analysis.isCompliant ? 'text-green-800' : 'text-yellow-800'}`}>
+                            {analysis.isCompliant ? 'Code Compliant' : 'Violations Found'}
+                          </span>
+                        </div>
+                      </div>
+
+                      {analysis.violations && analysis.violations.length > 0 && (
+                        <div>
+                          <h4 className="font-medium text-gray-900 mb-2">Code Violations:</h4>
+                          <ul className="text-sm text-gray-700 space-y-1">
+                            {analysis.violations.map((violation: string, index: number) => (
+                              <li key={index}>• {violation}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+
+                      {analysis.recommendations && analysis.recommendations.length > 0 && (
+                        <div>
+                          <h4 className="font-medium text-gray-900 mb-2">Recommendations:</h4>
+                          <ul className="text-sm text-gray-700 space-y-1">
+                            {analysis.recommendations.map((rec: string, index: number) => (
+                              <li key={index}>• {rec}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
         {/* How it works */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">

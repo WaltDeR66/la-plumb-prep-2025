@@ -112,7 +112,7 @@ export default function Header() {
                     </DropdownMenuTrigger>
                     <DropdownMenuContent>
                       <DropdownMenuItem asChild>
-                        <Link href="/ai-photo-analysis" className="cursor-pointer">
+                        <Link href="/ai-photo-pricing" className="cursor-pointer">
                           AI Photo Analysis
                         </Link>
                       </DropdownMenuItem>
@@ -304,7 +304,7 @@ export default function Header() {
                     <div className="space-y-2">
                       <h3 className="font-medium text-gray-900 dark:text-white">AI Tools</h3>
                       <div className="pl-4 space-y-2">
-                        <Link href="/ai-photo-analysis" className="block text-gray-600 dark:text-gray-300">
+                        <Link href="/ai-photo-pricing" className="block text-gray-600 dark:text-gray-300">
                           AI Photo Analysis
                         </Link>
                         <Link href="/plan-analysis-tool" className="block text-gray-600 dark:text-gray-300">
