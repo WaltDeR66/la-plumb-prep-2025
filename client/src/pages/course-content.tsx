@@ -131,8 +131,23 @@ export default function CourseContent() {
     return acc;
   }, {} as Record<string, CourseContent[]>);
   
-  // Get unique sections sorted
-  const sections = Object.keys(contentBySection).sort((a, b) => Number(a) - Number(b));
+  // Get unique sections sorted and filter out placeholder sections
+  const allSections = Object.keys(contentBySection).sort((a, b) => Number(a) - Number(b));
+  
+  // Filter out sections that only have intro placeholders (sections past 109 that only have 1 item)
+  const sections = allSections.filter(section => {
+    const sectionItems = contentBySection[section];
+    const contentCount = sectionItems.length;
+    const sectionNum = Number(section);
+    
+    // Keep sections 1, 101-109, and 999 (the ones you actually have content for)
+    // Skip 301, 303, 401, 403, 501 which are just intro placeholders
+    if (['301', '303', '401', '403', '501'].includes(section) && contentCount <= 1) {
+      return false;
+    }
+    
+    return true;
+  });
 
   const getTypeIcon = (type: string) => {
     switch (type) {
@@ -231,12 +246,12 @@ export default function CourseContent() {
           sections.map((section) => {
             const sectionItems = contentBySection[section];
             
-            // Create proper section titles based on section numbers
+            // Create proper section titles based on section numbers from actual database content
             const getSectionInfo = (sectionNum: string) => {
               const num = Number(sectionNum);
               switch (num) {
                 case 1:
-                  return { title: "Basic Principles and Definitions", subtitle: "Course Introduction" };
+                  return { title: "Louisiana Plumbing Code Basics", subtitle: "Course Introduction" };
                 case 101:
                   return { title: "Administration", subtitle: "LSPC 101 Administration" };
                 case 103:
@@ -247,18 +262,8 @@ export default function CourseContent() {
                   return { title: "Purpose and Scope", subtitle: "Louisiana State Plumbing Code §107 Purpose and Scope" };
                 case 109:
                   return { title: "Permitting and Inspection Limitations", subtitle: "Permitting and Inspection Limitations" };
-                case 301:
-                  return { title: "General Regulations", subtitle: "Section 301 Introduction - General Regulations" };
-                case 303:
-                  return { title: "Materials", subtitle: "Section 303 Introduction - Materials" };
-                case 401:
-                  return { title: "General Fixture Requirements", subtitle: "Section 401 Introduction - General Fixture Requirements" };
-                case 403:
-                  return { title: "Installation", subtitle: "Section 403 Introduction - Installation" };
-                case 501:
-                  return { title: "General Water Heater Requirements", subtitle: "Section 501 Introduction - General Water Heater Requirements" };
                 case 999:
-                  return { title: "Chapter Review Introduction", subtitle: "Chapter 1 Review Introduction - Administration Mastery" };
+                  return { title: "Chapter 1 Review", subtitle: "Chapter 1 Review Introduction - Administration Mastery" };
                 default:
                   return { title: `Section ${sectionNum}`, subtitle: sectionItems[0]?.title.split(' - ')[0] || `Section ${sectionNum}` };
               }
