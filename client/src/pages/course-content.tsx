@@ -134,19 +134,12 @@ export default function CourseContent() {
   // Get unique sections sorted and filter out placeholder sections
   const allSections = Object.keys(contentBySection).sort((a, b) => Number(a) - Number(b));
   
-  // Filter out sections that only have intro placeholders (sections past 109 that only have 1 item)
+  // Only show the actual Louisiana State Plumbing Code sections (101-109)
   const sections = allSections.filter(section => {
-    const sectionItems = contentBySection[section];
-    const contentCount = sectionItems.length;
     const sectionNum = Number(section);
     
-    // Keep sections 1, 101-109, and 999 (the ones you actually have content for)
-    // Skip 301, 303, 401, 403, 501 which are just intro placeholders
-    if (['301', '303', '401', '403', '501'].includes(section) && contentCount <= 1) {
-      return false;
-    }
-    
-    return true;
+    // Only keep sections 101, 103, 105, 107, 109 (the real LSPC sections)
+    return sectionNum >= 101 && sectionNum <= 109;
   });
 
   const getTypeIcon = (type: string) => {
@@ -246,26 +239,22 @@ export default function CourseContent() {
           sections.map((section) => {
             const sectionItems = contentBySection[section];
             
-            // Create proper section titles based on section numbers from actual database content
+            // Create proper section titles based on your actual Louisiana State Plumbing Code sections
             const getSectionInfo = (sectionNum: string) => {
               const num = Number(sectionNum);
               switch (num) {
-                case 1:
-                  return { title: "Louisiana Plumbing Code Basics", subtitle: "Course Introduction" };
                 case 101:
-                  return { title: "Administration", subtitle: "LSPC 101 Administration" };
+                  return { title: "Louisiana State Plumbing Code §101", subtitle: "Administration" };
                 case 103:
-                  return { title: "Availability", subtitle: "Louisiana State Plumbing Code §103 Availability" };
+                  return { title: "Louisiana State Plumbing Code §103", subtitle: "Availability" };
                 case 105:
-                  return { title: "Effective Date and Edition", subtitle: "Effective Date and Edition of the Louisiana State Plumbing Code" };
+                  return { title: "Louisiana State Plumbing Code §105", subtitle: "Effective Date and Edition" };
                 case 107:
-                  return { title: "Purpose and Scope", subtitle: "Louisiana State Plumbing Code §107 Purpose and Scope" };
+                  return { title: "Louisiana State Plumbing Code §107", subtitle: "Purpose and Scope" };
                 case 109:
-                  return { title: "Permitting and Inspection Limitations", subtitle: "Permitting and Inspection Limitations" };
-                case 999:
-                  return { title: "Chapter 1 Review", subtitle: "Chapter 1 Review Introduction - Administration Mastery" };
+                  return { title: "Louisiana State Plumbing Code §109", subtitle: "Permitting and Inspection Limitations" };
                 default:
-                  return { title: `Section ${sectionNum}`, subtitle: sectionItems[0]?.title.split(' - ')[0] || `Section ${sectionNum}` };
+                  return { title: `Louisiana State Plumbing Code §${sectionNum}`, subtitle: sectionItems[0]?.title.split(' - ')[0] || `Section ${sectionNum}` };
               }
             };
             
