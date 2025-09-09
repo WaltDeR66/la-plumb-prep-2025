@@ -63,7 +63,7 @@ import Header from "@/components/layout/header";
 import Footer from "@/components/layout/footer";
 import StudyPlans from "@/pages/study-plans";
 import StudyPlanItem from "@/pages/study-plan-item";
-import AmazonProducts from "@/pages/amazon-products";
+import StoreManager from "@/pages/admin/store-manager";
 
 function Router() {
   return (
@@ -88,7 +88,7 @@ function Router() {
           <Route path="/store" component={Store} />
           <Route path="/store/product/:id" component={ProductDetail} />
           <Route path="/cart" component={Cart} />
-          <Route path="/amazon-products" component={AmazonProducts} />
+          <Route path="/admin/store-manager" component={StoreManager} />
           <Route path="/course/:courseId" component={CourseContent} />
           <Route path="/course/:courseId/lesson/:section" component={Lesson} />
           <Route path="/course/:courseId/content/:contentId" component={ContentView} />

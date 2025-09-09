@@ -182,11 +182,6 @@ export default function Header() {
                           LA Plumb Store
                         </Link>
                       </DropdownMenuItem>
-                      <DropdownMenuItem asChild>
-                        <Link href="/amazon-products" className="cursor-pointer">
-                          Amazon Tools
-                        </Link>
-                      </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
                 );
@@ -342,14 +337,6 @@ export default function Header() {
                               onClick={() => setIsOpen(false)}
                             >
                               LA Plumb Store
-                            </span>
-                          </Link>
-                          <Link href="/amazon-products">
-                            <span 
-                              className="block text-sm font-medium transition-colors hover:text-primary cursor-pointer text-muted-foreground"
-                              onClick={() => setIsOpen(false)}
-                            >
-                              Amazon Tools
                             </span>
                           </Link>
                         </div>

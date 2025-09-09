@@ -1,7 +1,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
-import { Users, MessageSquare, BarChart3, Settings, BookOpen, Upload, Clock, FileText } from "lucide-react";
+import { Users, MessageSquare, BarChart3, Settings, BookOpen, Upload, Clock, FileText, Package } from "lucide-react";
 
 export default function AdminDashboard() {
   return (
@@ -106,6 +106,25 @@ export default function AdminDashboard() {
               <Link href="/admin/system-settings">
                 <Button className="w-full">
                   Configure Settings
+                </Button>
+              </Link>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Package className="h-5 w-5" />
+                Store Manager
+              </CardTitle>
+              <CardDescription>
+                Add and manage products for your store by URL
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Link href="/admin/store-manager">
+                <Button className="w-full">
+                  Manage Store Products
                 </Button>
               </Link>
             </CardContent>
