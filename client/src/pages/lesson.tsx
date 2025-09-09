@@ -194,9 +194,9 @@ export default function Lesson() {
     }
   };
 
-  // Calculate lesson progress (placeholder)
-  const progress = 45;
-  const completed = Math.floor(sortedContent.length * (progress / 100));
+  // Remove progress tracking - user doesn't want completion status
+  // const progress = 45;
+  // const completed = Math.floor(sortedContent.length * (progress / 100));
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -225,16 +225,14 @@ export default function Lesson() {
             </p>
           </div>
           <div className="text-right">
-            <div className="text-2xl font-bold text-primary" data-testid="lesson-progress">
-              {progress}%
+            <div className="text-lg font-medium text-primary">
+              Section {section}
             </div>
             <div className="text-sm text-muted-foreground">
-              {completed} of {sortedContent.length} completed
+              {sortedContent.length} learning activities
             </div>
           </div>
         </div>
-        
-        <Progress value={progress} className="h-2" data-testid="lesson-progress-bar" />
       </div>
 
       {/* Tabbed Interface with Study Plans */}
@@ -257,29 +255,24 @@ export default function Lesson() {
           
           {sortedContent?.map((item, index) => {
             const IconComponent = getTypeIcon(item.type);
-            const isCompleted = index < completed;
-            const isCurrent = index === completed;
+            // Remove completion tracking - user doesn't want this
+            // const isCompleted = index < completed;
+            // const isCurrent = index === completed;
 
             // Special handling for study-plan items - show dropdown instead of regular card
             if (item.type === 'study-plan') {
               return (
                 <Card 
                   key={item.id} 
-                  className={`transition-all ${isCurrent ? 'ring-2 ring-primary' : ''} ${isCompleted ? 'bg-green-50 border-green-200' : ''}`}
+                  className="transition-all hover:shadow-md"
                   data-testid={`content-card-${item.type}-${index}`}
                 >
                   <CardContent className="p-4">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-4">
                         {/* Step Number */}
-                        <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold ${
-                          isCompleted 
-                            ? 'bg-green-100 text-green-800 border-2 border-green-300' 
-                            : isCurrent 
-                              ? 'bg-primary text-primary-foreground border-2 border-primary' 
-                              : 'bg-gray-100 text-gray-600 border-2 border-gray-200'
-                        }`} data-testid={`step-number-${index + 1}`}>
-                          {isCompleted ? '✓' : index + 1}
+                        <div className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold bg-primary text-primary-foreground border-2 border-primary" data-testid={`step-number-${index + 1}`}>
+                          {index + 1}
                         </div>
                         
                         {/* Content Info */}
@@ -301,14 +294,7 @@ export default function Lesson() {
                       
                       {/* Dropdown for Study Duration */}
                       <div className="flex items-center space-x-2">
-                        {isCompleted && (
-                          <Badge className="bg-green-100 text-green-800" data-testid={`completed-badge-${index}`}>
-                            Completed
-                          </Badge>
-                        )}
-                        
-                        <Select 
-                          disabled={!isCurrent && !isCompleted && index > completed}
+                        <Select
                           onValueChange={(duration) => navigate(`/study-plans/${courseId}/${duration}/0`)}
                         >
                           <SelectTrigger className="w-48" data-testid="lesson-flow-study-duration-select">
@@ -346,21 +332,15 @@ export default function Lesson() {
             return (
               <Card 
                 key={item.id} 
-                className={`transition-all ${isCurrent ? 'ring-2 ring-primary' : ''} ${isCompleted ? 'bg-green-50 border-green-200' : ''}`}
+                className="transition-all hover:shadow-md"
                 data-testid={`content-card-${item.type}-${index}`}
               >
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-4">
                       {/* Step Number */}
-                      <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold ${
-                        isCompleted 
-                          ? 'bg-green-100 text-green-800 border-2 border-green-300' 
-                          : isCurrent 
-                            ? 'bg-primary text-primary-foreground border-2 border-primary' 
-                            : 'bg-gray-100 text-gray-600 border-2 border-gray-200'
-                      }`} data-testid={`step-number-${index + 1}`}>
-                        {isCompleted ? '✓' : index + 1}
+                      <div className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold bg-primary text-primary-foreground border-2 border-primary" data-testid={`step-number-${index + 1}`}>
+                        {index + 1}
                       </div>
                       
                       {/* Content Info */}
@@ -385,16 +365,9 @@ export default function Lesson() {
                     
                     {/* Action Button */}
                     <div className="flex items-center space-x-2">
-                      {isCompleted && (
-                        <Badge className="bg-green-100 text-green-800" data-testid={`completed-badge-${index}`}>
-                          Completed
-                        </Badge>
-                      )}
-                      
                       {item.type === 'chat' ? (
                         <Button 
-                          variant={isCurrent ? "default" : isCompleted ? "outline" : "ghost"}
-                          disabled={!isCurrent && !isCompleted && index > completed}
+                          variant="default"
                           onClick={() => {
                             setTimeout(() => {
                               const chatElement = document.querySelector('[data-testid="ai-mentor-chat"]');
@@ -406,18 +379,17 @@ export default function Lesson() {
                           data-testid={`button-study-${item.type}-${index}`}
                         >
                           <Play className="w-4 h-4 mr-2" />
-                          {isCompleted ? "Open Chat" : isCurrent ? "Start Chat" : "Start Chat"}
+                          Start Chat
                         </Button>
                       ) : (
                         <Button 
-                          variant={isCurrent ? "default" : isCompleted ? "outline" : "ghost"}
-                          disabled={!isCurrent && !isCompleted && index > completed}
+                          variant="default"
                           asChild
                           data-testid={`button-study-${item.type}-${index}`}
                         >
-                          <Link href={`/course/${courseId}/${item.type === 'podcast' ? 'podcast' : 'content'}/${item.id}${item.type === 'podcast' && isCompleted ? '?autostart=true' : ''}`}>
+                          <Link href={`/course/${courseId}/${item.type === 'podcast' ? 'podcast' : 'content'}/${item.id}`}>
                             <Play className="w-4 h-4 mr-2" />
-                            {isCompleted ? "Review" : isCurrent ? "Continue" : "Start"}
+                            Start
                           </Link>
                         </Button>
                       )}
