@@ -61,62 +61,62 @@ export class AmazonAffiliateService {
       {
         title: "RIDGID 31632 Model 103 Close Quarters Tubing Cutter",
         price: "$23.97",
-        image: "https://m.media-amazon.com/images/I/71VQZ8q8mNL._AC_SX466_.jpg",
-        url: this.generateAffiliateLink("https://www.amazon.com/dp/B000BQTCPQ"),
+        image: "https://images.unsplash.com/photo-1504148455328-c376907d081c?w=300&h=300&fit=crop&crop=center",
+        url: `https://www.amazon.com/s?k=RIDGID+tubing+cutter&tag=${this.associateTag}&linkCode=ll2&linkId=example`,
         rating: "4.5",
         reviews: "1,203",
         category: "tools",
-        asin: "B000BQTCPQ"
+        asin: "search"
       },
       {
         title: "SharkBite U720A 1/2-Inch Slip Coupling, 2-Pack",
         price: "$8.47",
-        image: "https://m.media-amazon.com/images/I/51J8QzKx4vL._AC_SX466_.jpg",
-        url: this.generateAffiliateLink("https://www.amazon.com/dp/B004I9YBRQ"),
+        image: "https://images.unsplash.com/photo-1621905251918-48416bd8575a?w=300&h=300&fit=crop&crop=center",
+        url: `https://www.amazon.com/s?k=SharkBite+slip+coupling&tag=${this.associateTag}&linkCode=ll2&linkId=example`,
         rating: "4.6",
         reviews: "2,154",
         category: "pipe_fittings",
-        asin: "B004I9YBRQ"
+        asin: "search"
       },
       {
         title: "DEWALT Pipe Threading Machine, Heavy Duty (DWPN50)",
         price: "$2,397.00",
-        image: "https://m.media-amazon.com/images/I/61Y6vKJ8RnL._AC_SX466_.jpg",
-        url: this.generateAffiliateLink("https://www.amazon.com/dp/B00I4V5ZSS"),
+        image: "https://images.unsplash.com/photo-1572981779307-38b8cabb2407?w=300&h=300&fit=crop&crop=center",
+        url: `https://www.amazon.com/s?k=DEWALT+pipe+threading+machine&tag=${this.associateTag}&linkCode=ll2&linkId=example`,
         rating: "4.7",
         reviews: "89",
         category: "tools",
-        asin: "B00I4V5ZSS"
+        asin: "search"
       },
       {
         title: "General Tools & Instruments 1/8 Digital Pipe Locator",
         price: "$89.99",
-        image: "https://m.media-amazon.com/images/I/61H8K6rKJUL._AC_SX466_.jpg",
-        url: this.generateAffiliateLink("https://www.amazon.com/dp/B00K2MZKXW"),
+        image: "https://images.unsplash.com/photo-1581094794329-c8112a89af12?w=300&h=300&fit=crop&crop=center",
+        url: `https://www.amazon.com/s?k=digital+pipe+locator&tag=${this.associateTag}&linkCode=ll2&linkId=example`,
         rating: "4.1",
         reviews: "342",
         category: "measuring_tools",
-        asin: "B00K2MZKXW"
+        asin: "search"
       },
       {
         title: "Milwaukee M12 Fuel Hackzall Reciprocating Saw Kit",
         price: "$199.00",
-        image: "https://m.media-amazon.com/images/I/71GvCaYgStL._AC_SX466_.jpg",
-        url: this.generateAffiliateLink("https://www.amazon.com/dp/B07D7Z1VPR"),
+        image: "https://images.unsplash.com/photo-1504148455328-c376907d081c?w=300&h=300&fit=crop&crop=center",
+        url: `https://www.amazon.com/s?k=Milwaukee+M12+hackzall&tag=${this.associateTag}&linkCode=ll2&linkId=example`,
         rating: "4.8",
         reviews: "567",
         category: "tools",
-        asin: "B07D7Z1VPR"
+        asin: "search"
       },
       {
         title: "Legend Valve 101-143NL T-451 FIP Ball Valve, Bronze",
         price: "$22.95",
-        image: "https://m.media-amazon.com/images/I/41XvOLrr6hL._AC_SX466_.jpg",
-        url: this.generateAffiliateLink("https://www.amazon.com/dp/B008L8KPTY"),
+        image: "https://images.unsplash.com/photo-1589939705384-5185137a7f0f?w=300&h=300&fit=crop&crop=center",
+        url: `https://www.amazon.com/s?k=FIP+ball+valve+bronze&tag=${this.associateTag}&linkCode=ll2&linkId=example`,
         rating: "4.4",
         reviews: "198",
         category: "valves",
-        asin: "B008L8KPTY"
+        asin: "search"
       }
     ];
 
