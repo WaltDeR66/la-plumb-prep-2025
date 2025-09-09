@@ -73,27 +73,27 @@ export default function Header() {
                     </DropdownMenuTrigger>
                     <DropdownMenuContent>
                       <DropdownMenuItem asChild>
-                        <Link href="/louisiana-journeyman-prep-pricing" className="cursor-pointer">
+                        <Link href="/pricing" className="cursor-pointer">
                           Louisiana Journeyman Prep
                         </Link>
                       </DropdownMenuItem>
                       <DropdownMenuItem asChild>
-                        <Link href="/master-plumber-prep-pricing" className="cursor-pointer">
+                        <Link href="/pricing" className="cursor-pointer">
                           Master Plumber Prep
                         </Link>
                       </DropdownMenuItem>
                       <DropdownMenuItem asChild>
-                        <Link href="/backflow-prevention-pricing" className="cursor-pointer">
+                        <Link href="/pricing" className="cursor-pointer">
                           Backflow Prevention Training
                         </Link>
                       </DropdownMenuItem>
                       <DropdownMenuItem asChild>
-                        <Link href="/natural-gas-certification-pricing" className="cursor-pointer">
+                        <Link href="/pricing" className="cursor-pointer">
                           Natural Gas Certification
                         </Link>
                       </DropdownMenuItem>
                       <DropdownMenuItem asChild>
-                        <Link href="/medical-gas-installer-pricing" className="cursor-pointer">
+                        <Link href="/pricing" className="cursor-pointer">
                           Medical Gas Installer Certification
                         </Link>
                       </DropdownMenuItem>
@@ -292,19 +292,19 @@ export default function Header() {
                     <div className="space-y-2">
                       <h3 className="font-medium text-gray-900 dark:text-white">Courses</h3>
                       <div className="pl-4 space-y-2">
-                        <Link href="/louisiana-journeyman-prep-pricing" className="block text-gray-600 dark:text-gray-300">
+                        <Link href="/pricing" className="block text-gray-600 dark:text-gray-300">
                           Louisiana Journeyman Prep
                         </Link>
-                        <Link href="/master-plumber-prep-pricing" className="block text-gray-600 dark:text-gray-300">
+                        <Link href="/pricing" className="block text-gray-600 dark:text-gray-300">
                           Master Plumber Prep
                         </Link>
-                        <Link href="/backflow-prevention-pricing" className="block text-gray-600 dark:text-gray-300">
+                        <Link href="/pricing" className="block text-gray-600 dark:text-gray-300">
                           Backflow Prevention Training
                         </Link>
-                        <Link href="/natural-gas-certification-pricing" className="block text-gray-600 dark:text-gray-300">
+                        <Link href="/pricing" className="block text-gray-600 dark:text-gray-300">
                           Natural Gas Certification
                         </Link>
-                        <Link href="/medical-gas-installer-pricing" className="block text-gray-600 dark:text-gray-300">
+                        <Link href="/pricing" className="block text-gray-600 dark:text-gray-300">
                           Medical Gas Installer Certification
                         </Link>
                       </div>
