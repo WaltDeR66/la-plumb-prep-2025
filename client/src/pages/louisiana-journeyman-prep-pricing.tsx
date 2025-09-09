@@ -2,11 +2,15 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Switch } from "@/components/ui/switch";
 import { CheckCircle, Star, Clock, BookOpen, Users, Award } from "lucide-react";
 import { Link } from "wouter";
+import BetaBanner from "@/components/beta-banner";
 
 export default function LouisianaJourneymanPrepPricing() {
+  const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
   const [isAnnual, setIsAnnual] = useState(false);
+  const [isBetaTester] = useState(true); // Would come from user session/API in real app
 
   useEffect(() => {
     document.title = "Louisiana Journeyman Prep - LA Plumb Prep";
@@ -16,8 +20,82 @@ export default function LouisianaJourneymanPrepPricing() {
     }
   }, []);
 
+  const calculatePrice = (basePrice: number, isAnnual: boolean, isBeta: boolean) => {
+    if (isAnnual && isBeta) {
+      // Beta annual: 50% off first month + 25% off remaining 11 months
+      const firstMonth = basePrice * 0.5;
+      const remainingMonths = basePrice * 0.75 * 11;
+      return parseFloat((firstMonth + remainingMonths).toFixed(2)); // Round to 2 decimals
+    }
+    
+    let price = basePrice;
+    
+    if (isAnnual) {
+      price = price * 12 * 0.8; // 20% annual discount on 12 months
+    }
+    
+    if (isBeta && !isAnnual) {
+      price = price * 0.75; // 25% off for beta testers (monthly only)
+    }
+    
+    return parseFloat(price.toFixed(2)); // Round to 2 decimals
+  };
+
+  const getPriceId = (planId: string, isAnnual: boolean, isBeta: boolean) => {
+    // Real Stripe Price IDs from your account
+    const priceMapping = {
+      basic: {
+        monthly: {
+          regular: "price_1S4EusByFL1L8uV24yWoGtnf", // Basic Monthly - $49.99
+          beta: "price_1S4E4SByFL1L8uV2fwNtzcdE" // Beta Basic Monthly - $37.49
+        },
+        annual: {
+          regular: "price_1S4EqJByFL1L8uV2KtL96A1l", // Basic Annual - $599.88
+          beta: "price_1S4Ek6ByFL1L8uV2AYQdiGj4" // Beta Basic Annual - $437.41
+        }
+      },
+      professional: {
+        monthly: {
+          regular: "price_1S4F7cByFL1L8uV2U5V4tOje", // Professional Monthly - $79.99
+          beta: "price_1S4E9wByFL1L8uV2wOO4VM4D" // Beta Professional Monthly - $59.99
+        },
+        annual: {
+          regular: "price_1S4F4wByFL1L8uV2xK3ArjCj", // Professional Annual - $959.88
+          beta: "price_1S4EZSByFL1L8uV2cRdBL3bp" // Beta Professional Annual - $699.91
+        }
+      },
+      master: {
+        monthly: {
+          regular: "price_1S4F1jByFL1L8uV2YfeGdK7U", // Master Monthly - $99.99
+          beta: "price_1S4ESMByFL1L8uV2SPXM5fs4" // Beta Master Monthly - $74.99
+        },
+        annual: {
+          regular: "price_1S4EyGByFL1L8uV2c2IPcRGY", // Master Annual - $1199.88
+          beta: "price_1S4EflByFL1L8uV2hXo6sAmI" // Beta Master Annual - $874.91
+        }
+      }
+    };
+
+    const cycle = isAnnual ? 'annual' : 'monthly';
+    const type = isBeta ? 'beta' : 'regular';
+    return priceMapping[planId as keyof typeof priceMapping][cycle][type];
+  };
+
+  const handleSelectPlan = (planId: string) => {
+    setSelectedPlan(planId);
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      {/* Beta Banner */}
+      {isBetaTester && (
+        <section className="py-6 bg-background">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <BetaBanner showCTA={false} />
+          </div>
+        </section>
+      )}
+
       {/* Hero Section */}
       <section className="py-20 bg-gradient-to-br from-blue-600/10 to-indigo-600/10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
@@ -30,8 +108,27 @@ export default function LouisianaJourneymanPrepPricing() {
             Louisiana Journeyman Prep
           </h1>
           <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto mb-8">
-            Comprehensive preparation for the Louisiana Journeyman Plumber License exam. Covers all aspects of the Louisiana Plumbing Code, practical applications, and exam strategies.
+            Comprehensive preparation for the Louisiana Journeyman Plumber License exam. Covers all aspects of the Louisiana Plumbing Code, practical applications, and exam strategies. Cancel anytime - only pay for days used.
           </p>
+          
+          <div className="flex flex-col items-center space-y-6">
+            <div className="flex items-center justify-center space-x-8 text-sm text-gray-600 dark:text-gray-400">
+              <div className="flex items-center space-x-2">
+                <CheckCircle className="w-5 h-5 text-green-600" />
+                <span>Cancel Anytime</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <CheckCircle className="w-5 h-5 text-green-600" />
+                <span>Pro-rated Billing</span>
+              </div>
+            </div>
+            <div className="flex items-center space-x-4 bg-white dark:bg-gray-800 p-3 rounded-lg border">
+              <span className={`text-sm font-medium ${!isAnnual ? 'text-blue-600' : 'text-gray-600'}`}>Monthly</span>
+              <Switch checked={isAnnual} onCheckedChange={setIsAnnual} />
+              <span className={`text-sm font-medium ${isAnnual ? 'text-blue-600' : 'text-gray-600'}`}>Annual</span>
+              {isAnnual && <Badge className="bg-green-100 text-green-800 text-xs">Save 20%</Badge>}
+            </div>
+          </div>
           
           {/* Course Stats */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-2xl mx-auto mb-12">
@@ -93,113 +190,130 @@ export default function LouisianaJourneymanPrepPricing() {
           </p>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <Card>
-              <CardHeader className="text-center">
-                <CardTitle className="text-xl">Basic</CardTitle>
-                <div className="text-3xl font-bold text-gray-900 dark:text-white">
-                  $37.49
-                  <span className="text-sm font-normal text-gray-600">/month</span>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <ul className="space-y-3 mb-6">
-                  <li className="flex items-center">
-                    <CheckCircle className="h-5 w-5 text-green-600 mr-2" />
-                    <span>Journeyman Prep Course</span>
-                  </li>
-                  <li className="flex items-center">
-                    <CheckCircle className="h-5 w-5 text-green-600 mr-2" />
-                    <span>Basic Calculator Tools</span>
-                  </li>
-                  <li className="flex items-center">
-                    <CheckCircle className="h-5 w-5 text-green-600 mr-2" />
-                    <span>Practice Tests</span>
-                  </li>
-                  <li className="flex items-center">
-                    <CheckCircle className="h-5 w-5 text-green-600 mr-2" />
-                    <span>Email Support</span>
-                  </li>
-                </ul>
-                <Link href="/checkout?plan=basic">
-                  <Button className="w-full" variant="outline">
-                    Get Started
-                  </Button>
-                </Link>
-              </CardContent>
-            </Card>
-
-            <Card className="border-blue-500 relative">
-              <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-                <Badge className="bg-blue-600 text-white">Most Popular</Badge>
-              </div>
-              <CardHeader className="text-center">
-                <CardTitle className="text-xl">Professional</CardTitle>
-                <div className="text-3xl font-bold text-gray-900 dark:text-white">
-                  $59.99
-                  <span className="text-sm font-normal text-gray-600">/month</span>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <ul className="space-y-3 mb-6">
-                  <li className="flex items-center">
-                    <CheckCircle className="h-5 w-5 text-green-600 mr-2" />
-                    <span>Everything in Basic</span>
-                  </li>
-                  <li className="flex items-center">
-                    <CheckCircle className="h-5 w-5 text-green-600 mr-2" />
-                    <span>AI Photo Analysis</span>
-                  </li>
-                  <li className="flex items-center">
-                    <CheckCircle className="h-5 w-5 text-green-600 mr-2" />
-                    <span>Plan Analysis Tools</span>
-                  </li>
-                  <li className="flex items-center">
-                    <CheckCircle className="h-5 w-5 text-green-600 mr-2" />
-                    <span>Priority Support</span>
-                  </li>
-                </ul>
-                <Link href="/checkout?plan=professional">
-                  <Button className="w-full">
-                    Get Started
-                  </Button>
-                </Link>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader className="text-center">
-                <CardTitle className="text-xl">Master</CardTitle>
-                <div className="text-3xl font-bold text-gray-900 dark:text-white">
-                  $74.99
-                  <span className="text-sm font-normal text-gray-600">/month</span>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <ul className="space-y-3 mb-6">
-                  <li className="flex items-center">
-                    <CheckCircle className="h-5 w-5 text-green-600 mr-2" />
-                    <span>Everything in Professional</span>
-                  </li>
-                  <li className="flex items-center">
-                    <CheckCircle className="h-5 w-5 text-green-600 mr-2" />
-                    <span>All Future Courses</span>
-                  </li>
-                  <li className="flex items-center">
-                    <CheckCircle className="h-5 w-5 text-green-600 mr-2" />
-                    <span>1-on-1 Mentoring</span>
-                  </li>
-                  <li className="flex items-center">
-                    <CheckCircle className="h-5 w-5 text-green-600 mr-2" />
-                    <span>White-Glove Support</span>
-                  </li>
-                </ul>
-                <Link href="/checkout?plan=master">
-                  <Button className="w-full" variant="outline">
-                    Get Started
-                  </Button>
-                </Link>
-              </CardContent>
-            </Card>
+            {[
+              {
+                id: "basic",
+                name: "Basic",
+                basePrice: 37.49,
+                tier: "basic",
+                description: "Perfect for getting started",
+                features: [
+                  "Journeyman Prep Course",
+                  "Basic Calculator Tools", 
+                  "Practice Tests",
+                  "Job Board Access",
+                  "Referral Commissions (10%)",
+                  "Email Support"
+                ]
+              },
+              {
+                id: "professional",
+                name: "Professional",
+                basePrice: 59.99,
+                tier: "professional",
+                description: "For serious professionals",
+                popular: true,
+                features: [
+                  "Everything in Basic",
+                  "Complete Calculator Suite",
+                  "AI Photo Analysis",
+                  "Plan Analysis Tools",
+                  "AI Mentor Support",
+                  "Priority Support"
+                ]
+              },
+              {
+                id: "master",
+                name: "Master",
+                basePrice: 74.99,
+                tier: "master",
+                description: "Complete mastery package",
+                features: [
+                  "Everything in Professional",
+                  "All Future Courses",
+                  "1-on-1 Mentoring",
+                  "Material List Generator",
+                  "Book Store Access",
+                  "White-Glove Support"
+                ]
+              }
+            ].map((plan) => (
+              <Card 
+                key={plan.id} 
+                className={`p-6 hover:shadow-lg transition-all relative cursor-pointer ${
+                  plan.popular ? 'border-2 border-blue-500 scale-105' : ''
+                } ${
+                  selectedPlan === plan.id ? 'ring-2 ring-blue-500' : ''
+                }`}
+                onClick={() => handleSelectPlan(plan.id)}
+              >
+                {plan.popular && (
+                  <Badge className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-blue-600 text-white">
+                    Most Popular
+                  </Badge>
+                )}
+                <CardContent className="p-0">
+                  <div className="text-center mb-8">
+                    <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+                      {plan.name}
+                    </h3>
+                    <div className="text-4xl font-bold text-blue-600 mb-2">
+                      {isAnnual ? (
+                        <>
+                          ${calculatePrice(plan.basePrice, isAnnual, isBetaTester)}
+                          <span className="text-xl font-normal text-gray-600">/year</span>
+                        </>
+                      ) : (
+                        <>
+                          ${calculatePrice(plan.basePrice, isAnnual, isBetaTester)}
+                          <span className="text-xl font-normal text-gray-600">/month</span>
+                        </>
+                      )}
+                      {(isAnnual || isBetaTester) && (
+                        <div className="text-sm space-y-1">
+                          {plan.basePrice !== calculatePrice(plan.basePrice, isAnnual, isBetaTester) && (
+                            <div className="text-gray-500 line-through">
+                              {isAnnual ? `$${(plan.basePrice * 12).toFixed(2)}/year` : `$${plan.basePrice.toFixed(2)}/month`}
+                            </div>
+                          )}
+                          {isBetaTester && (
+                            <div className="text-orange-600 font-semibold">
+                              🎉 Beta: Extra 25% off + 50% off first month
+                            </div>
+                          )}
+                          {isAnnual && (
+                            <div className="text-green-600 font-normal">
+                              Save ${((plan.basePrice * 12) - calculatePrice(plan.basePrice, isAnnual, isBetaTester)).toFixed(2)} per year (20% off)
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                    <p className="text-gray-600 dark:text-gray-400">
+                      {plan.description}
+                    </p>
+                  </div>
+                  
+                  <div className="space-y-4 mb-8">
+                    {plan.features.map((feature, index) => (
+                      <div key={index} className="flex items-center space-x-3">
+                        <CheckCircle className="w-5 h-5 text-green-600" />
+                        <span className="text-gray-900 dark:text-white">{feature}</span>
+                      </div>
+                    ))}
+                  </div>
+                  
+                  <Link href={`/checkout?plan=${plan.tier}&priceId=${getPriceId(plan.id, isAnnual, isBetaTester)}&planName=${plan.name}&price=$${calculatePrice(plan.basePrice, isAnnual, isBetaTester).toFixed(2)}`}>
+                    <Button 
+                      className={`w-full ${plan.popular ? 'bg-blue-600 hover:bg-blue-700' : ''}`}
+                      size="lg"
+                    >
+                      Get Started Now
+                    </Button>
+                  </Link>
+                </CardContent>
+              </Card>
+            ))}
           </div>
         </div>
       </section>
