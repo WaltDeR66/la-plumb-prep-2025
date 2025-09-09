@@ -25,6 +25,7 @@ export default function Header() {
     { name: "Courses", href: "#" }, // Now handled as dropdown
     { name: "AI Tools", href: "#" }, // Now handled as dropdown
     { name: "Store", href: "#" }, // Now handled as dropdown
+    { name: "For Companies", href: "#" }, // Now handled as dropdown
     { name: "Jobs", href: "/jobs" },
   ];
 
@@ -142,6 +143,40 @@ export default function Header() {
                       <DropdownMenuItem asChild>
                         <Link href="/store" className="cursor-pointer">
                           LA Plumb Store
+                        </Link>
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                );
+              }
+              if (item.name === "For Companies") {
+                return (
+                  <DropdownMenu key={item.name}>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" className="flex items-center space-x-1 text-sm font-medium">
+                        <span>For Companies</span>
+                        <ChevronDown className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent>
+                      <DropdownMenuItem asChild>
+                        <Link href="/employer-signup" className="cursor-pointer">
+                          Post Job Openings
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link href="/apprentice-signup" className="cursor-pointer">
+                          Register Apprentices
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link href="/plan-analysis-tool" className="cursor-pointer">
+                          Plan Analysis Tool
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link href="/ai-photo-analysis" className="cursor-pointer">
+                          Photo Code Analysis
                         </Link>
                       </DropdownMenuItem>
                     </DropdownMenuContent>
@@ -287,6 +322,25 @@ export default function Header() {
                       <div className="pl-4 space-y-2">
                         <Link href="/store" className="block text-gray-600 dark:text-gray-300">
                           LA Plumb Store
+                        </Link>
+                      </div>
+                    </div>
+                    
+                    {/* Mobile For Companies */}
+                    <div className="space-y-2">
+                      <h3 className="font-medium text-gray-900 dark:text-white">For Companies</h3>
+                      <div className="pl-4 space-y-2">
+                        <Link href="/employer-signup" className="block text-gray-600 dark:text-gray-300">
+                          Post Job Openings
+                        </Link>
+                        <Link href="/apprentice-signup" className="block text-gray-600 dark:text-gray-300">
+                          Register Apprentices
+                        </Link>
+                        <Link href="/plan-analysis-tool" className="block text-gray-600 dark:text-gray-300">
+                          Plan Analysis Tool
+                        </Link>
+                        <Link href="/ai-photo-analysis" className="block text-gray-600 dark:text-gray-300">
+                          Photo Code Analysis
                         </Link>
                       </div>
                     </div>
