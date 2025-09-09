@@ -64,6 +64,7 @@ import Footer from "@/components/layout/footer";
 import StudyPlans from "@/pages/study-plans";
 import StudyPlanItem from "@/pages/study-plan-item";
 import StoreManager from "@/pages/admin/store-manager";
+import AIPhotoPricing from "@/pages/ai-photo-pricing";
 
 function Router() {
   return (
@@ -78,6 +79,7 @@ function Router() {
           <Route path="/tools/plan-analysis" component={PlanAnalysisTool} />
           <Route path="/plan-analysis-tool" component={PlanAnalysisTool} />
           <Route path="/ai-photo-analysis" component={Tools} />
+          <Route path="/ai-photo-pricing" component={AIPhotoPricing} />
           <Route path="/ai-tools-pricing" component={AIToolsPricing} />
           <Route path="/pay-per-use" component={PayPerUseCheckout} />
           <Route path="/jobs" component={Jobs} />

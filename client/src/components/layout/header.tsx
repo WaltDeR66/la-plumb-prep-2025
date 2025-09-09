@@ -122,7 +122,7 @@ export default function Header() {
                         </Link>
                       </DropdownMenuItem>
                       <DropdownMenuItem asChild>
-                        <Link href="/ai-tools-pricing" className="cursor-pointer">
+                        <Link href="/ai-photo-analysis" className="cursor-pointer">
                           Pipe Sizing Calculator
                         </Link>
                       </DropdownMenuItem>
@@ -175,7 +175,7 @@ export default function Header() {
                         </Link>
                       </DropdownMenuItem>
                       <DropdownMenuItem asChild>
-                        <Link href="/ai-photo-analysis" className="cursor-pointer">
+                        <Link href="/ai-photo-pricing" className="cursor-pointer">
                           Photo Code Analysis
                         </Link>
                       </DropdownMenuItem>
@@ -310,7 +310,7 @@ export default function Header() {
                         <Link href="/plan-analysis-tool" className="block text-gray-600 dark:text-gray-300">
                           Plan Analysis Tool
                         </Link>
-                        <Link href="/ai-tools-pricing" className="block text-gray-600 dark:text-gray-300">
+                        <Link href="/ai-photo-analysis" className="block text-gray-600 dark:text-gray-300">
                           Pipe Sizing Calculator
                         </Link>
                       </div>
@@ -339,7 +339,7 @@ export default function Header() {
                         <Link href="/plan-analysis-tool" className="block text-gray-600 dark:text-gray-300">
                           Plan Analysis Tool
                         </Link>
-                        <Link href="/ai-photo-analysis" className="block text-gray-600 dark:text-gray-300">
+                        <Link href="/ai-photo-pricing" className="block text-gray-600 dark:text-gray-300">
                           Photo Code Analysis
                         </Link>
                       </div>
