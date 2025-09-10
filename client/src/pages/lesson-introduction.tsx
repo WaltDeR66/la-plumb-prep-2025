@@ -33,7 +33,7 @@ interface CourseContent {
 }
 
 export default function LessonIntroduction() {
-  const [match, params] = useRoute("/lesson-introduction/:courseId/:section");
+  const [match, params] = useRoute("/course/:courseId/lesson/:section/introduction");
   const [, navigate] = useLocation();
   const { toast } = useToast();
   const courseId = params?.courseId;

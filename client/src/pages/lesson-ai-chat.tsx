@@ -20,7 +20,7 @@ function getCourseUUID(courseSlug: string): string {
 }
 
 export default function LessonAIChat() {
-  const [match, params] = useRoute("/lesson-ai-chat/:courseId/:section");
+  const [match, params] = useRoute("/course/:courseId/lesson/:section/ai-chat");
   const [, navigate] = useLocation();
   const { toast } = useToast();
   const courseId = params?.courseId;

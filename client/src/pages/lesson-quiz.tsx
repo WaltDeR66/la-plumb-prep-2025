@@ -43,7 +43,7 @@ interface CourseContent {
 }
 
 export default function LessonQuiz() {
-  const [match, params] = useRoute("/lesson-quiz/:courseId/:section");
+  const [match, params] = useRoute("/course/:courseId/lesson/:section/quiz");
   const [, navigate] = useLocation();
   const { toast } = useToast();
   const queryClient = useQueryClient();
