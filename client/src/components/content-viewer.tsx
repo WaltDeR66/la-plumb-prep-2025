@@ -139,8 +139,8 @@ export default function ContentViewer(props: ContentViewerProps) {
     const currentSection = getCurrentSection();
     
     if (nextStep && courseId && sectionId) {
-      // Still within current lesson - navigate to next step
-      navigate(`/course/${courseId}/lesson/${sectionId}`);
+      // Still within current lesson - navigate to next step page
+      navigate(`/course/${courseId}/lesson/${sectionId}/${nextStep.type}`);
     } else {
       // End of current lesson - check for next lesson in sequence
       const nextLesson = getNextLessonInSequence(currentSection);
