@@ -16,6 +16,12 @@ import BetaFeedback from "@/pages/beta-feedback";
 import Dashboard from "@/pages/dashboard";
 import CourseContent from "@/pages/course-content";
 import Lesson from "@/pages/lesson";
+import LessonIntroduction from "@/pages/lesson-introduction";
+import LessonPodcast from "@/pages/lesson-podcast";
+import LessonFlashcards from "@/pages/lesson-flashcards";
+import LessonAIChat from "@/pages/lesson-ai-chat";
+import LessonStudyNotes from "@/pages/lesson-study-notes";
+import LessonQuiz from "@/pages/lesson-quiz";
 import ContentView from "@/pages/content-view";
 import PodcastView from "@/pages/podcast-view";
 import Login from "@/pages/auth/login";
@@ -105,6 +111,12 @@ function Router() {
           <Route path="/admin/store-manager" component={StoreManager} />
           <Route path="/course/:courseId" component={CourseContent} />
           <Route path="/course/:courseId/lesson/:section" component={Lesson} />
+          <Route path="/course/:courseId/lesson/:section/introduction" component={LessonIntroduction} />
+          <Route path="/course/:courseId/lesson/:section/podcast" component={LessonPodcast} />
+          <Route path="/course/:courseId/lesson/:section/flashcards" component={LessonFlashcards} />
+          <Route path="/course/:courseId/lesson/:section/ai-chat" component={LessonAIChat} />
+          <Route path="/course/:courseId/lesson/:section/study-notes" component={LessonStudyNotes} />
+          <Route path="/course/:courseId/lesson/:section/quiz" component={LessonQuiz} />
           <Route path="/course/:courseId/content/:contentId" component={ContentView} />
           <Route path="/course/:courseId/podcast/:contentId" component={PodcastView} />
           <Route path="/study-companion" component={StudyCompanion} />
