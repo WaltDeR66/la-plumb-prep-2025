@@ -32,7 +32,7 @@ interface Flashcard {
 }
 
 export default function LessonFlashcards() {
-  const [match, params] = useRoute("/course/:courseId/lesson/:section/flashcards");
+  const [match, params] = useRoute("/lesson-flashcards/:courseId/:section");
   const [, navigate] = useLocation();
   const { toast } = useToast();
   const queryClient = useQueryClient();

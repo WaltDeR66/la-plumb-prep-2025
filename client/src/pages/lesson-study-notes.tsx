@@ -32,7 +32,7 @@ interface CourseContent {
 }
 
 export default function LessonStudyNotes() {
-  const [match, params] = useRoute("/course/:courseId/lesson/:section/study-notes");
+  const [match, params] = useRoute("/lesson-study-notes/:courseId/:section");
   const [, navigate] = useLocation();
   const { toast } = useToast();
   const courseId = params?.courseId;

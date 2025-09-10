@@ -33,7 +33,7 @@ interface CourseContent {
 }
 
 export default function LessonPodcast() {
-  const [match, params] = useRoute("/course/:courseId/lesson/:section/podcast");
+  const [match, params] = useRoute("/lesson-podcast/:courseId/:section");
   const [, navigate] = useLocation();
   const { toast } = useToast();
   const courseId = params?.courseId;
