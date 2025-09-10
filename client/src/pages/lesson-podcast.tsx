@@ -8,7 +8,55 @@ import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { useState, useRef, useEffect } from "react";
 
-// Map friendly course identifiers to database UUIDs
+// Static audio file mapping for immediate functionality
+function getStaticAudioUrl(courseSlug: string, section: string): string | null {
+  const audioMapping: { [key: string]: { [key: string]: string } } = {
+    'journeyman-prep': {
+      '101': '/audio/journeyman-prep/101.mp3'
+    }
+  };
+  
+  return audioMapping[courseSlug]?.[section] || null;
+}
+
+// Static content mapping for lessons without API dependency
+function getStaticLessonContent(courseSlug: string, section: string): any {
+  const contentMapping: { [key: string]: { [key: string]: any } } = {
+    'journeyman-prep': {
+      '101': {
+        title: 'Louisiana State Plumbing Code - Section 101: Administration',
+        content: {
+          text: `
+            <h2>Section 101: Administration</h2>
+            <p>This section deals with the general administration of the Louisiana State Plumbing Code (LSPC). Understanding the administrative framework is crucial for all plumbing professionals working in Louisiana.</p>
+            
+            <h3>Key Topics Covered:</h3>
+            <ul>
+              <li>Authority and jurisdiction of the Louisiana State Plumbing Code</li>
+              <li>Adoption and enforcement procedures</li>
+              <li>Administrative responsibilities and procedures</li>
+              <li>Permit and inspection requirements</li>
+              <li>Code compliance and violations</li>
+            </ul>
+            
+            <h3>Learning Objectives:</h3>
+            <p>By the end of this lesson, you will understand:</p>
+            <ul>
+              <li>The legal authority behind Louisiana's plumbing regulations</li>
+              <li>How the code is administered and enforced</li>
+              <li>Your responsibilities as a plumbing professional</li>
+              <li>The permit and inspection process</li>
+            </ul>
+          `
+        }
+      }
+    }
+  };
+  
+  return contentMapping[courseSlug]?.[section] || null;
+}
+
+// Map friendly course identifiers to database UUIDs (kept for compatibility)
 function getCourseUUID(courseSlug: string): string {
   const courseMapping: { [key: string]: string } = {
     'journeyman-prep': 'b83c6ebe-f5bd-4787-8fd5-e3b177d9e79b',
@@ -48,34 +96,44 @@ export default function LessonPodcast() {
     return <div>Lesson not found</div>;
   }
 
-  // Resolve friendly course ID to UUID for API calls
+  // Get static audio and content first for immediate functionality
+  const staticAudioUrl = getStaticAudioUrl(courseId, section);
+  const staticContent = getStaticLessonContent(courseId, section);
+  
+  // Resolve friendly course ID to UUID for API calls (fallback only)
   const resolvedCourseId = getCourseUUID(courseId);
 
-  // Fetch podcast audio info
+  // Only fetch API data if static content is not available and AI features are enabled
+  const enableAIFeatures = import.meta.env.VITE_ENABLE_AI_AUDIO === 'true';
+  
+  // Fetch podcast audio info (fallback for AI-generated content)
   const { data: podcastData, isLoading: isPodcastLoading, refetch: refetchPodcast } = useQuery({
     queryKey: [`/api/podcast/${resolvedCourseId}/${section}`],
-    enabled: !!resolvedCourseId && !!section,
+    enabled: !staticAudioUrl && enableAIFeatures && !!resolvedCourseId && !!section,
     retry: false
   }) as { data: { url?: string; duration?: number; title?: string } | undefined, isLoading: boolean, refetch: any };
 
-  // Fetch course content for text display
+  // Fetch course content for text display (fallback for static content)
   const { data: content, isLoading: isContentLoading } = useQuery({
     queryKey: [`/api/courses/${resolvedCourseId}/content`],
-    enabled: !!resolvedCourseId,
+    enabled: !staticContent && !!resolvedCourseId,
   });
 
-  // Find podcast content for this section
-  const podcastContent = Array.isArray(content) ? content.find((item: CourseContent) => 
+  // Find podcast content for this section (fallback)
+  const podcastContent = staticContent || (Array.isArray(content) ? content.find((item: CourseContent) => 
     item.section === parseInt(section) && 
     (item.type === 'podcast' || item.title?.toLowerCase().includes('podcast'))
-  ) : undefined;
+  ) : undefined);
 
   // State for audio generation
   const [isGenerating, setIsGenerating] = useState(false);
   const [generationError, setGenerationError] = useState<string | null>(null);
 
-  // Track lesson step progress with current position
+  // Track lesson step progress with current position (optional, non-blocking)
   const trackProgress = async (completed = false, position = currentTime) => {
+    // Only track progress if authentication is available
+    if (!enableAIFeatures) return;
+    
     try {
       await apiRequest("POST", "/api/lesson-progress/track", {
         courseId: resolvedCourseId,
@@ -90,9 +148,11 @@ export default function LessonPodcast() {
     }
   };
 
-  // Load saved progress
+  // Load saved progress (optional, non-blocking)
   useEffect(() => {
     const loadProgress = async () => {
+      if (!enableAIFeatures) return;
+      
       try {
         const response = await apiRequest("GET", `/api/lesson-progress/${resolvedCourseId}/${section}/podcast`);
         if (response.ok) {
@@ -109,21 +169,21 @@ export default function LessonPodcast() {
       }
     };
     
-    if (resolvedCourseId && section) {
+    if (resolvedCourseId && section && enableAIFeatures) {
       loadProgress();
     }
-  }, [resolvedCourseId, section]);
+  }, [resolvedCourseId, section, enableAIFeatures]);
 
-  // Save progress periodically
+  // Save progress periodically (optional, non-blocking)
   useEffect(() => {
-    if (isPlaying) {
+    if (isPlaying && enableAIFeatures) {
       const interval = setInterval(() => {
         trackProgress(false, currentTime);
       }, 30000); // Save every 30 seconds
       
       return () => clearInterval(interval);
     }
-  }, [isPlaying, currentTime]);
+  }, [isPlaying, currentTime, enableAIFeatures]);
 
   const handlePlayPause = () => {
     if (audioRef.current) {
@@ -186,7 +246,8 @@ export default function LessonPodcast() {
   };
 
   const handleContinue = () => {
-    trackProgress(true, currentTime);
+    // Try to track progress but don't block navigation if it fails
+    trackProgress(true, currentTime).catch(() => {});
     navigate(`/lesson-flashcards/${courseId}/${section}`);
   };
 
@@ -196,13 +257,20 @@ export default function LessonPodcast() {
     return `${minutes}:${seconds.toString().padStart(2, '0')}`;
   };
 
-  if (isContentLoading || isPodcastLoading) {
+  // Show loading only if we're waiting for fallback content and no static content is available
+  if (!staticContent && (isContentLoading || isPodcastLoading)) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
         <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full" />
       </div>
     );
   }
+  
+  // Determine which audio URL to use (static first, then API)
+  const audioUrl = staticAudioUrl || podcastData?.url;
+  
+  // Determine which content to display (static first, then API)
+  const displayContent = staticContent || podcastContent;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
@@ -229,24 +297,24 @@ export default function LessonPodcast() {
               <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center">
                 <Headphones className="h-5 w-5 text-green-600" />
               </div>
-              {podcastContent?.title || `Section ${section} Podcast`}
+              {displayContent?.title || `Section ${section} Podcast`}
             </CardTitle>
           </CardHeader>
           <CardContent>
-            {podcastContent?.content?.text ? (
+            {displayContent?.content?.text ? (
               <div className="space-y-6">
                 {/* Display podcast content */}
                 <div 
                   className="prose max-w-none text-foreground prose-headings:text-foreground prose-strong:text-foreground prose-em:text-foreground prose-blockquote:text-muted-foreground prose-code:text-foreground"
-                  dangerouslySetInnerHTML={{ __html: podcastContent.content.text }}
+                  dangerouslySetInnerHTML={{ __html: displayContent.content.text }}
                 />
                 
                 {/* Audio Player or Generation */}
-                {podcastData?.url ? (
+                {audioUrl ? (
                   <div className="space-y-4">
                     <audio
                       ref={audioRef}
-                      src={podcastData.url}
+                      src={audioUrl}
                       onTimeUpdate={handleTimeUpdate}
                       onLoadedMetadata={handleLoadedMetadata}
                       onEnded={handleEnded}
@@ -326,7 +394,7 @@ export default function LessonPodcast() {
                       </div>
                     </div>
                   </div>
-                ) : (
+                ) : enableAIFeatures ? (
                   <div className="bg-gray-50 rounded-lg p-6 border-2 border-dashed border-gray-300">
                     <div className="text-center py-8">
                       <Headphones className="h-12 w-12 mx-auto mb-4 text-gray-400" />
@@ -357,6 +425,17 @@ export default function LessonPodcast() {
                           </>
                         )}
                       </Button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="bg-blue-50 rounded-lg p-6 border border-blue-200">
+                    <div className="text-center py-6">
+                      <Headphones className="h-10 w-10 mx-auto mb-3 text-blue-500" />
+                      <h3 className="text-lg font-semibold text-blue-900 mb-2">Audio Content Coming Soon</h3>
+                      <p className="text-blue-700 mb-4">Audio content for this section is currently being prepared. You can continue studying with the comprehensive text content above.</p>
+                      <div className="text-sm text-blue-600 bg-blue-100 rounded-lg p-3 max-w-md mx-auto">
+                        💡 <strong>Study Tip:</strong> Reading through the content first helps you better understand the audio when it becomes available!
+                      </div>
                     </div>
                   </div>
                 )}
