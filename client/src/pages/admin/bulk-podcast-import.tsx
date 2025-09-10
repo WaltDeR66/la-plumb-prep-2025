@@ -62,6 +62,28 @@ export default function BulkPodcastImport() {
     }
   });
 
+  // Audio generation mutation
+  const generateAudioMutation = useMutation({
+    mutationFn: async () => await apiRequest("POST", "/api/admin/generate-podcast-audio", {}),
+    onSuccess: (result: any) => {
+      const successCount = result.results?.filter((r: any) => r.success).length || 0;
+      const totalCount = result.results?.length || 0;
+      
+      toast({ 
+        title: "Audio generation completed!", 
+        description: `Generated audio for ${successCount}/${totalCount} podcast episodes. Students can now listen to the audio content.`,
+        variant: "default"
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Audio generation failed",
+        description: error.message || "Failed to generate podcast audio",
+        variant: "destructive"
+      });
+    }
+  });
+
   const parsePodcasts = () => {
     if (!podcastText.trim()) {
       toast({
@@ -405,6 +427,47 @@ Absolutely! The code establishes clear requirements for how plumbing systems mus
             </AlertDescription>
           </Alert>
         )}
+        
+        {/* Audio Generation Section */}
+        <Card className="mt-8">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Mic className="w-5 h-5" />
+              Generate Audio from Existing Scripts
+            </CardTitle>
+            <CardDescription>
+              Convert your existing podcast scripts into high-quality audio files using OpenAI's text-to-speech technology.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div className="p-4 bg-blue-50 rounded-lg">
+                <p className="text-sm text-blue-800">
+                  <strong>What this does:</strong> This will take all your existing podcast scripts in the database and generate actual MP3 audio files using OpenAI's professional text-to-speech. Students will then be able to listen to the audio content instead of seeing "Coming Soon."
+                </p>
+              </div>
+              
+              <Button
+                onClick={() => generateAudioMutation.mutate()}
+                disabled={generateAudioMutation.isPending}
+                className="w-full"
+                data-testid="generate-audio-button"
+              >
+                {generateAudioMutation.isPending ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                    Generating Audio Files...
+                  </>
+                ) : (
+                  <>
+                    <Mic className="w-4 h-4 mr-2" />
+                    Generate Audio Files from Scripts
+                  </>
+                )}
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );

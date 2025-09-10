@@ -7,7 +7,7 @@ import { insertUserSchema, insertJobSchema, insertJobApplicationSchema, insertCo
 import { competitionNotificationService } from "./competitionNotifications";
 import { eq, and, or, desc, sql, count } from "drizzle-orm";
 import { db } from "./db";
-import { analyzePhoto, analyzePlans, getMentorResponse, calculatePipeSize, reviewJobPosting, generateNumberedFittingPDF, generateStudyPlan, reviewWrongAnswers } from "./openai";
+import { analyzePhoto, analyzePlans, getMentorResponse, calculatePipeSize, reviewJobPosting, generateNumberedFittingPDF, generateStudyPlan, reviewWrongAnswers, generateAudio } from "./openai";
 import { calculateReferralCommission, isValidSubscriptionTier } from "@shared/referral-utils";
 import { contentExtractor } from "./content-extractor";
 import { emailAutomation } from "./email-automation";
@@ -6260,6 +6260,85 @@ Start your journey at laplumbprep.com/courses
     } catch (error: any) {
       console.error("Error bulk importing podcasts:", error);
       res.status(500).json({ error: "Failed to import podcasts" });
+    }
+  });
+
+  // Generate audio files from existing podcast scripts
+  app.post("/api/admin/generate-podcast-audio", async (req: any, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+    
+    if (req.user.email !== 'admin@latraining.com' && req.user.subscriptionTier !== 'master') {
+      return res.status(403).json({ error: "Admin access required" });
+    }
+    
+    try {
+      // Get all podcast content from database
+      const allContent = await storage.getCourseContent('b83c6ebe-f5bd-4787-8fd5-e3b177d9e79b');
+      const podcastContent = allContent.filter((item: any) => item.type === 'podcast');
+      
+      const results = [];
+      
+      for (const content of podcastContent) {
+        try {
+          // Extract transcript text from various possible fields
+          const scriptText = content.content?.transcript || 
+                            content.content?.text || 
+                            content.transcript || 
+                            '';
+          
+          if (!scriptText) continue;
+          
+          // Strip HTML tags and clean text
+          const plainText = scriptText
+            .replace(/<[^>]*>/g, ' ')
+            .replace(/\s+/g, ' ')
+            .trim();
+            
+          if (plainText.length < 50) continue; // Skip if too short
+          
+          // Generate audio using existing OpenAI function
+          const audioUrl = await generateAudio(plainText, `section-${content.section}-podcast`);
+          
+          // CRITICAL: Update the database with the generated audio URL
+          const updatedContent = {
+            ...content.content,
+            audioUrl: audioUrl
+          };
+          
+          await storage.updateCourseContent(content.id, {
+            content: updatedContent
+          });
+          
+          results.push({
+            section: content.section,
+            audioUrl,
+            textLength: plainText.length,
+            success: true
+          });
+          
+          console.log(`Generated and saved audio for Section ${content.section}: ${audioUrl}`);
+          
+        } catch (error: any) {
+          console.error(`Failed to generate audio for Section ${content.section}:`, error);
+          results.push({
+            section: content.section,
+            success: false,
+            error: error.message
+          });
+        }
+      }
+      
+      res.json({ 
+        success: true, 
+        message: `Generated audio for ${results.filter(r => r.success).length} podcast episodes`,
+        results 
+      });
+      
+    } catch (error: any) {
+      console.error("Error generating podcast audio:", error);
+      res.status(500).json({ error: "Failed to generate podcast audio: " + error.message });
     }
   });
 
