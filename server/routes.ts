@@ -2154,35 +2154,6 @@ Start your journey at laplumbprep.com/courses
 
     try {
       const { courseId, section, stepType, stepIndex, isCompleted, currentPosition } = req.body;
-      const userId = req.user?.id;
-      
-      const progressData = {
-        id: generateId(),
-        userId,
-        courseId,
-        section,
-        stepType,
-        stepIndex,
-        isCompleted: isCompleted || false,
-        currentPosition: currentPosition ? JSON.stringify(currentPosition) : null,
-        createdAt: new Date(),
-        updatedAt: new Date()
-      };
-      
-      await db.insert(lessonProgress).values(progressData).onConflictDoUpdate({
-        target: [lessonProgress.userId, lessonProgress.courseId, lessonProgress.section, lessonProgress.stepType],
-        set: {
-          isCompleted: progressData.isCompleted,
-          currentPosition: progressData.currentPosition,
-          updatedAt: new Date()
-        }
-      });
-      
-      res.json(progressData);
-    } catch (error) {
-      console.error("Error tracking lesson progress:", error);
-      res.status(500).json({ message: "Error tracking lesson progress" });
-      const { courseId, section, stepType, stepIndex, isCompleted, currentPosition } = req.body;
       const userId = (req.user as any).id;
 
       const progressData = {
@@ -2202,6 +2173,7 @@ Start your journey at laplumbprep.com/courses
       const progress = await storage.updateLessonStepProgress(progressData);
       res.json(progress);
     } catch (error: any) {
+      console.error("Error tracking lesson progress:", error);
       res.status(500).json({ message: error.message });
     }
   });
@@ -2213,34 +2185,16 @@ Start your journey at laplumbprep.com/courses
 
     try {
       const { courseId, section, stepType } = req.params;
-      const userId = req.user?.id;
-      
-      const progress = await db.select().from(lessonProgress)
-        .where(
-          and(
-            eq(lessonProgress.userId, userId),
-            eq(lessonProgress.courseId, courseId),
-            eq(lessonProgress.section, parseInt(section)),
-            eq(lessonProgress.stepType, stepType)
-          )
-        )
-        .orderBy(desc(lessonProgress.createdAt))
-        .limit(1);
-      
-      if (progress.length > 0) {
-        res.json(progress[0]);
-      } else {
-        res.json({ message: "No progress found" });
-      }
-    } catch (error) {
-      console.error("Error fetching lesson progress:", error);
-      res.status(500).json({ message: "Error fetching lesson progress" });
-      const { courseId, section, stepType } = req.params;
       const userId = (req.user as any).id;
 
       const progress = await storage.getLessonStepProgress(userId, courseId, parseInt(section), stepType);
-      res.json(progress);
+      if (progress) {
+        res.json(progress);
+      } else {
+        res.json({ message: "No progress found" });
+      }
     } catch (error: any) {
+      console.error("Error fetching lesson progress:", error);
       res.status(500).json({ message: error.message });
     }
   });
