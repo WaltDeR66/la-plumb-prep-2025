@@ -41,6 +41,68 @@ function getCourseUUID(courseSlug: string): string {
   return courseMapping[courseSlug] || courseSlug;
 }
 
+// Component for Continue Where You Left Off button
+function ContinueWhereLeftOffButton({ courseId, section, navigate }: { 
+  courseId: string; 
+  section: string; 
+  navigate: (path: string) => void; 
+}) {
+  const { data: currentStep, isLoading } = useQuery({
+    queryKey: [`/api/lesson-progress/${courseId}/${section}/current`],
+    enabled: !!courseId && !!section,
+  });
+
+  // Map step types to their proper routes
+  const getStepRoute = (stepType: string): string => {
+    switch (stepType) {
+      case 'introduction':
+        return `/lesson-introduction/${courseId}/${section}`;
+      case 'podcast':
+        return `/lesson-podcast/${courseId}/${section}`;
+      case 'flashcards':
+        return `/lesson-flashcards/${courseId}/${section}`;
+      case 'ai-chat':
+        return `/lesson-ai-chat/${courseId}/${section}`;
+      case 'study-notes':
+        return `/lesson-study-notes/${courseId}/${section}`;
+      case 'quiz':
+        return `/lesson-quiz/${courseId}/${section}`;
+      default:
+        return `/lesson-introduction/${courseId}/${section}`;
+    }
+  };
+
+  const handleContinue = () => {
+    if (currentStep) {
+      const route = getStepRoute(currentStep.stepType);
+      navigate(route);
+    } else {
+      // Default to introduction if no progress found
+      navigate(`/lesson-introduction/${courseId}/${section}`);
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <Button variant="outline" disabled data-testid="continue-where-left-off-loading">
+        <Clock className="w-4 h-4 mr-2 animate-spin" />
+        Loading...
+      </Button>
+    );
+  }
+
+  return (
+    <Button 
+      onClick={handleContinue} 
+      className="flex items-center gap-2"
+      data-testid="continue-where-left-off-button"
+    >
+      <Play className="w-4 h-4" />
+      {currentStep ? `Continue ${currentStep.stepType}` : 'Start Lesson'}
+    </Button>
+  );
+}
+
 interface CourseContent {
   id: string;
   title: string;
@@ -263,9 +325,16 @@ export default function Lesson() {
         </TabsList>
 
         <TabsContent value="lesson-flow" className="space-y-4">
-          <h2 className="text-xl font-semibold mb-4" data-testid="lesson-content-header">
-            Lesson Flow
-          </h2>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-semibold" data-testid="lesson-content-header">
+              Lesson Flow
+            </h2>
+            <ContinueWhereLeftOffButton 
+              courseId={resolvedCourseId} 
+              section={section} 
+              navigate={navigate}
+            />
+          </div>
           
           {sortedContent?.map((item, index) => {
             const IconComponent = getTypeIcon(item.type);
