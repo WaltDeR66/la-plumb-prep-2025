@@ -2187,7 +2187,7 @@ Start your journey at laplumbprep.com/courses
       const userId = (req.user as any).id;
 
       const progress = await storage.getLessonStepProgress(userId, courseId, parseInt(section), stepType);
-      res.json(progress);
+      res.json(progress || {});
     } catch (error: any) {
       res.status(500).json({ message: error.message });
     }
@@ -2203,7 +2203,7 @@ Start your journey at laplumbprep.com/courses
       const userId = (req.user as any).id;
 
       const currentStep = await storage.getCurrentLessonStep(userId, courseId, parseInt(section));
-      res.json(currentStep);
+      res.json(currentStep || {});
     } catch (error: any) {
       res.status(500).json({ message: error.message });
     }
