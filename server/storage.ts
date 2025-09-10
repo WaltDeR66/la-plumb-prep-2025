@@ -56,6 +56,8 @@ import {
   type InsertQuizAttempt,
   type SectionProgress,
   type InsertSectionProgress,
+  type LessonStepProgress,
+  type InsertLessonStepProgress,
   type Product,
   type InsertProduct,
   type CartItem,
@@ -72,7 +74,8 @@ import {
   userAchievements,
   monthlyCompetitions,
   competitionAttempts,
-  userPointsHistory
+  userPointsHistory,
+  lessonStepProgress
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, or, desc, sql, count, isNull, ilike, like } from "drizzle-orm";
@@ -221,6 +224,11 @@ export interface IStorage {
   updateSectionProgress(userId: string, courseId: string, chapter: number, section: number, data: Partial<SectionProgress>): Promise<SectionProgress>;
   unlockNextSection(userId: string, courseId: string, chapter: number, section: number): Promise<void>;
   isSectionUnlocked(userId: string, courseId: string, chapter: number, section: number): Promise<boolean>;
+  
+  // Lesson step progress methods
+  updateLessonStepProgress(progressData: Partial<LessonStepProgress>): Promise<LessonStepProgress>;
+  getLessonStepProgress(userId: string, courseId: string, section: number, stepType: string): Promise<LessonStepProgress | undefined>;
+  getCurrentLessonStep(userId: string, courseId: string, section: number): Promise<{ stepType: string; stepIndex: number; currentPosition?: any } | null>;
   
   // Product methods
   getProducts(category?: string, search?: string, page?: number, limit?: number): Promise<{ products: Product[], total: number }>;
@@ -1526,6 +1534,94 @@ export class DatabaseStorage implements IStorage {
       ));
 
     return progress?.isUnlocked || false;
+  }
+
+  // Lesson step progress methods
+  async updateLessonStepProgress(progressData: Partial<LessonStepProgress>): Promise<LessonStepProgress> {
+    // Try to find existing progress record
+    const [existing] = await db
+      .select()
+      .from(lessonStepProgress)
+      .where(and(
+        eq(lessonStepProgress.userId, progressData.userId!),
+        eq(lessonStepProgress.courseId, progressData.courseId!),
+        eq(lessonStepProgress.section, progressData.section!),
+        eq(lessonStepProgress.stepType, progressData.stepType!)
+      ));
+
+    if (existing) {
+      // Update existing record
+      const [updated] = await db
+        .update(lessonStepProgress)
+        .set({ ...progressData, updatedAt: new Date() })
+        .where(eq(lessonStepProgress.id, existing.id))
+        .returning();
+      
+      return updated;
+    } else {
+      // Create new record
+      const [created] = await db
+        .insert(lessonStepProgress)
+        .values({
+          ...progressData,
+          createdAt: new Date(),
+          updatedAt: new Date()
+        } as any)
+        .returning();
+      
+      return created;
+    }
+  }
+
+  async getLessonStepProgress(userId: string, courseId: string, section: number, stepType: string): Promise<LessonStepProgress | undefined> {
+    const [progress] = await db
+      .select()
+      .from(lessonStepProgress)
+      .where(and(
+        eq(lessonStepProgress.userId, userId),
+        eq(lessonStepProgress.courseId, courseId),
+        eq(lessonStepProgress.section, section),
+        eq(lessonStepProgress.stepType, stepType)
+      ));
+
+    return progress || undefined;
+  }
+
+  async getCurrentLessonStep(userId: string, courseId: string, section: number): Promise<{ stepType: string; stepIndex: number; currentPosition?: any } | null> {
+    // Get all lesson steps for this section, ordered by stepIndex
+    const steps = await db
+      .select()
+      .from(lessonStepProgress)
+      .where(and(
+        eq(lessonStepProgress.userId, userId),
+        eq(lessonStepProgress.courseId, courseId),
+        eq(lessonStepProgress.section, section)
+      ))
+      .orderBy(desc(lessonStepProgress.lastAccessedAt));
+
+    if (steps.length === 0) {
+      // No progress yet, start with introduction
+      return { stepType: 'introduction', stepIndex: 0 };
+    }
+
+    // Find the most recently accessed step that's not completed
+    const currentStep = steps.find(step => !step.isCompleted);
+    
+    if (currentStep) {
+      return {
+        stepType: currentStep.stepType,
+        stepIndex: currentStep.stepIndex,
+        currentPosition: currentStep.currentPosition
+      };
+    }
+
+    // All steps completed, return the last one
+    const lastStep = steps[0]; // Most recently accessed
+    return {
+      stepType: lastStep.stepType,
+      stepIndex: lastStep.stepIndex,
+      currentPosition: lastStep.currentPosition
+    };
   }
 
   // Product methods

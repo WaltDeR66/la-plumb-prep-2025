@@ -2146,6 +2146,69 @@ Start your journey at laplumbprep.com/courses
     }
   });
 
+  // Lesson step progress tracking
+  app.post("/api/lesson-progress/track", async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+
+    try {
+      const { courseId, section, stepType, stepIndex, isCompleted, currentPosition } = req.body;
+      const userId = (req.user as any).id;
+
+      const progressData = {
+        userId,
+        courseId,
+        section,
+        stepType,
+        stepIndex,
+        isCompleted: isCompleted || false,
+        currentPosition: currentPosition || null,
+        timeSpent: req.body.timeSpent || 0,
+        lastAccessedAt: new Date(),
+        completedAt: isCompleted ? new Date() : null,
+        updatedAt: new Date()
+      };
+
+      const progress = await storage.updateLessonStepProgress(progressData);
+      res.json(progress);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/lesson-progress/:courseId/:section/:stepType", async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+
+    try {
+      const { courseId, section, stepType } = req.params;
+      const userId = (req.user as any).id;
+
+      const progress = await storage.getLessonStepProgress(userId, courseId, parseInt(section), stepType);
+      res.json(progress);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/lesson-progress/:courseId/:section/current", async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+
+    try {
+      const { courseId, section } = req.params;
+      const userId = (req.user as any).id;
+
+      const currentStep = await storage.getCurrentLessonStep(userId, courseId, parseInt(section));
+      res.json(currentStep);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
   // Job routes
   app.get("/api/jobs", requireStudentEnrollment, async (req, res) => {
     try {
