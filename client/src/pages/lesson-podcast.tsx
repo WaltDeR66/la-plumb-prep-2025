@@ -51,7 +51,14 @@ export default function LessonPodcast() {
   // Resolve friendly course ID to UUID for API calls
   const resolvedCourseId = getCourseUUID(courseId);
 
-  // Fetch course content for this section
+  // Fetch podcast audio info
+  const { data: podcastData, isLoading: isPodcastLoading, refetch: refetchPodcast } = useQuery({
+    queryKey: [`/api/podcast/${resolvedCourseId}/${section}`],
+    enabled: !!resolvedCourseId && !!section,
+    retry: false
+  }) as { data: { url?: string; duration?: number; title?: string } | undefined, isLoading: boolean, refetch: any };
+
+  // Fetch course content for text display
   const { data: content, isLoading: isContentLoading } = useQuery({
     queryKey: [`/api/courses/${resolvedCourseId}/content`],
     enabled: !!resolvedCourseId,
@@ -62,6 +69,10 @@ export default function LessonPodcast() {
     item.section === parseInt(section) && 
     (item.type === 'podcast' || item.title?.toLowerCase().includes('podcast'))
   ) : undefined;
+
+  // State for audio generation
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [generationError, setGenerationError] = useState<string | null>(null);
 
   // Track lesson step progress with current position
   const trackProgress = async (completed = false, position = currentTime) => {
@@ -142,6 +153,38 @@ export default function LessonPodcast() {
     trackProgress(true, duration);
   };
 
+  const generatePodcast = async () => {
+    setIsGenerating(true);
+    setGenerationError(null);
+    
+    try {
+      const response = await apiRequest("POST", "/api/podcast/generate", {
+        courseId: resolvedCourseId,
+        section: section
+      });
+      
+      if (response.ok) {
+        // Refetch podcast data to get the new audio URL
+        await refetchPodcast();
+        toast({
+          title: "Audio Generated!",
+          description: "Your podcast audio is ready to play.",
+        });
+      } else {
+        throw new Error("Failed to generate audio");
+      }
+    } catch (error: any) {
+      setGenerationError(error.message || "Failed to generate audio");
+      toast({
+        title: "Generation Failed",
+        description: "Could not generate podcast audio. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
   const handleContinue = () => {
     trackProgress(true, currentTime);
     navigate(`/lesson-flashcards/${courseId}/${section}`);
@@ -153,7 +196,7 @@ export default function LessonPodcast() {
     return `${minutes}:${seconds.toString().padStart(2, '0')}`;
   };
 
-  if (isContentLoading) {
+  if (isContentLoading || isPodcastLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
         <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full" />
@@ -198,22 +241,125 @@ export default function LessonPodcast() {
                   dangerouslySetInnerHTML={{ __html: podcastContent.content.text }}
                 />
                 
-                {/* Audio placeholder for future implementation */}
-                {/* Future audio player implementation */}
-                
-                {/* Audio Player Placeholder */}
-                <div className="bg-gray-50 rounded-lg p-6 border-2 border-dashed border-gray-300">
-                  <div className="text-center py-8">
-                    <Headphones className="h-12 w-12 mx-auto mb-4 text-gray-400" />
-                    <h3 className="text-lg font-semibold text-gray-700 mb-2">Audio Content Coming Soon</h3>
-                    <p className="text-gray-600 mb-4">Professional audio lessons for Section 101 are currently in production.</p>
-                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 max-w-md mx-auto">
-                      <p className="text-blue-800 text-sm">
-                        <strong>Study Tip:</strong> Review the written content above and take notes on key administrative concepts while we prepare the audio lessons.
-                      </p>
+                {/* Audio Player or Generation */}
+                {podcastData?.url ? (
+                  <div className="space-y-4">
+                    <audio
+                      ref={audioRef}
+                      src={podcastData.url}
+                      onTimeUpdate={handleTimeUpdate}
+                      onLoadedMetadata={handleLoadedMetadata}
+                      onEnded={handleEnded}
+                      className="hidden"
+                    />
+                    
+                    {/* Audio Player Controls */}
+                    <div className="bg-gray-50 rounded-lg p-6">
+                      <div className="flex items-center justify-between mb-4">
+                        <div className="flex items-center gap-4">
+                          <Button
+                            onClick={handlePlayPause}
+                            size="lg"
+                            className="w-12 h-12 rounded-full"
+                            data-testid="button-play-pause-podcast"
+                          >
+                            {isPlaying ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5" />}
+                          </Button>
+                          
+                          <div className="text-sm text-muted-foreground">
+                            {formatTime(currentTime)} / {formatTime(duration)}
+                          </div>
+                        </div>
+                        
+                        <div className="flex items-center gap-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              if (audioRef.current) {
+                                audioRef.current.currentTime = Math.max(0, currentTime - 15);
+                              }
+                            }}
+                            data-testid="button-rewind-podcast"
+                          >
+                            <RotateCcw className="h-4 w-4" />
+                            -15s
+                          </Button>
+                          
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              if (audioRef.current) {
+                                audioRef.current.currentTime = Math.min(duration, currentTime + 15);
+                              }
+                            }}
+                            data-testid="button-forward-podcast"
+                          >
+                            <SkipForward className="h-4 w-4" />
+                            +15s
+                          </Button>
+                          
+                          <select
+                            value={audioRef.current?.playbackRate || 1}
+                            onChange={(e) => {
+                              if (audioRef.current) {
+                                audioRef.current.playbackRate = parseFloat(e.target.value);
+                              }
+                            }}
+                            className="text-sm border rounded px-2 py-1"
+                          >
+                            <option value="0.75">0.75x</option>
+                            <option value="1">1x</option>
+                            <option value="1.25">1.25x</option>
+                            <option value="1.5">1.5x</option>
+                          </select>
+                        </div>
+                      </div>
+                      
+                      {/* Progress Bar */}
+                      <div className="w-full bg-gray-200 rounded-full h-2">
+                        <div 
+                          className="bg-primary h-2 rounded-full transition-all duration-200"
+                          style={{ width: duration > 0 ? `${(currentTime / duration) * 100}%` : '0%' }}
+                        />
+                      </div>
                     </div>
                   </div>
-                </div>
+                ) : (
+                  <div className="bg-gray-50 rounded-lg p-6 border-2 border-dashed border-gray-300">
+                    <div className="text-center py-8">
+                      <Headphones className="h-12 w-12 mx-auto mb-4 text-gray-400" />
+                      <h3 className="text-lg font-semibold text-gray-700 mb-2">Generate Audio Lesson</h3>
+                      <p className="text-gray-600 mb-4">Convert this lesson text to a professional audio podcast using AI voice synthesis.</p>
+                      
+                      {generationError && (
+                        <div className="bg-red-50 border border-red-200 rounded-lg p-3 mb-4 max-w-md mx-auto">
+                          <p className="text-red-800 text-sm">{generationError}</p>
+                        </div>
+                      )}
+                      
+                      <Button 
+                        onClick={generatePodcast}
+                        disabled={isGenerating}
+                        className="bg-blue-600 hover:bg-blue-700"
+                        data-testid="button-generate-audio"
+                      >
+                        {isGenerating ? (
+                          <>
+                            <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2" />
+                            Generating Audio...
+                          </>
+                        ) : (
+                          <>
+                            <Play className="h-4 w-4 mr-2" />
+                            Generate Audio Lesson
+                          </>
+                        )}
+                      </Button>
+                    </div>
+                  </div>
+                )}
 
                 {/* Podcast learning objectives */}
                 <div className="bg-blue-50 border-l-4 border-blue-400 p-6 rounded-r-lg">
