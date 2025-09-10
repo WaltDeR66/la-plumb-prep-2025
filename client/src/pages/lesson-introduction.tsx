@@ -54,7 +54,7 @@ export default function LessonIntroduction() {
 
   // Find introduction content for this section
   const introContent = Array.isArray(content) ? content.find((item: CourseContent) => 
-    item.section === section && 
+    item.section === parseInt(section) && 
     (item.type === 'lesson' || item.title?.toLowerCase().includes('introduction'))
   ) : undefined;
 
@@ -115,10 +115,10 @@ export default function LessonIntroduction() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            {introContent?.content ? (
+            {introContent?.content?.text ? (
               <div 
                 className="prose max-w-none text-foreground prose-headings:text-foreground prose-strong:text-foreground prose-em:text-foreground prose-blockquote:text-muted-foreground prose-code:text-foreground"
-                dangerouslySetInnerHTML={{ __html: introContent.content }}
+                dangerouslySetInnerHTML={{ __html: introContent.content.text }}
               />
             ) : (
               <div className="text-center py-8 text-muted-foreground">
