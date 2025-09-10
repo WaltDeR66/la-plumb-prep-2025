@@ -25,12 +25,12 @@ async function resolveCourseId(courseId: string): Promise<string | null> {
   
   // Handle friendly course identifiers
   const courseMapping: { [key: string]: string } = {
-    'journeyman-prep': '5f02238b-afb2-4e7f-a488-96fb471fee56',
-    'louisiana-journeyman-prep': '5f02238b-afb2-4e7f-a488-96fb471fee56',
-    'backflow-prevention': 'b1f02238b-afb2-4e7f-a488-96fb471fee57',
-    'natural-gas': 'c2f02238b-afb2-4e7f-a488-96fb471fee58',
-    'medical-gas': 'd3f02238b-afb2-4e7f-a488-96fb471fee59',
-    'master-plumber': 'e4f02238b-afb2-4e7f-a488-96fb471fee60'
+    'journeyman-prep': 'b83c6ebe-f5bd-4787-8fd5-e3b177d9e79b',
+    'louisiana-journeyman-prep': 'b83c6ebe-f5bd-4787-8fd5-e3b177d9e79b',
+    'backflow-prevention': 'b06e5cc6-3cec-4fe6-81ae-5f7cf5ade62e',
+    'natural-gas': 'ce9dfb3e-f6ef-40ed-b578-25bff53eb2dc',
+    'medical-gas': '547ca2fb-e3b3-46c7-a3ef-9e082401b510',
+    'master-plumber': '2b8778aa-c3ec-43cd-887a-77ca0824a294'
   };
   
   return courseMapping[courseId] || null;
@@ -38,7 +38,7 @@ async function resolveCourseId(courseId: string): Promise<string | null> {
 
 // Course content seeding function
 async function seedCourseContent() {
-  const courseId = "5f02238b-afb2-4e7f-a488-96fb471fee56"; // Louisiana Journeyman Prep
+  const courseId = "b83c6ebe-f5bd-4787-8fd5-e3b177d9e79b"; // Louisiana Journeyman Prep
   
   // Force clear existing content for study plan updates
   const existingContent = await storage.getCourseContent(courseId);
