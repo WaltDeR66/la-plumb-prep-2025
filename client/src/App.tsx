@@ -117,6 +117,12 @@ function Router() {
           <Route path="/course/:courseId/lesson/:section/ai-chat" component={LessonAIChat} />
           <Route path="/course/:courseId/lesson/:section/study-notes" component={LessonStudyNotes} />
           <Route path="/course/:courseId/lesson/:section/quiz" component={LessonQuiz} />
+          <Route path="/lesson-introduction/:courseId/:section" component={LessonIntroduction} />
+          <Route path="/lesson-podcast/:courseId/:section" component={LessonPodcast} />
+          <Route path="/lesson-flashcards/:courseId/:section" component={LessonFlashcards} />
+          <Route path="/lesson-ai-chat/:courseId/:section" component={LessonAIChat} />
+          <Route path="/lesson-study-notes/:courseId/:section" component={LessonStudyNotes} />
+          <Route path="/lesson-quiz/:courseId/:section" component={LessonQuiz} />
           <Route path="/course/:courseId/content/:contentId" component={ContentView} />
           <Route path="/course/:courseId/podcast/:contentId" component={PodcastView} />
           <Route path="/study-companion" component={StudyCompanion} />
