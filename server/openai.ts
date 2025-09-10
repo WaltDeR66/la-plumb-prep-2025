@@ -519,6 +519,80 @@ export async function generateNumberedFittingPDF(
   }
 }
 
+export async function reviewWrongAnswers(
+  wrongAnswers: Array<{
+    questionId: string;
+    question: string;
+    correctAnswer: string;
+    userAnswer: string;
+    explanation?: string;
+  }>,
+  quizType: 'section' | 'chapter',
+  sectionOrChapter: string
+): Promise<{
+  overallFeedback: string;
+  individualReviews: Array<{
+    questionId: string;
+    detailedExplanation: string;
+    keyConceptsToReview: string[];
+    studyRecommendations: string[];
+  }>;
+  nextSteps: string[];
+}> {
+  try {
+    const response = await openai.chat.completions.create({
+      // the newest OpenAI model is "gpt-5" which was released August 7, 2025. do not change this unless explicitly requested by the user
+      model: "gpt-5",
+      messages: [
+        {
+          role: "system",
+          content: `You are an expert Louisiana plumbing code instructor providing detailed review and feedback for wrong quiz answers. Your goal is to help students understand their mistakes and learn from them.
+
+          Provide comprehensive explanations that:
+          - Explain WHY the correct answer is right
+          - Clarify why the student's answer was incorrect
+          - Connect concepts to Louisiana State Plumbing Code sections
+          - Offer specific study recommendations
+          - Encourage continued learning with supportive tone
+          - Include relevant code references when applicable
+          
+          Respond with JSON in this format: {
+            "overallFeedback": string,
+            "individualReviews": [{
+              "questionId": string,
+              "detailedExplanation": string,
+              "keyConceptsToReview": string[],
+              "studyRecommendations": string[]
+            }],
+            "nextSteps": string[]
+          }`
+        },
+        {
+          role: "user",
+          content: `Please review these wrong answers from a Louisiana plumbing ${quizType} ${quizType === 'section' ? 'quiz for section' : 'test for chapter'} ${sectionOrChapter}:
+
+          ${wrongAnswers.map((qa, index) => `
+          Question ${index + 1} (ID: ${qa.questionId}):
+          Question: ${qa.question}
+          Correct Answer: ${qa.correctAnswer}
+          Student's Answer: ${qa.userAnswer}
+          ${qa.explanation ? `Existing Explanation: ${qa.explanation}` : ''}
+          `).join('\n')}
+
+          Provide detailed explanations for each wrong answer and actionable study recommendations.`
+        }
+      ],
+      response_format: { type: "json_object" },
+      max_tokens: 2500,
+      temperature: 0.7,
+    });
+
+    return JSON.parse(response.choices[0].message.content || "{}");
+  } catch (error) {
+    throw new Error("Failed to review wrong answers: " + (error as Error).message);
+  }
+}
+
 export async function generateStudyPlan(
   sectionNumber: string,
   lessonContent: string,

@@ -7,7 +7,7 @@ import { insertUserSchema, insertJobSchema, insertJobApplicationSchema, insertCo
 import { competitionNotificationService } from "./competitionNotifications";
 import { eq, and, or, desc, sql, count } from "drizzle-orm";
 import { db } from "./db";
-import { analyzePhoto, analyzePlans, getMentorResponse, calculatePipeSize, reviewJobPosting, generateNumberedFittingPDF, generateStudyPlan } from "./openai";
+import { analyzePhoto, analyzePlans, getMentorResponse, calculatePipeSize, reviewJobPosting, generateNumberedFittingPDF, generateStudyPlan, reviewWrongAnswers } from "./openai";
 import { calculateReferralCommission, isValidSubscriptionTier } from "@shared/referral-utils";
 import { contentExtractor } from "./content-extractor";
 import { emailAutomation } from "./email-automation";
@@ -5532,6 +5532,24 @@ Start your journey at laplumbprep.com/courses
     } catch (error: any) {
       console.error("Error updating difficulty settings:", error);
       res.status(500).json({ error: "Failed to update difficulty settings" });
+    }
+  });
+
+  // AI Review Route for Wrong Answers
+  app.post("/api/quiz/review-wrong-answers", async (req: any, res) => {
+    try {
+      const { wrongAnswers, quizType, sectionOrChapter } = req.body;
+
+      if (!wrongAnswers || !Array.isArray(wrongAnswers) || wrongAnswers.length === 0) {
+        return res.status(400).json({ error: "No wrong answers provided for review" });
+      }
+
+      const review = await reviewWrongAnswers(wrongAnswers, quizType, sectionOrChapter);
+      
+      res.json(review);
+    } catch (error: any) {
+      console.error("Error reviewing wrong answers:", error);
+      res.status(500).json({ error: "Failed to review wrong answers: " + error.message });
     }
   });
 
