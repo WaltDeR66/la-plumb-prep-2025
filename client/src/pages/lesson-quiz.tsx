@@ -35,7 +35,7 @@ interface CourseContent {
   title: string;
   type: string;
   chapter: number;
-  section: number;
+  section: string;
   content: any;
   duration?: number;
   isActive: boolean;

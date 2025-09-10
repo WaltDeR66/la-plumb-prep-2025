@@ -25,7 +25,7 @@ interface CourseContent {
   title: string;
   type: string;
   chapter: number;
-  section: number;
+  section: string;
   content: any;
   duration?: number;
   isActive: boolean;
@@ -63,7 +63,7 @@ export default function LessonPodcast() {
     (item.type === 'podcast' || item.title?.toLowerCase().includes('podcast'))
   ) : undefined;
 
-  // Track lesson step progress
+  // Track lesson step progress with current position
   const trackProgress = async (completed = false, position = currentTime) => {
     try {
       await apiRequest("POST", "/api/lesson-progress/track", {
@@ -75,7 +75,6 @@ export default function LessonPodcast() {
         currentPosition: { timestamp: position, duration }
       });
     } catch (error) {
-      // Don't block user experience if tracking fails
       console.error("Failed to track progress:", error);
     }
   };
@@ -95,7 +94,6 @@ export default function LessonPodcast() {
           }
         }
       } catch (error) {
-        // Don't block user experience if loading progress fails
         console.error("Failed to load progress:", error);
       }
     };
@@ -192,7 +190,7 @@ export default function LessonPodcast() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            {podcastContent?.content ? (
+            {podcastContent?.content?.text ? (
               <div className="space-y-6">
                 {/* Display podcast content */}
                 <div 
@@ -200,99 +198,24 @@ export default function LessonPodcast() {
                   dangerouslySetInnerHTML={{ __html: podcastContent.content.text }}
                 />
                 
-                {/* Audio Player */}
-                {podcastContent.content.audioUrl ? (
-                  <div className="space-y-4">
-                    <audio
-                      ref={audioRef}
-                      src={podcastContent.content.audioUrl}
-                      onTimeUpdate={handleTimeUpdate}
-                      onLoadedMetadata={handleLoadedMetadata}
-                      onEnded={handleEnded}
-                      className="hidden"
-                    />
-                    
-                    {/* Audio Player Controls */}
-                    <div className="bg-gray-50 rounded-lg p-6">
-                      <div className="flex items-center justify-between mb-4">
-                        <div className="flex items-center gap-4">
-                          <Button
-                            onClick={handlePlayPause}
-                            size="lg"
-                            className="w-12 h-12 rounded-full"
-                            data-testid="button-play-pause-podcast"
-                          >
-                            {isPlaying ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5" />}
-                          </Button>
-                          
-                          <div className="text-sm text-muted-foreground">
-                            {formatTime(currentTime)} / {formatTime(duration || podcastContent.content.duration || 0)}
-                          </div>
-                        </div>
-                        
-                        <div className="flex items-center gap-2">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => {
-                              if (audioRef.current) {
-                                audioRef.current.currentTime = Math.max(0, currentTime - 15);
-                              }
-                            }}
-                            data-testid="button-rewind-podcast"
-                          >
-                            <RotateCcw className="h-4 w-4" />
-                            -15s
-                          </Button>
-                          
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => {
-                              if (audioRef.current) {
-                                audioRef.current.currentTime = Math.min(duration, currentTime + 15);
-                              }
-                            }}
-                            data-testid="button-forward-podcast"
-                          >
-                            <SkipForward className="h-4 w-4" />
-                            +15s
-                          </Button>
-                          
-                          <select
-                            value={audioRef.current?.playbackRate || 1}
-                            onChange={(e) => {
-                              if (audioRef.current) {
-                                audioRef.current.playbackRate = parseFloat(e.target.value);
-                              }
-                            }}
-                            className="text-sm border rounded px-2 py-1"
-                          >
-                            <option value="0.75">0.75x</option>
-                            <option value="1">1x</option>
-                            <option value="1.25">1.25x</option>
-                            <option value="1.5">1.5x</option>
-                          </select>
-                        </div>
-                      </div>
-                      
-                      {/* Progress Bar */}
-                      <div className="w-full bg-gray-200 rounded-full h-2">
-                        <div 
-                          className="bg-primary h-2 rounded-full transition-all duration-200"
-                          style={{ width: duration > 0 ? `${(currentTime / duration) * 100}%` : '0%' }}
-                        />
-                      </div>
+                {/* Audio placeholder for future implementation */}
+                {/* Future audio player implementation */}
+                
+                {/* Audio Player Placeholder */}
+                <div className="bg-gray-50 rounded-lg p-6 border-2 border-dashed border-gray-300">
+                  <div className="text-center py-8">
+                    <Headphones className="h-12 w-12 mx-auto mb-4 text-gray-400" />
+                    <h3 className="text-lg font-semibold text-gray-700 mb-2">Audio Content Coming Soon</h3>
+                    <p className="text-gray-600 mb-4">Professional audio lessons for Section 101 are currently in production.</p>
+                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 max-w-md mx-auto">
+                      <p className="text-blue-800 text-sm">
+                        <strong>Study Tip:</strong> Review the written content above and take notes on key administrative concepts while we prepare the audio lessons.
+                      </p>
                     </div>
                   </div>
-                ) : (
-                  <div className="text-center py-8 text-muted-foreground">
-                    <Headphones className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                    <p>Audio file not found for this section.</p>
-                  </div>
-                )}
+                </div>
 
-                {/* Learning Objectives */}
+                {/* Podcast learning objectives */}
                 <div className="bg-blue-50 border-l-4 border-blue-400 p-6 rounded-r-lg">
                   <h3 className="font-semibold text-blue-900 mb-3">Learning Objectives</h3>
                   <p className="text-blue-800">After completing this lesson, you'll understand the administrative framework governing Louisiana plumbing work.</p>

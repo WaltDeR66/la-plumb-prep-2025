@@ -2187,7 +2187,7 @@ Start your journey at laplumbprep.com/courses
       const userId = (req.user as any).id;
 
       const progress = await storage.getLessonStepProgress(userId, courseId, parseInt(section), stepType);
-      res.json(progress || {});
+      res.json(progress);
     } catch (error: any) {
       res.status(500).json({ message: error.message });
     }
@@ -2203,129 +2203,7 @@ Start your journey at laplumbprep.com/courses
       const userId = (req.user as any).id;
 
       const currentStep = await storage.getCurrentLessonStep(userId, courseId, parseInt(section));
-      res.json(currentStep || {});
-    } catch (error: any) {
-      res.status(500).json({ message: error.message });
-    }
-  });
-
-  // Podcast routes
-  app.get("/api/podcast/:courseId/:section", async (req, res) => {
-    if (!req.isAuthenticated()) {
-      return res.status(401).json({ message: "Not authenticated" });
-    }
-
-    try {
-      const { courseId, section } = req.params;
-      const sectionNum = parseInt(section);
-      
-      // Check for existing audio file
-      const audioFileName = `section-${sectionNum}-${courseId.slice(0, 8)}.mp3`;
-      const audioPath = path.join(process.cwd(), "uploads", "audio", audioFileName);
-      
-      if (fs.existsSync(audioPath)) {
-        const stats = fs.statSync(audioPath);
-        const audioUrl = `/audio/${audioFileName}`;
-        
-        // Get duration using a simple approximation (file size based)
-        // For real implementation, you'd use a library like ffprobe
-        const estimatedDuration = Math.round(stats.size / 16000); // Rough estimate
-        
-        res.json({
-          url: audioUrl,
-          duration: estimatedDuration,
-          title: `Section ${section} Podcast`,
-          fileSize: stats.size
-        });
-      } else {
-        res.status(404).json({ message: "Audio not generated yet" });
-      }
-    } catch (error: any) {
-      res.status(500).json({ message: error.message });
-    }
-  });
-
-  app.post("/api/podcast/generate", async (req, res) => {
-    if (!req.isAuthenticated()) {
-      return res.status(401).json({ message: "Not authenticated" });
-    }
-
-    try {
-      const { courseId, section } = req.body;
-      const sectionNum = parseInt(section);
-      
-      // Get lesson content
-      const courseContent = await storage.getCourseContent(courseId);
-      const lessonContent = courseContent.find((item: any) => 
-        item.section === sectionNum && 
-        (item.type === 'podcast' || item.title?.toLowerCase().includes('podcast'))
-      );
-      
-      if (!lessonContent || !lessonContent.content?.text) {
-        return res.status(400).json({ message: "No content found for podcast generation" });
-      }
-      
-      // Generate TTS audio using OpenAI
-      const response = await fetch("https://api.openai.com/v1/audio/speech", {
-        method: "POST",
-        headers: {
-          "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          model: "tts-1",
-          voice: "nova",
-          input: lessonContent.content.text.replace(/<[^>]*>/g, '').substring(0, 4096), // Remove HTML and limit length
-        }),
-      });
-      
-      if (!response.ok) {
-        throw new Error(`OpenAI TTS failed: ${response.statusText}`);
-      }
-      
-      // Save audio file
-      const audioFileName = `section-${sectionNum}-${courseId.slice(0, 8)}.mp3`;
-      const audioPath = path.join(process.cwd(), "uploads", "audio", audioFileName);
-      
-      const buffer = Buffer.from(await response.arrayBuffer());
-      fs.writeFileSync(audioPath, buffer);
-      
-      const stats = fs.statSync(audioPath);
-      const audioUrl = `/audio/${audioFileName}`;
-      const estimatedDuration = Math.round(stats.size / 16000);
-      
-      res.json({
-        url: audioUrl,
-        duration: estimatedDuration,
-        title: `Section ${section} Podcast`,
-        fileSize: stats.size,
-        generated: true
-      });
-    } catch (error: any) {
-      console.error("Podcast generation error:", error);
-      res.status(500).json({ message: error.message });
-    }
-  });
-
-  // Serve audio files
-  app.get("/audio/:filename", async (req, res) => {
-    try {
-      const { filename } = req.params;
-      
-      // Security: Only allow mp3 files with specific naming pattern
-      if (!filename.match(/^section-\d+-[a-zA-Z0-9]{8}\.mp3$/)) {
-        return res.status(404).json({ message: "File not found" });
-      }
-      
-      const audioPath = path.join(process.cwd(), "uploads", "audio", filename);
-      
-      if (!fs.existsSync(audioPath)) {
-        return res.status(404).json({ message: "Audio file not found" });
-      }
-      
-      res.setHeader('Content-Type', 'audio/mpeg');
-      res.setHeader('Accept-Ranges', 'bytes');
-      fs.createReadStream(audioPath).pipe(res);
+      res.json(currentStep);
     } catch (error: any) {
       res.status(500).json({ message: error.message });
     }
