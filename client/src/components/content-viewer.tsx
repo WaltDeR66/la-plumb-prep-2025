@@ -73,7 +73,7 @@ export default function ContentViewer(props: ContentViewerProps) {
 
   // Fetch content
   const { data: content, isLoading } = useQuery<ContentData>({
-    queryKey: [`/api/course-content/${contentId}`],
+    queryKey: [`/api/content/${contentId}/display`],
     enabled: !!contentId,
   });
 
