@@ -5546,8 +5546,29 @@ Start your journey at laplumbprep.com/courses
       // Get questions for this section
       const allQuestions = await storage.getQuestionsBySection(section);
       
-      if (allQuestions.length === 0) {
-        return res.status(404).json({ error: "No questions found for this section" });
+      // Get previously correctly answered question IDs to exclude on retakes
+      let excludedQuestionIds: string[] = [];
+      if (req.isAuthenticated?.()) {
+        const previousAttempts = await storage.getUserQuizAttempts(req.user.id, section);
+        
+        // Extract question IDs that were answered correctly in previous attempts
+        for (const attempt of previousAttempts) {
+          if (attempt.questions && Array.isArray(attempt.questions)) {
+            const correctlyAnswered = attempt.questions
+              .filter((q: any) => q.isCorrect)
+              .map((q: any) => q.questionId);
+            excludedQuestionIds.push(...correctlyAnswered);
+          }
+        }
+        // Remove duplicates
+        excludedQuestionIds = [...new Set(excludedQuestionIds)];
+      }
+      
+      // Filter out previously correctly answered questions for retakes
+      const availableQuestions = allQuestions.filter(q => !excludedQuestionIds.includes(q.id));
+      
+      if (availableQuestions.length === 0) {
+        return res.status(404).json({ error: "No new questions available for this section" });
       }
 
       // Determine user's difficulty preferences (default to easy for non-authenticated users)
@@ -5582,10 +5603,10 @@ Start your journey at laplumbprep.com/courses
           questionDistribution = { easy: 10, hard: 5, very_hard: 5 }; // Balanced
       }
       
-      // Filter questions by difficulty (treating medium as easy for compatibility)
-      const easyQuestions = allQuestions.filter(q => q.difficulty === 'easy' || q.difficulty === 'medium');
-      const hardQuestions = allQuestions.filter(q => q.difficulty === 'hard');
-      const veryHardQuestions = allQuestions.filter(q => q.difficulty === 'very_hard');
+      // Filter available questions by difficulty (treating medium as easy for compatibility)
+      const easyQuestions = availableQuestions.filter(q => q.difficulty === 'easy' || q.difficulty === 'medium');
+      const hardQuestions = availableQuestions.filter(q => q.difficulty === 'hard');
+      const veryHardQuestions = availableQuestions.filter(q => q.difficulty === 'very_hard');
       
       // Select questions based on adaptive distribution
       const selectedQuestions = [
@@ -5596,7 +5617,7 @@ Start your journey at laplumbprep.com/courses
       
       // Fill remaining slots if needed
       if (selectedQuestions.length < 20) {
-        const remaining = allQuestions.filter(q => !selectedQuestions.find(sq => sq.id === q.id));
+        const remaining = availableQuestions.filter(q => !selectedQuestions.find(sq => sq.id === q.id));
         selectedQuestions.push(...remaining.sort(() => Math.random() - 0.5).slice(0, 20 - selectedQuestions.length));
       }
       
@@ -5740,13 +5761,34 @@ Start your journey at laplumbprep.com/courses
         (q.category?.includes(`Chapter ${chapter}`) || q.codeReference?.includes(`Section 10${chapter}`))
       );
       
-      if (chapterQuestions.length < 50) {
-        return res.status(404).json({ error: "Insufficient questions for chapter test. Need at least 50 hard/very_hard questions." });
+      // Get previously correctly answered question IDs to exclude on chapter test retakes
+      let excludedQuestionIds: string[] = [];
+      if (req.isAuthenticated?.()) {
+        const previousAttempts = await storage.getUserQuizAttempts(req.user.id, `chapter-test-${chapter}`);
+        
+        // Extract question IDs that were answered correctly in previous attempts
+        for (const attempt of previousAttempts) {
+          if (attempt.questions && Array.isArray(attempt.questions)) {
+            const correctlyAnswered = attempt.questions
+              .filter((q: any) => q.isCorrect)
+              .map((q: any) => q.questionId);
+            excludedQuestionIds.push(...correctlyAnswered);
+          }
+        }
+        // Remove duplicates
+        excludedQuestionIds = [...new Set(excludedQuestionIds)];
+      }
+      
+      // Filter out previously correctly answered questions for chapter test retakes
+      const availableQuestions = chapterQuestions.filter(q => !excludedQuestionIds.includes(q.id));
+      
+      if (availableQuestions.length < 50) {
+        return res.status(404).json({ error: "Insufficient new questions for chapter test. Need at least 50 hard/very_hard questions not previously answered correctly." });
       }
 
       // Select 100 questions: mix of hard and very_hard (no easy questions for chapter tests)
-      const hardQuestions = chapterQuestions.filter(q => q.difficulty === 'hard');
-      const veryHardQuestions = chapterQuestions.filter(q => q.difficulty === 'very_hard');
+      const hardQuestions = availableQuestions.filter(q => q.difficulty === 'hard');
+      const veryHardQuestions = availableQuestions.filter(q => q.difficulty === 'very_hard');
       
       // Chapter test distribution: 40 hard, 60 very_hard for maximum challenge
       const selectedQuestions = [
@@ -5756,7 +5798,7 @@ Start your journey at laplumbprep.com/courses
       
       // Fill remaining slots if needed with available questions
       if (selectedQuestions.length < 100) {
-        const remaining = chapterQuestions.filter(q => !selectedQuestions.find(sq => sq.id === q.id));
+        const remaining = availableQuestions.filter(q => !selectedQuestions.find(sq => sq.id === q.id));
         selectedQuestions.push(...remaining.sort(() => Math.random() - 0.5).slice(0, 100 - selectedQuestions.length));
       }
       
