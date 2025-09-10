@@ -59,7 +59,7 @@ export default function LessonPodcast() {
 
   // Find podcast content for this section
   const podcastContent = Array.isArray(content) ? content.find((item: CourseContent) => 
-    item.section === parseInt(section) && 
+    String(item.section) === section && 
     (item.type === 'podcast' || item.title?.toLowerCase().includes('podcast'))
   ) : undefined;
 
