@@ -66,11 +66,7 @@ export default function ContentViewer(props: ContentViewerProps) {
     '103': ['101', '103', '107', '105'], // Same sequence, different starting point
     '107': ['101', '103', '107', '105'],
     '105': ['101', '103', '107', '105'],
-    // Add more sequences as needed
-    '102': ['102'], // Single lesson
-    '104': ['104'], // Single lesson
-    '106': ['106'], // Single lesson
-    '108': ['108'], // Single lesson
+    // Add more sequences as needed for odd-numbered sections only
     '109': ['109'], // Single lesson
   };
 
