@@ -23,8 +23,25 @@ export default function ContentView() {
   const courseId = params?.courseId;
   const contentId = params?.contentId;
 
+  // Debug logging
+  console.log('ContentView params:', { match, params, courseId, contentId });
+
   if (!courseId || !contentId) {
-    return <div>Content not found</div>;
+    return (
+      <div className="min-h-screen bg-background">
+        <div className="container mx-auto px-4 py-8">
+          <div className="text-center">
+            <h1 className="text-2xl font-bold mb-4">Content not found</h1>
+            <p className="text-gray-600 mb-4">
+              Debug: courseId={courseId}, contentId={contentId}, match={String(match)}
+            </p>
+            <Button asChild data-testid="button-back-courses">
+              <Link href="/courses">Back to Courses</Link>
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   const { data: courses } = useQuery<Course[]>({
