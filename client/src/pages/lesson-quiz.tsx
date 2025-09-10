@@ -71,7 +71,7 @@ export default function LessonQuiz() {
 
   // Find quiz content for this section
   const quizContent = Array.isArray(content) ? content.find((item: CourseContent) => 
-    item.section === parseInt(section) && 
+    String(item.section) === section && 
     (item.type === 'quiz' || item.title?.toLowerCase().includes('quiz'))
   ) : undefined;
 

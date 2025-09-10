@@ -20,6 +20,18 @@ function getCourseUUID(courseSlug: string): string {
   return courseMapping[courseSlug] || courseSlug;
 }
 
+interface CourseContent {
+  id: string;
+  title: string;
+  type: string;
+  chapter: number;
+  section: string;
+  content: any;
+  duration?: number;
+  isActive: boolean;
+  sortOrder: number;
+}
+
 interface Flashcard {
   id: string;
   front: string;
@@ -58,7 +70,7 @@ export default function LessonFlashcards() {
 
   // Find flashcards content for this section
   const flashcardsContent = Array.isArray(content) ? content.find((item: CourseContent) => 
-    item.section === parseInt(section) && 
+    String(item.section) === section && 
     (item.type === 'flashcards' || item.title?.toLowerCase().includes('flashcards'))
   ) : undefined;
 
@@ -137,7 +149,7 @@ export default function LessonFlashcards() {
   const handleContinue = () => {
     const allStudied = studiedCards.size === flashcardsArray.length;
     trackProgress(allStudied);
-    navigate(`/lesson-ai-chat/${courseId}/${section}`);
+    navigate(`/course/${courseId}/lesson/${section}/ai-chat`);
   };
 
   if (isContentLoading) {

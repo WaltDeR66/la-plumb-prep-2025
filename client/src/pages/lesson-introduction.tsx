@@ -54,7 +54,7 @@ export default function LessonIntroduction() {
 
   // Find introduction content for this section
   const introContent = Array.isArray(content) ? content.find((item: CourseContent) => 
-    item.section === parseInt(section) && 
+    String(item.section) === section && 
     (item.type === 'lesson' || item.title?.toLowerCase().includes('introduction'))
   ) : undefined;
 
@@ -75,7 +75,7 @@ export default function LessonIntroduction() {
 
   const handleContinue = () => {
     trackProgress();
-    navigate(`/lesson-podcast/${courseId}/${section}`);
+    navigate(`/course/${courseId}/lesson/${section}/podcast`);
   };
 
   if (isContentLoading) {

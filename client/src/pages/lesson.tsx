@@ -56,19 +56,19 @@ function ContinueWhereLeftOffButton({ courseId, section, navigate }: {
   const getStepRoute = (stepType: string): string => {
     switch (stepType) {
       case 'introduction':
-        return `/lesson-introduction/${courseId}/${section}`;
+        return `/course/${courseId}/lesson/${section}/introduction`;
       case 'podcast':
-        return `/lesson-podcast/${courseId}/${section}`;
+        return `/course/${courseId}/lesson/${section}/podcast`;
       case 'flashcards':
-        return `/lesson-flashcards/${courseId}/${section}`;
+        return `/course/${courseId}/lesson/${section}/flashcards`;
       case 'ai-chat':
-        return `/lesson-ai-chat/${courseId}/${section}`;
+        return `/course/${courseId}/lesson/${section}/ai-chat`;
       case 'study-notes':
-        return `/lesson-study-notes/${courseId}/${section}`;
+        return `/course/${courseId}/lesson/${section}/study-notes`;
       case 'quiz':
-        return `/lesson-quiz/${courseId}/${section}`;
+        return `/course/${courseId}/lesson/${section}/quiz`;
       default:
-        return `/lesson-introduction/${courseId}/${section}`;
+        return `/course/${courseId}/lesson/${section}/introduction`;
     }
   };
 
@@ -78,7 +78,7 @@ function ContinueWhereLeftOffButton({ courseId, section, navigate }: {
       navigate(route);
     } else {
       // Default to introduction if no progress found
-      navigate(`/lesson-introduction/${courseId}/${section}`);
+      navigate(`/course/${courseId}/lesson/${section}/introduction`);
     }
   };
 

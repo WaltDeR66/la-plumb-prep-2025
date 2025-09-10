@@ -53,7 +53,7 @@ export default function LessonStudyNotes() {
 
   // Find study notes content for this section
   const studyNotesContent = Array.isArray(content) ? content.find((item: CourseContent) => 
-    item.section === parseInt(section) && 
+    String(item.section) === section && 
     (item.type === 'study-notes' || item.title?.toLowerCase().includes('study notes'))
   ) : undefined;
 
@@ -74,7 +74,7 @@ export default function LessonStudyNotes() {
 
   const handleContinue = () => {
     trackProgress(true);
-    navigate(`/lesson-quiz/${courseId}/${section}`);
+    navigate(`/course/${courseId}/lesson/${section}/quiz`);
   };
 
   const handleDownloadNotes = () => {
