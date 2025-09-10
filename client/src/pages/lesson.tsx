@@ -96,8 +96,9 @@ export default function Lesson() {
     return itemSection === urlSection;
   });
   
-  // Define the correct content order
-  const contentOrder = ['lesson', 'podcast', 'chat', 'flashcards', 'study-notes', 'study-plan', 'quiz'];
+  // Define the correct lesson flow order based on user requirements
+  // Study Plan choice (optional) → AI intro → Podcast → Flashcards → AI chat → Study notes → Quiz (20 questions, 70% pass)
+  const contentOrder = ['study-plan', 'lesson', 'podcast', 'flashcards', 'chat', 'study-notes', 'quiz'];
   
   // Sort content by the defined order
   const sortedContent = sectionContent?.sort((a, b) => {
@@ -170,13 +171,13 @@ export default function Lesson() {
 
   const getTypeLabel = (type: string) => {
     switch (type) {
-      case 'lesson': return 'Introduction';
-      case 'quiz': return 'Quiz';
-      case 'podcast': return 'Podcast';
-      case 'chat': return 'Teach Me Chat';
-      case 'flashcards': return 'Flashcards';
+      case 'lesson': return 'AI Introduction';
+      case 'quiz': return 'Section Quiz (20 Questions)';
+      case 'podcast': return 'Audio Lesson';
+      case 'chat': return 'AI Study Assistant';
+      case 'flashcards': return 'Flashcard Review';
       case 'study-notes': return 'Study Notes';
-      case 'study-plan': return 'Timed Study';
+      case 'study-plan': return 'Choose Study Plan (Optional)';
       default: return type;
     }
   };
@@ -191,6 +192,19 @@ export default function Lesson() {
       case 'study-notes': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
       case 'study-plan': return 'bg-indigo-100 text-indigo-800 border-indigo-200';
       default: return 'bg-gray-100 text-gray-800 border-gray-200';
+    }
+  };
+
+  const getTypeDescription = (type: string) => {
+    switch (type) {
+      case 'lesson': return 'AI-generated introduction to key concepts and regulations';
+      case 'quiz': return '20 questions, no time limit, 70% required to pass. Wrong answers reviewed with AI';
+      case 'podcast': return 'Audio lesson covering practical applications and examples';
+      case 'chat': return 'Interactive AI assistant for questions and clarifications';
+      case 'flashcards': return 'Quick review of key terms and concepts';
+      case 'study-notes': return 'Comprehensive notes and reference materials';
+      case 'study-plan': return 'Optional: Generate a timed study plan or proceed with lesson flow';
+      default: return '';
     }
   };
 
@@ -287,7 +301,7 @@ export default function Lesson() {
                             {getTypeLabel(item.type)}
                           </h3>
                           <p className="text-sm text-muted-foreground mt-1">
-                            Choose your study duration and start a timed session
+                            {getTypeDescription(item.type)}
                           </p>
                         </div>
                       </div>
@@ -354,6 +368,9 @@ export default function Lesson() {
                         <h3 className="font-medium text-foreground mt-1" data-testid={`content-title-${index}`}>
                           {getTypeLabel(item.type)}
                         </h3>
+                        <p className="text-sm text-muted-foreground mt-1">
+                          {getTypeDescription(item.type)}
+                        </p>
                         {item.duration && (
                           <div className="flex items-center space-x-1 text-sm text-muted-foreground mt-1">
                             <Clock className="w-3 h-3" />
