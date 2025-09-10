@@ -100,7 +100,6 @@ export default function ContentViewer(props: ContentViewerProps) {
       }
     }
 
-    console.log('Current step detection:', { contentId, contentType, currentStepIndex, content: content?.title });
 
     const nextIndex = currentStepIndex + 1;
     if (nextIndex < lessonFlow.length) {

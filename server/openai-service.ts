@@ -144,33 +144,67 @@ Remember: You're here to make learning Louisiana plumbing codes enjoyable and su
   }
 
   // Method to generate study suggestions based on user progress
-  static async generateStudySuggestions(userProgress: any): Promise<string[]> {
+  static async generateStudySuggestions(userProgress: any, currentSection?: string): Promise<string[]> {
     try {
-      const response = await openai.chat.completions.create({
-        model: "gpt-5", // the newest OpenAI model is "gpt-5" which was released August 7, 2025
-        messages: [
-          {
-            role: "system",
-            content: `Generate 3-5 specific study suggestions for a Louisiana plumbing student based on their progress. Return as JSON array of strings. Focus on Louisiana State Plumbing Code topics.`
-          },
-          {
-            role: "user",
-            content: `Student progress: ${JSON.stringify(userProgress)}`
-          }
+      // Section-specific suggestions
+      const sectionSpecificSuggestions: { [key: string]: string[] } = {
+        '101': [
+          "Ask about the Louisiana State Health Officer's authority in plumbing code enforcement",
+          "What are the key responsibilities of local plumbing inspectors under Section 101?",
+          "How does the delegation of authority work from state to local levels?",
+          "What legal statutes support Louisiana plumbing code enforcement?",
+          "Explain the historical development of Louisiana plumbing code from 2002 to 2012"
         ],
-        response_format: { type: "json_object" }
-      });
+        '103': [
+          "What are the permit requirements for different types of plumbing work in Louisiana?",
+          "When can plumbing work be done without a permit in Louisiana?",
+          "What documentation must be submitted with a plumbing permit application?",
+          "How long are plumbing permits valid in Louisiana?",
+          "What are the fees associated with different types of plumbing permits?"
+        ],
+        '105': [
+          "What qualifications are required for plumbing inspectors in Louisiana?",
+          "How often must plumbing inspections be conducted during installation?",
+          "What happens if a plumbing installation fails inspection?",
+          "What records must be kept by plumbing inspectors?",
+          "What are the appeals process for inspection decisions?"
+        ],
+        '107': [
+          "What are the violation notice procedures in Louisiana plumbing code?",
+          "What penalties can be imposed for plumbing code violations?",
+          "How are emergency situations handled under Louisiana plumbing enforcement?",
+          "What is the process for appealing code violation citations?",
+          "When can plumbing work be ordered to stop for safety violations?"
+        ],
+        '109': [
+          "What are the requirements for plumbing plan approval in Louisiana?",
+          "When must engineered drawings be submitted for plumbing systems?",
+          "What technical standards must plumbing plans meet?",
+          "How long does the plan review process typically take?",
+          "What are the fees for plumbing plan review and approval?"
+        ]
+      };
 
-      const parsed = JSON.parse(response.choices[0].message.content || '{"suggestions": []}');
-      return parsed.suggestions || [];
+      const suggestions = sectionSpecificSuggestions[currentSection || '101'] || sectionSpecificSuggestions['101'];
+      
+      // Randomize and return 4 suggestions
+      const shuffled = [...suggestions].sort(() => Math.random() - 0.5);
+      return shuffled.slice(0, 4);
+      
     } catch (error) {
       console.error("Error generating study suggestions:", error);
-      return [
+      const fallback = currentSection === '101' ? [
+        "Ask about the Louisiana State Health Officer's authority in plumbing code enforcement",
+        "What are the key responsibilities of local plumbing inspectors under Section 101?",
+        "How does the delegation of authority work from state to local levels?",
+        "What legal statutes support Louisiana plumbing code enforcement?"
+      ] : [
         "Review Louisiana State Plumbing Code Section 101 - Administration",
-        "Practice pipe sizing calculations for residential installations",
+        "Practice pipe sizing calculations for residential installations", 
         "Study backflow prevention requirements for Louisiana",
         "Review common code violations and prevention strategies"
       ];
+      return fallback;
     }
   }
 }

@@ -438,7 +438,7 @@ export default function Lesson() {
             <p className="text-muted-foreground">Get instant help with Louisiana plumbing code questions</p>
           </div>
         </div>
-        <AIMentorChat />
+        <AIMentorChat currentSection={section} />
       </div>
 
       {/* Navigation */}

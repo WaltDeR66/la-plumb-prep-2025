@@ -26,7 +26,11 @@ interface Conversation {
   updatedAt: string;
 }
 
-export default function AIMentorChat() {
+interface AIMentorChatProps {
+  currentSection?: string;
+}
+
+export default function AIMentorChat({ currentSection }: AIMentorChatProps = {}) {
   const [currentMessage, setCurrentMessage] = useState("");
   const [selectedConversation, setSelectedConversation] = useState<string | null>(null);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
@@ -104,14 +108,42 @@ export default function AIMentorChat() {
     return conversations.find((c: Conversation) => c.id === selectedConversation) || null;
   };
 
-  const getQuickPrompts = () => [
-    "What's the minimum pipe size for a 3-fixture bathroom?",
-    "Explain water pressure requirements for residential buildings",
-    "What are the Louisiana-specific fixture installation codes?",
-    "How do I calculate pipe sizing for a commercial building?",
-    "What's required for backflow prevention systems?",
-    "Explain grease trap installation requirements",
-  ];
+  const getQuickPrompts = (currentSection?: string) => {
+    const sectionSuggestions: { [key: string]: string[] } = {
+      '101': [
+        "Ask about the Louisiana State Health Officer's authority in plumbing code enforcement",
+        "What are the key responsibilities of local plumbing inspectors under Section 101?",
+        "How does the delegation of authority work from state to local levels?",
+        "What legal statutes support Louisiana plumbing code enforcement?"
+      ],
+      '103': [
+        "What are the permit requirements for different types of plumbing work in Louisiana?",
+        "When can plumbing work be done without a permit in Louisiana?",
+        "What documentation must be submitted with a plumbing permit application?",
+        "How long are plumbing permits valid in Louisiana?"
+      ],
+      '105': [
+        "What qualifications are required for plumbing inspectors in Louisiana?",
+        "How often must plumbing inspections be conducted during installation?",
+        "What happens if a plumbing installation fails inspection?",
+        "What records must be kept by plumbing inspectors?"
+      ],
+      '107': [
+        "What are the violation notice procedures in Louisiana plumbing code?",
+        "What penalties can be imposed for plumbing code violations?",
+        "How are emergency situations handled under Louisiana plumbing enforcement?",
+        "What is the process for appealing code violation citations?"
+      ],
+      '109': [
+        "What are the requirements for plumbing plan approval in Louisiana?",
+        "When must engineered drawings be submitted for plumbing systems?",
+        "What technical standards must plumbing plans meet?",
+        "How long does the plan review process typically take?"
+      ]
+    };
+
+    return sectionSuggestions[currentSection || '101'] || sectionSuggestions['101'];
+  };
 
   const getBasicContent = () => [
     {
@@ -284,7 +316,7 @@ export default function AIMentorChat() {
             <div className="p-4 border-b bg-muted/30">
               <h3 className="text-sm font-medium mb-3">Quick Start Prompts</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                {getQuickPrompts().map((prompt, index) => (
+                {getQuickPrompts(currentSection).map((prompt, index) => (
                   <Button
                     key={index}
                     variant="outline"
