@@ -75,7 +75,7 @@ export default function LessonIntroduction() {
 
   const handleContinue = () => {
     trackProgress();
-    navigate(`/course/${courseId}/lesson/${section}/podcast`);
+    navigate(`/lesson-podcast/${courseId}/${section}`);
   };
 
   if (isContentLoading) {

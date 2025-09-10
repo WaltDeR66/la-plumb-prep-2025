@@ -144,7 +144,7 @@ export default function LessonPodcast() {
 
   const handleContinue = () => {
     trackProgress(true, currentTime);
-    navigate(`/course/${courseId}/lesson/${section}/flashcards`);
+    navigate(`/lesson-flashcards/${courseId}/${section}`);
   };
 
   const formatTime = (time: number) => {

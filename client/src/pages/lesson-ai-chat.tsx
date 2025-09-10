@@ -50,7 +50,7 @@ export default function LessonAIChat() {
 
   const handleContinue = () => {
     trackProgress(true);
-    navigate(`/course/${courseId}/lesson/${section}/study-notes`);
+    navigate(`/lesson-study-notes/${courseId}/${section}`);
   };
 
   return (

@@ -74,7 +74,7 @@ export default function LessonStudyNotes() {
 
   const handleContinue = () => {
     trackProgress(true);
-    navigate(`/course/${courseId}/lesson/${section}/quiz`);
+    navigate(`/lesson-quiz/${courseId}/${section}`);
   };
 
   const handleDownloadNotes = () => {

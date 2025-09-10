@@ -131,7 +131,7 @@ export default function LessonFlashcards() {
   const handleContinue = () => {
     const allStudied = studiedCards.size === flashcardsArray.length;
     trackProgress(allStudied);
-    navigate(`/course/${courseId}/lesson/${section}/ai-chat`);
+    navigate(`/lesson-ai-chat/${courseId}/${section}`);
   };
 
   if (isFlashcardsLoading) {
