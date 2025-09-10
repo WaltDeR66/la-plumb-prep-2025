@@ -5725,6 +5725,152 @@ Start your journey at laplumbprep.com/courses
     }
   });
 
+  // Chapter Test Routes (100 questions, hard/very_hard only, 1.5hr limit, 80% pass)
+  
+  // Start a chapter test for a specific chapter
+  app.post("/api/chapter-test/:chapter/start", async (req: any, res) => {
+    try {
+      const { chapter } = req.params;
+      const courseId = req.body.courseId || 'b83c6ebe-f5bd-4787-8fd5-e3b177d9e79b'; // Default to Louisiana Journeyman Prep
+      
+      // Get all questions for all sections in this chapter, hard and very_hard only
+      const allQuestions = await storage.getQuestionsByCourse(courseId);
+      const chapterQuestions = allQuestions.filter(q => 
+        (q.difficulty === 'hard' || q.difficulty === 'very_hard') && 
+        (q.category?.includes(`Chapter ${chapter}`) || q.codeReference?.includes(`Section 10${chapter}`))
+      );
+      
+      if (chapterQuestions.length < 50) {
+        return res.status(404).json({ error: "Insufficient questions for chapter test. Need at least 50 hard/very_hard questions." });
+      }
+
+      // Select 100 questions: mix of hard and very_hard (no easy questions for chapter tests)
+      const hardQuestions = chapterQuestions.filter(q => q.difficulty === 'hard');
+      const veryHardQuestions = chapterQuestions.filter(q => q.difficulty === 'very_hard');
+      
+      // Chapter test distribution: 40 hard, 60 very_hard for maximum challenge
+      const selectedQuestions = [
+        ...hardQuestions.sort(() => Math.random() - 0.5).slice(0, Math.min(40, hardQuestions.length)),
+        ...veryHardQuestions.sort(() => Math.random() - 0.5).slice(0, Math.min(60, veryHardQuestions.length))
+      ];
+      
+      // Fill remaining slots if needed with available questions
+      if (selectedQuestions.length < 100) {
+        const remaining = chapterQuestions.filter(q => !selectedQuestions.find(sq => sq.id === q.id));
+        selectedQuestions.push(...remaining.sort(() => Math.random() - 0.5).slice(0, 100 - selectedQuestions.length));
+      }
+      
+      // Final shuffle and limit to exactly 100 questions
+      const shuffledQuestions = selectedQuestions.sort(() => Math.random() - 0.5).slice(0, 100);
+      
+      res.json({
+        id: `chapter-test-${chapter}-${Date.now()}`,
+        chapter,
+        courseId,
+        timeLimit: 90, // 1.5 hours in minutes
+        requiredScore: 80, // 80% pass requirement
+        questionCount: shuffledQuestions.length,
+        questions: shuffledQuestions.map(q => ({
+          id: q.id,
+          question: q.question,
+          options: q.options,
+          correctAnswer: q.correctAnswer,
+          explanation: q.explanation,
+          codeReference: q.codeReference,
+          difficulty: q.difficulty
+        }))
+      });
+    } catch (error: any) {
+      console.error("Error starting chapter test:", error);
+      res.status(500).json({ error: "Failed to start chapter test" });
+    }
+  });
+
+  // Submit chapter test answers
+  app.post("/api/chapter-test/:chapter/submit", async (req: any, res) => {
+    try {
+      const { chapter } = req.params;
+      const { courseId, questions, timeSpent, timeLimit } = req.body;
+      
+      if (!questions || !Array.isArray(questions)) {
+        return res.status(400).json({ error: "Questions data is required" });
+      }
+      
+      // Validate time limit (1.5 hours = 90 minutes)
+      const timeLimitMinutes = timeLimit || 90;
+      const timeLimitExceeded = timeSpent > (timeLimitMinutes * 60); // Convert to seconds
+      
+      // Calculate score
+      const correctAnswers = questions.filter(q => q.isCorrect).length;
+      const totalQuestions = questions.length;
+      const score = Math.round((correctAnswers / totalQuestions) * 100);
+      
+      // Chapter tests require 80% to pass
+      const requiredScore = 80;
+      const passed = score >= requiredScore && !timeLimitExceeded;
+      
+      // Store chapter test attempt if user is authenticated
+      let attemptId = null;
+      if (req.isAuthenticated?.()) {
+        const attempt = await storage.createQuizAttempt({
+          userId: req.user.id,
+          contentId: `chapter-test-${chapter}`,
+          score: score,
+          totalQuestions: totalQuestions,
+          correctAnswers: correctAnswers,
+          timeSpent: timeSpent,
+          passed: passed,
+          answers: questions.map(q => ({
+            questionId: q.id,
+            userAnswer: q.userAnswer,
+            correctAnswer: q.correctAnswer,
+            isCorrect: q.isCorrect
+          }))
+        });
+        
+        attemptId = attempt.id;
+        
+        // If passed, unlock next chapter
+        if (passed) {
+          const nextChapter = parseInt(chapter) + 1;
+          await storage.updateSectionProgress(
+            req.user.id,
+            courseId,
+            parseInt(chapter),
+            999, // Special section number for chapter completion
+            {
+              chapterTestPassed: true,
+              chapterTestScore: score,
+              chapterCompleted: true,
+              lastAttemptAt: new Date(),
+            }
+          );
+          
+          // Unlock first section of next chapter if it exists
+          if (nextChapter <= 5) { // Assuming 5 chapters max
+            await storage.unlockNextSection(req.user.id, courseId, nextChapter, 1);
+          }
+        }
+      }
+      
+      res.json({
+        attemptId,
+        score,
+        passed,
+        requiredScore,
+        correctAnswers,
+        totalQuestions,
+        timeSpent,
+        timeLimitExceeded,
+        timeLimit: timeLimitMinutes,
+        incorrectQuestions: questions.filter(q => !q.isCorrect)
+      });
+    } catch (error: any) {
+      console.error("Error submitting chapter test:", error);
+      res.status(500).json({ error: "Failed to submit chapter test" });
+    }
+  });
+
   // Amazon Affiliate Product Search Routes
   app.get("/api/amazon/search", async (req, res) => {
     try {
