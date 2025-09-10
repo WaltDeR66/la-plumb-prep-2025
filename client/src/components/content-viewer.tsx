@@ -60,6 +60,20 @@ export default function ContentViewer(props: ContentViewerProps) {
     { type: 'quiz', label: 'Quiz' }
   ];
 
+  // Define lesson sequences - related lessons that should flow together
+  const lessonSequences: { [key: string]: string[] } = {
+    '101': ['101', '103', '107', '105'], // Administration sequence
+    '103': ['101', '103', '107', '105'], // Same sequence, different starting point
+    '107': ['101', '103', '107', '105'],
+    '105': ['101', '103', '107', '105'],
+    // Add more sequences as needed
+    '102': ['102'], // Single lesson
+    '104': ['104'], // Single lesson
+    '106': ['106'], // Single lesson
+    '108': ['108'], // Single lesson
+    '109': ['109'], // Single lesson
+  };
+
   const getNextStep = () => {
     // Determine current step based on contentId or contentType
     let currentStepIndex = -1;
@@ -85,14 +99,49 @@ export default function ContentViewer(props: ContentViewerProps) {
     return null; // No next step, end of lesson
   };
 
+  const getCurrentSection = (): string => {
+    // Extract section number from various sources
+    if (sectionId) return sectionId;
+    if (contentId.includes('section-')) {
+      const match = contentId.match(/section-(\d+)/);
+      if (match) return match[1];
+    }
+    if (content?.title) {
+      const match = content.title.match(/Section\s+(\d+)/i);
+      if (match) return match[1];
+    }
+    return '101'; // Default fallback
+  };
+
+  const getNextLessonInSequence = (currentSection: string): string | null => {
+    const sequence = lessonSequences[currentSection];
+    if (!sequence) return null;
+    
+    const currentIndex = sequence.indexOf(currentSection);
+    if (currentIndex === -1 || currentIndex === sequence.length - 1) {
+      return null; // End of sequence
+    }
+    
+    return sequence[currentIndex + 1];
+  };
+
   const navigateToNextStep = () => {
     const nextStep = getNextStep();
+    const currentSection = getCurrentSection();
+    
     if (nextStep && courseId && sectionId) {
-      // Navigate back to lesson page which will show next step
+      // Still within current lesson - navigate to next step
       navigate(`/course/${courseId}/lesson/${sectionId}`);
     } else {
-      // End of lesson, complete it
-      handleComplete();
+      // End of current lesson - check for next lesson in sequence
+      const nextLesson = getNextLessonInSequence(currentSection);
+      if (nextLesson && courseId) {
+        // Navigate to next lesson in sequence
+        navigate(`/course/${courseId}/lesson/${nextLesson}`);
+      } else {
+        // End of lesson sequence, complete it
+        handleComplete();
+      }
     }
   };
   
@@ -278,7 +327,13 @@ export default function ContentViewer(props: ContentViewerProps) {
               <CheckCircle className="w-4 h-4 mr-2" />
               {(() => {
                 const nextStep = getNextStep();
-                return nextStep ? `Continue to ${nextStep.label}` : 'Complete Lesson';
+                if (nextStep) {
+                  return `Continue to ${nextStep.label}`;
+                } else {
+                  const currentSection = getCurrentSection();
+                  const nextLesson = getNextLessonInSequence(currentSection);
+                  return nextLesson ? `Continue to Section ${nextLesson}` : 'Complete Lesson';
+                }
               })()}
             </Button>
           </CardContent>
@@ -312,7 +367,15 @@ export default function ContentViewer(props: ContentViewerProps) {
             </div>
             
             <Button onClick={navigateToNextStep} className="w-full mt-6">
-              {nextStep ? `Continue to ${nextStep.label}` : 'Complete Lesson'}
+              {(() => {
+                if (nextStep) {
+                  return `Continue to ${nextStep.label}`;
+                } else {
+                  const currentSection = getCurrentSection();
+                  const nextLesson = getNextLessonInSequence(currentSection);
+                  return nextLesson ? `Continue to Section ${nextLesson}` : 'Complete Lesson';
+                }
+              })()}
             </Button>
           </CardContent>
         </Card>
