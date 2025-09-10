@@ -59,7 +59,7 @@ export default function LessonPodcast() {
 
   // Find podcast content for this section
   const podcastContent = Array.isArray(content) ? content.find((item: CourseContent) => 
-    item.section === section && 
+    item.section === parseInt(section) && 
     (item.type === 'podcast' || item.title?.toLowerCase().includes('podcast'))
   ) : undefined;
 
@@ -190,16 +190,16 @@ export default function LessonPodcast() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            {podcastContent?.content?.audioUrl ? (
+            {podcastContent?.content?.text ? (
               <div className="space-y-6">
-                <audio
-                  ref={audioRef}
-                  src={podcastContent.content.audioUrl}
-                  onTimeUpdate={handleTimeUpdate}
-                  onLoadedMetadata={handleLoadedMetadata}
-                  onEnded={handleEnded}
-                  className="hidden"
+                {/* Display podcast content */}
+                <div 
+                  className="prose max-w-none text-foreground prose-headings:text-foreground prose-strong:text-foreground prose-em:text-foreground prose-blockquote:text-muted-foreground prose-code:text-foreground"
+                  dangerouslySetInnerHTML={{ __html: podcastContent.content.text }}
                 />
+                
+                {/* Audio placeholder for future implementation */}
+                {/* Future audio player implementation */}
                 
                 {/* Audio Player Controls */}
                 <div className="bg-gray-50 rounded-lg p-6">
@@ -259,13 +259,11 @@ export default function LessonPodcast() {
                   </div>
                 </div>
 
-                {/* Podcast Description */}
-                {podcastContent.content.description && (
-                  <div className="prose max-w-none text-foreground">
-                    <h3>About this episode:</h3>
-                    <p>{podcastContent.content.description}</p>
-                  </div>
-                )}
+                {/* Podcast learning objectives */}
+                <div className="bg-blue-50 border-l-4 border-blue-400 p-6 rounded-r-lg">
+                  <h3 className="font-semibold text-blue-900 mb-3">Learning Objectives</h3>
+                  <p className="text-blue-800">After completing this lesson, you'll understand the administrative framework governing Louisiana plumbing work.</p>
+                </div>
               </div>
             ) : (
               <div className="text-center py-8 text-muted-foreground">

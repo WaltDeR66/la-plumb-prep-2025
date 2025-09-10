@@ -53,8 +53,8 @@ export default function LessonStudyNotes() {
 
   // Find study notes content for this section
   const studyNotesContent = Array.isArray(content) ? content.find((item: CourseContent) => 
-    item.section === section && 
-    (item.type === 'study_notes' || item.title?.toLowerCase().includes('study notes'))
+    item.section === parseInt(section) && 
+    (item.type === 'study-notes' || item.title?.toLowerCase().includes('study notes'))
   ) : undefined;
 
   // Track lesson step progress
@@ -144,7 +144,7 @@ export default function LessonStudyNotes() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            {studyNotesContent?.content ? (
+            {studyNotesContent?.content?.notes || studyNotesContent?.content?.text ? (
               <div className="space-y-6">
                 {/* Key Points Summary */}
                 <div className="bg-blue-50 border-l-4 border-blue-400 p-6 rounded-r-lg">
@@ -166,14 +166,10 @@ export default function LessonStudyNotes() {
 
                 {/* Detailed Notes */}
                 <div className="prose max-w-none text-foreground prose-headings:text-foreground prose-strong:text-foreground prose-em:text-foreground prose-blockquote:text-muted-foreground prose-code:text-foreground">
-                  {studyNotesContent.content.detailedNotes ? (
-                    <div dangerouslySetInnerHTML={{ __html: studyNotesContent.content.detailedNotes }} />
-                  ) : (
-                    <div>
-                      <h3>Louisiana Plumbing Code - Section {section}</h3>
-                      <p>Detailed study notes for this section are currently being prepared. Please check back soon or contact support for assistance.</p>
-                    </div>
-                  )}
+                  <div 
+                    className="prose max-w-none text-foreground prose-headings:text-foreground prose-strong:text-foreground prose-em:text-foreground prose-blockquote:text-muted-foreground prose-code:text-foreground"
+                    dangerouslySetInnerHTML={{ __html: studyNotesContent.content.notes || studyNotesContent.content.text || 'Study notes are being prepared.' }}
+                  />
                 </div>
 
                 {/* Code References */}

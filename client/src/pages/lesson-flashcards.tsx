@@ -50,13 +50,19 @@ export default function LessonFlashcards() {
   // Resolve friendly course ID to UUID for API calls
   const resolvedCourseId = getCourseUUID(courseId);
 
-  // Fetch flashcards for this section
-  const { data: flashcards, isLoading: isFlashcardsLoading } = useQuery({
-    queryKey: [`/api/flashcards/${resolvedCourseId}/${section}`],
-    enabled: !!resolvedCourseId && !!section,
+  // Fetch course content for this section
+  const { data: content, isLoading: isContentLoading } = useQuery({
+    queryKey: [`/api/courses/${resolvedCourseId}/content`],
+    enabled: !!resolvedCourseId,
   });
 
-  const flashcardsArray: Flashcard[] = Array.isArray(flashcards) ? flashcards : [];
+  // Find flashcards content for this section
+  const flashcardsContent = Array.isArray(content) ? content.find((item: CourseContent) => 
+    item.section === parseInt(section) && 
+    (item.type === 'flashcards' || item.title?.toLowerCase().includes('flashcards'))
+  ) : undefined;
+
+  const flashcardsArray: Flashcard[] = flashcardsContent?.content?.flashcards || [];
   const currentCard = flashcardsArray[currentCardIndex];
 
   // Track lesson step progress
@@ -134,7 +140,7 @@ export default function LessonFlashcards() {
     navigate(`/lesson-ai-chat/${courseId}/${section}`);
   };
 
-  if (isFlashcardsLoading) {
+  if (isContentLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
         <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full" />
