@@ -201,61 +201,17 @@ export default function LessonPodcast() {
                 {/* Audio placeholder for future implementation */}
                 {/* Future audio player implementation */}
                 
-                {/* Audio Player Controls */}
-                <div className="bg-gray-50 rounded-lg p-6">
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center gap-4">
-                      <Button
-                        onClick={handlePlayPause}
-                        size="lg"
-                        className="w-12 h-12 rounded-full"
-                        data-testid="button-play-pause-podcast"
-                      >
-                        {isPlaying ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5" />}
-                      </Button>
-                      
-                      <div className="text-sm text-muted-foreground">
-                        {formatTime(currentTime)} / {formatTime(duration)}
-                      </div>
+                {/* Audio Player Placeholder */}
+                <div className="bg-gray-50 rounded-lg p-6 border-2 border-dashed border-gray-300">
+                  <div className="text-center py-8">
+                    <Headphones className="h-12 w-12 mx-auto mb-4 text-gray-400" />
+                    <h3 className="text-lg font-semibold text-gray-700 mb-2">Audio Content Coming Soon</h3>
+                    <p className="text-gray-600 mb-4">Professional audio lessons for Section 101 are currently in production.</p>
+                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 max-w-md mx-auto">
+                      <p className="text-blue-800 text-sm">
+                        <strong>Study Tip:</strong> Review the written content above and take notes on key administrative concepts while we prepare the audio lessons.
+                      </p>
                     </div>
-                    
-                    <div className="flex items-center gap-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => {
-                          if (audioRef.current) {
-                            audioRef.current.currentTime = Math.max(0, currentTime - 10);
-                          }
-                        }}
-                        data-testid="button-rewind-podcast"
-                      >
-                        <RotateCcw className="h-4 w-4" />
-                        -10s
-                      </Button>
-                      
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => {
-                          if (audioRef.current) {
-                            audioRef.current.currentTime = Math.min(duration, currentTime + 30);
-                          }
-                        }}
-                        data-testid="button-forward-podcast"
-                      >
-                        <SkipForward className="h-4 w-4" />
-                        +30s
-                      </Button>
-                    </div>
-                  </div>
-                  
-                  {/* Progress Bar */}
-                  <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div 
-                      className="bg-primary h-2 rounded-full transition-all duration-200"
-                      style={{ width: duration > 0 ? `${(currentTime / duration) * 100}%` : '0%' }}
-                    />
                   </div>
                 </div>
 
