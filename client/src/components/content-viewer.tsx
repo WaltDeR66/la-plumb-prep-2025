@@ -49,6 +49,52 @@ export default function ContentViewer(props: ContentViewerProps) {
   const queryClient = useQueryClient();
   
   const { contentId, contentType, title, courseId, sectionId, onComplete } = props;
+
+  // Define lesson flow order
+  const lessonFlow = [
+    { type: 'introduction', label: 'Introduction' },
+    { type: 'podcast', label: 'Podcast' },
+    { type: 'flashcards', label: 'Flashcards' },
+    { type: 'ai-chat', label: 'AI Chat' },
+    { type: 'study-notes', label: 'Study Notes' },
+    { type: 'quiz', label: 'Quiz' }
+  ];
+
+  const getNextStep = () => {
+    // Determine current step based on contentId or contentType
+    let currentStepIndex = -1;
+    
+    if (contentId.includes('intro')) {
+      currentStepIndex = 0; // Introduction
+    } else if (contentType === 'podcast' || contentId.includes('podcast')) {
+      currentStepIndex = 1; // Podcast
+    } else if (contentType === 'flashcards' || contentId.includes('flashcard')) {
+      currentStepIndex = 2; // Flashcards
+    } else if (contentType === 'ai-chat' || contentId.includes('chat')) {
+      currentStepIndex = 3; // AI Chat
+    } else if (contentType === 'study-notes' || contentId.includes('notes')) {
+      currentStepIndex = 4; // Study Notes
+    } else if (contentType === 'quiz' || contentId.includes('quiz')) {
+      currentStepIndex = 5; // Quiz
+    }
+
+    const nextIndex = currentStepIndex + 1;
+    if (nextIndex < lessonFlow.length) {
+      return lessonFlow[nextIndex];
+    }
+    return null; // No next step, end of lesson
+  };
+
+  const navigateToNextStep = () => {
+    const nextStep = getNextStep();
+    if (nextStep && courseId && sectionId) {
+      // Navigate back to lesson page which will show next step
+      navigate(`/course/${courseId}/lesson/${sectionId}`);
+    } else {
+      // End of lesson, complete it
+      handleComplete();
+    }
+  };
   
   // Initialize study session with valid props
   const { startSession, endSession } = useStudySession({ 
@@ -222,15 +268,18 @@ export default function ContentViewer(props: ContentViewerProps) {
           autoStart={shouldAutoStart} 
         />
         
-        {/* Complete Button */}
+        {/* Continue Button */}
         <Card className="mt-6">
           <CardContent className="p-6 text-center">
             <p className="text-muted-foreground mb-4">
-              Listen to the complete audio lesson to mark as completed
+              Listen to the complete audio lesson to continue
             </p>
-            <Button onClick={handleComplete} className="w-full max-w-sm mx-auto">
+            <Button onClick={navigateToNextStep} className="w-full max-w-sm mx-auto">
               <CheckCircle className="w-4 h-4 mr-2" />
-              Complete Podcast
+              {(() => {
+                const nextStep = getNextStep();
+                return nextStep ? `Continue to ${nextStep.label}` : 'Complete Lesson';
+              })()}
             </Button>
           </CardContent>
         </Card>
@@ -242,6 +291,7 @@ export default function ContentViewer(props: ContentViewerProps) {
     if (!content) return null;
     
     const text = content.content?.extracted?.content || content.content?.text || content.title;
+    const nextStep = getNextStep();
     
     return (
       <div className="space-y-6">
@@ -261,8 +311,8 @@ export default function ContentViewer(props: ContentViewerProps) {
               )}
             </div>
             
-            <Button onClick={handleComplete} className="w-full mt-6">
-              Complete Reading
+            <Button onClick={navigateToNextStep} className="w-full mt-6">
+              {nextStep ? `Continue to ${nextStep.label}` : 'Complete Lesson'}
             </Button>
           </CardContent>
         </Card>
