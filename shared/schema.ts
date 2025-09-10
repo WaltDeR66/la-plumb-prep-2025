@@ -361,6 +361,25 @@ export const sectionProgress = pgTable("section_progress", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
+// Lesson step progress tracking (detailed progress within each lesson)
+export const lessonStepProgress = pgTable("lesson_step_progress", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: text("user_id").notNull(),
+  courseId: text("course_id").notNull(),
+  section: integer("section").notNull(),
+  stepType: text("step_type").notNull(), // 'introduction', 'podcast', 'flashcards', 'ai_chat', 'study_notes', 'quiz'
+  stepIndex: integer("step_index").notNull(), // 0-5 for the 6 lesson steps
+  isCompleted: boolean("is_completed").default(false),
+  currentPosition: jsonb("current_position"), // Current position within the step (podcast timestamp, flashcard index, etc.)
+  timeSpent: integer("time_spent").default(0), // Total time spent on this step in seconds
+  lastAccessedAt: timestamp("last_accessed_at").defaultNow(),
+  completedAt: timestamp("completed_at"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => ({
+  uniqueLessonStep: unique("unique_lesson_step").on(table.userId, table.courseId, table.section, table.stepType),
+}));
+
 // Products
 export const products = pgTable("products", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
@@ -761,6 +780,14 @@ export const insertSectionProgressSchema = createInsertSchema(sectionProgress).o
   updatedAt: true,
 });
 
+export const insertLessonStepProgressSchema = createInsertSchema(lessonStepProgress).omit({
+  id: true,
+  lastAccessedAt: true,
+  completedAt: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
 export const insertProductSchema = createInsertSchema(products).omit({
   id: true,
   createdAt: true,
@@ -1062,6 +1089,8 @@ export type QuizAttempt = typeof quizAttempts.$inferSelect;
 export type InsertQuizAttempt = z.infer<typeof insertQuizAttemptSchema>;
 export type SectionProgress = typeof sectionProgress.$inferSelect;
 export type InsertSectionProgress = z.infer<typeof insertSectionProgressSchema>;
+export type LessonStepProgress = typeof lessonStepProgress.$inferSelect;
+export type InsertLessonStepProgress = z.infer<typeof insertLessonStepProgressSchema>;
 export type Product = typeof products.$inferSelect;
 export type InsertProduct = z.infer<typeof insertProductSchema>;
 export type CartItem = typeof cartItems.$inferSelect;
