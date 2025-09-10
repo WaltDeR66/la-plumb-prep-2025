@@ -144,7 +144,7 @@ export default function LessonPodcast() {
 
   const handleContinue = () => {
     trackProgress(true, currentTime);
-    navigate(`/lesson-flashcards/${courseId}/${section}`);
+    navigate(`/course/${courseId}/lesson/${section}/flashcards`);
   };
 
   const formatTime = (time: number) => {
@@ -201,19 +201,95 @@ export default function LessonPodcast() {
                 {/* Audio placeholder for future implementation */}
                 {/* Future audio player implementation */}
                 
-                {/* Audio Player Placeholder */}
-                <div className="bg-gray-50 rounded-lg p-6 border-2 border-dashed border-gray-300">
-                  <div className="text-center py-8">
-                    <Headphones className="h-12 w-12 mx-auto mb-4 text-gray-400" />
-                    <h3 className="text-lg font-semibold text-gray-700 mb-2">Audio Content Coming Soon</h3>
-                    <p className="text-gray-600 mb-4">Professional audio lessons for Section 101 are currently in production.</p>
-                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 max-w-md mx-auto">
-                      <p className="text-blue-800 text-sm">
-                        <strong>Study Tip:</strong> Review the written content above and take notes on key administrative concepts while we prepare the audio lessons.
-                      </p>
+                {/* Audio Player */}
+                {podcastContent?.content?.audioUrl ? (
+                  <div className="bg-white rounded-lg p-6 border shadow-sm">
+                    <div className="space-y-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center">
+                          <Headphones className="h-5 w-5 text-green-600" />
+                        </div>
+                        <div>
+                          <h3 className="font-semibold text-gray-900">Audio Lesson</h3>
+                          <p className="text-sm text-gray-600">Professional narration of Section {section}</p>
+                        </div>
+                      </div>
+                      
+                      <audio
+                        ref={audioRef}
+                        src={podcastContent.content.audioUrl}
+                        onTimeUpdate={handleTimeUpdate}
+                        onLoadedMetadata={handleLoadedMetadata}
+                        onEnded={handleEnded}
+                        className="w-full"
+                        data-testid="audio-player"
+                      />
+                      
+                      <div className="flex items-center gap-4">
+                        <Button
+                          onClick={handlePlayPause}
+                          variant="outline"
+                          size="sm"
+                          className="flex items-center gap-2"
+                          data-testid="button-play-pause"
+                        >
+                          {isPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
+                          {isPlaying ? 'Pause' : 'Play'}
+                        </Button>
+                        
+                        <div className="flex-1 flex items-center gap-2 text-sm text-gray-600">
+                          <span>{formatTime(currentTime)}</span>
+                          <div className="flex-1 bg-gray-200 rounded-full h-2">
+                            <div 
+                              className="bg-primary h-2 rounded-full transition-all duration-300"
+                              style={{ width: `${duration ? (currentTime / duration) * 100 : 0}%` }}
+                            />
+                          </div>
+                          <span>{formatTime(duration)}</span>
+                        </div>
+                        
+                        <Button
+                          onClick={() => {
+                            if (audioRef.current) {
+                              audioRef.current.currentTime += 10;
+                            }
+                          }}
+                          variant="ghost"
+                          size="sm"
+                          data-testid="button-skip-forward"
+                        >
+                          <SkipForward className="h-4 w-4" />
+                        </Button>
+                        
+                        <Button
+                          onClick={() => {
+                            if (audioRef.current) {
+                              audioRef.current.currentTime = Math.max(0, audioRef.current.currentTime - 10);
+                            }
+                          }}
+                          variant="ghost"
+                          size="sm"
+                          data-testid="button-rewind"
+                        >
+                          <RotateCcw className="h-4 w-4" />
+                        </Button>
+                      </div>
                     </div>
                   </div>
-                </div>
+                ) : (
+                  <div className="bg-gray-50 rounded-lg p-6 border-2 border-dashed border-gray-300">
+                    <div className="text-center py-8">
+                      <Headphones className="h-12 w-12 mx-auto mb-4 text-gray-400" />
+                      <h3 className="text-lg font-semibold text-gray-700 mb-2">Audio Content Coming Soon</h3>
+                      <p className="text-gray-600 mb-4">Professional audio lessons for Section {section} are currently in production.</p>
+                      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 max-w-md mx-auto">
+                        <p className="text-blue-800 text-sm">
+                          <strong>Study Tip:</strong> Review the written content above and take notes on key administrative concepts while we prepare the audio lessons.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
 
                 {/* Podcast learning objectives */}
                 <div className="bg-blue-50 border-l-4 border-blue-400 p-6 rounded-r-lg">
