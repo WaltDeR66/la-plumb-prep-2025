@@ -22,6 +22,10 @@ export default function BulkPodcastImport() {
   const [podcastText, setPodcastText] = useState("");
   const [previewEpisodes, setPreviewEpisodes] = useState<any[]>([]);
   const [importStatus, setImportStatus] = useState<"idle" | "parsing" | "previewing" | "importing" | "success">("idle");
+  
+  // QuizGecko URL extraction
+  const [quizGeckoUrls, setQuizGeckoUrls] = useState("");
+  const [extractionStatus, setExtractionStatus] = useState<"idle" | "extracting" | "success">("idle");
 
 
   // Fetch courses
@@ -81,6 +85,29 @@ export default function BulkPodcastImport() {
         description: error.message || "Failed to generate podcast audio",
         variant: "destructive"
       });
+    }
+  });
+
+  // QuizGecko URL extraction mutation
+  const extractFromQuizGeckoMutation = useMutation({
+    mutationFn: async (data: any) => await apiRequest("POST", "/api/admin/extract-quizgecko-content", data),
+    onSuccess: (result: any) => {
+      toast({ 
+        title: "Successfully extracted QuizGecko content!", 
+        description: `Extracted ${result.episodes?.length || 0} podcast episodes from your QuizGecko URLs.`,
+        variant: "default"
+      });
+      setExtractionStatus("success");
+      setQuizGeckoUrls("");
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/course-content"] });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Extraction failed",
+        description: error.message || "Failed to extract content from QuizGecko URLs",
+        variant: "destructive"
+      });
+      setExtractionStatus("idle");
     }
   });
 
