@@ -74,19 +74,33 @@ export default function ContentViewer(props: ContentViewerProps) {
     // Determine current step based on contentId or contentType
     let currentStepIndex = -1;
     
-    if (contentId.includes('intro')) {
+    // More specific checks for contentId patterns
+    if (contentId.includes('intro') || contentType === 'introduction') {
       currentStepIndex = 0; // Introduction
-    } else if (contentType === 'podcast' || contentId.includes('podcast')) {
+    } else if (contentId.includes('podcast') || contentType === 'podcast') {
       currentStepIndex = 1; // Podcast
-    } else if (contentType === 'flashcards' || contentId.includes('flashcard')) {
+    } else if (contentId.includes('flashcard') || contentType === 'flashcards') {
       currentStepIndex = 2; // Flashcards
-    } else if (contentType === 'ai-chat' || contentId.includes('chat')) {
+    } else if (contentId.includes('chat') || contentId.includes('ai-chat') || contentType === 'ai-chat') {
       currentStepIndex = 3; // AI Chat
-    } else if (contentType === 'study-notes' || contentId.includes('notes')) {
+    } else if (contentId.includes('notes') || contentId.includes('study-notes') || contentType === 'study-notes') {
       currentStepIndex = 4; // Study Notes
-    } else if (contentType === 'quiz' || contentId.includes('quiz')) {
+    } else if (contentId.includes('quiz') || contentType === 'quiz') {
       currentStepIndex = 5; // Quiz
+    } else {
+      // Default fallback - try to detect from content title
+      if (content?.title) {
+        const titleLower = content.title.toLowerCase();
+        if (titleLower.includes('intro')) currentStepIndex = 0;
+        else if (titleLower.includes('podcast')) currentStepIndex = 1;
+        else if (titleLower.includes('flashcard')) currentStepIndex = 2;
+        else if (titleLower.includes('chat')) currentStepIndex = 3;
+        else if (titleLower.includes('notes')) currentStepIndex = 4;
+        else if (titleLower.includes('quiz')) currentStepIndex = 5;
+      }
     }
+
+    console.log('Current step detection:', { contentId, contentType, currentStepIndex, content: content?.title });
 
     const nextIndex = currentStepIndex + 1;
     if (nextIndex < lessonFlow.length) {
