@@ -6195,6 +6195,88 @@ Start your journey at laplumbprep.com/courses
     }
   });
 
+  // TTS Episode Creation Route
+  app.post("/api/admin/podcast/create-episode", async (req: any, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+    
+    if (!req.user.email?.includes('admin') && req.user.subscriptionTier !== 'master') {
+      return res.status(403).json({ error: "Admin access required" });
+    }
+    
+    try {
+      const { courseId, chapter, section, difficulty, title, transcript, audioUrl, duration, contentId, type } = req.body;
+      
+      if (!courseId || !title || !transcript) {
+        return res.status(400).json({ error: "courseId, title, and transcript are required" });
+      }
+      
+      // Helper function to extract chapter number from chapter string
+      const extractChapterNumber = (chapterStr: string) => {
+        if (!chapterStr) return 1;
+        const match = chapterStr.match(/chapter\s*(\d+)/i);
+        return match ? parseInt(match[1]) : 1;
+      };
+      
+      // Extract section number from section string
+      const extractSectionNumber = (sectionStr: string) => {
+        if (!sectionStr) return 101;
+        const num = parseInt(sectionStr.replace(/\D/g, ''));
+        return num || 101;
+      };
+      
+      // Build podcast content object with TTS audio integration
+      const podcastContent = {
+        title: title,
+        transcript: transcript,
+        duration: duration || 180,
+        type: 'podcast',
+        audioUrl: audioUrl || null,
+        contentId: contentId || null,
+        // Convert transcript to segments format for the podcast player
+        segments: transcript.split('\n').map((line: string, index: number) => ({
+          speaker: index % 2 === 0 ? "host" : "guest", 
+          text: line.trim()
+        })).filter((segment: any) => segment.text.length > 0),
+        // Add text property for lessons that expect it
+        text: transcript
+      };
+
+      const chapterNum = extractChapterNumber(chapter);
+      const sectionNum = extractSectionNumber(section);
+      
+      // Check for duplicates by title and section
+      const existingContent = await storage.getCourseContentBySection(courseId, sectionNum, 'podcast');
+      if (existingContent && existingContent.title === title) {
+        return res.status(409).json({ 
+          error: "Episode with this title already exists in this section",
+          existing: existingContent 
+        });
+      }
+
+      const createdEpisode = await storage.createCourseContent({
+        courseId: courseId,
+        type: 'podcast',
+        title: title,
+        content: podcastContent,
+        duration: Math.ceil((duration || 180) / 60), // Convert to minutes
+        chapter: chapterNum,
+        section: sectionNum,
+        difficulty: (difficulty || 'medium') as 'easy' | 'hard' | 'very_hard'
+      });
+      
+      res.json({ 
+        success: true, 
+        episode: createdEpisode,
+        message: `Episode "${title}" created successfully and is now available to students`
+      });
+    } catch (error: any) {
+      console.error("Error creating TTS episode:", error);
+      res.status(500).json({ error: "Failed to create episode: " + error.message });
+    }
+  });
+
   // Bulk Podcast Import Route  
   app.post("/api/admin/podcast/bulk-import", async (req: any, res) => {
     if (!req.isAuthenticated()) {

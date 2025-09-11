@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -9,7 +9,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
-import { Upload, FileText, CheckCircle, AlertCircle, Mic } from "lucide-react";
+import { Upload, FileText, CheckCircle, AlertCircle, Mic, Volume2, Play, Pause, Download } from "lucide-react";
 import { PLUMBING_CODE_SECTIONS } from "@/lib/plumbing-code-sections";
 
 export default function BulkPodcastImport() {
@@ -26,7 +26,270 @@ export default function BulkPodcastImport() {
   // QuizGecko URL extraction
   const [quizGeckoUrls, setQuizGeckoUrls] = useState("");
   const [extractionStatus, setExtractionStatus] = useState<"idle" | "extracting" | "success">("idle");
+  
+  // TTS Integration for single episode creation
+  const [ttsTitle, setTtsTitle] = useState("");
+  const [ttsContent, setTtsContent] = useState("");
+  const [isGeneratingTTS, setIsGeneratingTTS] = useState(false);
+  const [ttsAudioResult, setTtsAudioResult] = useState<any>(null);
+  const [ttsError, setTtsError] = useState("");
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const [currentSentenceIndex, setCurrentSentenceIndex] = useState(0);
+  const [frozenSentences, setFrozenSentences] = useState<any[]>([]);
+  const audioRef = useRef<HTMLAudioElement>(null);
+  const textScrollRef = useRef<HTMLDivElement>(null);
 
+  // Parse text into sentences with timing estimates for TTS
+  const parseTextIntoSentences = (text: string) => {
+    if (!text) return [];
+    
+    const sentences = text.split(/(?<=[.!?])\s+/).filter(s => s.trim().length > 0);
+    const wordsPerSecond = 2.5; // Average speech rate
+    let currentStartTime = 0;
+    
+    return sentences.map((sentence, index) => {
+      const wordCount = sentence.split(/\s+/).filter(w => w.length > 0).length;
+      const duration = wordCount / wordsPerSecond;
+      const startTime = currentStartTime;
+      currentStartTime += duration;
+      
+      return {
+        index,
+        text: sentence.trim(),
+        startTime,
+        endTime: currentStartTime,
+        duration,
+        wordCount
+      };
+    });
+  };
+
+  const sentences = ttsAudioResult ? frozenSentences : parseTextIntoSentences(ttsContent);
+
+  // TTS Audio event handlers
+  const handlePlayPause = () => {
+    if (audioRef.current) {
+      if (isPlaying) {
+        audioRef.current.pause();
+      } else {
+        audioRef.current.play().catch(error => {
+          console.error('Audio play failed:', error);
+          setIsPlaying(false);
+        });
+      }
+    }
+  };
+
+  const handleTimeUpdate = () => {
+    if (audioRef.current) {
+      const time = audioRef.current.currentTime;
+      setCurrentTime(time);
+      
+      const currentSentence = sentences.findIndex(s => 
+        time >= s.startTime && time < s.endTime
+      );
+      if (currentSentence !== -1 && currentSentence !== currentSentenceIndex) {
+        setCurrentSentenceIndex(currentSentence);
+      }
+    }
+  };
+
+  const handleLoadedMetadata = () => {
+    if (audioRef.current) {
+      const actualDuration = audioRef.current.duration;
+      setDuration(actualDuration);
+      
+      if (ttsAudioResult && frozenSentences.length > 0 && Math.abs(actualDuration - ttsAudioResult.duration) > 0.1) {
+        const rescaleFactor = actualDuration / ttsAudioResult.duration;
+        const rescaledSentences = frozenSentences.map(sentence => ({
+          ...sentence,
+          startTime: sentence.startTime * rescaleFactor,
+          endTime: sentence.endTime * rescaleFactor,
+          duration: sentence.duration * rescaleFactor
+        }));
+        setFrozenSentences(rescaledSentences);
+      }
+    }
+  };
+
+  const handleSentenceClick = (sentenceIndex: number) => {
+    if (audioRef.current && sentences[sentenceIndex]) {
+      audioRef.current.currentTime = sentences[sentenceIndex].startTime;
+      setCurrentSentenceIndex(sentenceIndex);
+    }
+  };
+
+  useEffect(() => {
+    if (textScrollRef.current && sentences.length > 0) {
+      const currentElement = textScrollRef.current.querySelector(`[data-sentence="${currentSentenceIndex}"]`);
+      if (currentElement) {
+        currentElement.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'center' 
+        });
+      }
+    }
+  }, [currentSentenceIndex]);
+
+  // TTS Generation mutation
+  const generateTTSMutation = useMutation({
+    mutationFn: async (data: { text: string; title: string }) => {
+      const response = await apiRequest("POST", "/api/text-to-speech", data);
+      return response.json();
+    },
+    onSuccess: (result: any) => {
+      if (result.success) {
+        const generatedSentences = parseTextIntoSentences(ttsContent);
+        const totalEstimatedDuration = generatedSentences.reduce((sum, s) => sum + s.duration, 0);
+        const scaleFactor = result.duration / totalEstimatedDuration;
+        
+        const normalizedSentences = generatedSentences.map(sentence => ({
+          ...sentence,
+          startTime: sentence.startTime * scaleFactor,
+          endTime: sentence.endTime * scaleFactor,
+          duration: sentence.duration * scaleFactor
+        }));
+        
+        setFrozenSentences(normalizedSentences);
+        setCurrentSentenceIndex(0);
+        setCurrentTime(0);
+        
+        setTtsAudioResult({
+          audioUrl: result.audioUrl,
+          title: result.title,
+          duration: result.duration,
+          contentId: result.contentId
+        });
+        
+        toast({
+          title: "Audio Generated Successfully",
+          description: `Generated ${Math.floor(result.duration / 60)}:${(result.duration % 60).toString().padStart(2, '0')} of audio`,
+        });
+      } else {
+        setTtsError(result.message || "Failed to generate audio");
+      }
+    },
+    onError: (error: any) => {
+      setTtsError(error.message || "Failed to generate audio");
+      toast({
+        title: "Generation Failed",
+        description: error.message || "Failed to convert text to speech",
+        variant: "destructive",
+      });
+    }
+  });
+
+  const handleTTSGenerate = () => {
+    if (!ttsContent.trim()) {
+      setTtsError("Please enter content to convert to speech");
+      return;
+    }
+
+    if (ttsContent.length > 4096) {
+      setTtsError("Content must be 4096 characters or less");
+      return;
+    }
+
+    setTtsError("");
+    generateTTSMutation.mutate({
+      text: ttsContent,
+      title: ttsTitle || "Generated Podcast Audio"
+    });
+  };
+
+  const handleTTSClear = () => {
+    setTtsTitle("");
+    setTtsContent("");
+    setTtsAudioResult(null);
+    setTtsError("");
+    setFrozenSentences([]);
+    setCurrentSentenceIndex(0);
+    setCurrentTime(0);
+    setIsPlaying(false);
+  };
+
+  const handleTTSDownload = () => {
+    if (ttsAudioResult) {
+      const link = document.createElement('a');
+      link.href = ttsAudioResult.audioUrl;
+      link.download = `${ttsAudioResult.title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.mp3`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+  };
+
+  // Save TTS episode to podcast system
+  const saveTTSEpisodeMutation = useMutation({
+    mutationFn: async (episodeData: any) => {
+      const response = await apiRequest("POST", "/api/admin/podcast/create-episode", episodeData);
+      return response.json();
+    },
+    onSuccess: (result: any) => {
+      toast({
+        title: "Episode Saved Successfully!",
+        description: `"${ttsTitle || 'Generated Episode'}" has been added to the course and is now available to students.`,
+      });
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/course-content"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/courses"] });
+      
+      // Clear the TTS form after successful save
+      handleTTSClear();
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Save Failed",
+        description: error.message || "Failed to save episode to course",
+        variant: "destructive",
+      });
+    }
+  });
+
+  const handleSaveTTSEpisode = () => {
+    if (!ttsAudioResult) {
+      toast({
+        title: "No Audio Generated",
+        description: "Please generate audio first before saving the episode",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!selectedCourse) {
+      toast({
+        title: "No Course Selected",
+        description: "Please select a course before saving the episode",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!selectedChapter || !selectedSection) {
+      toast({
+        title: "Missing Organization",
+        description: "Please select both chapter and section before saving",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const episodeData = {
+      courseId: selectedCourse,
+      chapter: selectedChapter,
+      section: selectedSection,
+      difficulty: selectedDifficulty,
+      title: ttsTitle || "Generated Podcast Episode",
+      transcript: ttsContent,
+      audioUrl: ttsAudioResult.audioUrl,
+      duration: ttsAudioResult.duration,
+      contentId: ttsAudioResult.contentId,
+      type: 'podcast'
+    };
+
+    saveTTSEpisodeMutation.mutate(episodeData);
+  };
 
   // Fetch courses
   const { data: courses } = useQuery({
@@ -530,6 +793,242 @@ Absolutely! The code establishes clear requirements for how plumbing systems mus
             </AlertDescription>
           </Alert>
         )}
+        
+        {/* TTS Individual Episode Creation */}
+        <Card className="mt-8 border-purple-200 bg-purple-50">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-purple-800">
+              <Volume2 className="w-5 h-5" />
+              Create Individual Podcast Episode with Text-to-Speech
+            </CardTitle>
+            <CardDescription className="text-purple-700">
+              Create a single podcast episode with synchronized audio generation. Perfect for testing or creating individual content pieces.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid lg:grid-cols-2 gap-6">
+              {/* TTS Input Section */}
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="tts-title">Episode Title</Label>
+                  <Input
+                    id="tts-title"
+                    data-testid="input-tts-title"
+                    placeholder="Enter episode title (e.g., Louisiana Plumbing Code §101 Administration)"
+                    value={ttsTitle}
+                    onChange={(e) => setTtsTitle(e.target.value)}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="tts-content">Episode Content</Label>
+                  <Textarea
+                    id="tts-content"
+                    data-testid="input-tts-content"
+                    placeholder="Enter your podcast content here... This will be converted to audio with synchronized text display for students."
+                    value={ttsContent}
+                    onChange={(e) => setTtsContent(e.target.value)}
+                    rows={12}
+                    className="min-h-[300px] font-mono text-sm"
+                  />
+                  <div className="flex justify-between text-sm text-gray-500">
+                    <span>Words: {ttsContent.split(/\s+/).filter(w => w.length > 0).length} | Characters: {ttsContent.length}/4096</span>
+                    <span>Est. Duration: ~{Math.ceil(ttsContent.split(/\s+/).filter(w => w.length > 0).length / 2.5)}s</span>
+                  </div>
+                </div>
+
+                {ttsError && (
+                  <Alert variant="destructive">
+                    <AlertDescription>{ttsError}</AlertDescription>
+                  </Alert>
+                )}
+
+                <div className="flex gap-2">
+                  <Button
+                    onClick={handleTTSGenerate}
+                    disabled={generateTTSMutation.isPending || !ttsContent.trim()}
+                    className="flex-1"
+                    data-testid="button-generate-tts"
+                  >
+                    {generateTTSMutation.isPending ? (
+                      <>
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                        Generating Audio...
+                      </>
+                    ) : (
+                      <>
+                        <Volume2 className="mr-2 h-4 w-4" />
+                        Generate Audio
+                      </>
+                    )}
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={handleTTSClear}
+                    disabled={generateTTSMutation.isPending}
+                    data-testid="button-clear-tts"
+                  >
+                    Clear
+                  </Button>
+                </div>
+              </div>
+
+              {/* TTS Output Section */}
+              <div>
+                {ttsAudioResult ? (
+                  <div className="space-y-4">
+                    <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg border border-green-200 dark:border-green-800">
+                      <h3 className="font-medium text-green-800 dark:text-green-200 mb-2">
+                        ✅ Audio Generated Successfully
+                      </h3>
+                      <p className="text-sm text-green-700 dark:text-green-300">
+                        <strong>Title:</strong> {ttsAudioResult.title}<br />
+                        <strong>Duration:</strong> {Math.floor(ttsAudioResult.duration / 60)}:{(ttsAudioResult.duration % 60).toString().padStart(2, '0')}<br />
+                        <strong>File ID:</strong> {ttsAudioResult.contentId}
+                      </p>
+                    </div>
+
+                    {/* Custom Audio Player with Controls */}
+                    <div className="space-y-4">
+                      <audio
+                        ref={audioRef}
+                        src={ttsAudioResult.audioUrl}
+                        onTimeUpdate={handleTimeUpdate}
+                        onLoadedMetadata={handleLoadedMetadata}
+                        onPlay={() => setIsPlaying(true)}
+                        onPause={() => setIsPlaying(false)}
+                        onEnded={() => setIsPlaying(false)}
+                        className="hidden"
+                      />
+
+                      {/* Audio Controls */}
+                      <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
+                        <div className="flex items-center gap-4 mb-3">
+                          <Button
+                            onClick={handlePlayPause}
+                            size="sm"
+                            data-testid="button-play-pause-tts"
+                            className="flex items-center gap-2"
+                          >
+                            {isPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
+                            {isPlaying ? 'Pause' : 'Play'}
+                          </Button>
+                          
+                          <div className="flex-1 text-sm text-gray-600 dark:text-gray-300">
+                            {Math.floor(currentTime / 60)}:{Math.floor(currentTime % 60).toString().padStart(2, '0')} / {Math.floor(duration / 60)}:{Math.floor(duration % 60).toString().padStart(2, '0')}
+                          </div>
+
+                          <Button
+                            onClick={handleTTSDownload}
+                            variant="outline"
+                            size="sm"
+                            data-testid="button-download-tts"
+                          >
+                            <Download className="mr-2 h-4 w-4" />
+                            Download
+                          </Button>
+                          
+                          <Button
+                            onClick={handleSaveTTSEpisode}
+                            disabled={saveTTSEpisodeMutation.isPending || !selectedCourse || !selectedChapter || !selectedSection}
+                            size="sm"
+                            className="bg-purple-600 hover:bg-purple-700 text-white"
+                            data-testid="button-save-episode"
+                          >
+                            {saveTTSEpisodeMutation.isPending ? (
+                              <>
+                                <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white mr-2"></div>
+                                Saving...
+                              </>
+                            ) : (
+                              <>
+                                <Upload className="mr-2 h-3 w-3" />
+                                Save as Episode
+                              </>
+                            )}
+                          </Button>
+                        </div>
+
+                        {/* Seekable Progress Bar */}
+                        <div 
+                          className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2 cursor-pointer"
+                          onClick={(e) => {
+                            if (audioRef.current && duration) {
+                              const rect = e.currentTarget.getBoundingClientRect();
+                              const clickX = e.clientX - rect.left;
+                              const percentage = clickX / rect.width;
+                              const newTime = percentage * duration;
+                              audioRef.current.currentTime = newTime;
+                              setCurrentTime(newTime);
+                              
+                              const newSentenceIndex = sentences.findIndex(s => 
+                                newTime >= s.startTime && newTime < s.endTime
+                              );
+                              if (newSentenceIndex !== -1) {
+                                setCurrentSentenceIndex(newSentenceIndex);
+                              }
+                            }
+                          }}
+                          data-testid="progress-bar-tts"
+                        >
+                          <div 
+                            className="bg-purple-600 h-2 rounded-full transition-all duration-300"
+                            style={{ width: `${duration ? (currentTime / duration) * 100 : 0}%` }}
+                          />
+                        </div>
+                      </div>
+
+                      {/* Synchronized Text Display */}
+                      {sentences.length > 0 && (
+                        <div className="bg-white dark:bg-gray-900 border rounded-lg p-4">
+                          <h4 className="font-medium mb-3 text-gray-900 dark:text-white">
+                            📖 Follow Along Text (Click any sentence to jump)
+                          </h4>
+                          <div 
+                            ref={textScrollRef}
+                            className="max-h-64 overflow-y-auto space-y-2"
+                          >
+                            {sentences.map((sentence, index) => (
+                              <div
+                                key={index}
+                                data-sentence={index}
+                                data-testid={`sentence-tts-${index}`}
+                                onClick={() => handleSentenceClick(index)}
+                                className={`p-3 rounded cursor-pointer transition-all duration-300 ${
+                                  index === currentSentenceIndex
+                                    ? 'bg-purple-100 dark:bg-purple-900/40 border-l-4 border-purple-500 font-medium text-purple-900 dark:text-purple-100 shadow-sm'
+                                    : 'hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300'
+                                }`}
+                              >
+                                <div className="flex items-start gap-3">
+                                  <span className="text-xs text-gray-500 mt-1 min-w-[3rem]">
+                                    {Math.floor(sentence.startTime / 60)}:{Math.floor(sentence.startTime % 60).toString().padStart(2, '0')}
+                                  </span>
+                                  <span className={index === currentSentenceIndex ? 'text-purple-900 dark:text-purple-100' : ''}>
+                                    {sentence.text}
+                                  </span>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                          <div className="mt-3 text-xs text-gray-500">
+                            💡 Tip: Click on any sentence to jump to that part of the audio
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="text-center py-12 text-gray-500">
+                    <Volume2 className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                    <p className="font-medium">Ready to Generate Audio</p>
+                    <p className="text-sm">Enter episode content and click "Generate Audio" to create synchronized audio</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
         
         {/* Audio Generation Section */}
         <Card className="mt-8">
