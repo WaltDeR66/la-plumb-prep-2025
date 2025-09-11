@@ -24,6 +24,7 @@ export default function Header() {
   const navigation = [
     { name: "Courses", href: "#" }, // Now handled as dropdown
     { name: "AI Tools", href: "#" }, // Now handled as dropdown
+    { name: "Podcasts", href: "/podcasts" },
     { name: "Store", href: "#" }, // Now handled as dropdown
     { name: "For Companies", href: "#" }, // Now handled as dropdown
     { name: "Job Board", href: "/jobs" },
@@ -361,6 +362,9 @@ export default function Header() {
                       </div>
                     </div>
                     
+                    <Link href="/podcasts" className="block text-gray-600 dark:text-gray-300">
+                      Podcasts
+                    </Link>
                     <Link href="/jobs" className="block text-gray-600 dark:text-gray-300">
                       Job Board
                     </Link>

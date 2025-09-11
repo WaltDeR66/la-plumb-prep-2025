@@ -77,6 +77,7 @@ import MasterPlumberPrepPricing from "@/pages/master-plumber-prep-pricing";
 import BackflowPreventionPricing from "@/pages/backflow-prevention-pricing";
 import NaturalGasCertificationPricing from "@/pages/natural-gas-certification-pricing";
 import MedicalGasInstallerPricing from "@/pages/medical-gas-installer-pricing";
+import { PodcastsPage } from "@/pages/PodcastsPage";
 
 function Router() {
   return (
@@ -106,6 +107,7 @@ function Router() {
           <Route path="/checkout/success" component={CheckoutSuccess} />
           <Route path="/beta-feedback" component={BetaFeedback} />
           <Route path="/dashboard" component={Dashboard} />
+          <Route path="/podcasts" component={PodcastsPage} />
           <Route path="/store" component={Store} />
           <Route path="/store/product/:id" component={ProductDetail} />
           <Route path="/cart" component={Cart} />
