@@ -334,6 +334,29 @@ export default function AIMentorChat({ currentSection }: AIMentorChatProps = {})
 
           {/* Chat Messages */}
           <ScrollArea className="flex-1 p-4" ref={scrollAreaRef}>
+            {/* Show thinking indicator when AI is processing */}
+            {chatMutation.isPending && (
+              <div className="flex justify-start mb-4">
+                <div className="flex items-start space-x-2 max-w-[80%]">
+                  <Avatar className="w-8 h-8">
+                    <AvatarFallback className="bg-gradient-to-r from-blue-500 to-purple-600 text-white text-xs">
+                      <Bot className="w-4 h-4" />
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="bg-muted rounded-lg p-3 animate-pulse">
+                    <div className="flex items-center space-x-2">
+                      <div className="flex space-x-1">
+                        <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce"></div>
+                        <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
+                        <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
+                      </div>
+                      <span className="text-sm text-muted-foreground">AI is thinking...</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+            
             {currentConversation ? (
               <div className="space-y-4">
                 {currentConversation.messages.map((message, index) => (
