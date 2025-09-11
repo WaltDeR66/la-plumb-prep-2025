@@ -45,7 +45,7 @@ export default function AIMentorChat({ currentSection }: AIMentorChatProps = {})
   });
 
   // Get current user data
-  const { data: user } = useQuery({
+  const { data: user } = useQuery<any>({
     queryKey: ["/api/auth/me"],
     retry: false,
   });
@@ -205,7 +205,7 @@ export default function AIMentorChat({ currentSection }: AIMentorChatProps = {})
               </div>
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <Timer className="w-4 h-4" />
-                <span>Session: {studySession.timeSpent}</span>
+                <span>Session: {studySession.formattedTime}</span>
               </div>
             </div>
           </CardHeader>
