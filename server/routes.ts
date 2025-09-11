@@ -718,6 +718,220 @@ Keep studying, stay safe on the job, and we'll see you in the next Louisiana Plu
       },
       isActive: true,
       sortOrder: 0
+    },
+    {
+      id: "c8f3d2a1-4b6e-4f9a-8e7c-1d2e3f4a5b6c",
+      courseId,
+      title: "LSPC 101 Administration - Study Notes",
+      type: "study-notes",
+      chapter: 1,
+      section: 101,
+      content: {
+        keyPoints: [
+          "The Department of Health and Hospitals, Office of Public Health adopts Part XIV (Plumbing) of the Sanitary Code",
+          "Part XIV is also known as the Louisiana State Plumbing Code (LSPC)",
+          "Legal authority is derived from Louisiana Revised Statutes R.S. 36:258(B)",
+          "All references to 'this code', 'this Part', or 'Louisiana State Plumbing Code' refer to Part XIV",
+          "Administrative authority governs all plumbing work and inspections in Louisiana"
+        ],
+        notes: `<h3>Louisiana State Plumbing Code Administration</h3>
+        <p>Section 101 establishes the fundamental administrative framework for plumbing regulation in Louisiana. This section is critical for understanding the legal foundation that governs all plumbing work throughout the state.</p>
+        
+        <h4>Adoption Authority</h4>
+        <p>The <strong>Department of Health and Hospitals, Office of Public Health</strong> has the legal authority to adopt and enforce Part XIV (Plumbing) of the Sanitary Code. This authority is derived from Louisiana Revised Statutes R.S. 36:258(B), which grants the department regulatory power over public health matters including plumbing systems.</p>
+        
+        <h4>Code Terminology</h4>
+        <p>Understanding the interchangeable terminology is essential for professionals:</p>
+        <ul>
+          <li><strong>Part XIV (Plumbing)</strong> - The official designation in Louisiana Administrative Code 51:XIV</li>
+          <li><strong>Louisiana State Plumbing Code (LSPC)</strong> - The common name used by professionals</li>
+          <li><strong>"This code" or "this Part"</strong> - References throughout the document that refer to Part XIV</li>
+        </ul>
+        
+        <h4>Practical Application</h4>
+        <p>This administrative foundation has practical implications for daily plumbing work:</p>
+        <ul>
+          <li>All permits and inspections are conducted under this authority</li>
+          <li>Code violations are legally enforceable under state law</li>
+          <li>Local jurisdictions derive their enforcement power from this state-level adoption</li>
+          <li>Professional licensing requirements are tied to knowledge of this administrative structure</li>
+        </ul>
+        
+        <h4>Exam Preparation Focus</h4>
+        <p>For journeyman certification exams, focus on:</p>
+        <ul>
+          <li>Memorizing the exact name: "Department of Health and Hospitals, Office of Public Health"</li>
+          <li>Understanding that Part XIV and LSPC are identical</li>
+          <li>Recognizing legal authority questions related to R.S. 36:258(B)</li>
+        </ul>`,
+        codeReferences: [
+          {
+            section: "Part XIV, Louisiana Administrative Code 51:XIV",
+            description: "Official Louisiana State Plumbing Code designation"
+          },
+          {
+            section: "R.S. 36:258(B)",
+            description: "Louisiana Revised Statutes granting regulatory authority"
+          },
+          {
+            section: "Department of Health and Hospitals",
+            description: "State agency with plumbing code adoption authority"
+          }
+        ]
+      },
+      isActive: true,
+      sortOrder: 4
+    },
+    {
+      id: "d9e4f5b2-7c8a-4f3e-9b1c-2a3b4c5d6e7f",
+      courseId,
+      title: "LSPC 103 Availability - Study Notes",
+      type: "study-notes",
+      chapter: 1,
+      section: 103,
+      content: {
+        keyPoints: [
+          "Section 103 ensures public access to the Louisiana State Plumbing Code",
+          "Official copies can be obtained from the Office of the State Register",
+          "Professionals must use current, official versions of the code",
+          "Electronic access methods are available for code viewing",
+          "Staying current with code changes is a professional responsibility"
+        ],
+        notes: `<h3>Louisiana State Plumbing Code Availability</h3>
+        <p>Section 103 establishes <strong>public access requirements</strong> for the Louisiana State Plumbing Code, ensuring that professionals and citizens can obtain official copies of the regulations when needed.</p>
+        
+        <h4>Official Code Access</h4>
+        <p>The <strong>Office of the State Register</strong> serves as the primary source for official copies of the Louisiana State Plumbing Code. This ensures that everyone has access to the authoritative version of the regulations.</p>
+        
+        <h4>Professional Responsibility</h4>
+        <p>As a licensed plumbing professional, you have a legal and ethical obligation to:</p>
+        <ul>
+          <li>Work with current, official versions of the code</li>
+          <li>Verify that you're using the most recent regulations</li>
+          <li>Stay informed about updates and amendments</li>
+          <li>Access official information when questions arise on job sites</li>
+        </ul>
+        
+        <h4>Access Methods</h4>
+        <p>The code can be accessed through multiple channels:</p>
+        <ul>
+          <li><strong>Electronic access</strong> - Online viewing of current code provisions</li>
+          <li><strong>Direct contact</strong> - Contacting the Office of the State Register</li>
+          <li><strong>Professional resources</strong> - Industry publications and official distributors</li>
+        </ul>
+        
+        <h4>Practical Applications</h4>
+        <p>Understanding Section 103 helps you:</p>
+        <ul>
+          <li>Provide accurate information to clients and colleagues</li>
+          <li>Verify code requirements for complex installations</li>
+          <li>Demonstrate professionalism through proper code knowledge</li>
+          <li>Avoid compliance issues from using outdated information</li>
+        </ul>
+        
+        <h4>Connection to Professional Practice</h4>
+        <p>Inspectors expect plumbers to work with current code versions. Using outdated information can lead to:</p>
+        <ul>
+          <li>Failed inspections and costly rework</li>
+          <li>Legal liability for non-compliance</li>
+          <li>Professional reputation damage</li>
+          <li>Safety issues from outdated requirements</li>
+        </ul>`,
+        codeReferences: [
+          {
+            section: "Section 103",
+            description: "Public access to Louisiana State Plumbing Code"
+          },
+          {
+            section: "Office of the State Register",
+            description: "Official source for code copies and information"
+          },
+          {
+            section: "Professional Responsibility",
+            description: "Obligation to use current, official code versions"
+          }
+        ]
+      },
+      isActive: true,
+      sortOrder: 4
+    },
+    {
+      id: "e1f2a3b4-8d9c-5e6f-0a1b-3c4d5e6f7a8b",
+      courseId,
+      title: "LSPC 105 Effective Date and Edition - Study Notes",
+      type: "study-notes",
+      chapter: 1,
+      section: 105,
+      content: {
+        keyPoints: [
+          "Section 105 establishes when code requirements become legally enforceable",
+          "February 20, 2013 is a key effective date for major code provisions",
+          "The 2013 Edition designation marks current Louisiana Plumbing Code standards",
+          "Different projects may be governed by different code editions based on permit dates",
+          "Understanding effective dates prevents compliance issues and costly rework"
+        ],
+        notes: `<h3>Code Effective Dates and Edition Information</h3>
+        <p>Section 105 provides <strong>critical timing information</strong> about when code requirements take effect and how to identify which edition applies to specific plumbing work in Louisiana.</p>
+        
+        <h4>Key Effective Date: February 20, 2013</h4>
+        <p>This date marks when major provisions of the current Louisiana State Plumbing Code became legally enforceable. Understanding this date is crucial for:</p>
+        <ul>
+          <li>Determining which requirements apply to existing installations</li>
+          <li>Planning project timelines around compliance deadlines</li>
+          <li>Understanding transition periods for code implementation</li>
+        </ul>
+        
+        <h4>Edition Identification</h4>
+        <p>The <strong>2013 Edition</strong> designation helps professionals identify the current version of Louisiana Plumbing Code requirements:</p>
+        <ul>
+          <li>Provides clear reference point for current standards</li>
+          <li>Ensures consistency in code interpretation and application</li>
+          <li>Facilitates communication between professionals and inspectors</li>
+        </ul>
+        
+        <h4>Project Application Rules</h4>
+        <p>Understanding which code edition applies is essential:</p>
+        <ul>
+          <li><strong>New projects</strong> - Must meet current code standards</li>
+          <li><strong>Permitted projects</strong> - May continue under previous code editions if already started</li>
+          <li><strong>Renovations</strong> - Requirements depend on scope and permit dates</li>
+          <li><strong>Repairs</strong> - Generally follow current code unless specifically exempted</li>
+        </ul>
+        
+        <h4>Professional Compliance</h4>
+        <p>Proper understanding of effective dates helps you:</p>
+        <ul>
+          <li>Determine correct code requirements for each project</li>
+          <li>Communicate effectively with building officials and inspectors</li>
+          <li>Plan work schedules around compliance deadlines</li>
+          <li>Avoid costly rework from using incorrect standards</li>
+        </ul>
+        
+        <h4>Exam and Certification Focus</h4>
+        <p>The Louisiana Journeyman exam tests knowledge of:</p>
+        <ul>
+          <li>The February 20, 2013 effective date</li>
+          <li>How to determine which code edition applies</li>
+          <li>Transition periods and implementation timelines</li>
+          <li>Professional responsibilities regarding current standards</li>
+        </ul>`,
+        codeReferences: [
+          {
+            section: "Section 105",
+            description: "Effective date and edition information for Louisiana Plumbing Code"
+          },
+          {
+            section: "February 20, 2013",
+            description: "Key effective date for major code provisions"
+          },
+          {
+            section: "2013 Edition",
+            description: "Current edition designation for Louisiana State Plumbing Code"
+          }
+        ]
+      },
+      isActive: true,
+      sortOrder: 4
     }
   ];
 
@@ -3523,6 +3737,42 @@ Start your journey at laplumbprep.com/courses
     }
   });
 
+  // Get section-specific study notes
+  app.get("/api/courses/:courseId/sections/:section/study-notes", async (req, res) => {
+    try {
+      const { courseId, section } = req.params;
+      
+      // Resolve course ID (handle friendly URLs like "journeyman-prep")
+      const resolvedCourseId = await resolveCourseId(courseId);
+      if (!resolvedCourseId) {
+        return res.status(404).json({ message: "Course not found" });
+      }
+      
+      // Fetch all course content and filter for study-notes of the specific section
+      const allContent = await storage.getCourseContent(resolvedCourseId);
+      const studyNotes = allContent.find(item => 
+        String(item.section) === section && item.type === 'study-notes'
+      );
+      
+      if (!studyNotes) {
+        return res.status(404).json({ 
+          message: `Study notes not found for section ${section}` 
+        });
+      }
+      
+      // Add cache-busting headers to ensure fresh data
+      res.set({
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0'
+      });
+      
+      res.json(studyNotes);
+    } catch (error: any) {
+      console.error('Error fetching section study notes:', error);
+      res.status(500).json({ message: "Failed to fetch study notes" });
+    }
+  });
 
   // Generate AI audio for podcast content  
   app.post("/api/generate-audio/:id", async (req, res) => {
