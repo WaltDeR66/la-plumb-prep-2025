@@ -19,13 +19,25 @@ function getCourseUUID(courseSlug: string): string {
   return courseMapping[courseSlug] || courseSlug;
 }
 
-interface CourseContent {
+interface StudyNotesContent {
   id: string;
   title: string;
   type: string;
   chapter: number;
   section: string;
-  content: any;
+  content: {
+    keyPoints?: string[];
+    notes?: string;
+    text?: string;
+    codeReferences?: Array<{
+      section: string;
+      description: string;
+    }>;
+    extracted?: {
+      title?: string;
+      content?: string;
+    };
+  };
   duration?: number;
   isActive: boolean;
   sortOrder: number;
@@ -45,17 +57,11 @@ export default function LessonStudyNotes() {
   // Resolve friendly course ID to UUID for API calls
   const resolvedCourseId = getCourseUUID(courseId);
 
-  // Fetch course content for this section
-  const { data: content, isLoading: isContentLoading } = useQuery({
-    queryKey: [`/api/courses/${resolvedCourseId}/content`],
-    enabled: !!resolvedCourseId,
+  // Fetch section-specific study notes
+  const { data: studyNotesContent, isLoading: isContentLoading } = useQuery<StudyNotesContent>({
+    queryKey: [`/api/courses/${resolvedCourseId}/sections/${section}/study-notes`],
+    enabled: !!resolvedCourseId && !!section,
   });
-
-  // Find study notes content for this section
-  const studyNotesContent = Array.isArray(content) ? content.find((item: CourseContent) => 
-    String(item.section) === section && 
-    (item.type === 'study-notes' || item.title?.toLowerCase().includes('study notes'))
-  ) : undefined;
 
   // Track lesson step progress
   const trackProgress = async (completed = false) => {
@@ -77,13 +83,6 @@ export default function LessonStudyNotes() {
     navigate(`/course/${courseId}/lesson/${section}/quiz`);
   };
 
-  const handleDownloadNotes = () => {
-    // Implementation for downloading study notes as PDF
-    toast({
-      title: "Download Started",
-      description: "Your study notes are being prepared for download.",
-    });
-  };
 
   if (isContentLoading) {
     return (
@@ -123,15 +122,6 @@ export default function LessonStudyNotes() {
               </div>
               
               <div className="flex items-center gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleDownloadNotes}
-                  data-testid="button-download-notes"
-                >
-                  <Download className="h-4 w-4 mr-2" />
-                  Download PDF
-                </Button>
                 <Button
                   variant="outline"
                   size="sm"
