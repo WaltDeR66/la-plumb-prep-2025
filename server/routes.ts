@@ -6342,6 +6342,80 @@ Start your journey at laplumbprep.com/courses
     }
   });
 
+  // Extract podcast content from QuizGecko URLs
+  app.post("/api/admin/extract-quizgecko-content", async (req: any, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+    
+    if (req.user.email !== 'admin@latraining.com' && req.user.subscriptionTier !== 'master') {
+      return res.status(403).json({ error: "Admin access required" });
+    }
+    
+    try {
+      const { courseId, urls, chapter, section, difficulty } = req.body;
+      
+      if (!courseId || !urls || !Array.isArray(urls)) {
+        return res.status(400).json({ error: "courseId and urls array are required" });
+      }
+      
+      const extractedEpisodes = [];
+      const errors = [];
+      
+      for (const url of urls) {
+        try {
+          console.log(`Extracting content from URL: ${url}`);
+          
+          // Use existing content extractor to get podcast content
+          const extractedContent = await contentExtractor.extractFromQuizGecko(url, 'podcast');
+          
+          if (extractedContent && extractedContent.type === 'podcast') {
+            // Create course content entry
+            const podcastContent = {
+              title: extractedContent.title,
+              transcript: extractedContent.content.transcript,
+              audioUrl: extractedContent.content.audioUrl || null, // QuizGecko may have hosted audio
+              description: extractedContent.content.description,
+              extractedAt: new Date().toISOString(),
+              sourceUrl: url,
+              type: 'podcast'
+            };
+            
+            const courseContent = await storage.createCourseContent({
+              courseId: courseId,
+              type: 'podcast',
+              title: extractedContent.title,
+              content: podcastContent,
+              duration: extractedContent.duration || Math.ceil((extractedContent.content.transcript?.length || 0) / 1000),
+              chapter: parseInt(chapter) || 1,
+              section: parseInt(section) || 101,
+              difficulty: (difficulty || 'easy') as 'easy' | 'hard' | 'very_hard'
+            });
+            
+            extractedEpisodes.push(courseContent);
+            console.log(`Successfully extracted and saved content from ${url}`);
+          } else {
+            errors.push(`No podcast content found at ${url}`);
+          }
+        } catch (error: any) {
+          console.error(`Failed to extract content from ${url}:`, error);
+          errors.push(`Failed to extract ${url}: ${error.message}`);
+        }
+      }
+      
+      res.json({ 
+        success: true, 
+        message: `Extracted ${extractedEpisodes.length} podcast episodes from QuizGecko`,
+        episodes: extractedEpisodes,
+        errors: errors.length > 0 ? errors : undefined
+      });
+      
+    } catch (error: any) {
+      console.error("Error extracting QuizGecko content:", error);
+      res.status(500).json({ error: "Failed to extract QuizGecko content: " + error.message });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

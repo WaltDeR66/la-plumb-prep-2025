@@ -347,6 +347,82 @@ export default function BulkPodcastImport() {
           </CardContent>
         </Card>
 
+        {/* QuizGecko URL Extraction */}
+        <Card className="border-green-200 bg-green-50 mb-6">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-green-800">
+              <Upload className="h-5 w-5" />
+              Extract from QuizGecko URLs
+            </CardTitle>
+            <CardDescription className="text-green-700">
+              Extract podcast content directly from your QuizGecko URLs and host them on your platform. Students will stay on your app!
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {/* URL Input */}
+              <div>
+                <Label htmlFor="quizgecko-urls">QuizGecko Podcast URLs</Label>
+                <Textarea
+                  id="quizgecko-urls"
+                  placeholder="Paste your QuizGecko podcast URLs here (one per line)&#10;Example:&#10;https://quizgecko.com/lesson/your-lesson-1&#10;https://quizgecko.com/lesson/your-lesson-2"
+                  value={quizGeckoUrls}
+                  onChange={(e) => setQuizGeckoUrls(e.target.value)}
+                  rows={6}
+                  className="font-mono text-sm"
+                />
+              </div>
+
+              <div className="flex gap-2">
+                <Button 
+                  onClick={() => {
+                    if (!quizGeckoUrls.trim()) {
+                      toast({
+                        title: "No URLs provided",
+                        description: "Please enter QuizGecko URLs to extract content from",
+                        variant: "destructive"
+                      });
+                      return;
+                    }
+
+                    if (!selectedCourse) {
+                      toast({
+                        title: "No course selected",
+                        description: "Please select a course first",
+                        variant: "destructive"
+                      });
+                      return;
+                    }
+
+                    setExtractionStatus("extracting");
+                    extractFromQuizGeckoMutation.mutate({
+                      courseId: selectedCourse,
+                      urls: quizGeckoUrls.split('\n').filter(url => url.trim()),
+                      chapter: selectedChapter,
+                      section: selectedSection,
+                      difficulty: selectedDifficulty
+                    });
+                  }}
+                  disabled={!quizGeckoUrls.trim() || !selectedCourse || extractionStatus === "extracting"}
+                  className="flex items-center gap-2 bg-green-600 hover:bg-green-700"
+                  data-testid="extract-quizgecko-button"
+                >
+                  <Upload className="h-4 w-4" />
+                  {extractionStatus === "extracting" ? "Extracting..." : "Extract Podcast Content"}
+                </Button>
+              </div>
+
+              {extractionStatus === "success" && (
+                <Alert className="border-green-200 bg-green-50">
+                  <CheckCircle className="h-4 w-4 text-green-600" />
+                  <AlertDescription className="text-green-800">
+                    QuizGecko content extracted successfully! Your podcast content is now hosted on your platform.
+                  </AlertDescription>
+                </Alert>
+              )}
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Podcast Input */}
         <Card className="mb-6">
