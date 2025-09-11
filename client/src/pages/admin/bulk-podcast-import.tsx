@@ -287,27 +287,6 @@ export default function BulkPodcastImport() {
     queryKey: ["/api/courses"],
   });
 
-  // Audio generation mutation for existing scripts
-  const generateAudioMutation = useMutation({
-    mutationFn: async () => await apiRequest("POST", "/api/admin/generate-podcast-audio", {}),
-    onSuccess: (result: any) => {
-      const successCount = result.results?.filter((r: any) => r.success).length || 0;
-      const totalCount = result.results?.length || 0;
-      
-      toast({ 
-        title: "Audio generation completed!", 
-        description: `Generated audio for ${successCount}/${totalCount} podcast episodes. Students can now listen to the audio content.`,
-        variant: "default"
-      });
-    },
-    onError: (error: any) => {
-      toast({
-        title: "Audio generation failed",
-        description: error.message || "Failed to generate podcast audio",
-        variant: "destructive"
-      });
-    }
-  });
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -519,37 +498,6 @@ export default function BulkPodcastImport() {
           </CardContent>
         </Card>
 
-        {/* Generate Audio from Existing Scripts */}
-        <Card className="border-blue-200 bg-blue-50">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-blue-800">
-              <Volume2 className="h-5 w-5" />
-              Generate Audio from Existing Scripts
-            </CardTitle>
-            <CardDescription className="text-blue-700">
-              Convert your existing podcast scripts into high-quality audio files using OpenAI's text-to-speech technology.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div className="p-4 bg-white rounded-lg border border-blue-200">
-                <p className="text-sm text-blue-800 mb-3">
-                  <strong>What this does:</strong> This will take all your existing podcast scripts in the database and generate actual MP3 audio files using OpenAI's professional text-to-speech. Students will then be able to listen to the audio content instead of seeing "Coming Soon."
-                </p>
-              </div>
-
-              <Button 
-                onClick={() => generateAudioMutation.mutate()}
-                disabled={generateAudioMutation.isPending}
-                className="w-full"
-                size="lg"
-              >
-                <Volume2 className="h-5 w-5 mr-2" />
-                {generateAudioMutation.isPending ? "Generating Audio Files..." : "Generate Audio Files from Scripts"}
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
       </div>
     </div>
   );
