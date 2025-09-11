@@ -98,7 +98,7 @@ function ContinueWhereLeftOffButton({ courseId, section, navigate }: {
       data-testid="continue-where-left-off-button"
     >
       <Play className="w-4 h-4" />
-      {currentStep ? `Continue ${currentStep.stepType}` : 'Start Lesson'}
+      {currentStep?.stepType ? `Continue ${currentStep.stepType}` : 'Start Lesson'}
     </Button>
   );
 }
@@ -158,9 +158,9 @@ export default function Lesson() {
     return itemSection === urlSection;
   });
   
-  // Define the correct lesson flow order based on user requirements
-  // Study Plan choice (optional) → AI intro → Podcast → Flashcards → AI chat → Study notes → Quiz (20 questions, 70% pass)
-  const contentOrder = ['study-plan', 'lesson', 'podcast', 'flashcards', 'chat', 'study-notes', 'quiz'];
+  // Define the correct lesson flow order based on user requirements  
+  // AI intro → Podcast → Flashcards → AI chat → Study notes → Quiz (20 questions, 70% pass)
+  const contentOrder = ['lesson', 'podcast', 'flashcards', 'chat', 'study-notes', 'quiz'];
   
   // Sort content by the defined order
   const sortedContent = sectionContent?.sort((a, b) => {
@@ -336,80 +336,11 @@ export default function Lesson() {
             />
           </div>
           
-          {sortedContent?.map((item, index) => {
+          {sortedContent?.filter(item => item.type !== 'study-plan').map((item, index) => {
             const IconComponent = getTypeIcon(item.type);
             // Remove completion tracking - user doesn't want this
             // const isCompleted = index < completed;
             // const isCurrent = index === completed;
-
-            // Special handling for study-plan items - show dropdown instead of regular card
-            if (item.type === 'study-plan') {
-              return (
-                <Card 
-                  key={item.id} 
-                  className="transition-all hover:shadow-md"
-                  data-testid={`content-card-${item.type}-${index}`}
-                >
-                  <CardContent className="p-4">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-4">
-                        {/* Step Number */}
-                        <div className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold bg-primary text-primary-foreground border-2 border-primary" data-testid={`step-number-${index + 1}`}>
-                          {index + 1}
-                        </div>
-                        
-                        {/* Content Info */}
-                        <div>
-                          <div className="flex items-center space-x-2">
-                            <IconComponent className="w-5 h-5 text-muted-foreground" />
-                            <Badge variant="outline" className={getTypeColor(item.type)} data-testid={`content-type-${item.type}`}>
-                              {getTypeLabel(item.type)}
-                            </Badge>
-                          </div>
-                          <h3 className="font-medium text-foreground mt-1" data-testid={`content-title-${index}`}>
-                            {getTypeLabel(item.type)}
-                          </h3>
-                          <p className="text-sm text-muted-foreground mt-1">
-                            {getTypeDescription(item.type)}
-                          </p>
-                        </div>
-                      </div>
-                      
-                      {/* Dropdown for Study Duration */}
-                      <div className="flex items-center space-x-2">
-                        <Select
-                          onValueChange={(duration) => navigate(`/study-plans/${courseId}/${duration}/0`)}
-                        >
-                          <SelectTrigger className="w-48" data-testid="lesson-flow-study-duration-select">
-                            <SelectValue placeholder="Select study time" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="15" data-testid="lesson-flow-option-15-min">
-                              <div className="flex items-center gap-2">
-                                <Clock className="h-4 w-4" />
-                                15 Minutes
-                              </div>
-                            </SelectItem>
-                            <SelectItem value="30" data-testid="lesson-flow-option-30-min">
-                              <div className="flex items-center gap-2">
-                                <Clock className="h-4 w-4" />
-                                30 Minutes
-                              </div>
-                            </SelectItem>
-                            <SelectItem value="60" data-testid="lesson-flow-option-60-min">
-                              <div className="flex items-center gap-2">
-                                <Clock className="h-4 w-4" />
-                                1 Hour
-                              </div>
-                            </SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              );
-            }
 
             // Regular handling for other content types
             return (
