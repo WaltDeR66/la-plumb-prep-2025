@@ -25,47 +25,107 @@ interface PodcastPlayerProps {
   className?: string;
 }
 
+interface Sentence {
+  index: number;
+  text: string;
+  startTime: number;
+  endTime: number;
+  duration: number;
+  wordCount: number;
+}
+
 export function PodcastPlayer({ content, className }: PodcastPlayerProps) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [volume, setVolume] = useState([0.8]);
-  const [currentParagraph, setCurrentParagraph] = useState(0);
+  const [currentSentenceIndex, setCurrentSentenceIndex] = useState(0);
   
   const audioRef = useRef<HTMLAudioElement>(null);
+  const textScrollRef = useRef<HTMLDivElement>(null);
   
-  // Split transcript into paragraphs for scrolling
-  const paragraphs = content.transcript.split('\n\n').filter(p => p.trim().length > 0);
+  // Parse text into sentences with timing estimates
+  const parseTextIntoSentences = (text: string, audioDuration: number): Sentence[] => {
+    if (!text) return [];
+    
+    const sentences = text.split(/(?<=[.!?])\s+/).filter(s => s.trim().length > 0);
+    const wordsPerSecond = 2.5; // Average speech rate
+    
+    // Calculate total estimated time
+    const totalWords = sentences.reduce((sum, sentence) => {
+      return sum + sentence.split(/\s+/).filter(w => w.length > 0).length;
+    }, 0);
+    
+    const totalEstimatedTime = totalWords / wordsPerSecond;
+    const scaleFactor = audioDuration > 0 ? audioDuration / totalEstimatedTime : 1;
+    
+    let currentStartTime = 0;
+    
+    return sentences.map((sentence, index) => {
+      const wordCount = sentence.split(/\s+/).filter(w => w.length > 0).length;
+      const estimatedDuration = (wordCount / wordsPerSecond) * scaleFactor;
+      const startTime = currentStartTime;
+      currentStartTime += estimatedDuration;
+      
+      return {
+        index,
+        text: sentence.trim(),
+        startTime,
+        endTime: currentStartTime,
+        duration: estimatedDuration,
+        wordCount
+      };
+    });
+  };
+
+  const sentences = parseTextIntoSentences(content.transcript, duration);
   
   useEffect(() => {
     const audio = audioRef.current;
     if (!audio) return;
 
-    const updateTime = () => setCurrentTime(audio.currentTime);
+    const updateTime = () => {
+      const time = audio.currentTime;
+      setCurrentTime(time);
+      
+      // Find current sentence based on time
+      const currentSentence = sentences.findIndex(s => 
+        time >= s.startTime && time < s.endTime
+      );
+      if (currentSentence !== -1 && currentSentence !== currentSentenceIndex) {
+        setCurrentSentenceIndex(currentSentence);
+      }
+    };
+    
     const updateDuration = () => setDuration(audio.duration || 0);
     
     audio.addEventListener('timeupdate', updateTime);
     audio.addEventListener('loadedmetadata', updateDuration);
     audio.addEventListener('ended', () => setIsPlaying(false));
-    
-    // Auto-scroll based on time
-    const updateParagraph = () => {
-      if (duration > 0) {
-        const progress = audio.currentTime / duration;
-        const newParagraph = Math.floor(progress * paragraphs.length);
-        setCurrentParagraph(Math.min(newParagraph, paragraphs.length - 1));
-      }
-    };
-    
-    audio.addEventListener('timeupdate', updateParagraph);
+    audio.addEventListener('play', () => setIsPlaying(true));
+    audio.addEventListener('pause', () => setIsPlaying(false));
     
     return () => {
       audio.removeEventListener('timeupdate', updateTime);
       audio.removeEventListener('loadedmetadata', updateDuration);
       audio.removeEventListener('ended', () => setIsPlaying(false));
-      audio.removeEventListener('timeupdate', updateParagraph);
+      audio.removeEventListener('play', () => setIsPlaying(true));
+      audio.removeEventListener('pause', () => setIsPlaying(false));
     };
-  }, [duration, paragraphs.length]);
+  }, [sentences, currentSentenceIndex]);
+
+  // Auto-scroll to current sentence
+  useEffect(() => {
+    if (textScrollRef.current && sentences.length > 0) {
+      const currentElement = textScrollRef.current.querySelector(`[data-sentence="${currentSentenceIndex}"]`);
+      if (currentElement) {
+        currentElement.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'center' 
+        });
+      }
+    }
+  }, [currentSentenceIndex]);
 
   useEffect(() => {
     if (audioRef.current) {
@@ -99,7 +159,14 @@ export function PodcastPlayer({ content, className }: PodcastPlayerProps) {
     
     audio.currentTime = 0;
     setCurrentTime(0);
-    setCurrentParagraph(0);
+    setCurrentSentenceIndex(0);
+  };
+
+  const handleSentenceClick = (sentenceIndex: number) => {
+    if (audioRef.current && sentences[sentenceIndex]) {
+      audioRef.current.currentTime = sentences[sentenceIndex].startTime;
+      setCurrentSentenceIndex(sentenceIndex);
+    }
   };
 
   const formatTime = (seconds: number) => {
@@ -179,24 +246,33 @@ export function PodcastPlayer({ content, className }: PodcastPlayerProps) {
           </div>
         </div>
 
-        {/* Scrolling Transcript */}
+        {/* Scrolling Transcript with Sentence-by-Sentence Highlighting */}
         <div className="space-y-4">
           <h3 className="text-lg font-semibold">Transcript</h3>
-          <div className="max-h-96 overflow-y-auto p-4 bg-muted/30 rounded-lg border" data-testid="container-transcript">
-            <div className="space-y-4">
-              {paragraphs.map((paragraph, index) => (
-                <p
+          <div className="text-center text-sm text-muted-foreground mb-2">
+            Click on any sentence to jump to that part of the audio
+          </div>
+          <div 
+            ref={textScrollRef}
+            className="max-h-96 overflow-y-auto p-4 bg-muted/30 rounded-lg border" 
+            data-testid="container-transcript"
+          >
+            <div className="space-y-1">
+              {sentences.map((sentence, index) => (
+                <span
                   key={index}
+                  data-sentence={index}
+                  onClick={() => handleSentenceClick(index)}
                   className={cn(
-                    "text-sm leading-relaxed transition-all duration-300",
-                    index === currentParagraph
-                      ? "text-foreground bg-primary/10 p-3 rounded-md border-l-4 border-primary"
-                      : "text-muted-foreground"
+                    "cursor-pointer transition-all duration-300 inline-block leading-relaxed",
+                    index === currentSentenceIndex
+                      ? "bg-blue-200 dark:bg-blue-800 text-blue-900 dark:text-blue-100 font-medium px-2 py-1 rounded"
+                      : "hover:bg-gray-200 dark:hover:bg-gray-700 text-muted-foreground px-1"
                   )}
-                  data-testid={`text-paragraph-${index}`}
+                  data-testid={`text-sentence-${index}`}
                 >
-                  {paragraph}
-                </p>
+                  {sentence.text}{' '}
+                </span>
               ))}
             </div>
           </div>
