@@ -44,6 +44,7 @@ import BulkStudyNotesImport from "@/pages/admin/bulk-studynotes-import";
 import BulkStudyPlanImport from "@/pages/admin/bulk-studyplan-import";
 import BulkPodcastImport from "@/pages/admin/bulk-podcast-import";
 import BulkAIChatImport from "@/pages/admin/bulk-ai-chat-import";
+import TextToSpeech from "@/pages/admin/text-to-speech";
 import StudyCompanion from "@/pages/study-companion";
 import SystemAnalytics from "@/pages/admin/system-analytics";
 import SystemSettings from "@/pages/admin/system-settings";
@@ -146,6 +147,7 @@ function Router() {
           <Route path="/admin/study-plan-import" component={BulkStudyPlanImport} />
           <Route path="/admin/content-import" component={BulkAIChatImport} />
           <Route path="/admin/podcast-import" component={BulkPodcastImport} />
+          <Route path="/admin/text-to-speech" component={TextToSpeech} />
           <Route path="/admin/system-analytics" component={SystemAnalytics} />
           <Route path="/admin/system-settings" component={SystemSettings} />
           <Route path="/admin/job-approval" component={JobApproval} />

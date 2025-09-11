@@ -6473,6 +6473,51 @@ Start your journey at laplumbprep.com/courses
     }
   });
 
+  // Text-to-Speech conversion endpoint
+  app.post("/api/text-to-speech", async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Authentication required" });
+    }
+
+    try {
+      const { text, title } = req.body;
+
+      if (!text || text.trim().length === 0) {
+        return res.status(400).json({ message: "Text content is required" });
+      }
+
+      if (text.length > 4096) {
+        return res.status(400).json({ message: "Text content must be 4096 characters or less" });
+      }
+
+      // Generate unique content ID for this audio file
+      const contentId = `tts-${Date.now()}-${Math.random().toString(36).substring(7)}`;
+      
+      // Strip HTML tags from text for clean audio
+      const cleanText = text.replace(/<[^>]*>/g, '').replace(/&[^;]+;/g, ' ').trim();
+
+      // Generate audio using existing OpenAI TTS function
+      const audioUrl = await generateAudio(cleanText, contentId);
+
+      res.json({
+        success: true,
+        audioUrl,
+        contentId,
+        title: title || "Generated Audio",
+        originalText: text,
+        cleanText,
+        duration: Math.ceil(cleanText.length / 12) // Rough estimate: ~12 chars per second
+      });
+
+    } catch (error: any) {
+      console.error("Text-to-speech conversion error:", error);
+      res.status(500).json({ 
+        success: false,
+        message: "Failed to convert text to speech: " + error.message 
+      });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

@@ -8,6 +8,28 @@ import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { useState, useRef, useEffect } from "react";
 
+// Utility function to clean HTML content for display
+function cleanHtmlContent(content: string): string {
+  if (!content) return '';
+  
+  // If content contains HTML tags as text (not actual HTML), strip them
+  if (content.includes('&lt;') || content.includes('&gt;') || 
+      (content.includes('<') && content.includes('>') && 
+       !content.match(/<\s*\w+[^>]*>/))) {
+    // Remove HTML tags that are showing as text
+    return content
+      .replace(/<\/?[^>]+(>|$)/g, '') // Remove HTML tags
+      .replace(/&lt;/g, '<')
+      .replace(/&gt;/g, '>')
+      .replace(/&amp;/g, '&')
+      .replace(/&nbsp;/g, ' ')
+      .replace(/\s+/g, ' ') // Normalize whitespace
+      .trim();
+  }
+  
+  return content;
+}
+
 // Map friendly course identifiers to database UUIDs
 function getCourseUUID(courseSlug: string): string {
   const courseMapping: { [key: string]: string } = {
@@ -193,10 +215,9 @@ export default function LessonPodcast() {
             {podcastContent?.content?.text ? (
               <div className="space-y-6">
                 {/* Display podcast content */}
-                <div 
-                  className="prose max-w-none text-foreground prose-headings:text-foreground prose-strong:text-foreground prose-em:text-foreground prose-blockquote:text-muted-foreground prose-code:text-foreground"
-                  dangerouslySetInnerHTML={{ __html: podcastContent.content.text }}
-                />
+                <div className="prose max-w-none text-foreground prose-headings:text-foreground prose-strong:text-foreground prose-em:text-foreground prose-blockquote:text-muted-foreground prose-code:text-foreground whitespace-pre-wrap">
+                  {cleanHtmlContent(podcastContent.content.text)}
+                </div>
                 
                 {/* Audio placeholder for future implementation */}
                 {/* Future audio player implementation */}
