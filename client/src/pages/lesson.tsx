@@ -12,6 +12,7 @@ import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { useState } from "react";
 import AIMentorChat from "@/components/ai-mentor-chat";
+import { AuthService } from "@/lib/auth";
 import { 
   BookOpen, 
   Play, 
@@ -150,6 +151,11 @@ export default function Lesson() {
     enabled: !!resolvedCourseId,
   });
 
+  // Check user authentication and subscription access
+  const { data: currentUser } = useQuery({
+    queryKey: ["/api/auth/me"],
+  });
+
 
   // Helper functions to handle study plan filtering
   const normalizeType = (type: string) => type?.toLowerCase().replace(/_/g, '-').trim();
@@ -179,9 +185,19 @@ export default function Lesson() {
     }
     return acc;
   }, []);
+
+  // Filter out AI Study Assistant (chat) if user doesn't have proper subscription
+  const hasAIMentorAccess = AuthService.hasFeatureAccess(currentUser, 'ai_mentor');
+  const accessibleContent = uniqueContent?.filter(item => {
+    // Hide AI Study Assistant if user doesn't have Professional or Master subscription
+    if (normalizeType(item.type) === 'chat' && !hasAIMentorAccess) {
+      return false;
+    }
+    return true;
+  });
   
   // Sort content by the defined order
-  const sortedContent = uniqueContent?.sort((a, b) => {
+  const sortedContent = accessibleContent?.sort((a, b) => {
     const aIndex = contentOrder.indexOf(normalizeType(a.type));
     const bIndex = contentOrder.indexOf(normalizeType(b.type));
     return aIndex - bIndex;
