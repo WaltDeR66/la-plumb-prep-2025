@@ -6380,8 +6380,13 @@ Start your journey at laplumbprep.com/courses
         return res.status(400).json({ error: "No valid QuizGecko URLs provided" });
       }
       
+      // Get existing sections to show user what they already have
+      const existingSections = await storage.getExistingSections(courseId);
+      console.log(`Course already has content for sections: ${existingSections.join(', ')}`);
+      
       const extractedEpisodes = [];
       const errors = [];
+      const skippedSections = [];
       
       for (const url of validUrls) {
         try {
@@ -6391,12 +6396,27 @@ Start your journey at laplumbprep.com/courses
           const extractedContent = await contentExtractor.extractFromQuizGecko(url, 'podcast');
           
           if (extractedContent && extractedContent.type === 'podcast') {
-            // Check for duplicates by title and course
-            const existingContent = await storage.getCourseContentByTitle(courseId, extractedContent.title);
+            // Extract section number from title or content
+            const sectionNumber = extractedContent.content.sectionNumber || 
+                                 parseInt(section) || 
+                                 parseInt(extractedContent.title.match(/§?(\d+)/)?.[1] || '0');
             
-            if (existingContent) {
-              console.log(`Skipping duplicate podcast: ${extractedContent.title}`);
-              errors.push(`Duplicate content skipped: ${extractedContent.title}`);
+            // Check for duplicates by section and type (skill-level aware)
+            const existingBySection = await storage.getCourseContentBySection(courseId, sectionNumber, 'podcast');
+            
+            if (existingBySection) {
+              console.log(`Skipping content for section ${sectionNumber} - already exists: ${existingBySection.title}`);
+              skippedSections.push(sectionNumber);
+              errors.push(`Section ${sectionNumber} content already exists (${existingBySection.title})`);
+              continue;
+            }
+            
+            // Also check by exact title as fallback
+            const existingByTitle = await storage.getCourseContentByTitle(courseId, extractedContent.title);
+            
+            if (existingByTitle) {
+              console.log(`Skipping duplicate title: ${extractedContent.title}`);
+              errors.push(`Duplicate title skipped: ${extractedContent.title}`);
               continue;
             }
             
@@ -6435,8 +6455,15 @@ Start your journey at laplumbprep.com/courses
       
       res.json({ 
         success: true, 
-        message: `Extracted ${extractedEpisodes.length} podcast episodes from QuizGecko`,
+        message: `Extracted ${extractedEpisodes.length} new podcast episodes from QuizGecko`,
         episodes: extractedEpisodes,
+        existingSections: existingSections,
+        skippedSections: [...new Set(skippedSections)],
+        summary: {
+          imported: extractedEpisodes.length,
+          skipped: errors.length,
+          alreadyHaveSections: existingSections
+        },
         errors: errors.length > 0 ? errors : undefined
       });
       

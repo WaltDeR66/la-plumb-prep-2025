@@ -1234,6 +1234,32 @@ export class DatabaseStorage implements IStorage {
     return result || null;
   }
 
+  // Get course content by section and type (for skill-level duplicate detection)
+  async getCourseContentBySection(courseId: string, section: number, type: string): Promise<CourseContent | null> {
+    const [result] = await db
+      .select()
+      .from(courseContent)
+      .where(and(
+        eq(courseContent.courseId, courseId),
+        eq(courseContent.section, section),
+        eq(courseContent.type, type)
+      ))
+      .limit(1);
+    
+    return result || null;
+  }
+
+  // Get all existing sections for a course (to check what's already covered)
+  async getExistingSections(courseId: string): Promise<number[]> {
+    const results = await db
+      .selectDistinct({ section: courseContent.section })
+      .from(courseContent)
+      .where(eq(courseContent.courseId, courseId))
+      .orderBy(courseContent.section);
+    
+    return results.map(r => r.section);
+  }
+
   async createCourseContent(content: InsertCourseContent): Promise<CourseContent> {
     const [result] = await db
       .insert(courseContent)
