@@ -246,35 +246,30 @@ export function PodcastPlayer({ content, className }: PodcastPlayerProps) {
           </div>
         </div>
 
-        {/* Scrolling Transcript with Sentence-by-Sentence Highlighting */}
+        {/* Current Sentence Display */}
         <div className="space-y-4">
-          <h3 className="text-lg font-semibold">Transcript</h3>
+          <h3 className="text-lg font-semibold">Current Text</h3>
           <div className="text-center text-sm text-muted-foreground mb-2">
-            Click on any sentence to jump to that part of the audio
+            Sentence {currentSentenceIndex + 1} of {sentences.length}
           </div>
           <div 
-            ref={textScrollRef}
-            className="max-h-96 overflow-y-auto p-4 bg-muted/30 rounded-lg border" 
-            data-testid="container-transcript"
+            className="min-h-32 p-6 bg-muted/30 rounded-lg border flex items-center justify-center" 
+            data-testid="container-current-sentence"
           >
-            <div className="space-y-1">
-              {sentences.map((sentence, index) => (
-                <span
-                  key={index}
-                  data-sentence={index}
-                  onClick={() => handleSentenceClick(index)}
-                  className={cn(
-                    "cursor-pointer transition-all duration-300 inline-block leading-relaxed",
-                    index === currentSentenceIndex
-                      ? "bg-blue-200 dark:bg-blue-800 text-blue-900 dark:text-blue-100 font-medium px-2 py-1 rounded"
-                      : "hover:bg-gray-200 dark:hover:bg-gray-700 text-muted-foreground px-1"
-                  )}
-                  data-testid={`text-sentence-${index}`}
-                >
-                  {sentence.text}{' '}
-                </span>
-              ))}
-            </div>
+            <p 
+              className="text-lg leading-relaxed text-center font-medium transition-all duration-500"
+              data-testid="text-current-sentence"
+            >
+              {sentences[currentSentenceIndex]?.text || "Click play to start listening..."}
+            </p>
+          </div>
+        </div>
+
+        {/* Full Transcript (Read-Only) */}
+        <div className="space-y-4">
+          <h3 className="text-lg font-semibold">Full Transcript</h3>
+          <div className="max-h-64 overflow-y-auto p-4 bg-muted/20 rounded-lg border text-sm text-muted-foreground leading-relaxed" data-testid="container-full-transcript">
+            {content.transcript}
           </div>
         </div>
 
