@@ -6391,6 +6391,15 @@ Start your journey at laplumbprep.com/courses
           const extractedContent = await contentExtractor.extractFromQuizGecko(url, 'podcast');
           
           if (extractedContent && extractedContent.type === 'podcast') {
+            // Check for duplicates by title and course
+            const existingContent = await storage.getCourseContentByTitle(courseId, extractedContent.title);
+            
+            if (existingContent) {
+              console.log(`Skipping duplicate podcast: ${extractedContent.title}`);
+              errors.push(`Duplicate content skipped: ${extractedContent.title}`);
+              continue;
+            }
+            
             // Create course content entry
             const podcastContent = {
               title: extractedContent.title,

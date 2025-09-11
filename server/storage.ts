@@ -1220,6 +1220,20 @@ export class DatabaseStorage implements IStorage {
     return result || null;
   }
 
+  // Get course content by title (for duplicate detection)
+  async getCourseContentByTitle(courseId: string, title: string): Promise<CourseContent | null> {
+    const [result] = await db
+      .select()
+      .from(courseContent)
+      .where(and(
+        eq(courseContent.courseId, courseId),
+        eq(courseContent.title, title)
+      ))
+      .limit(1);
+    
+    return result || null;
+  }
+
   async createCourseContent(content: InsertCourseContent): Promise<CourseContent> {
     const [result] = await db
       .insert(courseContent)
