@@ -6355,14 +6355,35 @@ Start your journey at laplumbprep.com/courses
     try {
       const { courseId, urls, chapter, section, difficulty } = req.body;
       
+      // Validate required fields
       if (!courseId || !urls || !Array.isArray(urls)) {
         return res.status(400).json({ error: "courseId and urls array are required" });
+      }
+      
+      // Validate and filter URLs to only allow QuizGecko domains
+      const validUrls = [];
+      for (const url of urls) {
+        try {
+          const urlObj = new URL(url);
+          // Only allow QuizGecko domains for security
+          if (urlObj.protocol === 'https:' && urlObj.hostname.includes('quizgecko.com')) {
+            validUrls.push(url);
+          } else {
+            console.warn(`Rejected non-QuizGecko URL: ${url}`);
+          }
+        } catch (error) {
+          console.warn(`Invalid URL format: ${url}`);
+        }
+      }
+      
+      if (validUrls.length === 0) {
+        return res.status(400).json({ error: "No valid QuizGecko URLs provided" });
       }
       
       const extractedEpisodes = [];
       const errors = [];
       
-      for (const url of urls) {
+      for (const url of validUrls) {
         try {
           console.log(`Extracting content from URL: ${url}`);
           

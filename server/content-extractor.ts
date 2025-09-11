@@ -36,14 +36,12 @@ export class ContentExtractor {
 
   private async extractContentFromUrl(url: string, contentType: string): Promise<ExtractedContent | null> {
     try {
-      // Import fetch dynamically
-      const fetch = (await import('node-fetch')).default;
-      
-      // Fetch the webpage content
+      // Use native fetch with timeout for security
       const response = await fetch(url, {
         headers: {
           'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
-        }
+        },
+        signal: AbortSignal.timeout(30000) // 30 second timeout for security
       });
       
       if (!response.ok) {
