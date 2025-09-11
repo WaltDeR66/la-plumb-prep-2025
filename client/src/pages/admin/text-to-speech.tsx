@@ -1,11 +1,11 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Loader2, Play, Download, Volume2, FileText } from "lucide-react";
+import { Loader2, Play, Download, Volume2, FileText, Pause } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 
@@ -20,7 +20,111 @@ export default function TextToSpeech() {
     contentId: string;
   } | null>(null);
   const [error, setError] = useState("");
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const [currentSentenceIndex, setCurrentSentenceIndex] = useState(0);
+  const [frozenSentences, setFrozenSentences] = useState<any[]>([]);
+  const audioRef = useRef<HTMLAudioElement>(null);
+  const textScrollRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
+
+  // Parse text into sentences with timing estimates
+  const parseTextIntoSentences = (text: string) => {
+    if (!text) return [];
+    
+    // Split by sentence endings, keeping the punctuation
+    const sentences = text.split(/(?<=[.!?])\s+/).filter(s => s.trim().length > 0);
+    const wordsPerSecond = 2.5; // Average speech rate
+    let currentStartTime = 0;
+    
+    return sentences.map((sentence, index) => {
+      const wordCount = sentence.split(/\s+/).filter(w => w.length > 0).length;
+      const duration = wordCount / wordsPerSecond;
+      const startTime = currentStartTime;
+      currentStartTime += duration;
+      
+      return {
+        index,
+        text: sentence.trim(),
+        startTime,
+        endTime: currentStartTime,
+        duration,
+        wordCount
+      };
+    });
+  };
+
+  // Use frozen sentences for synchronization if audio exists, otherwise parse current text for preview
+  const sentences = audioResult ? frozenSentences : parseTextIntoSentences(text);
+
+  // Audio event handlers
+  const handlePlayPause = () => {
+    if (audioRef.current) {
+      if (isPlaying) {
+        audioRef.current.pause();
+      } else {
+        audioRef.current.play().catch(error => {
+          console.error('Audio play failed:', error);
+          setIsPlaying(false);
+        });
+      }
+    }
+  };
+
+  const handleTimeUpdate = () => {
+    if (audioRef.current) {
+      const time = audioRef.current.currentTime;
+      setCurrentTime(time);
+      
+      // Find current sentence based on time
+      const currentSentence = sentences.findIndex(s => 
+        time >= s.startTime && time < s.endTime
+      );
+      if (currentSentence !== -1 && currentSentence !== currentSentenceIndex) {
+        setCurrentSentenceIndex(currentSentence);
+      }
+    }
+  };
+
+  const handleLoadedMetadata = () => {
+    if (audioRef.current) {
+      const actualDuration = audioRef.current.duration;
+      setDuration(actualDuration);
+      
+      // If actual duration differs from reported, rescale frozen sentences
+      if (audioResult && frozenSentences.length > 0 && Math.abs(actualDuration - audioResult.duration) > 0.1) {
+        const rescaleFactor = actualDuration / audioResult.duration;
+        const rescaledSentences = frozenSentences.map(sentence => ({
+          ...sentence,
+          startTime: sentence.startTime * rescaleFactor,
+          endTime: sentence.endTime * rescaleFactor,
+          duration: sentence.duration * rescaleFactor
+        }));
+        setFrozenSentences(rescaledSentences);
+      }
+    }
+  };
+
+  const handleSentenceClick = (sentenceIndex: number) => {
+    if (audioRef.current && sentences[sentenceIndex]) {
+      audioRef.current.currentTime = sentences[sentenceIndex].startTime;
+      setCurrentSentenceIndex(sentenceIndex);
+    }
+  };
+
+  // Auto-scroll to current sentence
+  useEffect(() => {
+    if (textScrollRef.current && sentences.length > 0) {
+      const currentElement = textScrollRef.current.querySelector(`[data-sentence="${currentSentenceIndex}"]`);
+      if (currentElement) {
+        currentElement.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'center' 
+        });
+      }
+    }
+  }, [currentSentenceIndex]);
 
   const handleGenerate = async () => {
     if (!text.trim()) {
@@ -45,6 +149,22 @@ export default function TextToSpeech() {
       const result = await response.json();
 
       if (result.success) {
+        // Freeze sentences for this audio and normalize timing to actual duration
+        const generatedSentences = parseTextIntoSentences(text);
+        const totalEstimatedDuration = generatedSentences.reduce((sum, s) => sum + s.duration, 0);
+        const scaleFactor = result.duration / totalEstimatedDuration;
+        
+        const normalizedSentences = generatedSentences.map(sentence => ({
+          ...sentence,
+          startTime: sentence.startTime * scaleFactor,
+          endTime: sentence.endTime * scaleFactor,
+          duration: sentence.duration * scaleFactor
+        }));
+        
+        setFrozenSentences(normalizedSentences);
+        setCurrentSentenceIndex(0);
+        setCurrentTime(0);
+        
         setAudioResult({
           audioUrl: result.audioUrl,
           title: result.title,
@@ -86,6 +206,10 @@ export default function TextToSpeech() {
     setTitle("");
     setAudioResult(null);
     setError("");
+    setFrozenSentences([]);
+    setCurrentSentenceIndex(0);
+    setCurrentTime(0);
+    setIsPlaying(false);
   };
 
   const wordCount = text.split(/\s+/).filter(word => word.length > 0).length;
@@ -134,7 +258,7 @@ export default function TextToSpeech() {
                 <Textarea
                   id="script"
                   data-testid="input-script"
-                  placeholder="Paste your script or content here... HTML tags will be automatically removed for clean audio."
+                  placeholder="Paste your script or content here... Text will be cleaned for optimal audio generation."
                   value={text}
                   onChange={(e) => setText(e.target.value)}
                   rows={12}
@@ -208,25 +332,115 @@ export default function TextToSpeech() {
                     </p>
                   </div>
 
-                  <div className="space-y-3">
+                  {/* Custom Audio Player with Controls */}
+                  <div className="space-y-4">
                     <audio
-                      controls
-                      className="w-full"
-                      data-testid="audio-player"
-                    >
-                      <source src={audioResult.audioUrl} type="audio/mpeg" />
-                      Your browser does not support the audio element.
-                    </audio>
+                      ref={audioRef}
+                      src={audioResult.audioUrl}
+                      onTimeUpdate={handleTimeUpdate}
+                      onLoadedMetadata={handleLoadedMetadata}
+                      onPlay={() => setIsPlaying(true)}
+                      onPause={() => setIsPlaying(false)}
+                      onEnded={() => setIsPlaying(false)}
+                      className="hidden"
+                    />
 
-                    <Button
-                      onClick={handleDownload}
-                      variant="outline"
-                      className="w-full"
-                      data-testid="button-download"
-                    >
-                      <Download className="mr-2 h-4 w-4" />
-                      Download MP3
-                    </Button>
+                    {/* Audio Controls */}
+                    <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
+                      <div className="flex items-center gap-4 mb-3">
+                        <Button
+                          onClick={handlePlayPause}
+                          size="sm"
+                          data-testid="button-play-pause"
+                          className="flex items-center gap-2"
+                        >
+                          {isPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
+                          {isPlaying ? 'Pause' : 'Play'}
+                        </Button>
+                        
+                        <div className="flex-1 text-sm text-gray-600 dark:text-gray-300">
+                          {Math.floor(currentTime / 60)}:{Math.floor(currentTime % 60).toString().padStart(2, '0')} / {Math.floor(duration / 60)}:{Math.floor(duration % 60).toString().padStart(2, '0')}
+                        </div>
+
+                        <Button
+                          onClick={handleDownload}
+                          variant="outline"
+                          size="sm"
+                          data-testid="button-download"
+                        >
+                          <Download className="mr-2 h-4 w-4" />
+                          Download
+                        </Button>
+                      </div>
+
+                      {/* Seekable Progress Bar */}
+                      <div 
+                        className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2 cursor-pointer"
+                        onClick={(e) => {
+                          if (audioRef.current && duration) {
+                            const rect = e.currentTarget.getBoundingClientRect();
+                            const clickX = e.clientX - rect.left;
+                            const percentage = clickX / rect.width;
+                            const newTime = percentage * duration;
+                            audioRef.current.currentTime = newTime;
+                            setCurrentTime(newTime);
+                            
+                            // Update sentence highlight for paused seeking
+                            const newSentenceIndex = sentences.findIndex(s => 
+                              newTime >= s.startTime && newTime < s.endTime
+                            );
+                            if (newSentenceIndex !== -1) {
+                              setCurrentSentenceIndex(newSentenceIndex);
+                            }
+                          }
+                        }}
+                        data-testid="progress-bar"
+                      >
+                        <div 
+                          className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                          style={{ width: `${duration ? (currentTime / duration) * 100 : 0}%` }}
+                        />
+                      </div>
+                    </div>
+
+                    {/* Synchronized Text Display */}
+                    {sentences.length > 0 && (
+                      <div className="bg-white dark:bg-gray-900 border rounded-lg p-4">
+                        <h4 className="font-medium mb-3 text-gray-900 dark:text-white">
+                          📖 Follow Along Text (Click any sentence to jump)
+                        </h4>
+                        <div 
+                          ref={textScrollRef}
+                          className="max-h-64 overflow-y-auto space-y-2"
+                        >
+                          {sentences.map((sentence, index) => (
+                            <div
+                              key={index}
+                              data-sentence={index}
+                              data-testid={`sentence-${index}`}
+                              onClick={() => handleSentenceClick(index)}
+                              className={`p-3 rounded cursor-pointer transition-all duration-300 ${
+                                index === currentSentenceIndex
+                                  ? 'bg-blue-100 dark:bg-blue-900/40 border-l-4 border-blue-500 font-medium text-blue-900 dark:text-blue-100 shadow-sm'
+                                  : 'hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300'
+                              }`}
+                            >
+                              <div className="flex items-start gap-3">
+                                <span className="text-xs text-gray-500 mt-1 min-w-[3rem]">
+                                  {Math.floor(sentence.startTime / 60)}:{Math.floor(sentence.startTime % 60).toString().padStart(2, '0')}
+                                </span>
+                                <span className={index === currentSentenceIndex ? 'text-blue-900 dark:text-blue-100' : ''}>
+                                  {sentence.text}
+                                </span>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                        <div className="mt-3 text-xs text-gray-500">
+                          💡 Tip: Click on any sentence to jump to that part of the audio
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
               ) : (
