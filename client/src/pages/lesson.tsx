@@ -151,11 +151,19 @@ export default function Lesson() {
   });
 
 
-  // Filter content for this specific section and sort by the desired order
+  // Helper functions to handle study plan filtering
+  const normalizeType = (type: string) => type?.toLowerCase().replace(/_/g, '-').trim();
+  const isStudyPlanType = (item: CourseContent) => {
+    const normalizedType = normalizeType(item.type);
+    return /^study[- ]?plans?($|-[0-9]+$)/i.test(normalizedType) || 
+           /study\s*plan/i.test(item.title || '');
+  };
+
+  // Filter content for this specific section and remove all study plan variants
   const sectionContent = allContent?.filter(item => {
     const itemSection = item.section?.toString();
     const urlSection = section?.toString();
-    return itemSection === urlSection;
+    return itemSection === urlSection && !isStudyPlanType(item);
   });
   
   // Define the correct lesson flow order based on user requirements  
@@ -164,8 +172,8 @@ export default function Lesson() {
   
   // Sort content by the defined order
   const sortedContent = sectionContent?.sort((a, b) => {
-    const aIndex = contentOrder.indexOf(a.type);
-    const bIndex = contentOrder.indexOf(b.type);
+    const aIndex = contentOrder.indexOf(normalizeType(a.type));
+    const bIndex = contentOrder.indexOf(normalizeType(b.type));
     return aIndex - bIndex;
   });
 
@@ -336,7 +344,7 @@ export default function Lesson() {
             />
           </div>
           
-          {sortedContent?.filter(item => item.type !== 'study-plan').map((item, index) => {
+          {sortedContent?.map((item, index) => {
             const IconComponent = getTypeIcon(item.type);
             // Remove completion tracking - user doesn't want this
             // const isCompleted = index < completed;
