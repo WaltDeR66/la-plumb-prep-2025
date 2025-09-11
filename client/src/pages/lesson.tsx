@@ -152,7 +152,7 @@ export default function Lesson() {
   });
 
   // Check user authentication and subscription access
-  const { data: currentUser } = useQuery({
+  const { data: currentUser } = useQuery<any>({
     queryKey: ["/api/auth/me"],
   });
 
@@ -417,21 +417,34 @@ export default function Lesson() {
                     {/* Action Button */}
                     <div className="flex items-center space-x-2">
                       {item.type === 'chat' ? (
-                        <Button 
-                          variant="default"
-                          onClick={() => {
-                            setTimeout(() => {
-                              const chatElement = document.querySelector('[data-testid="ai-mentor-chat"]');
-                              if (chatElement) {
-                                chatElement.scrollIntoView({ behavior: 'smooth' });
-                              }
-                            }, 100);
-                          }}
-                          data-testid={`button-study-${item.type}-${index}`}
-                        >
-                          <Play className="w-4 h-4 mr-2" />
-                          Start Chat
-                        </Button>
+                        hasAIMentorAccess ? (
+                          <Button 
+                            variant="default"
+                            onClick={() => {
+                              setTimeout(() => {
+                                const chatElement = document.querySelector('[data-testid="ai-mentor-chat"]');
+                                if (chatElement) {
+                                  chatElement.scrollIntoView({ behavior: 'smooth' });
+                                }
+                              }, 100);
+                            }}
+                            data-testid={`button-study-${item.type}-${index}`}
+                          >
+                            <Play className="w-4 h-4 mr-2" />
+                            Start Chat
+                          </Button>
+                        ) : (
+                          <Button 
+                            variant="outline"
+                            asChild
+                            data-testid={`button-upgrade-${item.type}-${index}`}
+                          >
+                            <Link href="/pricing">
+                              <Lock className="w-4 h-4 mr-2" />
+                              Upgrade to Pro
+                            </Link>
+                          </Button>
+                        )
                       ) : (
                         <Button 
                           variant="default"
