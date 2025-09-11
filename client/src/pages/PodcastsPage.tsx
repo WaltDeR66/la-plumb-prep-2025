@@ -27,7 +27,7 @@ export function PodcastsPage() {
   const [selectedEpisode, setSelectedEpisode] = useState<PodcastEpisode | null>(null);
 
   const { data: episodes, isLoading } = useQuery({
-    queryKey: ['/api/course-content/podcasts', 'b83c6ebe-f5bd-4787-8fd5-e3b177d9e79b'],
+    queryKey: ['/api/courses/b83c6ebe-f5bd-4787-8fd5-e3b177d9e79b/content'],
     select: (data: any[]) => data.filter((item: any) => item.type === 'podcast')
   });
 
