@@ -104,7 +104,7 @@ export default function AIMentorChat({ currentSection }: AIMentorChatProps = {})
   }, [conversations, selectedConversation]);
 
   const getCurrentConversation = (): Conversation | null => {
-    if (!selectedConversation || !conversations) return null;
+    if (!selectedConversation || !conversations || !Array.isArray(conversations)) return null;
     return conversations.find((c: Conversation) => c.id === selectedConversation) || null;
   };
 
@@ -305,7 +305,7 @@ export default function AIMentorChat({ currentSection }: AIMentorChatProps = {})
             </div>
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <Timer className="w-4 h-4" />
-              <span>Session: {studySession.timeSpent}</span>
+              <span>Session: {studySession.formattedTime}</span>
             </div>
           </div>
         </CardHeader>
