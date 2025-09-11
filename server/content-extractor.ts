@@ -457,31 +457,56 @@ export class ContentExtractor {
 
   private async extractPodcastFromHtml($: cheerio.CheerioAPI, url: string): Promise<ExtractedContent | null> {
     try {
-      const title = $('title').text() || 'Extracted Podcast';
+      // Extract title - QuizGecko uses h1 for lesson titles
+      let title = $('h1').first().text().trim() || $('title').text() || 'Extracted Lesson';
       
-      // Look for audio elements or transcript content
-      const audioUrl = $('audio').attr('src') || $('source').attr('src') || null;
+      // Extract lesson description - QuizGecko puts descriptions in specific areas
+      let description = '';
       
-      // Extract transcript or description text
-      const transcriptAreas = $('.transcript, .description, .content, .summary, .text, main, article');
+      // Look for description in various QuizGecko structures
+      const descElements = $('p:contains("This covers"), p:contains("This lesson"), p:contains("covers"), .description, .summary, .lesson-description, .content-description');
+      if (descElements.length > 0) {
+        description = descElements.first().text().trim();
+      }
+      
+      // Extract section number from title (e.g., "§101", "Section 101")
+      const sectionMatch = title.match(/§?(\d+)/);
+      const sectionNumber = sectionMatch ? sectionMatch[1] : null;
+      
+      // Look for question count
+      const questionMatch = $.html().match(/(\d+)\s*Questions?/i);
+      const questionCount = questionMatch ? parseInt(questionMatch[1]) : null;
+      
+      // Look for header image
+      const headerImage = $('img[src*="assets.content-delivery"]').attr('src') || 
+                         $('img[src*="cdn"]').first().attr('src') || null;
+      
+      // Look for audio elements or embedded podcast content
+      const audioUrl = $('audio').attr('src') || $('source').attr('src') || 
+                      $('[src*=".mp3"], [src*=".wav"], [src*=".m4a"]').attr('src') || null;
+      
+      // Create comprehensive transcript from available content
       let transcript = '';
       
-      if (transcriptAreas.length > 0) {
-        transcript = transcriptAreas.first().text().trim();
-      } else {
-        // Fallback to body text
-        transcript = $('body').text().trim();
+      if (description) {
+        transcript = `Louisiana State Plumbing Code Lesson: ${title}
+
+${description}`;
+        
+        if (questionCount) {
+          transcript += `\n\nThis lesson includes ${questionCount} questions to test your understanding.`;
+        }
+        
+        if (sectionNumber) {
+          transcript += `\n\nSection: ${sectionNumber}`;
+        }
+        
+        transcript += `\n\nExtracted from: ${url}`;
       }
 
-      // Generate a basic transcript format if we have content
-      if (transcript.length > 100) {
-        const formattedTranscript = `
-Audio lesson content extracted from ${url}
-
-${transcript}
-
-This content covers key concepts and information from the source material.
-        `.trim();
+      // If we have good content, create the lesson
+      if (title && (description || transcript.length > 50)) {
+        const formattedTranscript = transcript || `Audio lesson: ${title}\n\nExtracted from ${url}`;
 
         return {
           type: 'podcast',
@@ -489,11 +514,14 @@ This content covers key concepts and information from the source material.
           content: {
             audioUrl: audioUrl,
             transcript: formattedTranscript,
-            description: `Audio lesson content extracted from ${url}`,
+            description: description || `Lesson content from ${title}`,
+            sectionNumber: sectionNumber,
+            questionCount: questionCount,
+            headerImage: headerImage,
             extractedAt: new Date().toISOString(),
             sourceUrl: url
           },
-          duration: Math.ceil(transcript.length / 1000) // Rough estimate: 1 minute per 1000 chars
+          duration: Math.ceil(formattedTranscript.length / 1000) // Rough estimate: 1 minute per 1000 chars
         };
       }
 
