@@ -2,8 +2,9 @@ import { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Slider } from '@/components/ui/slider';
-import { Play, Pause, RotateCcw, Volume2 } from 'lucide-react';
+import { Play, Pause, RotateCcw, Volume2, ArrowLeft, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { Link, useLocation } from 'wouter';
 
 interface PodcastSegment {
   speaker: string;
@@ -23,6 +24,9 @@ interface PodcastContent {
 interface PodcastPlayerProps {
   content: PodcastContent;
   className?: string;
+  courseId?: string;
+  section?: string;
+  showNavigation?: boolean;
 }
 
 interface Sentence {
@@ -34,7 +38,7 @@ interface Sentence {
   wordCount: number;
 }
 
-export function PodcastPlayer({ content, className }: PodcastPlayerProps) {
+export function PodcastPlayer({ content, className, courseId, section, showNavigation = false }: PodcastPlayerProps) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
@@ -278,6 +282,25 @@ export function PodcastPlayer({ content, className }: PodcastPlayerProps) {
           <div className="text-center p-8 text-muted-foreground" data-testid="status-no-audio">
             <p>Audio not yet generated for this episode.</p>
             <p className="text-sm mt-2">The transcript is available for reading above.</p>
+          </div>
+        )}
+
+        {/* Navigation Buttons */}
+        {showNavigation && courseId && section && (
+          <div className="flex justify-between pt-6 border-t">
+            <Link href={`/course/${courseId}/lesson/${section}`}>
+              <Button variant="outline" data-testid="button-back-lesson-flow">
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Back to Lesson Flow
+              </Button>
+            </Link>
+            
+            <Link href={`/course/${courseId}/lesson/${section}/flashcards`}>
+              <Button data-testid="button-continue-next-step">
+                Continue to Flashcards
+                <ChevronRight className="h-4 w-4 ml-2" />
+              </Button>
+            </Link>
           </div>
         )}
       </CardContent>

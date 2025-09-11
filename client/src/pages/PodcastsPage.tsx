@@ -68,7 +68,12 @@ export function PodcastsPage() {
           </Button>
         </div>
         
-        <PodcastPlayer content={selectedEpisode.content} />
+        <PodcastPlayer 
+          content={selectedEpisode.content} 
+          courseId="b83c6ebe-f5bd-4787-8fd5-e3b177d9e79b"
+          section={selectedEpisode.section?.toString()}
+          showNavigation={true}
+        />
       </div>
     );
   }
