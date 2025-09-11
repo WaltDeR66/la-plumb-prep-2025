@@ -47,7 +47,7 @@ function ContinueWhereLeftOffButton({ courseId, section, navigate }: {
   section: string; 
   navigate: (path: string) => void; 
 }) {
-  const { data: currentStep, isLoading } = useQuery({
+  const { data: currentStep, isLoading } = useQuery<{stepType?: string}>({
     queryKey: [`/api/lesson-progress/${courseId}/${section}/current`],
     enabled: !!courseId && !!section,
   });
@@ -73,7 +73,7 @@ function ContinueWhereLeftOffButton({ courseId, section, navigate }: {
   };
 
   const handleContinue = () => {
-    if (currentStep) {
+    if (currentStep?.stepType) {
       const route = getStepRoute(currentStep.stepType);
       navigate(route);
     } else {
@@ -170,8 +170,18 @@ export default function Lesson() {
   // AI intro → Podcast → Flashcards → AI chat → Study notes → Quiz (20 questions, 70% pass)
   const contentOrder = ['lesson', 'podcast', 'flashcards', 'chat', 'study-notes', 'quiz'];
   
+  // Remove duplicates by type - keep only the first occurrence of each type
+  const uniqueContent = sectionContent?.reduce((acc: CourseContent[], current) => {
+    const normalizedType = normalizeType(current.type);
+    const existingType = acc.find(item => normalizeType(item.type) === normalizedType);
+    if (!existingType) {
+      acc.push(current);
+    }
+    return acc;
+  }, []);
+  
   // Sort content by the defined order
-  const sortedContent = sectionContent?.sort((a, b) => {
+  const sortedContent = uniqueContent?.sort((a, b) => {
     const aIndex = contentOrder.indexOf(normalizeType(a.type));
     const bIndex = contentOrder.indexOf(normalizeType(b.type));
     return aIndex - bIndex;
