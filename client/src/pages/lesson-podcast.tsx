@@ -82,7 +82,8 @@ export default function LessonPodcast() {
   // Find podcast content for this section
   const podcastContent = Array.isArray(content) ? content.find((item: CourseContent) => 
     String(item.section) === section && 
-    (item.type === 'podcast' || item.title?.toLowerCase().includes('podcast'))
+    (item.type === 'podcast' || item.title?.toLowerCase().includes('podcast')) &&
+    (item.content?.extracted?.transcript || item.content?.extracted?.content || item.content?.text)
   ) : undefined;
 
   // Track lesson step progress with current position
@@ -212,11 +213,11 @@ export default function LessonPodcast() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            {(podcastContent?.content?.extracted?.content || podcastContent?.content?.text) ? (
+            {(podcastContent?.content?.extracted?.transcript || podcastContent?.content?.extracted?.content || podcastContent?.content?.text) ? (
               <div className="space-y-6">
                 {/* Display podcast content */}
                 <div className="prose max-w-none text-foreground prose-headings:text-foreground prose-strong:text-foreground prose-em:text-foreground prose-blockquote:text-muted-foreground prose-code:text-foreground whitespace-pre-wrap">
-                  {cleanHtmlContent(podcastContent.content.extracted?.content || podcastContent.content.text)}
+                  {cleanHtmlContent(podcastContent.content.extracted?.transcript || podcastContent.content.extracted?.content || podcastContent.content.text || '')}
                 </div>
                 
                 {/* Audio placeholder for future implementation */}

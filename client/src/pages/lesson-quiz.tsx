@@ -72,7 +72,8 @@ export default function LessonQuiz() {
   // Find quiz content for this section
   const quizContent = Array.isArray(content) ? content.find((item: CourseContent) => 
     String(item.section) === section && 
-    (item.type === 'quiz' || item.title?.toLowerCase().includes('quiz'))
+    (item.type === 'quiz' || item.title?.toLowerCase().includes('quiz')) &&
+    (item.content?.extracted?.content || item.content?.questions || item.content?.quiz)
   ) : undefined;
 
   const questions: QuizQuestion[] = quizContent?.content?.extracted?.questions || quizContent?.content?.questions || [];

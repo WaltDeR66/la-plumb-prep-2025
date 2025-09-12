@@ -52,10 +52,11 @@ export default function LessonIntroduction() {
     enabled: !!resolvedCourseId,
   });
 
-  // Find introduction content for this section
+  // Find introduction content for this section - prioritize entries with proper content structure
   const introContent = Array.isArray(content) ? content.find((item: CourseContent) => 
     String(item.section) === section && 
-    (item.type === 'lesson' || item.title?.toLowerCase().includes('introduction'))
+    (item.type === 'lesson' || item.title?.toLowerCase().includes('introduction')) &&
+    (item.content?.extracted?.content || item.content?.extracted?.html)
   ) : undefined;
 
   // Track lesson step progress
@@ -115,10 +116,10 @@ export default function LessonIntroduction() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            {introContent?.content?.extracted?.content ? (
+            {(introContent?.content?.extracted?.content || introContent?.content?.extracted?.html) ? (
               <div 
                 className="prose max-w-none text-foreground prose-headings:text-foreground prose-strong:text-foreground prose-em:text-foreground prose-blockquote:text-muted-foreground prose-code:text-foreground"
-                dangerouslySetInnerHTML={{ __html: introContent.content.extracted.content.replace(/\n/g, '<br/>') }}
+                dangerouslySetInnerHTML={{ __html: (introContent.content.extracted.content || introContent.content.extracted.html || '').replace(/\n/g, '<br/>') }}
               />
             ) : (
               <div className="text-center py-8 text-muted-foreground">
