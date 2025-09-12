@@ -3772,19 +3772,20 @@ Start your journey at laplumbprep.com/courses
       };
 
       // Clean the content
-      if (studyNotes.content) {
-        if (studyNotes.content.notes) {
-          studyNotes.content.notes = cleanMarkdown(studyNotes.content.notes);
+      if (studyNotes.content && typeof studyNotes.content === 'object') {
+        const content = studyNotes.content as any;
+        if (content.notes) {
+          content.notes = cleanMarkdown(content.notes);
         }
-        if (studyNotes.content.text) {
-          studyNotes.content.text = cleanMarkdown(studyNotes.content.text);
+        if (content.text) {
+          content.text = cleanMarkdown(content.text);
         }
-        if (studyNotes.content.keyPoints && Array.isArray(studyNotes.content.keyPoints)) {
-          studyNotes.content.keyPoints = studyNotes.content.keyPoints.map(cleanMarkdown);
+        if (content.keyPoints && Array.isArray(content.keyPoints)) {
+          content.keyPoints = content.keyPoints.map(cleanMarkdown);
         }
-        if (studyNotes.title) {
-          studyNotes.title = cleanMarkdown(studyNotes.title);
-        }
+      }
+      if (studyNotes.title) {
+        studyNotes.title = cleanMarkdown(studyNotes.title);
       }
       
       // Add cache-busting headers to ensure fresh data
