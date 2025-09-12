@@ -74,7 +74,7 @@ export default function LessonFlashcards() {
     (item.type === 'flashcards' || item.title?.toLowerCase().includes('flashcards'))
   ) : undefined;
 
-  const flashcardsArray: Flashcard[] = flashcardsContent?.content?.flashcards || [];
+  const flashcardsArray: Flashcard[] = flashcardsContent?.content?.extracted?.cards || flashcardsContent?.content?.flashcards || [];
   const currentCard = flashcardsArray[currentCardIndex];
 
   // Track lesson step progress

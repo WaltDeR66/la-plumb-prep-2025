@@ -75,7 +75,7 @@ export default function LessonQuiz() {
     (item.type === 'quiz' || item.title?.toLowerCase().includes('quiz'))
   ) : undefined;
 
-  const questions: QuizQuestion[] = quizContent?.content?.questions || [];
+  const questions: QuizQuestion[] = quizContent?.content?.extracted?.questions || quizContent?.content?.questions || [];
   const currentQuestion = questions[currentQuestionIndex];
 
   // Timer effect

@@ -212,11 +212,11 @@ export default function LessonPodcast() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            {podcastContent?.content?.text ? (
+            {(podcastContent?.content?.extracted?.content || podcastContent?.content?.text) ? (
               <div className="space-y-6">
                 {/* Display podcast content */}
                 <div className="prose max-w-none text-foreground prose-headings:text-foreground prose-strong:text-foreground prose-em:text-foreground prose-blockquote:text-muted-foreground prose-code:text-foreground whitespace-pre-wrap">
-                  {cleanHtmlContent(podcastContent.content.text)}
+                  {cleanHtmlContent(podcastContent.content.extracted?.content || podcastContent.content.text)}
                 </div>
                 
                 {/* Audio placeholder for future implementation */}

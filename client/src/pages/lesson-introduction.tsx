@@ -115,10 +115,10 @@ export default function LessonIntroduction() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            {introContent?.content?.text ? (
+            {introContent?.content?.extracted?.content ? (
               <div 
                 className="prose max-w-none text-foreground prose-headings:text-foreground prose-strong:text-foreground prose-em:text-foreground prose-blockquote:text-muted-foreground prose-code:text-foreground"
-                dangerouslySetInnerHTML={{ __html: introContent.content.text }}
+                dangerouslySetInnerHTML={{ __html: introContent.content.extracted.content.replace(/\n/g, '<br/>') }}
               />
             ) : (
               <div className="text-center py-8 text-muted-foreground">
