@@ -3708,20 +3708,25 @@ Start your journey at laplumbprep.com/courses
   app.get("/api/courses/:courseId/content", async (req, res) => {
     try {
       const { courseId } = req.params;
+      console.log(`[DEBUG] Fetching content for courseId: ${courseId}`);
       
       // Resolve course ID (handle friendly URLs like "journeyman-prep")
       const resolvedCourseId = await resolveCourseId(courseId);
+      console.log(`[DEBUG] Resolved courseId: ${resolvedCourseId}`);
       if (!resolvedCourseId) {
+        console.log(`[DEBUG] Course not found for: ${courseId}`);
         return res.status(404).json({ message: "Course not found" });
       }
       
       let content = await storage.getCourseContent(resolvedCourseId);
+      console.log(`[DEBUG] Initial content length: ${content.length}`);
       
       // If content is empty for the Louisiana Journeyman Prep course, auto-seed it
-      if (content.length === 0 && resolvedCourseId === "5f02238b-afb2-4e7f-a488-96fb471fee56") {
+      if (content.length === 0 && resolvedCourseId === "b83c6ebe-f5bd-4787-8fd5-e3b177d9e79b") {
         console.log("Course content empty, auto-seeding...");
         await seedCourseContent();
         content = await storage.getCourseContent(resolvedCourseId);
+        console.log(`[DEBUG] After seeding content length: ${content.length}`);
       }
       
       // Add cache-busting headers to ensure fresh data
@@ -3731,10 +3736,11 @@ Start your journey at laplumbprep.com/courses
         'Expires': '0'
       });
       
-      res.json(content);
+      console.log(`[DEBUG] Returning ${content.length} content items`);
+      res.json(content || []);
     } catch (error: any) {
       console.error('Get course content error:', error);
-      res.status(400).json({ message: error.message });
+      res.status(500).json({ message: error.message });
     }
   });
 
