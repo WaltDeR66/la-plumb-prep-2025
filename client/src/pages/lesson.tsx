@@ -124,14 +124,10 @@ interface Course {
 }
 
 export default function Lesson() {
-  // Support both /course/... and /courses/... URL patterns
-  const [match1, params1] = useRoute("/course/:courseId/lesson/:section");
-  const [match2, params2] = useRoute("/courses/:courseId/lesson/:section");
+  const [match, params] = useRoute("/course/:courseId/lesson/:section");
   const [, navigate] = useLocation();
-  
-  const courseId = params1?.courseId ?? params2?.courseId;
-  const section = params1?.section ?? params2?.section;
-  const basePath = match2 ? '/courses' : '/course';
+  const courseId = params?.courseId;
+  const section = params?.section;
 
   if (!courseId || !section) {
     return <div>Lesson not found</div>;
