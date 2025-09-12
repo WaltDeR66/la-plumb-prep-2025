@@ -7,6 +7,22 @@ import { ArrowLeft, ChevronRight, NotebookPen, Download, Bookmark } from "lucide
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 
+// Function to clean up markdown formatting for clean display
+function cleanMarkdownFormatting(text: string): string {
+  if (!text) return text;
+  
+  return text
+    // Remove markdown headers (# ## ###)
+    .replace(/^#{1,6}\s+/gm, '')
+    // Remove bold formatting (**text**)
+    .replace(/\*\*(.*?)\*\*/g, '$1')
+    // Remove italic formatting (*text*)
+    .replace(/\*(.*?)\*/g, '$1')
+    // Clean up extra whitespace
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
+}
+
 // Map friendly course identifiers to database UUIDs
 function getCourseUUID(courseSlug: string): string {
   const courseMapping: { [key: string]: string } = {
@@ -146,7 +162,7 @@ export default function LessonStudyNotes() {
                     {studyNotesContent.content.keyPoints?.map((point: string, index: number) => (
                       <div key={index} className="flex items-start gap-2">
                         <span className="font-bold text-blue-600">•</span>
-                        <span>{point}</span>
+                        <span>{cleanMarkdownFormatting(point)}</span>
                       </div>
                     )) || (
                       <p>Key points for Section {section} are being prepared.</p>
@@ -156,10 +172,9 @@ export default function LessonStudyNotes() {
 
                 {/* Detailed Notes */}
                 <div className="prose max-w-none text-foreground prose-headings:text-foreground prose-strong:text-foreground prose-em:text-foreground prose-blockquote:text-muted-foreground prose-code:text-foreground">
-                  <div 
-                    className="prose max-w-none text-foreground prose-headings:text-foreground prose-strong:text-foreground prose-em:text-foreground prose-blockquote:text-muted-foreground prose-code:text-foreground"
-                    dangerouslySetInnerHTML={{ __html: studyNotesContent.content.notes || studyNotesContent.content.text || 'Study notes are being prepared.' }}
-                  />
+                  <div className="whitespace-pre-wrap leading-relaxed">
+                    {cleanMarkdownFormatting(studyNotesContent.content.notes || studyNotesContent.content.text || 'Study notes are being prepared.')}
+                  </div>
                 </div>
 
                 {/* Code References */}
