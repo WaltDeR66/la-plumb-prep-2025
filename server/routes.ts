@@ -5512,8 +5512,6 @@ Start your journey at laplumbprep.com/courses
         userId,
         contentId,
         contentType,
-        // studyPlanId, // Removed - not in interface
-        estimatedDuration,
         sessionStart: new Date(),
       });
 
@@ -6050,12 +6048,14 @@ Start your journey at laplumbprep.com/courses
         const attempt = await storage.createQuizAttempt({
           userId: req.user.id,
           contentId: contentId,
+          courseId: content?.courseId || 'b83c6ebe-f5bd-4787-8fd5-e3b177d9e79b',
+          chapter: content?.chapter || 1,
+          section: parseInt(section),
           score: score.toString(),
           totalQuestions: totalQuestions,
           correctAnswers: correctAnswers,
-          timeSpent: timeSpent,
           passed: passed,
-          answers: questions.map(q => ({
+          questions: questions.map(q => ({
             questionId: q.id,
             userAnswer: q.userAnswer,
             correctAnswer: q.correctAnswer,
@@ -6097,7 +6097,7 @@ Start your journey at laplumbprep.com/courses
             content.section!,
             {
               quizPassed: true,
-              highestScore: score,
+              highestScore: score.toString(),
               attemptCount: 1,
               lastAttemptAt: new Date(),
             }
@@ -6235,12 +6235,14 @@ Start your journey at laplumbprep.com/courses
         const attempt = await storage.createQuizAttempt({
           userId: req.user.id,
           contentId: `chapter-test-${chapter}`,
-          score: score,
+          courseId: courseId || 'b83c6ebe-f5bd-4787-8fd5-e3b177d9e79b',
+          chapter: parseInt(chapter),
+          section: 999, // Special section for chapter tests
+          score: score.toString(),
           totalQuestions: totalQuestions,
           correctAnswers: correctAnswers,
-          timeSpent: timeSpent,
           passed: passed,
-          answers: questions.map(q => ({
+          questions: questions.map(q => ({
             questionId: q.id,
             userAnswer: q.userAnswer,
             correctAnswer: q.correctAnswer,
@@ -6259,9 +6261,8 @@ Start your journey at laplumbprep.com/courses
             parseInt(chapter),
             999, // Special section number for chapter completion
             {
-              chapterTestPassed: true,
-              chapterTestScore: score,
-              chapterCompleted: true,
+              quizPassed: true,
+              highestScore: score.toString(),
               lastAttemptAt: new Date(),
             }
           );
@@ -6838,7 +6839,7 @@ Start your journey at laplumbprep.com/courses
         message: `Extracted ${extractedEpisodes.length} new podcast episodes from QuizGecko`,
         episodes: extractedEpisodes,
         existingSections: existingSections,
-        skippedSections: [...new Set(skippedSections)],
+        skippedSections: Array.from(new Set(skippedSections)),
         summary: {
           imported: extractedEpisodes.length,
           skipped: errors.length,
