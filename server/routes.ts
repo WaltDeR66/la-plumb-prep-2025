@@ -2764,17 +2764,57 @@ Start your journey at laplumbprep.com/courses
       const { message, context, conversationId } = req.body;
       const userId = (req.user as any).id;
 
-      // Pure AI approach - always use OpenAI for intelligent, contextual responses
-      let response = "";
+      // Create user message object
+      const userMessage = {
+        role: "user" as const,
+        content: message,
+        timestamp: new Date()
+      };
+
+      // Generate AI response
+      let aiResponse = "";
       try {
-        const aiResponse = await getMentorResponse(message, context);
-        response = aiResponse;
+        aiResponse = await getMentorResponse(message, context);
       } catch (aiError) {
         console.error("OpenAI error:", aiError);
-        response = `Great question about Louisiana Plumbing Code! 🎓\n\nI can help you learn about:\n\n• **Code Administration** - Enforcement, authority, and legal basis\n• **Installation Requirements** - Pipe sizing, fixtures, and connections\n• **Safety Standards** - Pressure testing, backflow prevention\n• **Compliance Issues** - Violations, permits, and inspections\n\nTry asking me something specific about any Louisiana plumbing code section!`;
+        aiResponse = `Great question about Louisiana Plumbing Code! 🎓\n\nI can help you learn about:\n\n• **Code Administration** - Enforcement, authority, and legal basis\n• **Installation Requirements** - Pipe sizing, fixtures, and connections\n• **Safety Standards** - Pressure testing, backflow prevention\n• **Compliance Issues** - Violations, permits, and inspections\n\nTry asking me something specific about any Louisiana plumbing code section!`;
       }
 
-      res.json({ response });
+      // Create AI message object
+      const assistantMessage = {
+        role: "assistant" as const,
+        content: aiResponse,
+        timestamp: new Date()
+      };
+
+      let finalConversationId: string;
+
+      if (conversationId) {
+        // Update existing conversation
+        const existingConversations = await storage.getUserMentorConversations(userId);
+        const existingConversation = existingConversations.find(c => c.id === conversationId);
+        
+        if (existingConversation) {
+          const updatedMessages = [...(existingConversation.messages as any[]), userMessage, assistantMessage];
+          await storage.updateMentorConversation(conversationId, updatedMessages);
+          finalConversationId = conversationId;
+        } else {
+          // Create new conversation if the provided ID doesn't exist
+          const newConversation = await storage.createMentorConversation(userId, [userMessage, assistantMessage]);
+          finalConversationId = newConversation.id;
+        }
+      } else {
+        // Create new conversation
+        const newConversation = await storage.createMentorConversation(userId, [userMessage, assistantMessage]);
+        finalConversationId = newConversation.id;
+      }
+
+      res.json({ 
+        response: aiResponse,
+        conversationId: finalConversationId,
+        userMessage,
+        assistantMessage
+      });
     } catch (error: any) {
       console.error("Mentor chat error:", error);
       res.status(500).json({ message: "Sorry, I'm having trouble right now. Please try asking about any Louisiana plumbing code topic and I'll help!" });
