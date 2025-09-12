@@ -3759,6 +3759,33 @@ Start your journey at laplumbprep.com/courses
           message: `Study notes not found for section ${section}` 
         });
       }
+
+      // Clean markdown formatting from study notes content
+      const cleanMarkdown = (text: string): string => {
+        if (!text) return text;
+        return text
+          .replace(/^#{1,6}\s+/gm, '') // Remove headers
+          .replace(/\*\*(.*?)\*\*/g, '$1') // Remove bold
+          .replace(/\*(.*?)\*/g, '$1') // Remove italic
+          .replace(/\n{3,}/g, '\n\n') // Clean whitespace
+          .trim();
+      };
+
+      // Clean the content
+      if (studyNotes.content) {
+        if (studyNotes.content.notes) {
+          studyNotes.content.notes = cleanMarkdown(studyNotes.content.notes);
+        }
+        if (studyNotes.content.text) {
+          studyNotes.content.text = cleanMarkdown(studyNotes.content.text);
+        }
+        if (studyNotes.content.keyPoints && Array.isArray(studyNotes.content.keyPoints)) {
+          studyNotes.content.keyPoints = studyNotes.content.keyPoints.map(cleanMarkdown);
+        }
+        if (studyNotes.title) {
+          studyNotes.title = cleanMarkdown(studyNotes.title);
+        }
+      }
       
       // Add cache-busting headers to ensure fresh data
       res.set({
