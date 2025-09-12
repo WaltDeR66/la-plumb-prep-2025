@@ -3696,6 +3696,42 @@ Start your journey at laplumbprep.com/courses
         }
       }
 
+      // Clean markdown formatting if this is study-notes content
+      if (content.type === 'study-notes' && content.content) {
+        const cleanMarkdown = (text: string): string => {
+          if (!text) return text;
+          return text
+            .replace(/^#{1,6}\s+/gm, '') // Remove headers
+            .replace(/\*\*(.*?)\*\*/g, '$1') // Remove bold
+            .replace(/\*(.*?)\*/g, '$1') // Remove italic  
+            .replace(/\n{3,}/g, '\n\n') // Clean whitespace
+            .trim();
+        };
+
+        const contentObj = content.content as any;
+        if (contentObj.extracted?.notes) {
+          contentObj.extracted.notes = cleanMarkdown(contentObj.extracted.notes);
+        }
+        if (contentObj.extracted?.text) {
+          contentObj.extracted.text = cleanMarkdown(contentObj.extracted.text);
+        }
+        if (contentObj.extracted?.keyPoints && Array.isArray(contentObj.extracted.keyPoints)) {
+          contentObj.extracted.keyPoints = contentObj.extracted.keyPoints.map(cleanMarkdown);
+        }
+        if (contentObj.notes) {
+          contentObj.notes = cleanMarkdown(contentObj.notes);
+        }
+        if (contentObj.text) {
+          contentObj.text = cleanMarkdown(contentObj.text);
+        }
+        if (contentObj.keyPoints && Array.isArray(contentObj.keyPoints)) {
+          contentObj.keyPoints = contentObj.keyPoints.map(cleanMarkdown);
+        }
+        if (content.title) {
+          content.title = cleanMarkdown(content.title);
+        }
+      }
+
       res.json(content);
     } catch (error: any) {
       console.error('Get content error:', error);
