@@ -113,13 +113,21 @@ function Router() {
           <Route path="/cart" component={Cart} />
           <Route path="/admin/store-manager" component={StoreManager} />
           <Route path="/course/:courseId" component={CourseContent} />
+          <Route path="/courses/:courseId" component={CourseContent} />
           <Route path="/course/:courseId/lesson/:section" component={Lesson} />
+          <Route path="/courses/:courseId/lesson/:section" component={Lesson} />
           <Route path="/course/:courseId/lesson/:section/introduction" component={LessonIntroduction} />
           <Route path="/course/:courseId/lesson/:section/podcast" component={LessonPodcast} />
           <Route path="/course/:courseId/lesson/:section/flashcards" component={LessonFlashcards} />
           <Route path="/course/:courseId/lesson/:section/ai-chat" component={LessonAIChat} />
           <Route path="/course/:courseId/lesson/:section/study-notes" component={LessonStudyNotes} />
           <Route path="/course/:courseId/lesson/:section/quiz" component={LessonQuiz} />
+          <Route path="/courses/:courseId/lesson/:section/introduction" component={LessonIntroduction} />
+          <Route path="/courses/:courseId/lesson/:section/podcast" component={LessonPodcast} />
+          <Route path="/courses/:courseId/lesson/:section/flashcards" component={LessonFlashcards} />
+          <Route path="/courses/:courseId/lesson/:section/ai-chat" component={LessonAIChat} />
+          <Route path="/courses/:courseId/lesson/:section/study-notes" component={LessonStudyNotes} />
+          <Route path="/courses/:courseId/lesson/:section/quiz" component={LessonQuiz} />
           <Route path="/lesson-introduction/:courseId/:section" component={LessonIntroduction} />
           <Route path="/lesson-podcast/:courseId/:section" component={LessonPodcast} />
           <Route path="/lesson-flashcards/:courseId/:section" component={LessonFlashcards} />
