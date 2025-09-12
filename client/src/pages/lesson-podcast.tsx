@@ -3,10 +3,11 @@ import { useRoute, Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, ChevronRight, Headphones, Play, Pause, RotateCcw, SkipForward } from "lucide-react";
+import { ArrowLeft, ChevronRight, Headphones } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
-import { useState, useRef, useEffect } from "react";
+import { useState, useEffect } from "react";
+import PodcastSyncPlayer from "@/components/podcast-sync-player";
 
 // Utility function to clean HTML content for display
 function cleanHtmlContent(content: string): string {
@@ -61,10 +62,8 @@ export default function LessonPodcast() {
   const courseId = params?.courseId;
   const section = params?.section;
   
-  const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
-  const audioRef = useRef<HTMLAudioElement>(null);
 
   if (!courseId || !section) {
     return <div>Lesson not found</div>;
@@ -102,6 +101,14 @@ export default function LessonPodcast() {
     }
   };
 
+  // Handle progress updates from the podcast player
+  const handleProgressUpdate = (time: number, dur: number) => {
+    setCurrentTime(time);
+    if (dur && dur !== duration) {
+      setDuration(dur);
+    }
+  };
+
   // Load saved progress
   useEffect(() => {
     const loadProgress = async () => {
@@ -111,9 +118,6 @@ export default function LessonPodcast() {
           const progress = await response.json();
           if (progress.currentPosition?.timestamp) {
             setCurrentTime(progress.currentPosition.timestamp);
-            if (audioRef.current) {
-              audioRef.current.currentTime = progress.currentPosition.timestamp;
-            }
           }
         }
       } catch (error) {
@@ -128,52 +132,18 @@ export default function LessonPodcast() {
 
   // Save progress periodically
   useEffect(() => {
-    if (isPlaying) {
-      const interval = setInterval(() => {
+    const interval = setInterval(() => {
+      if (currentTime > 0) {
         trackProgress(false, currentTime);
-      }, 30000); // Save every 30 seconds
-      
-      return () => clearInterval(interval);
-    }
-  }, [isPlaying, currentTime]);
-
-  const handlePlayPause = () => {
-    if (audioRef.current) {
-      if (isPlaying) {
-        audioRef.current.pause();
-      } else {
-        audioRef.current.play();
       }
-      setIsPlaying(!isPlaying);
-    }
-  };
-
-  const handleTimeUpdate = () => {
-    if (audioRef.current) {
-      setCurrentTime(audioRef.current.currentTime);
-    }
-  };
-
-  const handleLoadedMetadata = () => {
-    if (audioRef.current) {
-      setDuration(audioRef.current.duration);
-    }
-  };
-
-  const handleEnded = () => {
-    setIsPlaying(false);
-    trackProgress(true, duration);
-  };
+    }, 30000); // Save every 30 seconds
+    
+    return () => clearInterval(interval);
+  }, [currentTime]);
 
   const handleContinue = () => {
     trackProgress(true, currentTime);
     navigate(`/course/${courseId}/lesson/${section}/flashcards`);
-  };
-
-  const formatTime = (time: number) => {
-    const minutes = Math.floor(time / 60);
-    const seconds = Math.floor(time % 60);
-    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
   };
 
   if (isContentLoading) {
@@ -215,103 +185,13 @@ export default function LessonPodcast() {
           <CardContent>
             {(podcastContent?.content?.extracted?.transcript || podcastContent?.content?.extracted?.content || podcastContent?.content?.text) ? (
               <div className="space-y-6">
-                {/* Display podcast content */}
-                <div className="prose max-w-none text-foreground prose-headings:text-foreground prose-strong:text-foreground prose-em:text-foreground prose-blockquote:text-muted-foreground prose-code:text-foreground whitespace-pre-wrap">
-                  {cleanHtmlContent(podcastContent.content.extracted?.transcript || podcastContent.content.extracted?.content || podcastContent.content.text || '')}
-                </div>
-                
-                {/* Audio placeholder for future implementation */}
-                {/* Future audio player implementation */}
-                
-                {/* Audio Player */}
-                {podcastContent?.content?.audioUrl ? (
-                  <div className="bg-white rounded-lg p-6 border shadow-sm">
-                    <div className="space-y-4">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center">
-                          <Headphones className="h-5 w-5 text-green-600" />
-                        </div>
-                        <div>
-                          <h3 className="font-semibold text-gray-900">Audio Lesson</h3>
-                          <p className="text-sm text-gray-600">Professional narration of Section {section}</p>
-                        </div>
-                      </div>
-                      
-                      <audio
-                        ref={audioRef}
-                        src={podcastContent.content.audioUrl}
-                        onTimeUpdate={handleTimeUpdate}
-                        onLoadedMetadata={handleLoadedMetadata}
-                        onEnded={handleEnded}
-                        className="w-full"
-                        data-testid="audio-player"
-                      />
-                      
-                      <div className="flex items-center gap-4">
-                        <Button
-                          onClick={handlePlayPause}
-                          variant="outline"
-                          size="sm"
-                          className="flex items-center gap-2"
-                          data-testid="button-play-pause"
-                        >
-                          {isPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
-                          {isPlaying ? 'Pause' : 'Play'}
-                        </Button>
-                        
-                        <div className="flex-1 flex items-center gap-2 text-sm text-gray-600">
-                          <span>{formatTime(currentTime)}</span>
-                          <div className="flex-1 bg-gray-200 rounded-full h-2">
-                            <div 
-                              className="bg-primary h-2 rounded-full transition-all duration-300"
-                              style={{ width: `${duration ? (currentTime / duration) * 100 : 0}%` }}
-                            />
-                          </div>
-                          <span>{formatTime(duration)}</span>
-                        </div>
-                        
-                        <Button
-                          onClick={() => {
-                            if (audioRef.current) {
-                              audioRef.current.currentTime += 10;
-                            }
-                          }}
-                          variant="ghost"
-                          size="sm"
-                          data-testid="button-skip-forward"
-                        >
-                          <SkipForward className="h-4 w-4" />
-                        </Button>
-                        
-                        <Button
-                          onClick={() => {
-                            if (audioRef.current) {
-                              audioRef.current.currentTime = Math.max(0, audioRef.current.currentTime - 10);
-                            }
-                          }}
-                          variant="ghost"
-                          size="sm"
-                          data-testid="button-rewind"
-                        >
-                          <RotateCcw className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="bg-gray-50 rounded-lg p-6 border-2 border-dashed border-gray-300">
-                    <div className="text-center py-8">
-                      <Headphones className="h-12 w-12 mx-auto mb-4 text-gray-400" />
-                      <h3 className="text-lg font-semibold text-gray-700 mb-2">Audio Content Coming Soon</h3>
-                      <p className="text-gray-600 mb-4">Professional audio lessons for Section {section} are currently in production.</p>
-                      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 max-w-md mx-auto">
-                        <p className="text-blue-800 text-sm">
-                          <strong>Study Tip:</strong> Review the written content above and take notes on key administrative concepts while we prepare the audio lessons.
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                )}
+                {/* Synchronized Audio Player and Transcript */}
+                <PodcastSyncPlayer
+                  audioSrc={podcastContent?.content?.audioUrl}
+                  transcript={cleanHtmlContent(podcastContent.content.extracted?.transcript || podcastContent.content.extracted?.content || podcastContent.content.text || '')}
+                  segments={podcastContent?.content?.segments}
+                  onProgressUpdate={handleProgressUpdate}
+                />
 
                 {/* Podcast learning objectives */}
                 <div className="bg-blue-50 border-l-4 border-blue-400 p-6 rounded-r-lg">

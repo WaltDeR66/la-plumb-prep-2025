@@ -292,7 +292,22 @@ export const courseContent = pgTable("course_content", {
   type: text("type").notNull(), // 'lesson', 'quiz', 'review', 'video'
   chapter: integer("chapter"),
   section: integer("section"),
-  content: jsonb("content"), // Main content (HTML, quiz questions, etc.)
+  content: jsonb("content").$type<{
+    audioUrl?: string;
+    transcript?: string;
+    segments?: Array<{
+      start: number;
+      end: number;
+      text: string;
+    }>;
+    extracted?: {
+      content?: string;
+      html?: string;
+      transcript?: string;
+      title?: string;
+    };
+    [key: string]: any;
+  }>(), // Main content (HTML, quiz questions, etc.)
   duration: integer("duration"), // in minutes
   difficulty: questionDifficultyEnum("difficulty"), // easy, hard, very_hard
   quizgeckoUrl: text("quizgecko_url"), // URL for QuizGecko content

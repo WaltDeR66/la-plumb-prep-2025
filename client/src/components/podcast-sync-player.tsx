@@ -1,0 +1,369 @@
+import { useState, useRef, useEffect, useCallback } from "react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Play, Pause, SkipForward, RotateCcw, Volume2 } from "lucide-react";
+
+interface PodcastSegment {
+  start: number;
+  end: number;
+  text: string;
+}
+
+interface PodcastSyncPlayerProps {
+  audioSrc?: string;
+  transcript: string;
+  segments?: PodcastSegment[];
+  onProgressUpdate?: (currentTime: number, duration: number) => void;
+}
+
+export default function PodcastSyncPlayer({ 
+  audioSrc, 
+  transcript, 
+  segments, 
+  onProgressUpdate 
+}: PodcastSyncPlayerProps) {
+  const audioRef = useRef<HTMLAudioElement>(null);
+  const transcriptRef = useRef<HTMLDivElement>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const [activeSegmentIndex, setActiveSegmentIndex] = useState(-1);
+  const [parsedSegments, setParsedSegments] = useState<PodcastSegment[]>([]);
+  const [isUsingSyntheticAudio, setIsUsingSyntheticAudio] = useState(false);
+
+  // Parse transcript into sentences and create timing segments
+  const parseTranscriptToSegments = useCallback((text: string, totalDuration: number): PodcastSegment[] => {
+    if (!text) return [];
+
+    // Use Intl.Segmenter if available, otherwise use regex
+    let sentences: string[] = [];
+    
+    if (typeof Intl !== 'undefined' && 'Segmenter' in Intl) {
+      const segmenter = new Intl.Segmenter('en', { granularity: 'sentence' });
+      sentences = Array.from(segmenter.segment(text))
+        .map(segment => segment.segment.trim())
+        .filter(sentence => sentence.length > 0);
+    } else {
+      // Fallback regex for sentence splitting
+      sentences = text
+        .split(/[.!?]+/)
+        .map(s => s.trim())
+        .filter(s => s.length > 0);
+    }
+
+    if (sentences.length === 0) return [];
+
+    // Calculate timing based on word count proportions
+    const totalWords = sentences.reduce((total, sentence) => {
+      return total + sentence.split(/\s+/).length;
+    }, 0);
+
+    let cumulativeTime = 0;
+    return sentences.map((sentence, index) => {
+      const wordsInSentence = sentence.split(/\s+/).length;
+      const segmentDuration = (wordsInSentence / totalWords) * totalDuration;
+      const start = cumulativeTime;
+      const end = cumulativeTime + segmentDuration;
+      cumulativeTime = end;
+
+      return {
+        start,
+        end,
+        text: sentence
+      };
+    });
+  }, []);
+
+  // Initialize segments when audio metadata loads
+  useEffect(() => {
+    if (segments) {
+      setParsedSegments(segments);
+    } else if (transcript && duration > 0) {
+      const generatedSegments = parseTranscriptToSegments(transcript, duration);
+      setParsedSegments(generatedSegments);
+    }
+  }, [segments, transcript, duration, parseTranscriptToSegments]);
+
+  // Create synthetic audio using Web Speech API if no audio source provided
+  const createSyntheticAudio = useCallback(() => {
+    if (!transcript || typeof window === 'undefined' || !('speechSynthesis' in window)) {
+      return null;
+    }
+
+    const utterance = new SpeechSynthesisUtterance(transcript);
+    utterance.rate = 0.8;
+    utterance.pitch = 1;
+    utterance.volume = 1;
+
+    // Get available voices and prefer a clear English voice
+    const voices = speechSynthesis.getVoices();
+    const preferredVoice = voices.find(voice => 
+      voice.lang.startsWith('en') && voice.name.includes('Google')
+    ) || voices.find(voice => voice.lang.startsWith('en'));
+    
+    if (preferredVoice) {
+      utterance.voice = preferredVoice;
+    }
+
+    return utterance;
+  }, [transcript]);
+
+  // Handle audio element events
+  const handleTimeUpdate = () => {
+    if (audioRef.current) {
+      const time = audioRef.current.currentTime;
+      setCurrentTime(time);
+      onProgressUpdate?.(time, duration);
+
+      // Find active segment
+      const activeIndex = parsedSegments.findIndex(
+        segment => time >= segment.start && time <= segment.end
+      );
+      
+      if (activeIndex !== -1 && activeIndex !== activeSegmentIndex) {
+        setActiveSegmentIndex(activeIndex);
+        
+        // Scroll active sentence into view
+        const activeElement = document.querySelector(`[data-segment-index="${activeIndex}"]`);
+        if (activeElement) {
+          activeElement.scrollIntoView({ 
+            behavior: 'smooth', 
+            block: 'center',
+            inline: 'nearest'
+          });
+        }
+      }
+    }
+  };
+
+  const handleLoadedMetadata = () => {
+    if (audioRef.current) {
+      setDuration(audioRef.current.duration);
+    }
+  };
+
+  const handleEnded = () => {
+    setIsPlaying(false);
+    setActiveSegmentIndex(-1);
+  };
+
+  // Play/pause functionality
+  const handlePlayPause = () => {
+    if (audioSrc && audioRef.current) {
+      if (isPlaying) {
+        audioRef.current.pause();
+      } else {
+        audioRef.current.play();
+      }
+      setIsPlaying(!isPlaying);
+    } else if (!isUsingSyntheticAudio) {
+      // Use synthetic speech as fallback
+      const utterance = createSyntheticAudio();
+      if (utterance) {
+        setIsUsingSyntheticAudio(true);
+        setIsPlaying(true);
+        
+        // Estimate duration for synthetic speech (words per minute)
+        const wordCount = transcript.split(/\s+/).length;
+        const estimatedDuration = (wordCount / 150) * 60; // 150 WPM average
+        setDuration(estimatedDuration);
+        
+        // Start synthetic playback
+        speechSynthesis.speak(utterance);
+        
+        utterance.onend = () => {
+          setIsPlaying(false);
+          setIsUsingSyntheticAudio(false);
+          setActiveSegmentIndex(-1);
+        };
+
+        // Simulate time updates for synthetic speech
+        let startTime = Date.now();
+        const updateInterval = setInterval(() => {
+          if (!speechSynthesis.speaking) {
+            clearInterval(updateInterval);
+            return;
+          }
+          
+          const elapsed = (Date.now() - startTime) / 1000;
+          setCurrentTime(elapsed);
+          
+          // Update active segment for synthetic speech
+          const activeIndex = parsedSegments.findIndex(
+            segment => elapsed >= segment.start && elapsed <= segment.end
+          );
+          
+          if (activeIndex !== -1 && activeIndex !== activeSegmentIndex) {
+            setActiveSegmentIndex(activeIndex);
+            const activeElement = document.querySelector(`[data-segment-index="${activeIndex}"]`);
+            if (activeElement) {
+              activeElement.scrollIntoView({ 
+                behavior: 'smooth', 
+                block: 'center',
+                inline: 'nearest'
+              });
+            }
+          }
+        }, 100);
+      }
+    } else {
+      // Stop synthetic speech
+      speechSynthesis.cancel();
+      setIsPlaying(false);
+      setIsUsingSyntheticAudio(false);
+      setActiveSegmentIndex(-1);
+    }
+  };
+
+  // Seek to specific time when clicking on a segment
+  const handleSegmentClick = (segmentIndex: number) => {
+    const segment = parsedSegments[segmentIndex];
+    if (!segment) return;
+
+    if (audioRef.current && audioSrc) {
+      audioRef.current.currentTime = segment.start;
+      setCurrentTime(segment.start);
+      setActiveSegmentIndex(segmentIndex);
+    }
+  };
+
+  // Skip forward/backward
+  const handleSkip = (seconds: number) => {
+    if (audioRef.current && audioSrc) {
+      const newTime = Math.max(0, Math.min(duration, currentTime + seconds));
+      audioRef.current.currentTime = newTime;
+      setCurrentTime(newTime);
+    }
+  };
+
+  // Format time display
+  const formatTime = (time: number) => {
+    const minutes = Math.floor(time / 60);
+    const seconds = Math.floor(time % 60);
+    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+  };
+
+  return (
+    <div className="space-y-6">
+      {/* Audio Player Controls */}
+      <Card>
+        <CardContent className="p-6">
+          <div className="space-y-4">
+            {/* Audio element (hidden, only for real audio) */}
+            {audioSrc && (
+              <audio
+                ref={audioRef}
+                src={audioSrc}
+                onTimeUpdate={handleTimeUpdate}
+                onLoadedMetadata={handleLoadedMetadata}
+                onEnded={handleEnded}
+                className="hidden"
+                data-testid="audio-element"
+              />
+            )}
+
+            {/* Header */}
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
+                <Volume2 className="h-5 w-5 text-blue-600" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-gray-900">Audio Lesson</h3>
+                <p className="text-sm text-gray-600">
+                  {isUsingSyntheticAudio ? 'Synthetic Audio' : (audioSrc ? 'High Quality Audio' : 'Text-to-Speech Available')}
+                </p>
+              </div>
+            </div>
+
+            {/* Controls */}
+            <div className="flex items-center gap-4">
+              <Button
+                onClick={handlePlayPause}
+                variant="default"
+                size="sm"
+                className="flex items-center gap-2"
+                data-testid="button-play-pause"
+              >
+                {isPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
+                {isPlaying ? 'Pause' : 'Play'}
+              </Button>
+
+              {audioSrc && (
+                <>
+                  <Button
+                    onClick={() => handleSkip(-10)}
+                    variant="ghost"
+                    size="sm"
+                    data-testid="button-rewind"
+                  >
+                    <RotateCcw className="h-4 w-4" />
+                  </Button>
+
+                  <Button
+                    onClick={() => handleSkip(10)}
+                    variant="ghost"
+                    size="sm"
+                    data-testid="button-skip-forward"
+                  >
+                    <SkipForward className="h-4 w-4" />
+                  </Button>
+                </>
+              )}
+
+              <div className="flex-1 flex items-center gap-2 text-sm text-gray-600">
+                <span data-testid="time-current">{formatTime(currentTime)}</span>
+                <div className="flex-1 bg-gray-200 rounded-full h-2">
+                  <div
+                    className="bg-primary h-2 rounded-full transition-all duration-300"
+                    style={{ width: `${duration ? (currentTime / duration) * 100 : 0}%` }}
+                    data-testid="progress-bar"
+                  />
+                </div>
+                <span data-testid="time-duration">{formatTime(duration)}</span>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Synchronized Transcript */}
+      <Card>
+        <CardContent className="p-6">
+          <h4 className="font-semibold mb-4">Lesson Transcript</h4>
+          <div
+            ref={transcriptRef}
+            className="max-h-96 overflow-y-auto space-y-2"
+            data-testid="synchronized-transcript"
+          >
+            {parsedSegments.length > 0 ? (
+              parsedSegments.map((segment, index) => (
+                <span
+                  key={index}
+                  data-segment-index={index}
+                  onClick={() => handleSegmentClick(index)}
+                  className={`block p-3 rounded-lg cursor-pointer transition-all duration-200 ${
+                    index === activeSegmentIndex
+                      ? 'bg-primary/10 border-l-4 border-primary text-primary-foreground font-medium'
+                      : 'bg-gray-50 hover:bg-gray-100 text-gray-700'
+                  }`}
+                  data-testid={`transcript-segment-${index}`}
+                >
+                  {segment.text}
+                </span>
+              ))
+            ) : (
+              <div className="text-gray-600 p-4 text-center">
+                <p>Preparing synchronized transcript...</p>
+                {transcript && (
+                  <div className="mt-4 text-left bg-gray-50 p-4 rounded-lg">
+                    {transcript}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
