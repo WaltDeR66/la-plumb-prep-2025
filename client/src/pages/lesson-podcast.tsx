@@ -85,15 +85,6 @@ export default function LessonPodcast() {
     (item.content?.extracted?.transcript || item.content?.extracted?.content || item.content?.text)
   ) : undefined;
 
-  // Debug: Log the content to see what we're getting (remove after fixing)
-  if (podcastContent) {
-    console.log('Debug - Found podcast content for section:', section);
-    console.log('Debug - Podcast has transcript:', !!podcastContent?.content?.extracted?.transcript);
-    console.log('Debug - Transcript length:', podcastContent?.content?.extracted?.transcript?.length);
-  } else {
-    console.log('Debug - No podcast content found for section:', section);
-    console.log('Debug - Available sections:', Array.isArray(content) ? content.map(item => ({section: item.section, type: item.type, title: item.title})) : []);
-  }
 
   // Track lesson step progress with current position
   const trackProgress = async (completed = false, position = currentTime) => {

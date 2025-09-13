@@ -85,8 +85,12 @@ export default function PodcastSyncPlayer({
       // Use actual duration if available, otherwise estimate based on word count
       const estimatedDuration = duration > 0 ? duration : Math.max((transcript.split(/\s+/).length / 150) * 60, 300); // 150 WPM, minimum 5 minutes
       const generatedSegments = parseTranscriptToSegments(transcript, estimatedDuration);
-      console.log('Generated segments:', generatedSegments.length, 'estimated duration:', estimatedDuration);
       setParsedSegments(generatedSegments);
+      
+      // Update the duration state if we estimated it
+      if (duration === 0) {
+        setDuration(estimatedDuration);
+      }
     }
   }, [segments, transcript, duration, parseTranscriptToSegments]);
 
