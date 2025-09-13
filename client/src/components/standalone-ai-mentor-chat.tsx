@@ -5,13 +5,11 @@ import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { MessageCircle, Send, Bot, User, Lightbulb, Timer, Download, Lock, Crown, BookOpen } from "lucide-react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { apiRequest } from "@/lib/queryClient";
+import { MessageCircle, Send, Bot, User, Timer, Lock, Crown, BookOpen } from "lucide-react";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { useStudySession } from "@/hooks/use-study-session";
-import { AuthService } from "@/lib/auth";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 
 interface Message {
   role: "user" | "assistant";
@@ -19,26 +17,19 @@ interface Message {
   timestamp: Date;
 }
 
-interface Conversation {
-  id: string;
-  messages: Message[];
-  createdAt: string;
-  updatedAt: string;
+interface StandaloneAIMentorChatProps {
+  className?: string;
 }
 
-interface AIMentorChatProps {
-  currentSection?: string;
-}
-
-export default function AIMentorChat({ currentSection }: AIMentorChatProps = {}) {
+export default function StandaloneAIMentorChat({ className }: StandaloneAIMentorChatProps) {
   const [currentMessage, setCurrentMessage] = useState("");
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
-  const queryClient = useQueryClient();
+  const [, setLocation] = useLocation();
   
   // Initialize study session tracking for chat
   const studySession = useStudySession({
-    contentId: 'ai-mentor-chat',
+    contentId: 'standalone-ai-mentor-chat',
     contentType: 'chat',
     autoStart: true
   });
@@ -49,10 +40,10 @@ export default function AIMentorChat({ currentSection }: AIMentorChatProps = {})
     retry: false,
   });
 
-  // AI mentor access is available to all authenticated users
-  const hasAIAccess = !!user;
   const userTier = user?.subscriptionTier || 'basic';
-
+  
+  // AI Mentor Chat is only available to professional and master users
+  const hasAIAccess = userTier === 'professional' || userTier === 'master';
 
   const [messages, setMessages] = useState<Array<{role: 'user' | 'assistant', content: string, timestamp: Date}>>([]);
 
@@ -65,8 +56,8 @@ export default function AIMentorChat({ currentSection }: AIMentorChatProps = {})
         },
         body: JSON.stringify({
           message,
-          context: 'Louisiana Plumbing Code Section',
-          currentSection: currentSection
+          context: 'Complete Louisiana Plumbing Code',
+          // No currentSection - this is complete codebook access
         }),
       });
       
@@ -127,74 +118,17 @@ export default function AIMentorChat({ currentSection }: AIMentorChatProps = {})
     }
   }, [messages]);
 
+  // Redirect basic authenticated users to pricing page
+  useEffect(() => {
+    if (user && !hasAIAccess) {
+      setLocation('/pricing');
+    }
+  }, [user, hasAIAccess, setLocation]);
 
-  const getQuickPrompts = (currentSection?: string, userTier: string = 'basic') => {
-    // ALL users get section-specific prompts based on current lesson section
-    const sectionSuggestions: { [key: string]: string[] } = {
-      '101': [
-        "Ask about the Louisiana State Health Officer's authority in plumbing code enforcement",
-        "What are the key responsibilities of local plumbing inspectors under Section 101?", 
-        "How does the delegation of authority work from state to local levels?",
-        "What legal statutes support Louisiana plumbing code enforcement?"
-      ],
-      '103': [
-        "What are the permit requirements for different types of plumbing work in Louisiana?",
-        "When can plumbing work be done without a permit in Louisiana?",
-        "What documentation must be submitted with a plumbing permit application?",
-        "How long are plumbing permits valid in Louisiana?"
-      ],
-      '105': [
-        "What qualifications are required for plumbing inspectors in Louisiana?",
-        "How often must plumbing inspections be conducted during installation?",
-        "What happens if a plumbing installation fails inspection?",
-        "What records must be kept by plumbing inspectors?"
-      ],
-      '107': [
-        "What are the violation notice procedures in Louisiana plumbing code?",
-        "What penalties can be imposed for plumbing code violations?",
-        "How are emergency situations handled under Louisiana plumbing enforcement?",
-        "What is the process for appealing code violation citations?"
-      ],
-      '109': [
-        "What are the requirements for plumbing plan approval in Louisiana?",
-        "When must engineered drawings be submitted for plumbing systems?",
-        "What technical standards must plumbing plans meet?",
-        "How long does the plan review process typically take?"
-      ]
-    };
-
-    return sectionSuggestions[currentSection || '101'] || sectionSuggestions['101'];
-  };
-
-  const getBasicContent = () => [
-    {
-      title: "Louisiana Plumbing Code Section 1: General Administration",
-      description: "Complete overview of code administration and enforcement",
-      downloadUrl: "/public-objects/louisiana-code-section-1.pdf"
-    },
-    {
-      title: "Pipe Sizing Reference Guide",
-      description: "Comprehensive tables and calculations for pipe sizing",
-      downloadUrl: "/public-objects/pipe-sizing-guide.pdf"
-    },
-    {
-      title: "Fixture Installation Standards",
-      description: "Standard installation procedures for common fixtures",
-      downloadUrl: "/public-objects/fixture-installation-guide.pdf"
-    },
-    {
-      title: "Code Compliance Checklist",
-      description: "Quick reference checklist for common inspections",
-      downloadUrl: "/public-objects/compliance-checklist.pdf"
-    },
-  ];
-
-
-  // Show different interface based on subscription tier
-  if (!hasAIAccess) {
-    // Redirect to upgrade - no download interface
+  // Show upgrade prompt for unauthenticated users
+  if (!user || !hasAIAccess) {
     return (
-      <div className="max-w-4xl mx-auto" data-testid="ai-mentor-chat">
+      <div className={`max-w-4xl mx-auto ${className}`} data-testid="standalone-ai-mentor-chat">
         <Card className="min-h-[600px]">
           <CardHeader className="border-b">
             <div className="flex items-center justify-between">
@@ -207,7 +141,7 @@ export default function AIMentorChat({ currentSection }: AIMentorChatProps = {})
                     AI Mentor Chat - Upgrade Required
                   </CardTitle>
                   <p className="text-sm text-muted-foreground">
-                    Get section-specific AI help with Louisiana plumbing codes
+                    Complete Louisiana plumbing codebook access with AI mentor
                   </p>
                 </div>
               </div>
@@ -217,14 +151,28 @@ export default function AIMentorChat({ currentSection }: AIMentorChatProps = {})
           <CardContent className="p-6 flex items-center justify-center">
             <div className="text-center max-w-md">
               <Crown className="w-16 h-16 mx-auto mb-4 text-orange-500" />
-              <h3 className="text-xl font-semibold mb-2">Section-Specific AI Mentor</h3>
+              <h3 className="text-xl font-semibold mb-2">Complete Codebook AI Mentor</h3>
               <p className="text-muted-foreground mb-6">
-                Get instant, intelligent answers about Section {currentSection || '101'} of Louisiana plumbing code.
-                Our AI mentor provides contextual help specific to your current lesson.
+                Get instant answers about any Louisiana plumbing code section, regulation, or installation procedure. 
+                Our AI mentor has complete knowledge of the entire Louisiana State Plumbing Code.
               </p>
+              <div className="space-y-3 mb-6">
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <BookOpen className="w-4 h-4 text-green-500" />
+                  <span>Access to all Louisiana plumbing code sections</span>
+                </div>
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <Bot className="w-4 h-4 text-blue-500" />
+                  <span>Intelligent AI responses with code references</span>
+                </div>
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <MessageCircle className="w-4 h-4 text-purple-500" />
+                  <span>Unlimited questions and conversations</span>
+                </div>
+              </div>
               <Button asChild className="bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700">
                 <Link href="/pricing">
-                  Upgrade to Access AI Mentor
+                  Upgrade to Professional Plan
                 </Link>
               </Button>
             </div>
@@ -236,7 +184,7 @@ export default function AIMentorChat({ currentSection }: AIMentorChatProps = {})
 
   // Professional/Master Plans: AI Chat Interface
   return (
-    <div className="max-w-4xl mx-auto" data-testid="ai-mentor-chat">
+    <div className={`max-w-4xl mx-auto ${className}`} data-testid="standalone-ai-mentor-chat">
       <Card className="h-[600px] flex flex-col">
         <CardHeader className="border-b">
           <div className="flex items-center justify-between">
@@ -246,27 +194,18 @@ export default function AIMentorChat({ currentSection }: AIMentorChatProps = {})
               </div>
               <div>
                 <CardTitle className="flex items-center gap-2">
-                  AI Mentor Chat - Section {currentSection || '101'}
-                  <Badge variant="secondary" className="text-xs">
-                    <Lightbulb className="w-3 h-3 mr-1" />
-                    Section {currentSection || '101'} Prompts
+                  AI Mentor Chat
+                  <Badge className="text-xs bg-gradient-to-r from-green-500 to-emerald-600">
+                    <BookOpen className="w-3 h-3 mr-1" />
+                    Complete Codebook
                   </Badge>
-                  {userTier !== 'basic' && (
-                    <Badge className="text-xs bg-gradient-to-r from-green-500 to-emerald-600">
-                      <BookOpen className="w-3 h-3 mr-1" />
-                      Complete Access
-                    </Badge>
-                  )}
                   <Badge className="text-xs bg-gradient-to-r from-blue-500 to-purple-600">
                     <Bot className="w-3 h-3 mr-1" />
                     AI-Powered
                   </Badge>
                 </CardTitle>
                 <p className="text-sm text-muted-foreground">
-                  {userTier === 'basic' 
-                    ? `Get instant help with Louisiana plumbing code Section ${currentSection || '101'}`
-                    : `Section ${currentSection || '101'} prompts shown - ask about any Louisiana plumbing code section`
-                  }
+                  Ask about any Louisiana plumbing code section, installation procedures, or code compliance
                 </p>
               </div>
             </div>
@@ -278,41 +217,6 @@ export default function AIMentorChat({ currentSection }: AIMentorChatProps = {})
         </CardHeader>
 
         <CardContent className="flex-1 flex flex-col p-0">
-          {/* Quick Action Prompts */}
-          {messages.length === 0 && (
-            <div className="p-4 border-b bg-muted/30">
-              <h3 className="text-sm font-medium mb-3">Quick Start Prompts</h3>
-              <div className="grid grid-cols-1 gap-2">
-                {getQuickPrompts(currentSection, userTier).map((prompt, index) => (
-                  <Button
-                    key={index}
-                    variant="outline"
-                    size="sm"
-                    className="text-xs justify-start h-auto py-3 px-4 whitespace-normal text-left leading-relaxed min-h-[3rem]"
-                    onClick={() => setCurrentMessage(prompt)}
-                    data-testid={`quick-prompt-${index}`}
-                  >
-                    <span className="block">{prompt}</span>
-                  </Button>
-                ))}
-                {userTier === 'basic' && (
-                  <div className="mt-3 p-3 bg-gradient-to-r from-orange-50 to-amber-50 dark:from-orange-950 dark:to-amber-950 rounded-lg border border-orange-200 dark:border-orange-800">
-                    <div className="flex items-center gap-2 text-sm">
-                      <Crown className="w-4 h-4 text-orange-500" />
-                      <span className="font-medium text-orange-700 dark:text-orange-300">Want complete codebook access?</span>
-                    </div>
-                    <p className="text-xs text-orange-600 dark:text-orange-400 mt-1">
-                      Professional and Master users can ask questions about any Louisiana plumbing code section, not just Section {currentSection || '101'}!
-                    </p>
-                    <Button asChild size="sm" className="mt-2 bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 text-white">
-                      <Link href="/pricing">Upgrade Now</Link>
-                    </Button>
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
-
           {/* Chat Messages */}
           <ScrollArea className="flex-1 p-4 overflow-hidden" ref={scrollAreaRef}>
             {messages.length > 0 ? (
@@ -368,8 +272,24 @@ export default function AIMentorChat({ currentSection }: AIMentorChatProps = {})
             ) : (
               <div className="text-center text-muted-foreground py-8">
                 <Bot className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                <p>Start a conversation with your AI mentor!</p>
-                <p className="text-sm">Ask about Louisiana plumbing codes, installation procedures, or code compliance.</p>
+                <p className="text-lg font-medium mb-2">Start a conversation with your AI mentor!</p>
+                <p className="text-sm">Ask about any Louisiana plumbing codes, installation procedures, or code compliance.</p>
+                <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-3 max-w-2xl mx-auto">
+                  <div className="text-left p-3 bg-muted/30 rounded-lg">
+                    <p className="font-medium text-sm">Example questions:</p>
+                    <ul className="text-xs space-y-1 mt-2 text-muted-foreground">
+                      <li>• What are the pipe sizing requirements for 3-inch waste lines?</li>
+                      <li>• How do I calculate water pressure for a 4-story building?</li>
+                    </ul>
+                  </div>
+                  <div className="text-left p-3 bg-muted/30 rounded-lg">
+                    <p className="font-medium text-sm">Ask about any topic:</p>
+                    <ul className="text-xs space-y-1 mt-2 text-muted-foreground">
+                      <li>• Installation procedures</li>
+                      <li>• Code compliance requirements</li>
+                    </ul>
+                  </div>
+                </div>
               </div>
             )}
           </ScrollArea>
@@ -395,10 +315,7 @@ export default function AIMentorChat({ currentSection }: AIMentorChatProps = {})
               </Button>
             </div>
             <p className="text-xs text-muted-foreground mt-2">
-              {userTier === 'basic' 
-                ? `AI mentor focused on Section ${currentSection || '101'} - upgrade for complete codebook access` 
-                : 'AI mentor trained on complete Louisiana plumbing codes and industry best practices'
-              }
+              AI mentor trained on complete Louisiana plumbing codes and industry best practices
             </p>
           </div>
         </CardContent>

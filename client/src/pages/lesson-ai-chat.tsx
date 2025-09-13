@@ -66,7 +66,7 @@ export default function LessonAIChat() {
           </Link>
           <div className="flex items-center gap-2">
             <MessageSquare className="h-5 w-5 text-primary" />
-            <h1 className="text-2xl font-bold">Section {section} AI Mentor Chat</h1>
+            <h1 className="text-2xl font-bold">Section {section} AI Study Assistant</h1>
             <Badge variant="secondary">Step 4 of 6</Badge>
           </div>
         </div>
@@ -78,10 +78,10 @@ export default function LessonAIChat() {
               <div className="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center">
                 <MessageSquare className="h-5 w-5 text-orange-600" />
               </div>
-              AI Mentor Chat
+              AI Study Assistant
             </CardTitle>
             <p className="text-muted-foreground">
-              Get instant help with Louisiana plumbing code questions for Section {section}
+              Get section-specific help with Louisiana plumbing code questions for Section {section}
             </p>
           </CardHeader>
           <CardContent>

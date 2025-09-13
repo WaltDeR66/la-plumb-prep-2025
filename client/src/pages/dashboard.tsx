@@ -27,7 +27,7 @@ import {
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
-import AIMentorChat from "@/components/ai-mentor-chat";
+import StandaloneAIMentorChat from "@/components/standalone-ai-mentor-chat";
 import { ReferralInviter, ContactSupport } from "@/components/referral-inviter";
 import { Link } from "wouter";
 
@@ -355,7 +355,7 @@ export default function Dashboard() {
           </TabsContent>
 
           <TabsContent value="mentor" className="space-y-8">
-            <AIMentorChat />
+            <StandaloneAIMentorChat />
           </TabsContent>
 
           <TabsContent value="subscription" className="space-y-8">
