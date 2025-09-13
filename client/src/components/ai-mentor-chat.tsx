@@ -61,7 +61,11 @@ export default function AIMentorChat({ currentSection }: AIMentorChatProps = {})
 
   const chatMutation = useMutation({
     mutationFn: ({ message, conversationId }: { message: string; conversationId?: string }) =>
-      apiRequest("POST", "/api/mentor/chat", { message, conversationId }),
+      apiRequest("POST", "/api/mentor/chat", { 
+        message, 
+        conversationId,
+        currentSection: currentSection || '101' // Add section context
+      }),
     onSuccess: async (response) => {
       try {
         const data = await response.json();
@@ -185,95 +189,41 @@ export default function AIMentorChat({ currentSection }: AIMentorChatProps = {})
 
   // Show different interface based on subscription tier
   if (!hasAIAccess) {
-    // Basic Plan: Downloadable Content Interface
+    // Redirect to upgrade - no download interface
     return (
       <div className="max-w-4xl mx-auto" data-testid="ai-mentor-chat">
         <Card className="min-h-[600px]">
           <CardHeader className="border-b">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 rounded-full bg-gradient-to-r from-green-500 to-blue-600 flex items-center justify-center">
-                  <Download className="w-5 h-5 text-white" />
+                <div className="w-10 h-10 rounded-full bg-gradient-to-r from-orange-500 to-amber-600 flex items-center justify-center">
+                  <Lock className="w-5 h-5 text-white" />
                 </div>
                 <div>
                   <CardTitle className="flex items-center gap-2">
-                    Teach Me Chat - Study Materials
-                    <Badge variant="secondary" className="text-xs">
-                      <Download className="w-3 h-3 mr-1" />
-                      Basic Plan
-                    </Badge>
+                    AI Mentor Chat - Upgrade Required
                   </CardTitle>
                   <p className="text-sm text-muted-foreground">
-                    Download comprehensive Louisiana plumbing code study materials
+                    Get section-specific AI help with Louisiana plumbing codes
                   </p>
                 </div>
-              </div>
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <Timer className="w-4 h-4" />
-                <span>Session: {studySession.formattedTime}</span>
               </div>
             </div>
           </CardHeader>
 
-          <CardContent className="p-6">
-            <div className="grid gap-4">
-              {getBasicContent().map((item, index) => (
-                <Card key={index} className="p-4 hover:shadow-md transition-shadow">
-                  <div className="flex items-center justify-between">
-                    <div className="flex-1">
-                      <h3 className="font-medium text-foreground">{item.title}</h3>
-                      <p className="text-sm text-muted-foreground mt-1">{item.description}</p>
-                    </div>
-                    <Button 
-                      asChild 
-                      variant="outline" 
-                      size="sm"
-                      data-testid={`download-${index}`}
-                    >
-                      <a href={item.downloadUrl} download>
-                        <Download className="w-4 h-4 mr-2" />
-                        Download
-                      </a>
-                    </Button>
-                  </div>
-                </Card>
-              ))}
-            </div>
-
-            <div className="mt-8 p-6 bg-gradient-to-r from-orange-50 to-amber-50 border border-orange-200 rounded-lg">
-              <div className="flex items-start gap-4">
-                <div className="w-12 h-12 rounded-full bg-gradient-to-r from-orange-500 to-amber-600 flex items-center justify-center">
-                  <Crown className="w-6 h-6 text-white" />
-                </div>
-                <div className="flex-1">
-                  <h3 className="text-lg font-semibold text-foreground mb-2">
-                    Unlock AI Mentor Chat
-                  </h3>
-                  <p className="text-muted-foreground mb-4">
-                    Upgrade to Professional or Master plan to access our AI-powered mentor that provides instant, 
-                    personalized answers to your plumbing code questions.
-                  </p>
-                  <div className="space-y-2 mb-4">
-                    <div className="flex items-center gap-2 text-sm">
-                      <Bot className="w-4 h-4 text-orange-600" />
-                      <span>Instant answers to any Louisiana plumbing code question</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-sm">
-                      <Lightbulb className="w-4 h-4 text-orange-600" />
-                      <span>Smart suggestions and code interpretation</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-sm">
-                      <MessageCircle className="w-4 h-4 text-orange-600" />
-                      <span>Interactive conversation-based learning</span>
-                    </div>
-                  </div>
-                  <Button asChild className="bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700">
-                    <Link href="/pricing">
-                      Upgrade Now
-                    </Link>
-                  </Button>
-                </div>
-              </div>
+          <CardContent className="p-6 flex items-center justify-center">
+            <div className="text-center max-w-md">
+              <Crown className="w-16 h-16 mx-auto mb-4 text-orange-500" />
+              <h3 className="text-xl font-semibold mb-2">Section-Specific AI Mentor</h3>
+              <p className="text-muted-foreground mb-6">
+                Get instant, intelligent answers about Section {currentSection || '101'} of Louisiana plumbing code.
+                Our AI mentor provides contextual help specific to your current lesson.
+              </p>
+              <Button asChild className="bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700">
+                <Link href="/pricing">
+                  Upgrade to Access AI Mentor
+                </Link>
+              </Button>
             </div>
           </CardContent>
         </Card>
@@ -293,10 +243,10 @@ export default function AIMentorChat({ currentSection }: AIMentorChatProps = {})
               </div>
               <div>
                 <CardTitle className="flex items-center gap-2">
-                  AI Mentor Chat
+                  AI Mentor Chat - Section {currentSection || '101'}
                   <Badge variant="secondary" className="text-xs">
                     <Lightbulb className="w-3 h-3 mr-1" />
-                    Smart Assistant
+                    Section-Specific
                   </Badge>
                   <Badge className="text-xs bg-gradient-to-r from-orange-500 to-amber-600">
                     <Crown className="w-3 h-3 mr-1" />
@@ -304,7 +254,7 @@ export default function AIMentorChat({ currentSection }: AIMentorChatProps = {})
                   </Badge>
                 </CardTitle>
                 <p className="text-sm text-muted-foreground">
-                  Get instant help with Louisiana plumbing codes
+                  Get instant help with Louisiana plumbing code Section {currentSection || '101'}
                 </p>
               </div>
             </div>

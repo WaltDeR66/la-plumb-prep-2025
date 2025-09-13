@@ -155,27 +155,115 @@ export async function analyzePlans(base64Image: string): Promise<{
   }
 }
 
-export async function getMentorResponse(message: string, context?: string): Promise<string> {
-  try {
-    const systemPrompt = `You are an expert Louisiana plumbing mentor specializing in the Louisiana State Plumbing Code (LSPC). You have decades of experience helping apprentices and journeymen understand:
-
-    **Louisiana Plumbing Code Section 101 - Administration:**
+// Helper functions for section-specific validation and content
+function getSectionContent(section: string): string {
+  const sectionContent: { [key: string]: string } = {
+    '101': `**Louisiana Plumbing Code Section 101 - Administration:**
     - Enforcement Authority: State health officer has primary responsibility, can delegate to local inspectors
     - Legal Basis: R.S. 36:258(B), Title 40 Chapters 1 & 4, supporting statutes R.S. 40:4(A)(7) and R.S. 40:5
     - Historical: Originally promulgated June 2002, major amendments November 2012 (LR 38:2795)
     - Delegation Process: Authority flows from state to local parishes and municipalities
-    - Local Jurisdiction: Can be more restrictive than state code, but not less restrictive
+    - Local Jurisdiction: Can be more restrictive than state code, but not less restrictive`,
+    '103': `**Louisiana Plumbing Code Section 103 - Permits:**
+    - Permit Requirements: When permits are required and exemptions
+    - Application Process: Required documentation and procedures
+    - Permit Validity: Duration and conditions of permits
+    - Inspection Requirements: Mandatory inspection points`,
+    '105': `**Louisiana Plumbing Code Section 105 - Inspections:**
+    - Inspector Qualifications: Training and certification requirements
+    - Inspection Procedures: Standard practices and protocols
+    - Inspection Records: Documentation and reporting requirements
+    - Compliance Verification: Testing and validation methods`,
+    '107': `**Louisiana Plumbing Code Section 107 - Violations:**
+    - Violation Procedures: Notice requirements and processes
+    - Penalties: Types of sanctions and enforcement actions
+    - Emergency Procedures: Immediate response protocols
+    - Appeal Process: Rights and procedures for challenging violations`,
+    '109': `**Louisiana Plumbing Code Section 109 - Plan Review:**
+    - Plan Requirements: Technical drawing specifications
+    - Review Process: Submission and approval procedures
+    - Plan Standards: Engineering requirements and standards
+    - Review Timeline: Processing timeframes and requirements`
+  };
+  return sectionContent[section] || sectionContent['101'];
+}
+
+async function validateSectionRelevance(message: string, currentSection: string): Promise<{isRelevant: boolean, redirectMessage: string}> {
+  // Simple keyword-based validation for common section topics
+  const sectionKeywords: { [key: string]: string[] } = {
+    '101': ['administration', 'enforcement', 'authority', 'legal', 'delegate', 'health officer', 'jurisdiction'],
+    '103': ['permit', 'application', 'documentation', 'validity', 'exemption'],
+    '105': ['inspection', 'inspector', 'qualification', 'procedure', 'record', 'compliance'],
+    '107': ['violation', 'penalty', 'notice', 'emergency', 'appeal', 'enforcement'],
+    '109': ['plan', 'review', 'drawing', 'engineering', 'standard', 'approval']
+  };
+  
+  const currentKeywords = sectionKeywords[currentSection] || [];
+  const messageWords = message.toLowerCase().split(/\s+/);
+  
+  // Check if message contains section-relevant keywords
+  const hasRelevantKeywords = currentKeywords.some(keyword => 
+    messageWords.some(word => word.includes(keyword) || keyword.includes(word))
+  );
+  
+  if (hasRelevantKeywords) {
+    return { isRelevant: true, redirectMessage: '' };
+  }
+  
+  // Check if asking about other sections
+  const otherSections = Object.keys(sectionKeywords).filter(s => s !== currentSection);
+  for (const section of otherSections) {
+    const keywords = sectionKeywords[section];
+    const hasOtherSectionKeywords = keywords.some(keyword => 
+      messageWords.some(word => word.includes(keyword) || keyword.includes(word))
+    );
+    if (hasOtherSectionKeywords) {
+      return {
+        isRelevant: false,
+        redirectMessage: `Your question seems to be about Section ${section}. I'm currently focused on Section ${currentSection} topics like administration, enforcement, authority, and legal basis.`
+      };
+    }
+  }
+  
+  // Generic questions might still be relevant
+  const genericQuestions = ['what', 'how', 'when', 'why', 'where', 'explain', 'help', 'tell me'];
+  const hasGenericQuestion = genericQuestions.some(q => message.toLowerCase().includes(q));
+  
+  if (hasGenericQuestion) {
+    return { isRelevant: true, redirectMessage: '' };
+  }
+  
+  return {
+    isRelevant: false,
+    redirectMessage: `I can help you with Section ${currentSection} topics including administration, enforcement authority, legal basis, and delegation processes.`
+  };
+}
+
+export async function getMentorResponse(message: string, context?: string, currentSection: string = '101'): Promise<string> {
+  try {
+    // First check if the question is related to the current section
+    const sectionValidation = await validateSectionRelevance(message, currentSection);
+    if (!sectionValidation.isRelevant) {
+      return `I'm focused specifically on **Section ${currentSection}** of the Louisiana State Plumbing Code. 📖\n\n${sectionValidation.redirectMessage}\n\nPlease ask me questions about Section ${currentSection} topics, and I'll provide detailed, helpful answers! 🔧`;
+    }
+
+    const sectionContent = getSectionContent(currentSection);
+    const systemPrompt = `You are an expert Louisiana plumbing mentor specializing in the Louisiana State Plumbing Code (LSPC). You are currently helping students with **SECTION ${currentSection}** ONLY.
+
+    ${sectionContent}
 
     **Your teaching approach:**
+    - ONLY answer questions related to Section ${currentSection} 
     - Provide detailed, educational responses with specific code references
     - Use formatting like **bold**, • bullet points, and emojis for clarity
-    - Connect concepts to real-world applications
-    - Encourage further learning with follow-up questions
+    - Connect concepts to real-world applications in Louisiana
+    - Encourage further learning with follow-up questions about Section ${currentSection}
     - Always be supportive and encouraging to students
+    - Reference specific Louisiana statutes and code sections when relevant
     
-    **Context provided:** ${context || 'Louisiana Plumbing Code Section 101 Administration content'}
+    **Context provided:** ${context || `Louisiana Plumbing Code Section ${currentSection} content`}
     
-    Answer questions about Louisiana plumbing codes, installation techniques, best practices, exam preparation, and safety protocols with specific references to Louisiana statutes and code sections when relevant.`;
+    Answer questions ONLY about Section ${currentSection} topics. If asked about other sections, redirect them back to Section ${currentSection} content.`;
 
     const response = await openai.chat.completions.create({
       // the newest OpenAI model is "gpt-5" which was released August 7, 2025. do not change this unless explicitly requested by the user

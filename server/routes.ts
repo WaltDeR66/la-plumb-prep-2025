@@ -2764,20 +2764,24 @@ Start your journey at laplumbprep.com/courses
     }
 
     try {
-      const { message, context, conversationId } = req.body;
+      const { message, context, conversationId, currentSection } = req.body;
       const userId = (req.user as any).id;
+      const section = currentSection || '101';
 
-      // Pure AI approach - always use OpenAI for intelligent, contextual responses
+      // Section-specific AI response using OpenAI
       let response = "";
       try {
-        const aiResponse = await getMentorResponse(message, context);
+        const aiResponse = await getMentorResponse(message, context, section);
         response = aiResponse;
       } catch (aiError) {
         console.error("OpenAI error:", aiError);
-        response = `Great question about Louisiana Plumbing Code! 🎓\n\nI can help you learn about:\n\n• **Code Administration** - Enforcement, authority, and legal basis\n• **Installation Requirements** - Pipe sizing, fixtures, and connections\n• **Safety Standards** - Pressure testing, backflow prevention\n• **Compliance Issues** - Violations, permits, and inspections\n\nTry asking me something specific about any Louisiana plumbing code section!`;
+        response = `Great question about Louisiana Plumbing Code Section ${section}! 🎓\n\nI can help you learn about Section ${section} topics including:\n\n• **Code Administration** - Enforcement, authority, and legal basis\n• **Installation Requirements** - Pipe sizing, fixtures, and connections\n• **Safety Standards** - Pressure testing, backflow prevention\n• **Compliance Issues** - Violations, permits, and inspections\n\nTry asking me something specific about Section ${section} of the Louisiana plumbing code!`;
       }
 
-      res.json({ response });
+      res.json({ 
+        response,
+        section: section
+      });
     } catch (error: any) {
       console.error("Mentor chat error:", error);
       res.status(500).json({ message: "Sorry, I'm having trouble right now. Please try asking about any Louisiana plumbing code topic and I'll help!" });
