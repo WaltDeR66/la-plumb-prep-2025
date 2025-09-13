@@ -185,10 +185,12 @@ export default function PodcastSyncPlayer({
 
       const playNextSentence = async () => {
         if (currentSegmentIndex >= parsedSegments.length || !shouldContinuePlaying) {
+          console.log(`Podcast completed! Played ${currentSegmentIndex}/${parsedSegments.length} segments`);
           setIsPlaying(false);
           setIsUsingOpenAIAudio(false);
           setActiveSegmentIndex(-1);
           setCurrentSentence("");
+          setCurrentTime(0);
           return;
         }
 
@@ -208,8 +210,15 @@ export default function PodcastSyncPlayer({
               URL.revokeObjectURL(audioUrl); // Clean up blob URL
               currentSegmentIndex++;
               setTimeout(() => {
-                if (shouldContinuePlaying) {
+                if (shouldContinuePlaying && currentSegmentIndex < parsedSegments.length) {
                   playNextSentence();
+                } else if (currentSegmentIndex >= parsedSegments.length) {
+                  console.log(`Podcast finished! Played all ${parsedSegments.length} segments`);
+                  setIsPlaying(false);
+                  setIsUsingOpenAIAudio(false);
+                  setActiveSegmentIndex(-1);
+                  setCurrentSentence("");
+                  setCurrentTime(0);
                 }
               }, 500); // Small delay between sentences
             };
