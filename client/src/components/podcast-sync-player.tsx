@@ -181,9 +181,10 @@ export default function PodcastSyncPlayer({
       // Play sentences sequentially
       let currentSegmentIndex = 0;
       let startTime = Date.now();
+      let shouldContinuePlaying = true;
 
       const playNextSentence = async () => {
-        if (currentSegmentIndex >= parsedSegments.length) {
+        if (currentSegmentIndex >= parsedSegments.length || !shouldContinuePlaying) {
           setIsPlaying(false);
           setIsUsingOpenAIAudio(false);
           setActiveSegmentIndex(-1);
@@ -195,35 +196,63 @@ export default function PodcastSyncPlayer({
         setActiveSegmentIndex(currentSegmentIndex);
         setCurrentSentence(segment.text);
 
+        console.log(`Playing segment ${currentSegmentIndex + 1}/${parsedSegments.length}:`, segment.text.substring(0, 50) + "...");
+
         // Generate and play audio for this sentence
         const audioUrl = await createOpenAIAudio(segment.text);
-        if (audioUrl && isPlaying) {
-          const audio = new Audio(audioUrl);
-          
-          audio.onended = () => {
-            URL.revokeObjectURL(audioUrl); // Clean up blob URL
-            currentSegmentIndex++;
+        if (audioUrl && shouldContinuePlaying) {
+          try {
+            const audio = new Audio(audioUrl);
             
-            if (isPlaying) {
-              playNextSentence();
-            }
-          };
-          
-          audio.onerror = () => {
+            audio.onended = () => {
+              URL.revokeObjectURL(audioUrl); // Clean up blob URL
+              currentSegmentIndex++;
+              setTimeout(() => {
+                if (shouldContinuePlaying) {
+                  playNextSentence();
+                }
+              }, 500); // Small delay between sentences
+            };
+            
+            audio.onerror = (error) => {
+              console.error('Audio playback error:', error);
+              URL.revokeObjectURL(audioUrl);
+              currentSegmentIndex++;
+              if (shouldContinuePlaying) {
+                playNextSentence();
+              }
+            };
+            
+            await audio.play();
+            console.log('Audio playing successfully');
+          } catch (error) {
+            console.error('Failed to play audio:', error);
             URL.revokeObjectURL(audioUrl);
             currentSegmentIndex++;
-            
-            if (isPlaying) {
+            if (shouldContinuePlaying) {
               playNextSentence();
             }
-          };
-          
-          await audio.play();
+          }
         } else {
+          console.log('No audio URL or playback stopped');
           currentSegmentIndex++;
-          playNextSentence();
+          if (shouldContinuePlaying) {
+            playNextSentence();
+          }
         }
       };
+
+      // Function to stop playback
+      const stopPlayback = () => {
+        shouldContinuePlaying = false;
+        setIsPlaying(false);
+        setIsUsingOpenAIAudio(false);
+        setActiveSegmentIndex(-1);
+        setCurrentSentence("");
+      };
+
+      // Store the stop function for cleanup
+      (window as any).stopPodcastPlayback = stopPlayback;
 
       // Start playing sentences
       playNextSentence();
@@ -241,10 +270,14 @@ export default function PodcastSyncPlayer({
 
     } else {
       // Stop OpenAI audio
-      setIsPlaying(false);
-      setIsUsingOpenAIAudio(false);
-      setActiveSegmentIndex(-1);
-      setCurrentSentence("");
+      if ((window as any).stopPodcastPlayback) {
+        (window as any).stopPodcastPlayback();
+      } else {
+        setIsPlaying(false);
+        setIsUsingOpenAIAudio(false);
+        setActiveSegmentIndex(-1);
+        setCurrentSentence("");
+      }
     }
   };
 
