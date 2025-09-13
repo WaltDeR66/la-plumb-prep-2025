@@ -32,7 +32,6 @@ interface AIMentorChatProps {
 
 export default function AIMentorChat({ currentSection }: AIMentorChatProps = {}) {
   const [currentMessage, setCurrentMessage] = useState("");
-  const [selectedConversation, setSelectedConversation] = useState<string | null>(null);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -54,28 +53,45 @@ export default function AIMentorChat({ currentSection }: AIMentorChatProps = {})
   const hasAIAccess = !!user;
   const userTier = user?.subscriptionTier || 'basic';
 
-  const { data: conversations, isLoading } = useQuery({
-    queryKey: ["/api/mentor/conversations"],
-    enabled: hasAIAccess, // Only fetch conversations if user has AI access
-  });
+
+  const [messages, setMessages] = useState<Array<{role: 'user' | 'assistant', content: string, timestamp: Date}>>([]);
 
   const chatMutation = useMutation({
-    mutationFn: ({ message, conversationId }: { message: string; conversationId?: string }) =>
-      apiRequest("POST", "/api/mentor/chat", { 
-        message, 
-        conversationId,
-        currentSection: currentSection || '101' // Add section context
-      }),
+    mutationFn: async (message: string) => {
+      const response = await fetch('/api/mentor/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          message,
+          context: 'Louisiana Plumbing Code Section',
+          currentSection: currentSection
+        }),
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to send message');
+      }
+      
+      return response;
+    },
     onSuccess: async (response) => {
       try {
         const data = await response.json();
-        setSelectedConversation(data.conversationId);
-        // Invalidate conversations to refetch updated data
-        await queryClient.invalidateQueries({ queryKey: ["/api/mentor/conversations"] });
-        // Force refetch to ensure we get the latest conversation data
-        queryClient.refetchQueries({ queryKey: ["/api/mentor/conversations"] });
+        // Add user message and AI response to local state
+        setMessages(prev => [
+          ...prev,
+          { role: 'user', content: currentMessage, timestamp: new Date() },
+          { role: 'assistant', content: data.response, timestamp: new Date() }
+        ]);
       } catch (error) {
         console.error('Error parsing chat response:', error);
+        toast({
+          title: "Chat Error", 
+          description: "Failed to parse response",
+          variant: "destructive",
+        });
       }
     },
     onError: (error: any) => {
@@ -90,12 +106,11 @@ export default function AIMentorChat({ currentSection }: AIMentorChatProps = {})
   const handleSendMessage = () => {
     if (!currentMessage.trim()) return;
 
-    chatMutation.mutate({
-      message: currentMessage,
-      conversationId: selectedConversation || undefined,
-    });
-
+    // Store the message before clearing it
+    const messageToSend = currentMessage;
     setCurrentMessage("");
+    
+    chatMutation.mutate(messageToSend);
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -110,12 +125,8 @@ export default function AIMentorChat({ currentSection }: AIMentorChatProps = {})
     if (scrollAreaRef.current) {
       scrollAreaRef.current.scrollTop = scrollAreaRef.current.scrollHeight;
     }
-  }, [conversations, selectedConversation]);
+  }, [messages]);
 
-  const getCurrentConversation = (): Conversation | null => {
-    if (!selectedConversation || !conversations || !Array.isArray(conversations)) return null;
-    return conversations.find((c: Conversation) => c.id === selectedConversation) || null;
-  };
 
   const getQuickPrompts = (currentSection?: string, userTier: string = 'basic') => {
     if (userTier !== 'basic') {
@@ -190,15 +201,6 @@ export default function AIMentorChat({ currentSection }: AIMentorChatProps = {})
     },
   ];
 
-  const currentConversation = getCurrentConversation();
-
-  if (isLoading && hasAIAccess) {
-    return (
-      <div className="flex justify-center items-center h-32">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-      </div>
-    );
-  }
 
   // Show different interface based on subscription tier
   if (!hasAIAccess) {
@@ -290,7 +292,7 @@ export default function AIMentorChat({ currentSection }: AIMentorChatProps = {})
 
         <CardContent className="flex-1 flex flex-col p-0">
           {/* Quick Action Prompts */}
-          {!currentConversation && (
+          {messages.length === 0 && (
             <div className="p-4 border-b bg-muted/30">
               <h3 className="text-sm font-medium mb-3">Quick Start Prompts</h3>
               <div className="grid grid-cols-1 gap-2">
@@ -326,39 +328,16 @@ export default function AIMentorChat({ currentSection }: AIMentorChatProps = {})
 
           {/* Chat Messages */}
           <ScrollArea className="flex-1 p-4" ref={scrollAreaRef}>
-            {/* Show thinking indicator when AI is processing */}
-            {chatMutation.isPending && (
-              <div className="flex justify-start mb-4">
-                <div className="flex items-start space-x-2 max-w-[80%]">
-                  <Avatar className="w-8 h-8">
-                    <AvatarFallback className="bg-gradient-to-r from-blue-500 to-purple-600 text-white text-xs">
-                      <Bot className="w-4 h-4" />
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="bg-muted rounded-lg p-3 animate-pulse">
-                    <div className="flex items-center space-x-2">
-                      <div className="flex space-x-1">
-                        <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce"></div>
-                        <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
-                        <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
-                      </div>
-                      <span className="text-sm text-muted-foreground">AI is thinking...</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-            
-            {currentConversation ? (
+            {messages.length > 0 ? (
               <div className="space-y-4">
-                {currentConversation.messages.map((message, index) => (
+                {messages.map((message, index) => (
                   <div
                     key={index}
                     className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
                   >
                     <div className={`flex items-start space-x-2 max-w-[80%] ${message.role === 'user' ? 'flex-row-reverse space-x-reverse' : ''}`}>
                       <Avatar className="w-8 h-8">
-                        <AvatarFallback className={message.role === 'user' ? 'bg-primary text-primary-foreground' : 'bg-muted'}>
+                        <AvatarFallback className={message.role === 'user' ? 'bg-primary text-primary-foreground' : 'bg-gradient-to-r from-blue-500 to-purple-600 text-white'}>
                           {message.role === 'user' ? <User className="w-4 h-4" /> : <Bot className="w-4 h-4" />}
                         </AvatarFallback>
                       </Avatar>
@@ -369,20 +348,31 @@ export default function AIMentorChat({ currentSection }: AIMentorChatProps = {})
                       }`}>
                         <p className="text-sm whitespace-pre-wrap">{message.content}</p>
                         <p className="text-xs opacity-70 mt-1">
-                          {new Date(message.timestamp).toLocaleTimeString()}
+                          {message.timestamp.toLocaleTimeString()}
                         </p>
                       </div>
                     </div>
                   </div>
                 ))}
                 
+                {/* Show thinking indicator when AI is processing */}
                 {chatMutation.isPending && (
                   <div className="flex justify-start">
-                    <div className="bg-muted p-3 rounded-lg w-full">
-                      <div className="flex items-center space-x-1">
-                        <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce"></div>
-                        <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
-                        <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
+                    <div className="flex items-start space-x-2 max-w-[80%]">
+                      <Avatar className="w-8 h-8">
+                        <AvatarFallback className="bg-gradient-to-r from-blue-500 to-purple-600 text-white">
+                          <Bot className="w-4 h-4" />
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="bg-muted rounded-lg p-3">
+                        <div className="flex items-center space-x-2">
+                          <div className="flex space-x-1">
+                            <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce"></div>
+                            <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
+                            <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
+                          </div>
+                          <span className="text-sm text-muted-foreground">AI is thinking...</span>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -418,7 +408,10 @@ export default function AIMentorChat({ currentSection }: AIMentorChatProps = {})
               </Button>
             </div>
             <p className="text-xs text-muted-foreground mt-2">
-              AI mentor is trained on Louisiana plumbing codes and industry best practices.
+              {userTier === 'basic' 
+                ? `AI mentor focused on Section ${currentSection || '101'} - upgrade for complete codebook access` 
+                : 'AI mentor trained on complete Louisiana plumbing codes and industry best practices'
+              }
             </p>
           </div>
         </CardContent>
