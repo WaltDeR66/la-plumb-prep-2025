@@ -81,8 +81,11 @@ export default function PodcastSyncPlayer({
   useEffect(() => {
     if (segments) {
       setParsedSegments(segments);
-    } else if (transcript && duration > 0) {
-      const generatedSegments = parseTranscriptToSegments(transcript, duration);
+    } else if (transcript) {
+      // Use actual duration if available, otherwise estimate based on word count
+      const estimatedDuration = duration > 0 ? duration : Math.max((transcript.split(/\s+/).length / 150) * 60, 300); // 150 WPM, minimum 5 minutes
+      const generatedSegments = parseTranscriptToSegments(transcript, estimatedDuration);
+      console.log('Generated segments:', generatedSegments.length, 'estimated duration:', estimatedDuration);
       setParsedSegments(generatedSegments);
     }
   }, [segments, transcript, duration, parseTranscriptToSegments]);
