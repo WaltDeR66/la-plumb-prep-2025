@@ -62,12 +62,17 @@ export default function AIMentorChat({ currentSection }: AIMentorChatProps = {})
   const chatMutation = useMutation({
     mutationFn: ({ message, conversationId }: { message: string; conversationId?: string }) =>
       apiRequest("POST", "/api/mentor/chat", { message, conversationId }),
-    onSuccess: (response) => {
-      response.json().then((data) => {
+    onSuccess: async (response) => {
+      try {
+        const data = await response.json();
         setSelectedConversation(data.conversationId);
         // Invalidate conversations to refetch updated data
-        queryClient.invalidateQueries({ queryKey: ["/api/mentor/conversations"] });
-      });
+        await queryClient.invalidateQueries({ queryKey: ["/api/mentor/conversations"] });
+        // Force refetch to ensure we get the latest conversation data
+        queryClient.refetchQueries({ queryKey: ["/api/mentor/conversations"] });
+      } catch (error) {
+        console.error('Error parsing chat response:', error);
+      }
     },
     onError: (error: any) => {
       toast({
@@ -112,7 +117,7 @@ export default function AIMentorChat({ currentSection }: AIMentorChatProps = {})
     const sectionSuggestions: { [key: string]: string[] } = {
       '101': [
         "Ask about the Louisiana State Health Officer's authority in plumbing code enforcement",
-        "What are the key responsibilities of local plumbing inspectors under Section 101?",
+        "What are the key responsibilities of local plumbing inspectors under Section 101?", 
         "How does the delegation of authority work from state to local levels?",
         "What legal statutes support Louisiana plumbing code enforcement?"
       ],
@@ -315,17 +320,17 @@ export default function AIMentorChat({ currentSection }: AIMentorChatProps = {})
           {!currentConversation && (
             <div className="p-4 border-b bg-muted/30">
               <h3 className="text-sm font-medium mb-3">Quick Start Prompts</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+              <div className="grid grid-cols-1 gap-2">
                 {getQuickPrompts(currentSection).map((prompt, index) => (
                   <Button
                     key={index}
                     variant="outline"
                     size="sm"
-                    className="text-xs justify-start h-auto py-2 px-3"
+                    className="text-xs justify-start h-auto py-3 px-4 whitespace-normal text-left leading-relaxed min-h-[3rem]"
                     onClick={() => setCurrentMessage(prompt)}
                     data-testid={`quick-prompt-${index}`}
                   >
-                    {prompt}
+                    <span className="block">{prompt}</span>
                   </Button>
                 ))}
               </div>
