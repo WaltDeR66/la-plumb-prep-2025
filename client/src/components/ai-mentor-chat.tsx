@@ -50,8 +50,8 @@ export default function AIMentorChat({ currentSection }: AIMentorChatProps = {})
     retry: false,
   });
 
-  // Check if user has AI mentor access (Professional/Master tiers only)
-  const hasAIAccess = user ? AuthService.hasFeatureAccess(user, 'ai_mentor') : false;
+  // AI mentor access is available to all authenticated users
+  const hasAIAccess = !!user;
   const userTier = user?.subscriptionTier || 'basic';
 
   const { data: conversations, isLoading } = useQuery({
@@ -248,9 +248,9 @@ export default function AIMentorChat({ currentSection }: AIMentorChatProps = {})
                     <Lightbulb className="w-3 h-3 mr-1" />
                     Section-Specific
                   </Badge>
-                  <Badge className="text-xs bg-gradient-to-r from-orange-500 to-amber-600">
-                    <Crown className="w-3 h-3 mr-1" />
-                    {userTier === 'master' ? 'Master' : 'Professional'}
+                  <Badge className="text-xs bg-gradient-to-r from-blue-500 to-purple-600">
+                    <Bot className="w-3 h-3 mr-1" />
+                    AI-Powered
                   </Badge>
                 </CardTitle>
                 <p className="text-sm text-muted-foreground">

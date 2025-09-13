@@ -98,7 +98,8 @@ export class AuthService {
         'job_board',
         'basic_calculators',
         'practice_tests',
-        'email_support'
+        'email_support',
+        'ai_mentor'
       ],
       professional: [
         'job_board',
