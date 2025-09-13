@@ -2,6 +2,7 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Play, Pause, SkipForward, RotateCcw, Volume2 } from "lucide-react";
+import { apiRequest } from "@/lib/queryClient";
 
 interface PodcastSegment {
   start: number;
@@ -29,7 +30,9 @@ export default function PodcastSyncPlayer({
   const [duration, setDuration] = useState(0);
   const [activeSegmentIndex, setActiveSegmentIndex] = useState(-1);
   const [parsedSegments, setParsedSegments] = useState<PodcastSegment[]>([]);
-  const [isUsingSyntheticAudio, setIsUsingSyntheticAudio] = useState(false);
+  const [isUsingOpenAIAudio, setIsUsingOpenAIAudio] = useState(false);
+  const [currentSentence, setCurrentSentence] = useState("");
+  const [isGeneratingAudio, setIsGeneratingAudio] = useState(false);
 
   // Parse transcript into sentences and create timing segments
   const parseTranscriptToSegments = useCallback((text: string, totalDuration: number): PodcastSegment[] => {
@@ -84,29 +87,32 @@ export default function PodcastSyncPlayer({
     }
   }, [segments, transcript, duration, parseTranscriptToSegments]);
 
-  // Create synthetic audio using Web Speech API if no audio source provided
-  const createSyntheticAudio = useCallback(() => {
-    if (!transcript || typeof window === 'undefined' || !('speechSynthesis' in window)) {
+  // Create audio using OpenAI TTS API
+  const createOpenAIAudio = useCallback(async (text: string): Promise<string | null> => {
+    try {
+      setIsGeneratingAudio(true);
+      const response = await apiRequest("POST", "/api/openai/speech", {
+        input: text,
+        voice: "alloy", // OpenAI voice options: alloy, echo, fable, onyx, nova, shimmer
+        model: "tts-1"
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to generate speech');
+      }
+
+      // Convert the response to blob and create object URL
+      const audioBlob = await response.blob();
+      const audioUrl = URL.createObjectURL(audioBlob);
+      
+      setIsGeneratingAudio(false);
+      return audioUrl;
+    } catch (error) {
+      console.error('Error generating speech:', error);
+      setIsGeneratingAudio(false);
       return null;
     }
-
-    const utterance = new SpeechSynthesisUtterance(transcript);
-    utterance.rate = 0.8;
-    utterance.pitch = 1;
-    utterance.volume = 1;
-
-    // Get available voices and prefer a clear English voice
-    const voices = speechSynthesis.getVoices();
-    const preferredVoice = voices.find(voice => 
-      voice.lang.startsWith('en') && voice.name.includes('Google')
-    ) || voices.find(voice => voice.lang.startsWith('en'));
-    
-    if (preferredVoice) {
-      utterance.voice = preferredVoice;
-    }
-
-    return utterance;
-  }, [transcript]);
+  }, []);
 
   // Handle audio element events
   const handleTimeUpdate = () => {
@@ -123,14 +129,9 @@ export default function PodcastSyncPlayer({
       if (activeIndex !== -1 && activeIndex !== activeSegmentIndex) {
         setActiveSegmentIndex(activeIndex);
         
-        // Scroll active sentence into view
-        const activeElement = document.querySelector(`[data-segment-index="${activeIndex}"]`);
-        if (activeElement) {
-          activeElement.scrollIntoView({ 
-            behavior: 'smooth', 
-            block: 'center',
-            inline: 'nearest'
-          });
+        // Update the current sentence display
+        if (parsedSegments[activeIndex]) {
+          setCurrentSentence(parsedSegments[activeIndex].text);
         }
       }
     }
@@ -148,7 +149,7 @@ export default function PodcastSyncPlayer({
   };
 
   // Play/pause functionality
-  const handlePlayPause = () => {
+  const handlePlayPause = async () => {
     if (audioSrc && audioRef.current) {
       if (isPlaying) {
         audioRef.current.pause();
@@ -156,66 +157,91 @@ export default function PodcastSyncPlayer({
         audioRef.current.play();
       }
       setIsPlaying(!isPlaying);
-    } else if (!isUsingSyntheticAudio) {
-      // Use synthetic speech as fallback
-      const utterance = createSyntheticAudio();
-      if (utterance) {
-        setIsUsingSyntheticAudio(true);
-        setIsPlaying(true);
-        
-        // Estimate duration for synthetic speech (words per minute)
-        const wordCount = transcript.split(/\s+/).length;
-        const estimatedDuration = (wordCount / 150) * 60; // 150 WPM average
-        setDuration(estimatedDuration);
-        
-        // Start synthetic playback
-        speechSynthesis.speak(utterance);
-        
-        utterance.onend = () => {
-          setIsPlaying(false);
-          setIsUsingSyntheticAudio(false);
-          setActiveSegmentIndex(-1);
-        };
+    } else if (!isUsingOpenAIAudio) {
+      // Use OpenAI TTS as fallback
+      if (parsedSegments.length === 0) return;
+      
+      setIsUsingOpenAIAudio(true);
+      setIsPlaying(true);
+      setActiveSegmentIndex(0);
+      setCurrentSentence(parsedSegments[0]?.text || "");
 
-        // Simulate time updates for synthetic speech
-        let startTime = Date.now();
-        const updateInterval = setInterval(() => {
-          if (!speechSynthesis.speaking) {
-            clearInterval(updateInterval);
-            return;
-          }
+      // Estimate total duration for progress bar
+      const wordCount = transcript.split(/\s+/).length;
+      const estimatedDuration = (wordCount / 150) * 60; // 150 WPM average
+      setDuration(estimatedDuration);
+
+      // Play sentences sequentially
+      let currentSegmentIndex = 0;
+      let startTime = Date.now();
+
+      const playNextSentence = async () => {
+        if (currentSegmentIndex >= parsedSegments.length) {
+          setIsPlaying(false);
+          setIsUsingOpenAIAudio(false);
+          setActiveSegmentIndex(-1);
+          setCurrentSentence("");
+          return;
+        }
+
+        const segment = parsedSegments[currentSegmentIndex];
+        setActiveSegmentIndex(currentSegmentIndex);
+        setCurrentSentence(segment.text);
+
+        // Generate and play audio for this sentence
+        const audioUrl = await createOpenAIAudio(segment.text);
+        if (audioUrl && isPlaying) {
+          const audio = new Audio(audioUrl);
           
-          const elapsed = (Date.now() - startTime) / 1000;
-          setCurrentTime(elapsed);
-          
-          // Update active segment for synthetic speech
-          const activeIndex = parsedSegments.findIndex(
-            segment => elapsed >= segment.start && elapsed <= segment.end
-          );
-          
-          if (activeIndex !== -1 && activeIndex !== activeSegmentIndex) {
-            setActiveSegmentIndex(activeIndex);
-            const activeElement = document.querySelector(`[data-segment-index="${activeIndex}"]`);
-            if (activeElement) {
-              activeElement.scrollIntoView({ 
-                behavior: 'smooth', 
-                block: 'center',
-                inline: 'nearest'
-              });
+          audio.onended = () => {
+            URL.revokeObjectURL(audioUrl); // Clean up blob URL
+            currentSegmentIndex++;
+            
+            if (isPlaying) {
+              playNextSentence();
             }
-          }
-        }, 100);
-      }
+          };
+          
+          audio.onerror = () => {
+            URL.revokeObjectURL(audioUrl);
+            currentSegmentIndex++;
+            
+            if (isPlaying) {
+              playNextSentence();
+            }
+          };
+          
+          await audio.play();
+        } else {
+          currentSegmentIndex++;
+          playNextSentence();
+        }
+      };
+
+      // Start playing sentences
+      playNextSentence();
+
+      // Update progress time
+      const progressInterval = setInterval(() => {
+        if (!isPlaying) {
+          clearInterval(progressInterval);
+          return;
+        }
+        
+        const elapsed = (Date.now() - startTime) / 1000;
+        setCurrentTime(elapsed);
+      }, 100);
+
     } else {
-      // Stop synthetic speech
-      speechSynthesis.cancel();
+      // Stop OpenAI audio
       setIsPlaying(false);
-      setIsUsingSyntheticAudio(false);
+      setIsUsingOpenAIAudio(false);
       setActiveSegmentIndex(-1);
+      setCurrentSentence("");
     }
   };
 
-  // Seek to specific time when clicking on a segment
+  // Seek to specific sentence (only works with real audio, not OpenAI TTS)
   const handleSegmentClick = (segmentIndex: number) => {
     const segment = parsedSegments[segmentIndex];
     if (!segment) return;
@@ -224,6 +250,7 @@ export default function PodcastSyncPlayer({
       audioRef.current.currentTime = segment.start;
       setCurrentTime(segment.start);
       setActiveSegmentIndex(segmentIndex);
+      setCurrentSentence(segment.text);
     }
   };
 
@@ -270,7 +297,7 @@ export default function PodcastSyncPlayer({
               <div>
                 <h3 className="font-semibold text-gray-900">Audio Lesson</h3>
                 <p className="text-sm text-gray-600">
-                  {isUsingSyntheticAudio ? 'Synthetic Audio' : (audioSrc ? 'High Quality Audio' : 'Text-to-Speech Available')}
+                  {isUsingOpenAIAudio ? 'OpenAI Text-to-Speech' : (audioSrc ? 'High Quality Audio' : 'AI Text-to-Speech Available')}
                 </p>
               </div>
             </div>
@@ -282,10 +309,20 @@ export default function PodcastSyncPlayer({
                 variant="default"
                 size="sm"
                 className="flex items-center gap-2"
+                disabled={isGeneratingAudio}
                 data-testid="button-play-pause"
               >
-                {isPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
-                {isPlaying ? 'Pause' : 'Play'}
+                {isGeneratingAudio ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    Generating...
+                  </>
+                ) : (
+                  <>
+                    {isPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
+                    {isPlaying ? 'Pause' : 'Play'}
+                  </>
+                )}
               </Button>
 
               {audioSrc && (
@@ -326,39 +363,21 @@ export default function PodcastSyncPlayer({
         </CardContent>
       </Card>
 
-      {/* Synchronized Transcript */}
+      {/* Current Sentence Display */}
       <Card>
-        <CardContent className="p-6">
-          <h4 className="font-semibold mb-4">Lesson Transcript</h4>
-          <div
-            ref={transcriptRef}
-            className="max-h-96 overflow-y-auto space-y-2"
-            data-testid="synchronized-transcript"
-          >
-            {parsedSegments.length > 0 ? (
-              parsedSegments.map((segment, index) => (
-                <span
-                  key={index}
-                  data-segment-index={index}
-                  onClick={() => handleSegmentClick(index)}
-                  className={`block p-3 rounded-lg cursor-pointer transition-all duration-200 ${
-                    index === activeSegmentIndex
-                      ? 'bg-primary/10 border-l-4 border-primary text-primary-foreground font-medium'
-                      : 'bg-gray-50 hover:bg-gray-100 text-gray-700'
-                  }`}
-                  data-testid={`transcript-segment-${index}`}
-                >
-                  {segment.text}
-                </span>
-              ))
+        <CardContent className="p-8">
+          <div className="text-center min-h-[120px] flex items-center justify-center">
+            {currentSentence ? (
+              <p 
+                className="text-lg leading-relaxed text-gray-800 max-w-3xl"
+                data-testid="current-sentence"
+              >
+                {currentSentence}
+              </p>
             ) : (
-              <div className="text-gray-600 p-4 text-center">
-                <p>Preparing synchronized transcript...</p>
-                {transcript && (
-                  <div className="mt-4 text-left bg-gray-50 p-4 rounded-lg">
-                    {transcript}
-                  </div>
-                )}
+              <div className="text-gray-500">
+                <p className="text-base mb-2">Press Play to start the lesson</p>
+                <p className="text-sm">Each sentence will be spoken and displayed here</p>
               </div>
             )}
           </div>

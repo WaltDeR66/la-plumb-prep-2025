@@ -14,6 +14,9 @@ import { emailAutomation } from "./email-automation";
 import { bulkPricingService } from "./bulk-pricing";
 import Stripe from "stripe";
 import { StudyCompanionService } from "./openai-service";
+import OpenAI from "openai";
+
+const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 // Helper function to check if content has extracted data
 function hasExtractedContent(content: any): content is { extracted: { content?: string; description?: string } } {
@@ -2856,6 +2859,42 @@ Start your journey at laplumbprep.com/courses
     } catch (error: any) {
       console.error("TTS generation error:", error);
       res.status(500).json({ message: "Failed to generate audio" });
+    }
+  });
+
+  // Generate speech audio for podcast sentences
+  app.post("/api/openai/speech", requireActiveSubscription, async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Not authenticated" });
+    }
+
+    try {
+      const { input, voice = "alloy", model = "tts-1" } = req.body;
+      
+      if (!input || typeof input !== 'string') {
+        return res.status(400).json({ message: "Text input is required" });
+      }
+
+      // Create OpenAI audio stream
+      const response = await openai.audio.speech.create({
+        model: model, // tts-1 for faster, tts-1-hd for higher quality
+        voice: voice, // alloy, echo, fable, onyx, nova, shimmer
+        input: input.substring(0, 4096), // Limit text length for safety
+        speed: 0.9 // Slightly slower for educational content
+      });
+
+      // Convert to buffer and send as audio stream
+      const buffer = Buffer.from(await response.arrayBuffer());
+      
+      res.set({
+        'Content-Type': 'audio/mpeg',
+        'Content-Length': buffer.length.toString(),
+      });
+      
+      res.send(buffer);
+    } catch (error: any) {
+      console.error("OpenAI TTS generation error:", error);
+      res.status(500).json({ message: "Failed to generate speech audio" });
     }
   });
 
