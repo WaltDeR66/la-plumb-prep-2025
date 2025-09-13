@@ -239,46 +239,84 @@ async function validateSectionRelevance(message: string, currentSection: string)
   };
 }
 
-export async function getMentorResponse(message: string, context?: string, currentSection: string = '101'): Promise<string> {
+export async function getMentorResponse(
+  message: string, 
+  context?: string, 
+  currentSection: string = '101', 
+  subscriptionTier: string = 'basic'
+): Promise<string> {
   try {
-    // First check if the question is related to the current section
-    const sectionValidation = await validateSectionRelevance(message, currentSection);
-    if (!sectionValidation.isRelevant) {
-      return `I'm focused specifically on **Section ${currentSection}** of the Louisiana State Plumbing Code. 📖\n\n${sectionValidation.redirectMessage}\n\nPlease ask me questions about Section ${currentSection} topics, and I'll provide detailed, helpful answers! 🔧`;
+    // Basic plan users are restricted to current section only
+    if (subscriptionTier === 'basic') {
+      const sectionValidation = await validateSectionRelevance(message, currentSection);
+      if (!sectionValidation.isRelevant) {
+        return `I'm focused specifically on **Section ${currentSection}** of the Louisiana State Plumbing Code. 📖\n\n${sectionValidation.redirectMessage}\n\n💡 **Want access to the complete codebook?** Upgrade to Professional or Master plan for unlimited AI mentor access across all Louisiana plumbing code sections!\n\nFor now, please ask me questions about Section ${currentSection} topics! 🔧`;
+      }
+
+      const sectionContent = getSectionContent(currentSection);
+      const systemPrompt = `You are an expert Louisiana plumbing mentor specializing in the Louisiana State Plumbing Code (LSPC). You are currently helping a BASIC PLAN student with **SECTION ${currentSection}** ONLY.
+
+      ${sectionContent}
+
+      **Your teaching approach:**
+      - ONLY answer questions related to Section ${currentSection} 
+      - Provide detailed, educational responses with specific code references
+      - Use formatting like **bold**, • bullet points, and emojis for clarity
+      - Connect concepts to real-world applications in Louisiana
+      - Encourage further learning with follow-up questions about Section ${currentSection}
+      - Always be supportive and encouraging to students
+      - Reference specific Louisiana statutes and code sections when relevant
+      
+      **Context provided:** ${context || `Louisiana Plumbing Code Section ${currentSection} content`}
+      
+      Answer questions ONLY about Section ${currentSection} topics. If asked about other sections, redirect them back to Section ${currentSection} content.`;
+
+      const response = await openai.chat.completions.create({
+        model: "gpt-4o",
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: message }
+        ],
+        max_tokens: 1200,
+        temperature: 0.7,
+      });
+
+      return response.choices[0].message.content || "I'm sorry, I couldn't provide a response at this time.";
     }
 
-    const sectionContent = getSectionContent(currentSection);
-    const systemPrompt = `You are an expert Louisiana plumbing mentor specializing in the Louisiana State Plumbing Code (LSPC). You are currently helping students with **SECTION ${currentSection}** ONLY.
+    // Professional and Master users get complete codebook access
+    const systemPrompt = `You are an expert Louisiana plumbing mentor specializing in the Louisiana State Plumbing Code (LSPC). You are helping a ${subscriptionTier.toUpperCase()} PLAN student with COMPLETE CODEBOOK ACCESS.
 
-    ${sectionContent}
+    **Complete Louisiana Plumbing Code Knowledge:**
+    - **Section 101 - Administration**: Enforcement, authority, legal basis, delegation
+    - **Section 103 - Permits**: Requirements, applications, validity, exemptions
+    - **Section 105 - Inspections**: Procedures, qualifications, records, compliance
+    - **Section 107 - Violations**: Penalties, notices, appeals, emergency procedures
+    - **Section 109 - Plan Review**: Requirements, standards, approval processes
+    - **Installation Codes**: Pipe sizing, fixtures, connections, materials
+    - **Safety Standards**: Testing, backflow prevention, pressure requirements
+    - **Specialized Systems**: Medical gas, natural gas, backflow devices
 
     **Your teaching approach:**
-    - ONLY answer questions related to Section ${currentSection} 
+    - Answer questions about ANY section of the Louisiana plumbing code
     - Provide detailed, educational responses with specific code references
     - Use formatting like **bold**, • bullet points, and emojis for clarity
     - Connect concepts to real-world applications in Louisiana
-    - Encourage further learning with follow-up questions about Section ${currentSection}
+    - Cross-reference between different code sections when relevant
     - Always be supportive and encouraging to students
-    - Reference specific Louisiana statutes and code sections when relevant
+    - Reference specific Louisiana statutes and code sections
     
-    **Context provided:** ${context || `Louisiana Plumbing Code Section ${currentSection} content`}
+    **Context provided:** ${context || 'Complete Louisiana Plumbing Code access'}
     
-    Answer questions ONLY about Section ${currentSection} topics. If asked about other sections, redirect them back to Section ${currentSection} content.`;
+    Answer questions about ANY Louisiana plumbing code section, installation technique, safety standard, or compliance requirement.`;
 
     const response = await openai.chat.completions.create({
-      // the newest OpenAI model is "gpt-5" which was released August 7, 2025. do not change this unless explicitly requested by the user
       model: "gpt-4o",
       messages: [
-        {
-          role: "system",
-          content: systemPrompt
-        },
-        {
-          role: "user",
-          content: message
-        }
+        { role: "system", content: systemPrompt },
+        { role: "user", content: message }
       ],
-      max_tokens: 1200,
+      max_tokens: 1500,
       temperature: 0.7,
     });
 

@@ -2766,21 +2766,29 @@ Start your journey at laplumbprep.com/courses
     try {
       const { message, context, conversationId, currentSection } = req.body;
       const userId = (req.user as any).id;
+      const user = req.user as any;
       const section = currentSection || '101';
+      const subscriptionTier = user?.subscriptionTier || 'basic';
 
-      // Section-specific AI response using OpenAI
+      // Tiered AI response - Basic: section-specific, Pro/Master: complete codebook
       let response = "";
       try {
-        const aiResponse = await getMentorResponse(message, context, section);
+        const aiResponse = await getMentorResponse(message, context, section, subscriptionTier);
         response = aiResponse;
       } catch (aiError) {
         console.error("OpenAI error:", aiError);
-        response = `Great question about Louisiana Plumbing Code Section ${section}! 🎓\n\nI can help you learn about Section ${section} topics including:\n\n• **Code Administration** - Enforcement, authority, and legal basis\n• **Installation Requirements** - Pipe sizing, fixtures, and connections\n• **Safety Standards** - Pressure testing, backflow prevention\n• **Compliance Issues** - Violations, permits, and inspections\n\nTry asking me something specific about Section ${section} of the Louisiana plumbing code!`;
+        if (subscriptionTier === 'basic') {
+          response = `Great question about Louisiana Plumbing Code Section ${section}! 🎓\n\nI can help you learn about Section ${section} topics including:\n\n• **Code Administration** - Enforcement, authority, and legal basis\n• **Installation Requirements** - Pipe sizing, fixtures, and connections\n• **Safety Standards** - Pressure testing, backflow prevention\n• **Compliance Issues** - Violations, permits, and inspections\n\nTry asking me something specific about Section ${section} of the Louisiana plumbing code!`;
+        } else {
+          response = `Great question about Louisiana Plumbing Code! 🎓\n\nAs a ${subscriptionTier} plan member, I can help you with:\n\n• **Any Code Section** - Administration, permits, inspections, violations\n• **Installation Requirements** - Complete pipe sizing, fixtures, connections\n• **Safety Standards** - Testing, backflow prevention, pressure requirements\n• **Specialized Systems** - Medical gas, natural gas, backflow devices\n\nAsk me about any Louisiana plumbing code topic!`;
+        }
       }
 
       res.json({ 
         response,
-        section: section
+        section: section,
+        subscriptionTier: subscriptionTier,
+        hasCompleteAccess: subscriptionTier !== 'basic'
       });
     } catch (error: any) {
       console.error("Mentor chat error:", error);

@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { MessageCircle, Send, Bot, User, Lightbulb, Timer, Download, Lock, Crown } from "lucide-react";
+import { MessageCircle, Send, Bot, User, Lightbulb, Timer, Download, Lock, Crown, BookOpen } from "lucide-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -117,7 +117,20 @@ export default function AIMentorChat({ currentSection }: AIMentorChatProps = {})
     return conversations.find((c: Conversation) => c.id === selectedConversation) || null;
   };
 
-  const getQuickPrompts = (currentSection?: string) => {
+  const getQuickPrompts = (currentSection?: string, userTier: string = 'basic') => {
+    if (userTier !== 'basic') {
+      // Professional/Master users get complete codebook prompts
+      return [
+        "Explain the enforcement authority across all Louisiana plumbing code sections",
+        "What are the permit requirements for different types of plumbing installations?",
+        "How do inspection procedures differ between residential and commercial projects?",
+        "What are the violation penalties and appeal processes in Louisiana?",
+        "Explain pipe sizing requirements for medical gas systems",
+        "What are the backflow prevention requirements for different applications?"
+      ];
+    }
+    
+    // Basic users get section-specific prompts
     const sectionSuggestions: { [key: string]: string[] } = {
       '101': [
         "Ask about the Louisiana State Health Officer's authority in plumbing code enforcement",
@@ -243,18 +256,28 @@ export default function AIMentorChat({ currentSection }: AIMentorChatProps = {})
               </div>
               <div>
                 <CardTitle className="flex items-center gap-2">
-                  AI Mentor Chat - Section {currentSection || '101'}
-                  <Badge variant="secondary" className="text-xs">
-                    <Lightbulb className="w-3 h-3 mr-1" />
-                    Section-Specific
-                  </Badge>
+                  AI Mentor Chat {userTier === 'basic' ? `- Section ${currentSection || '101'}` : '- Complete Codebook'}
+                  {userTier === 'basic' ? (
+                    <Badge variant="secondary" className="text-xs">
+                      <Lightbulb className="w-3 h-3 mr-1" />
+                      Section-Specific
+                    </Badge>
+                  ) : (
+                    <Badge className="text-xs bg-gradient-to-r from-green-500 to-emerald-600">
+                      <BookOpen className="w-3 h-3 mr-1" />
+                      Complete Access
+                    </Badge>
+                  )}
                   <Badge className="text-xs bg-gradient-to-r from-blue-500 to-purple-600">
                     <Bot className="w-3 h-3 mr-1" />
                     AI-Powered
                   </Badge>
                 </CardTitle>
                 <p className="text-sm text-muted-foreground">
-                  Get instant help with Louisiana plumbing code Section {currentSection || '101'}
+                  {userTier === 'basic' 
+                    ? `Get instant help with Louisiana plumbing code Section ${currentSection || '101'}`
+                    : 'Ask questions about any section of the Louisiana State Plumbing Code'
+                  }
                 </p>
               </div>
             </div>
@@ -271,7 +294,7 @@ export default function AIMentorChat({ currentSection }: AIMentorChatProps = {})
             <div className="p-4 border-b bg-muted/30">
               <h3 className="text-sm font-medium mb-3">Quick Start Prompts</h3>
               <div className="grid grid-cols-1 gap-2">
-                {getQuickPrompts(currentSection).map((prompt, index) => (
+                {getQuickPrompts(currentSection, userTier).map((prompt, index) => (
                   <Button
                     key={index}
                     variant="outline"
@@ -283,6 +306,20 @@ export default function AIMentorChat({ currentSection }: AIMentorChatProps = {})
                     <span className="block">{prompt}</span>
                   </Button>
                 ))}
+                {userTier === 'basic' && (
+                  <div className="mt-3 p-3 bg-gradient-to-r from-orange-50 to-amber-50 dark:from-orange-950 dark:to-amber-950 rounded-lg border border-orange-200 dark:border-orange-800">
+                    <div className="flex items-center gap-2 text-sm">
+                      <Crown className="w-4 h-4 text-orange-500" />
+                      <span className="font-medium text-orange-700 dark:text-orange-300">Want complete codebook access?</span>
+                    </div>
+                    <p className="text-xs text-orange-600 dark:text-orange-400 mt-1">
+                      Upgrade to Professional or Master to ask questions about any Louisiana plumbing code section!
+                    </p>
+                    <Button asChild size="sm" className="mt-2 bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 text-white">
+                      <Link href="/pricing">Upgrade Now</Link>
+                    </Button>
+                  </div>
+                )}
               </div>
             </div>
           )}
