@@ -33,6 +33,7 @@ export default function PodcastSyncPlayer({
   const [isUsingOpenAIAudio, setIsUsingOpenAIAudio] = useState(false);
   const [currentSentence, setCurrentSentence] = useState("");
   const [isGeneratingAudio, setIsGeneratingAudio] = useState(false);
+  const [pausedSegmentIndex, setPausedSegmentIndex] = useState(-1);
 
   // Parse transcript into sentences and create timing segments
   const parseTranscriptToSegments = useCallback((text: string, totalDuration: number): PodcastSegment[] => {
@@ -170,8 +171,11 @@ export default function PodcastSyncPlayer({
       
       setIsUsingOpenAIAudio(true);
       setIsPlaying(true);
-      setActiveSegmentIndex(0);
-      setCurrentSentence(parsedSegments[0]?.text || "");
+      
+      // Resume from paused position or start from beginning
+      const startSegmentIndex = pausedSegmentIndex >= 0 ? pausedSegmentIndex : 0;
+      setActiveSegmentIndex(startSegmentIndex);
+      setCurrentSentence(parsedSegments[startSegmentIndex]?.text || "");
 
       // Estimate total duration for progress bar
       const wordCount = transcript.split(/\s+/).length;
@@ -179,7 +183,7 @@ export default function PodcastSyncPlayer({
       setDuration(estimatedDuration);
 
       // Play sentences sequentially
-      let currentSegmentIndex = 0;
+      let currentSegmentIndex = startSegmentIndex;
       let startTime = Date.now();
       let shouldContinuePlaying = true;
 
@@ -191,6 +195,7 @@ export default function PodcastSyncPlayer({
           setActiveSegmentIndex(-1);
           setCurrentSentence("");
           setCurrentTime(0);
+          setPausedSegmentIndex(-1); // Reset pause position when completed
           return;
         }
 
@@ -219,6 +224,7 @@ export default function PodcastSyncPlayer({
                   setActiveSegmentIndex(-1);
                   setCurrentSentence("");
                   setCurrentTime(0);
+                  setPausedSegmentIndex(-1); // Reset pause position when completed
                 }
               }, 500); // Small delay between sentences
             };
@@ -254,10 +260,10 @@ export default function PodcastSyncPlayer({
       // Function to stop playback
       const stopPlayback = () => {
         shouldContinuePlaying = false;
+        setPausedSegmentIndex(currentSegmentIndex); // Remember where we paused
         setIsPlaying(false);
         setIsUsingOpenAIAudio(false);
-        setActiveSegmentIndex(-1);
-        setCurrentSentence("");
+        console.log(`Paused at segment ${currentSegmentIndex + 1}/${parsedSegments.length}`);
       };
 
       // Store the stop function for cleanup
