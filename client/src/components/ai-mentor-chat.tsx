@@ -129,19 +129,7 @@ export default function AIMentorChat({ currentSection }: AIMentorChatProps = {})
 
 
   const getQuickPrompts = (currentSection?: string, userTier: string = 'basic') => {
-    if (userTier !== 'basic') {
-      // Professional/Master users get complete codebook prompts
-      return [
-        "Explain the enforcement authority across all Louisiana plumbing code sections",
-        "What are the permit requirements for different types of plumbing installations?",
-        "How do inspection procedures differ between residential and commercial projects?",
-        "What are the violation penalties and appeal processes in Louisiana?",
-        "Explain pipe sizing requirements for medical gas systems",
-        "What are the backflow prevention requirements for different applications?"
-      ];
-    }
-    
-    // Basic users get section-specific prompts
+    // ALL users get section-specific prompts based on current lesson section
     const sectionSuggestions: { [key: string]: string[] } = {
       '101': [
         "Ask about the Louisiana State Health Officer's authority in plumbing code enforcement",
@@ -258,13 +246,12 @@ export default function AIMentorChat({ currentSection }: AIMentorChatProps = {})
               </div>
               <div>
                 <CardTitle className="flex items-center gap-2">
-                  AI Mentor Chat {userTier === 'basic' ? `- Section ${currentSection || '101'}` : '- Complete Codebook'}
-                  {userTier === 'basic' ? (
-                    <Badge variant="secondary" className="text-xs">
-                      <Lightbulb className="w-3 h-3 mr-1" />
-                      Section-Specific
-                    </Badge>
-                  ) : (
+                  AI Mentor Chat - Section {currentSection || '101'}
+                  <Badge variant="secondary" className="text-xs">
+                    <Lightbulb className="w-3 h-3 mr-1" />
+                    Section {currentSection || '101'} Prompts
+                  </Badge>
+                  {userTier !== 'basic' && (
                     <Badge className="text-xs bg-gradient-to-r from-green-500 to-emerald-600">
                       <BookOpen className="w-3 h-3 mr-1" />
                       Complete Access
@@ -278,7 +265,7 @@ export default function AIMentorChat({ currentSection }: AIMentorChatProps = {})
                 <p className="text-sm text-muted-foreground">
                   {userTier === 'basic' 
                     ? `Get instant help with Louisiana plumbing code Section ${currentSection || '101'}`
-                    : 'Ask questions about any section of the Louisiana State Plumbing Code'
+                    : `Section ${currentSection || '101'} prompts shown - ask about any Louisiana plumbing code section`
                   }
                 </p>
               </div>
@@ -315,7 +302,7 @@ export default function AIMentorChat({ currentSection }: AIMentorChatProps = {})
                       <span className="font-medium text-orange-700 dark:text-orange-300">Want complete codebook access?</span>
                     </div>
                     <p className="text-xs text-orange-600 dark:text-orange-400 mt-1">
-                      Upgrade to Professional or Master to ask questions about any Louisiana plumbing code section!
+                      Professional and Master users can ask questions about any Louisiana plumbing code section, not just Section {currentSection || '101'}!
                     </p>
                     <Button asChild size="sm" className="mt-2 bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 text-white">
                       <Link href="/pricing">Upgrade Now</Link>
