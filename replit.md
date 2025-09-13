@@ -60,6 +60,13 @@ Key architectural decisions:
 
 ## Recent Changes
 
+### January 30, 2025 - OpenAI Podcast Player Enhancement
+- **OpenAI Text-to-Speech Integration**: Replaced synthetic speech with high-quality OpenAI text-to-speech API for podcast lessons
+- **Single Sentence Display**: Implemented sentence-by-sentence display that shows one sentence at a time, replacing it as each is spoken
+- **Enhanced User Experience**: Audio now generates using OpenAI's "alloy" voice model for natural, clear pronunciation
+- **API Endpoint**: Added `/api/openai/speech` endpoint for real-time text-to-speech generation
+- **Improved Interface**: Shows "AI Text-to-Speech Available" with loading states during audio generation
+
 ### January 30, 2025
 - **Course Management Updates**: Removed pricing display from course cards, all "Start Course" buttons now redirect to unified pricing page
 - **Course Status System**: Implemented "Coming Soon" functionality - all courses except Louisiana Journeyman Prep are marked as inactive with disabled buttons and yellow badges

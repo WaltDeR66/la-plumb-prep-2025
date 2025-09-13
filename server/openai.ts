@@ -369,9 +369,9 @@ export async function generateNumberedFittingPDF(
         const maxImageHeight = 400;
         
         // Calculate image dimensions preserving aspect ratio
-        const image = doc.openImage(imageBuffer);
-        const originalWidth = image.width || 1;
-        const originalHeight = image.height || 1;
+        // Use a default aspect ratio for PDF layout since we can't inspect image dimensions easily
+        const originalWidth = maxImageWidth;
+        const originalHeight = maxImageHeight;
         const aspectRatio = originalWidth / originalHeight;
         
         let scaledWidth, scaledHeight;
