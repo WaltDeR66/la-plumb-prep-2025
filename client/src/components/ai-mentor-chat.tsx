@@ -12,6 +12,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useStudySession } from "@/hooks/use-study-session";
 import { AuthService } from "@/lib/auth";
 import { Link } from "wouter";
+import ReactMarkdown from "react-markdown";
 
 interface Message {
   role: "user" | "assistant";
@@ -333,7 +334,13 @@ export default function AIMentorChat({ currentSection }: AIMentorChatProps = {})
                           ? 'bg-primary text-primary-foreground' 
                           : 'bg-muted'
                       }`}>
-                        <p className="text-sm whitespace-pre-wrap break-words break-all">{message.content}</p>
+                        {message.role === 'assistant' ? (
+                          <div className="text-sm prose prose-sm max-w-none dark:prose-invert">
+                            <ReactMarkdown>{message.content}</ReactMarkdown>
+                          </div>
+                        ) : (
+                          <p className="text-sm whitespace-pre-wrap break-words break-all">{message.content}</p>
+                        )}
                         <p className="text-xs opacity-70 mt-1">
                           {message.timestamp.toLocaleTimeString()}
                         </p>
