@@ -194,8 +194,8 @@ export default function AIMentorChat({ currentSection }: AIMentorChatProps = {})
   if (!hasAIAccess) {
     // Redirect to upgrade - no download interface
     return (
-      <div className="max-w-4xl mx-auto" data-testid="ai-mentor-chat">
-        <Card className="min-h-[600px]">
+      <div className="w-full max-w-full overflow-hidden" data-testid="ai-mentor-chat">
+        <Card className="min-h-[600px] overflow-hidden">
           <CardHeader className="border-b">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
@@ -236,8 +236,8 @@ export default function AIMentorChat({ currentSection }: AIMentorChatProps = {})
 
   // Professional/Master Plans: AI Chat Interface
   return (
-    <div className="max-w-4xl mx-auto" data-testid="ai-mentor-chat">
-      <Card className="h-[600px] flex flex-col">
+    <div className="w-full max-w-full overflow-hidden" data-testid="ai-mentor-chat">
+      <Card className="h-[600px] flex flex-col overflow-hidden">
         <CardHeader className="border-b">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
@@ -277,7 +277,7 @@ export default function AIMentorChat({ currentSection }: AIMentorChatProps = {})
           </div>
         </CardHeader>
 
-        <CardContent className="flex-1 flex flex-col p-0">
+        <CardContent className="flex-1 flex flex-col p-0 overflow-hidden min-w-0">
           {/* Quick Action Prompts */}
           {messages.length === 0 && (
             <div className="p-4 border-b bg-muted/30">
@@ -375,15 +375,15 @@ export default function AIMentorChat({ currentSection }: AIMentorChatProps = {})
           </ScrollArea>
 
           {/* Message Input */}
-          <div className="p-4 border-t">
-            <div className="flex space-x-2">
+          <div className="p-4 border-t overflow-hidden min-w-0">
+            <div className="flex space-x-2 min-w-0">
               <Input
                 value={currentMessage}
                 onChange={(e) => setCurrentMessage(e.target.value)}
                 onKeyPress={handleKeyPress}
                 placeholder="Ask your plumbing question..."
                 disabled={chatMutation.isPending}
-                className="flex-1"
+                className="flex-1 min-w-0"
                 data-testid="message-input"
               />
               <Button
