@@ -304,6 +304,18 @@ export default function Lesson() {
     }
   };
 
+  const getLessonStepRoute = (type: string) => {
+    switch (type) {
+      case 'lesson': return 'introduction';
+      case 'podcast': return 'podcast';
+      case 'flashcards': return 'flashcards';
+      case 'chat': return 'ai-chat';
+      case 'study-notes': return 'study-notes';
+      case 'quiz': return 'quiz';
+      default: return 'introduction';
+    }
+  };
+
   // Remove progress tracking - user doesn't want completion status
   // const progress = 45;
   // const completed = Math.floor(sortedContent.length * (progress / 100));
@@ -451,7 +463,7 @@ export default function Lesson() {
                           asChild
                           data-testid={`button-study-${item.type}-${index}`}
                         >
-                          <Link href={`/course/${courseId}/${item.type === 'podcast' ? 'podcast' : 'content'}/${item.id}`}>
+                          <Link href={`/course/${courseId}/lesson/${section}/${getLessonStepRoute(item.type)}`}>
                             <Play className="w-4 h-4 mr-2" />
                             Start
                           </Link>
