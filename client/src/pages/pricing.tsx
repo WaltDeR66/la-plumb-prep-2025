@@ -97,7 +97,8 @@ export default function Pricing() {
         "Practice Tests",
         "Job Board Access",
         "Referral Commissions (10%)",
-        "Email Support"
+        "Email Support",
+        "AI Mentor Lesson Specific"
       ]
     },
     {
@@ -307,6 +308,12 @@ export default function Pricing() {
                   <td className="p-4 text-center">Basic</td>
                   <td className="p-4 text-center">Complete Suite</td>
                   <td className="p-4 text-center">Complete Suite</td>
+                </tr>
+                <tr>
+                  <td className="p-4 font-medium">AI Mentor Lesson Specific</td>
+                  <td className="p-4 text-center">✅</td>
+                  <td className="p-4 text-center">✅</td>
+                  <td className="p-4 text-center">✅</td>
                 </tr>
                 <tr>
                   <td className="p-4 font-medium">AI Mentor Support</td>
