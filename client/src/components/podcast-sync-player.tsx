@@ -233,9 +233,12 @@ export default function PodcastSyncPlayer({
               console.error('Audio playback error:', error);
               URL.revokeObjectURL(audioUrl);
               currentSegmentIndex++;
-              if (shouldContinuePlaying) {
-                playNextSentence();
-              }
+              // Add delay even on error to prevent fast forwarding
+              setTimeout(() => {
+                if (shouldContinuePlaying) {
+                  playNextSentence();
+                }
+              }, 2000); // 2 second minimum per sentence on error
             };
             
             await audio.play();
@@ -244,16 +247,22 @@ export default function PodcastSyncPlayer({
             console.error('Failed to play audio:', error);
             URL.revokeObjectURL(audioUrl);
             currentSegmentIndex++;
-            if (shouldContinuePlaying) {
-              playNextSentence();
-            }
+            // Add delay even on error to prevent fast forwarding
+            setTimeout(() => {
+              if (shouldContinuePlaying) {
+                playNextSentence();
+              }
+            }, 2000); // 2 second minimum per sentence on error
           }
         } else {
           console.log('No audio URL or playback stopped');
           currentSegmentIndex++;
-          if (shouldContinuePlaying) {
-            playNextSentence();
-          }
+          // Add delay when no audio to prevent fast forwarding
+          setTimeout(() => {
+            if (shouldContinuePlaying) {
+              playNextSentence();
+            }
+          }, 3000); // 3 second minimum per sentence when no audio
         }
       };
 
