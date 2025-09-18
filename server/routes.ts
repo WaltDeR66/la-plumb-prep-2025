@@ -3808,9 +3808,15 @@ Start your journey at laplumbprep.com/courses
       
       // Fetch all course content and filter for study-notes of the specific section
       const allContent = await storage.getCourseContent(resolvedCourseId);
-      const studyNotes = allContent.find(item => 
+      const studyNotesItems = allContent.filter(item => 
         String(item.section) === section && item.type === 'study-notes'
       );
+      
+      // Prioritize study notes with 'notes' field over 'extracted.content' format
+      const studyNotes = studyNotesItems.find(item => {
+        const content = item.content as any;
+        return content && (content.notes || content.text);
+      }) || studyNotesItems[0]; // fallback to first item if no notes/text field found
       
       if (!studyNotes) {
         return res.status(404).json({ 
