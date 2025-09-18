@@ -218,7 +218,7 @@ export default function StandaloneAIMentorChat({ className }: StandaloneAIMentor
 
         <CardContent className="flex-1 flex flex-col p-0">
           {/* Chat Messages */}
-          <ScrollArea className="flex-1 p-4 overflow-hidden" ref={scrollAreaRef}>
+          <ScrollArea className="flex-1 p-4 overflow-x-hidden overflow-y-auto" ref={scrollAreaRef}>
             {messages.length > 0 ? (
               <div className="space-y-4">
                 {messages.map((message, index) => (
@@ -237,7 +237,7 @@ export default function StandaloneAIMentorChat({ className }: StandaloneAIMentor
                           ? 'bg-primary text-primary-foreground' 
                           : 'bg-muted'
                       }`}>
-                        <p className="text-sm whitespace-pre-wrap break-anywhere">{message.content}</p>
+                        <p className="text-sm whitespace-pre-wrap break-words break-all">{message.content}</p>
                         <p className="text-xs opacity-70 mt-1">
                           {message.timestamp.toLocaleTimeString()}
                         </p>
