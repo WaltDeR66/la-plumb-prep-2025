@@ -172,9 +172,12 @@ export default function LessonStudyNotes() {
 
                 {/* Detailed Notes */}
                 <div className="prose max-w-none text-foreground prose-headings:text-foreground prose-strong:text-foreground prose-em:text-foreground prose-blockquote:text-muted-foreground prose-code:text-foreground">
-                  <div className="whitespace-pre-wrap leading-relaxed">
-                    {studyNotesContent.content.notes || studyNotesContent.content.text || 'Study notes are being prepared.'}
-                  </div>
+                  <div 
+                    className="leading-relaxed"
+                    dangerouslySetInnerHTML={{
+                      __html: studyNotesContent.content.notes || studyNotesContent.content.text || 'Study notes are being prepared.'
+                    }}
+                  />
                 </div>
 
                 {/* Code References */}
