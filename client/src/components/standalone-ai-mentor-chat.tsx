@@ -226,18 +226,18 @@ export default function StandaloneAIMentorChat({ className }: StandaloneAIMentor
                     key={index}
                     className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
                   >
-                    <div className={`flex items-start space-x-2 max-w-[80%] ${message.role === 'user' ? 'flex-row-reverse space-x-reverse' : ''}`}>
+                    <div className={`flex items-start space-x-2 max-w-[80%] min-w-0 ${message.role === 'user' ? 'flex-row-reverse space-x-reverse' : ''}`}>
                       <Avatar className="w-8 h-8">
                         <AvatarFallback className={message.role === 'user' ? 'bg-primary text-primary-foreground' : 'bg-gradient-to-r from-blue-500 to-purple-600 text-white'}>
                           {message.role === 'user' ? <User className="w-4 h-4" /> : <Bot className="w-4 h-4" />}
                         </AvatarFallback>
                       </Avatar>
-                      <div className={`p-3 rounded-lg break-words overflow-hidden ${
+                      <div className={`p-3 rounded-lg min-w-0 max-w-full ${
                         message.role === 'user' 
                           ? 'bg-primary text-primary-foreground' 
                           : 'bg-muted'
                       }`}>
-                        <p className="text-sm whitespace-pre-wrap break-words">{message.content}</p>
+                        <p className="text-sm whitespace-pre-wrap break-anywhere">{message.content}</p>
                         <p className="text-xs opacity-70 mt-1">
                           {message.timestamp.toLocaleTimeString()}
                         </p>
@@ -249,13 +249,13 @@ export default function StandaloneAIMentorChat({ className }: StandaloneAIMentor
                 {/* Show thinking indicator when AI is processing */}
                 {chatMutation.isPending && (
                   <div className="flex justify-start">
-                    <div className="flex items-start space-x-2 max-w-[80%]">
+                    <div className="flex items-start space-x-2 max-w-[80%] min-w-0">
                       <Avatar className="w-8 h-8">
                         <AvatarFallback className="bg-gradient-to-r from-blue-500 to-purple-600 text-white">
                           <Bot className="w-4 h-4" />
                         </AvatarFallback>
                       </Avatar>
-                      <div className="bg-muted rounded-lg p-3">
+                      <div className="bg-muted rounded-lg p-3 min-w-0 max-w-full">
                         <div className="flex items-center space-x-2">
                           <div className="flex space-x-1">
                             <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce"></div>
