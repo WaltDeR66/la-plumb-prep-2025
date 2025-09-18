@@ -30,10 +30,11 @@ export default function PodcastSyncPlayer({
   const [duration, setDuration] = useState(0);
   const [activeSegmentIndex, setActiveSegmentIndex] = useState(-1);
   const [parsedSegments, setParsedSegments] = useState<PodcastSegment[]>([]);
-  const [isUsingOpenAIAudio, setIsUsingOpenAIAudio] = useState(false);
   const [currentSentence, setCurrentSentence] = useState("");
   const [isGeneratingAudio, setIsGeneratingAudio] = useState(false);
-  const [pausedSegmentIndex, setPausedSegmentIndex] = useState(-1);
+  const [preGeneratedAudioUrl, setPreGeneratedAudioUrl] = useState<string | null>(null);
+  const [generationProgress, setGenerationProgress] = useState<string>("");
+  const [wantsAutoPlay, setWantsAutoPlay] = useState(false);
 
   // Parse transcript into sentences and create timing segments
   const parseTranscriptToSegments = useCallback((text: string, totalDuration: number): PodcastSegment[] => {
@@ -78,6 +79,13 @@ export default function PodcastSyncPlayer({
     });
   }, []);
 
+  // Pre-generate full audio from transcript
+  useEffect(() => {
+    if (transcript && !preGeneratedAudioUrl && !isGeneratingAudio) {
+      generateFullAudio();
+    }
+  }, [transcript]);
+
   // Initialize segments when audio metadata loads
   useEffect(() => {
     if (segments) {
@@ -94,6 +102,50 @@ export default function PodcastSyncPlayer({
       }
     }
   }, [segments, transcript, duration, parseTranscriptToSegments]);
+
+  // Generate full audio file from complete transcript
+  const generateFullAudio = async () => {
+    if (!transcript || isGeneratingAudio) return;
+    
+    setIsGeneratingAudio(true);
+    setGenerationProgress("Generating podcast audio...");
+    
+    try {
+      console.log('Pre-generating full audio for transcript:', transcript.substring(0, 100) + '...');
+      
+      const response = await apiRequest("POST", "/api/openai/speech", {
+        input: transcript,
+        voice: "alloy",
+        model: "tts-1"
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to generate speech');
+      }
+
+      const audioBlob = await response.blob();
+      const audioUrl = URL.createObjectURL(audioBlob);
+      
+      setPreGeneratedAudioUrl(audioUrl);
+      setGenerationProgress("Audio ready!");
+      console.log('Pre-generation complete! Audio URL created:', audioUrl.substring(0, 50) + '...');
+      
+      // Auto-play if user pressed play during generation
+      if (wantsAutoPlay && audioRef.current) {
+        setTimeout(() => {
+          audioRef.current?.play();
+          setIsPlaying(true);
+          setWantsAutoPlay(false);
+        }, 100);
+      }
+      
+    } catch (error) {
+      console.error('Error pre-generating full audio:', error);
+      setGenerationProgress("Audio generation failed");
+    } finally {
+      setIsGeneratingAudio(false);
+    }
+  };
 
   // Create audio using OpenAI TTS API
   const createOpenAIAudio = useCallback(async (text: string): Promise<string | null> => {
@@ -156,171 +208,43 @@ export default function PodcastSyncPlayer({
     setActiveSegmentIndex(-1);
   };
 
-  // Play/pause functionality
+  // Play/pause functionality - now using pre-generated audio
   const handlePlayPause = async () => {
-    if (audioSrc && audioRef.current) {
+    // Use original audioSrc if available, otherwise use pre-generated audio
+    const effectiveAudioSrc = audioSrc || preGeneratedAudioUrl;
+    
+    if (effectiveAudioSrc && audioRef.current) {
       if (isPlaying) {
         audioRef.current.pause();
       } else {
+        // Set the audio source if it hasn't been set yet
+        if (audioRef.current.src !== effectiveAudioSrc) {
+          audioRef.current.src = effectiveAudioSrc;
+        }
         audioRef.current.play();
       }
       setIsPlaying(!isPlaying);
-    } else if (!isUsingOpenAIAudio) {
-      // Use OpenAI TTS as fallback
-      if (parsedSegments.length === 0) return;
-      
-      setIsUsingOpenAIAudio(true);
-      setIsPlaying(true);
-      
-      // Resume from paused position or start from beginning
-      const startSegmentIndex = pausedSegmentIndex >= 0 ? pausedSegmentIndex : 0;
-      setActiveSegmentIndex(startSegmentIndex);
-      setCurrentSentence(parsedSegments[startSegmentIndex]?.text || "");
-
-      // Estimate total duration for progress bar
-      const wordCount = transcript.split(/\s+/).length;
-      const estimatedDuration = (wordCount / 150) * 60; // 150 WPM average
-      setDuration(estimatedDuration);
-
-      // Play sentences sequentially
-      let currentSegmentIndex = startSegmentIndex;
-      let startTime = Date.now();
-      let shouldContinuePlaying = true;
-
-      const playNextSentence = async () => {
-        if (currentSegmentIndex >= parsedSegments.length || !shouldContinuePlaying) {
-          console.log(`Podcast completed! Played ${currentSegmentIndex}/${parsedSegments.length} segments`);
-          setIsPlaying(false);
-          setIsUsingOpenAIAudio(false);
-          setActiveSegmentIndex(-1);
-          setCurrentSentence("");
-          setCurrentTime(0);
-          setPausedSegmentIndex(-1); // Reset pause position when completed
-          return;
-        }
-
-        const segment = parsedSegments[currentSegmentIndex];
-        setActiveSegmentIndex(currentSegmentIndex);
-        setCurrentSentence(segment.text);
-
-        console.log(`Playing segment ${currentSegmentIndex + 1}/${parsedSegments.length}:`, segment.text.substring(0, 50) + "...");
-
-        // Generate and play audio for this sentence
-        const audioUrl = await createOpenAIAudio(segment.text);
-        if (audioUrl && shouldContinuePlaying) {
-          try {
-            const audio = new Audio(audioUrl);
-            
-            audio.onended = () => {
-              URL.revokeObjectURL(audioUrl); // Clean up blob URL
-              currentSegmentIndex++;
-              setTimeout(() => {
-                if (shouldContinuePlaying && currentSegmentIndex < parsedSegments.length) {
-                  playNextSentence();
-                } else if (currentSegmentIndex >= parsedSegments.length) {
-                  console.log(`Podcast finished! Played all ${parsedSegments.length} segments`);
-                  setIsPlaying(false);
-                  setIsUsingOpenAIAudio(false);
-                  setActiveSegmentIndex(-1);
-                  setCurrentSentence("");
-                  setCurrentTime(0);
-                  setPausedSegmentIndex(-1); // Reset pause position when completed
-                }
-              }, 500); // Small delay between sentences
-            };
-            
-            audio.onerror = (error) => {
-              console.error('Audio playback error:', error);
-              URL.revokeObjectURL(audioUrl);
-              currentSegmentIndex++;
-              // Add delay even on error to prevent fast forwarding
-              setTimeout(() => {
-                if (shouldContinuePlaying) {
-                  playNextSentence();
-                }
-              }, 2000); // 2 second minimum per sentence on error
-            };
-            
-            await audio.play();
-            console.log('Audio playing successfully');
-          } catch (error) {
-            console.error('Failed to play audio:', error);
-            URL.revokeObjectURL(audioUrl);
-            currentSegmentIndex++;
-            // Add delay even on error to prevent fast forwarding
-            setTimeout(() => {
-              if (shouldContinuePlaying) {
-                playNextSentence();
-              }
-            }, 2000); // 2 second minimum per sentence on error
-          }
-        } else {
-          console.log('No audio URL or playback stopped');
-          currentSegmentIndex++;
-          // Add delay when no audio to prevent fast forwarding
-          setTimeout(() => {
-            if (shouldContinuePlaying) {
-              playNextSentence();
-            }
-          }, 3000); // 3 second minimum per sentence when no audio
-        }
-      };
-
-      // Function to stop playback
-      const stopPlayback = () => {
-        shouldContinuePlaying = false;
-        setPausedSegmentIndex(currentSegmentIndex); // Remember where we paused
-        setIsPlaying(false);
-        setIsUsingOpenAIAudio(false);
-        console.log(`Paused at segment ${currentSegmentIndex + 1}/${parsedSegments.length}`);
-      };
-
-      // Store the stop function for cleanup
-      (window as any).stopPodcastPlayback = stopPlayback;
-
-      // Start playing sentences
-      playNextSentence();
-
-      // Update progress time
-      const progressInterval = setInterval(() => {
-        if (!isPlaying) {
-          clearInterval(progressInterval);
-          return;
-        }
-        
-        const elapsed = (Date.now() - startTime) / 1000;
-        setCurrentTime(elapsed);
-      }, 100);
-
-    } else {
-      // Stop OpenAI audio
-      if ((window as any).stopPodcastPlayback) {
-        (window as any).stopPodcastPlayback();
-      } else {
-        setIsPlaying(false);
-        setIsUsingOpenAIAudio(false);
-        setActiveSegmentIndex(-1);
-        setCurrentSentence("");
-      }
+    } else if (!preGeneratedAudioUrl && !isGeneratingAudio) {
+      // If no audio is available and we're not already generating, start generation
+      setWantsAutoPlay(true); // Remember user wants to play
+      generateFullAudio();
     }
   };
 
-  // Seek to specific sentence (only works with real audio, not OpenAI TTS)
+  // Seek to specific sentence
   const handleSegmentClick = (segmentIndex: number) => {
     const segment = parsedSegments[segmentIndex];
-    if (!segment) return;
-
-    if (audioRef.current && audioSrc) {
-      audioRef.current.currentTime = segment.start;
-      setCurrentTime(segment.start);
-      setActiveSegmentIndex(segmentIndex);
-      setCurrentSentence(segment.text);
-    }
+    if (!segment || !audioRef.current || duration === 0) return;
+    
+    audioRef.current.currentTime = segment.start;
+    setCurrentTime(segment.start);
+    setActiveSegmentIndex(segmentIndex);
+    setCurrentSentence(segment.text);
   };
 
   // Skip forward/backward
   const handleSkip = (seconds: number) => {
-    if (audioRef.current && audioSrc) {
+    if (audioRef.current && duration > 0) {
       const newTime = Math.max(0, Math.min(duration, currentTime + seconds));
       audioRef.current.currentTime = newTime;
       setCurrentTime(newTime);
@@ -340,11 +264,11 @@ export default function PodcastSyncPlayer({
       <Card>
         <CardContent className="p-6">
           <div className="space-y-4">
-            {/* Audio element (hidden, only for real audio) */}
-            {audioSrc && (
+            {/* Audio element (hidden, for original audio or pre-generated audio) */}
+            {(audioSrc || preGeneratedAudioUrl) && (
               <audio
                 ref={audioRef}
-                src={audioSrc}
+                src={audioSrc || preGeneratedAudioUrl || undefined}
                 onTimeUpdate={handleTimeUpdate}
                 onLoadedMetadata={handleLoadedMetadata}
                 onEnded={handleEnded}
@@ -361,7 +285,9 @@ export default function PodcastSyncPlayer({
               <div>
                 <h3 className="font-semibold text-gray-900">Audio Lesson</h3>
                 <p className="text-sm text-gray-600">
-                  {isUsingOpenAIAudio ? 'OpenAI Text-to-Speech' : (audioSrc ? 'High Quality Audio' : 'AI Text-to-Speech Available')}
+                  {isGeneratingAudio ? generationProgress : 
+                   (audioSrc ? 'High Quality Audio' : 
+                   (preGeneratedAudioUrl ? 'OpenAI Text-to-Speech Ready' : 'AI Text-to-Speech Available'))}
                 </p>
               </div>
             </div>
@@ -389,7 +315,7 @@ export default function PodcastSyncPlayer({
                 )}
               </Button>
 
-              {audioSrc && (
+              {(audioSrc || preGeneratedAudioUrl) && (
                 <>
                   <Button
                     onClick={() => handleSkip(-10)}
@@ -438,10 +364,16 @@ export default function PodcastSyncPlayer({
               >
                 {currentSentence}
               </p>
+            ) : isGeneratingAudio ? (
+              <div className="text-gray-500 text-center">
+                <div className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
+                <p className="text-base mb-2">{generationProgress}</p>
+                <p className="text-sm">Please wait while we prepare your audio lesson...</p>
+              </div>
             ) : (
               <div className="text-gray-500">
                 <p className="text-base mb-2">Press Play to start the lesson</p>
-                <p className="text-sm">Each sentence will be spoken and displayed here</p>
+                <p className="text-sm">Smooth continuous audio playback with synchronized text</p>
               </div>
             )}
           </div>
