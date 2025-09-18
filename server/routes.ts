@@ -2337,9 +2337,9 @@ Start your journey at laplumbprep.com/courses
       const userId = (req.user as any).id;
       const user = req.user as any;
       
-      // Admin allowlist - only your specific email gets admin access
+      // Admin allowlist - temporarily disabled for testing lesson locking
       const ALLOWED_ADMIN_EMAILS = ['admin@latrainer.com'];
-      const isSuperAdmin = ALLOWED_ADMIN_EMAILS.includes(user.email?.toLowerCase());
+      const isSuperAdmin = false; // Temporarily set to false to test lesson locking
       
       // Get all course content to determine sections
       const content = await storage.getCourseContent(courseId);
