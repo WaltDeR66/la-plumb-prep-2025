@@ -25,6 +25,7 @@ import {
   productReviews,
   competitionQuestions,
   audioCache,
+  aiResponseCache,
   type User, 
   type InsertUser,
   type Course,
@@ -73,6 +74,8 @@ import {
   type InsertMonthlyCommission,
   type AudioCache,
   type InsertAudioCache,
+  type AiResponseCache,
+  type InsertAiResponseCache,
   achievements,
   userAchievements,
   monthlyCompetitions,
@@ -276,6 +279,12 @@ export interface IStorage {
   getCachedAudio(contentHash: string): Promise<AudioCache | undefined>;
   createCachedAudio(audioData: InsertAudioCache): Promise<AudioCache>;
   updateAudioAccess(contentHash: string): Promise<void>;
+  
+  // AI response cache methods
+  getCachedAiResponse(questionHash: string): Promise<AiResponseCache | undefined>;
+  createCachedAiResponse(responseData: InsertAiResponseCache): Promise<AiResponseCache>;
+  updateAiResponseAccess(questionHash: string): Promise<void>;
+  invalidateAiResponseCache(questionHash?: string): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -2451,6 +2460,48 @@ export class DatabaseStorage implements IStorage {
         accessCount: sql`${audioCache.accessCount} + 1`
       })
       .where(eq(audioCache.contentHash, contentHash));
+  }
+
+  // AI response cache methods
+  async getCachedAiResponse(questionHash: string): Promise<AiResponseCache | undefined> {
+    const [response] = await db
+      .select()
+      .from(aiResponseCache)
+      .where(and(
+        eq(aiResponseCache.questionHash, questionHash),
+        eq(aiResponseCache.isValid, true)
+      ));
+    return response || undefined;
+  }
+
+  async createCachedAiResponse(responseData: InsertAiResponseCache): Promise<AiResponseCache> {
+    const [response] = await db.insert(aiResponseCache).values(responseData).returning();
+    return response;
+  }
+
+  async updateAiResponseAccess(questionHash: string): Promise<void> {
+    await db
+      .update(aiResponseCache)
+      .set({ 
+        lastAccessedAt: new Date(),
+        accessCount: sql`${aiResponseCache.accessCount} + 1`
+      })
+      .where(eq(aiResponseCache.questionHash, questionHash));
+  }
+
+  async invalidateAiResponseCache(questionHash?: string): Promise<void> {
+    if (questionHash) {
+      // Invalidate specific cached response
+      await db
+        .update(aiResponseCache)
+        .set({ isValid: false })
+        .where(eq(aiResponseCache.questionHash, questionHash));
+    } else {
+      // Invalidate all cached responses (for global cache refresh)
+      await db
+        .update(aiResponseCache)
+        .set({ isValid: false });
+    }
   }
 }
 
