@@ -5,12 +5,20 @@ import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { CheckCircle } from "lucide-react";
 import { Link } from "wouter";
+import { useQuery } from "@tanstack/react-query";
 import BetaBanner from "@/components/beta-banner";
 
 export default function Pricing() {
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
   const [isAnnual, setIsAnnual] = useState(false);
-  const [isBetaTester] = useState(true); // Would come from user session/API in real app
+  
+  // Get current user to check beta tester status
+  const { data: user } = useQuery<any>({
+    queryKey: ["/api/auth/me"],
+    retry: false,
+  });
+  
+  const isBetaTester = user?.isBetaTester || false;
 
   useEffect(() => {
     document.title = "Pricing - Louisiana Plumbing Certification Training Plans | LA Plumb Prep";
@@ -43,52 +51,12 @@ export default function Pricing() {
     return parseFloat(price.toFixed(2)); // Round to 2 decimals
   };
 
-  // Function to get the correct price ID based on plan, billing cycle, and beta status
-  const getPriceId = (planId: string, isAnnual: boolean, isBeta: boolean) => {
-    // Real Stripe Price IDs from your account
-    const priceMapping = {
-      basic: {
-        monthly: {
-          regular: "price_1S4EusByFL1L8uV24yWoGtnf", // Basic Monthly - $49.99
-          beta: "price_1S4E4SByFL1L8uV2fwNtzcdE" // Beta Basic Monthly - $37.49
-        },
-        annual: {
-          regular: "price_1S4EqJByFL1L8uV2KtL96A1l", // Basic Annual - $599.88
-          beta: "price_1S4Ek6ByFL1L8uV2AYQdiGj4" // Beta Basic Annual - $437.41
-        }
-      },
-      professional: {
-        monthly: {
-          regular: "price_1S4F7cByFL1L8uV2U5V4tOje", // Professional Monthly - $79.99
-          beta: "price_1S4E9wByFL1L8uV2wOO4VM4D" // Beta Professional Monthly - $59.99
-        },
-        annual: {
-          regular: "price_1S4F4wByFL1L8uV2xK3ArjCj", // Professional Annual - $959.88
-          beta: "price_1S4EZSByFL1L8uV2cRdBL3bp" // Beta Professional Annual - $699.91
-        }
-      },
-      master: {
-        monthly: {
-          regular: "price_1S4F1jByFL1L8uV2YfeGdK7U", // Master Monthly - $99.99
-          beta: "price_1S4ESMByFL1L8uV2SPXM5fs4" // Beta Master Monthly - $74.99
-        },
-        annual: {
-          regular: "price_1S4EyGByFL1L8uV2c2IPcRGY", // Master Annual - $1199.88
-          beta: "price_1S4EflByFL1L8uV2hXo6sAmI" // Beta Master Annual - $874.91
-        }
-      }
-    };
-
-    const cycle = isAnnual ? 'annual' : 'monthly';
-    const type = isBeta ? 'beta' : 'regular';
-    return priceMapping[planId as keyof typeof priceMapping][cycle][type];
-  };
 
   const pricingPlans = [
     {
       id: "basic",
       name: "Basic",
-      basePrice: 37.49,
+      basePrice: 49.99,
       tier: "basic",
       description: "Perfect for getting started",
       features: [
@@ -104,7 +72,7 @@ export default function Pricing() {
     {
       id: "professional",
       name: "Professional",
-      basePrice: 59.99,
+      basePrice: 79.99,
       tier: "professional",
       description: "For serious professionals",
       popular: true,
@@ -125,7 +93,7 @@ export default function Pricing() {
     {
       id: "master",
       name: "Master",
-      basePrice: 74.99,
+      basePrice: 99.99,
       tier: "master",
       description: "Complete mastery package",
       features: [
@@ -263,7 +231,7 @@ export default function Pricing() {
                     ))}
                   </div>
                   
-                  <Link href={`/checkout?plan=${plan.tier}&priceId=${getPriceId(plan.id, isAnnual, isBetaTester)}&planName=${plan.name}&price=$${calculatePrice(plan.basePrice, isAnnual, isBetaTester).toFixed(2)}`}>
+                  <Link href={`/checkout?plan=${plan.tier}&planId=${plan.id}&isAnnual=${isAnnual}&planName=${plan.name}&price=$${calculatePrice(plan.basePrice, isAnnual, isBetaTester).toFixed(2)}`}>
                     <Button 
                       className={`w-full ${plan.popular ? 'bg-primary hover:bg-primary/90' : ''}`}
                       size="lg"

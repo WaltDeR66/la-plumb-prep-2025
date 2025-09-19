@@ -1215,10 +1215,25 @@ Start your journey at laplumbprep.com/courses
       // Hash password
       const hashedPassword = await bcrypt.hash(userData.password, 10);
       
-      // Create user
-      const user = await storage.createUser({
-        ...userData,
-        password: hashedPassword
+      // Atomically assign beta status and create user to prevent race conditions
+      const user = await db.transaction(async (tx) => {
+        // Count existing users within the transaction
+        const [countResult] = await tx.select({ count: count() }).from(users);
+        const isBetaTester = countResult.count < 100;
+        
+        // Create the user within the same transaction
+        const [newUser] = await tx
+          .insert(users)
+          .values({
+            ...userData,
+            password: hashedPassword,
+            isBetaTester,
+            betaStartedAt: isBetaTester ? new Date() : null,
+            referralCode: Math.random().toString(36).substring(2, 10).toUpperCase()
+          })
+          .returning();
+        
+        return newUser;
       });
 
       // Store referral code for later use when they subscribe
@@ -1295,9 +1310,57 @@ Start your journey at laplumbprep.com/courses
 
   // Public payment intent creation for checkout flow
   app.post('/api/create-payment-intent', async (req, res) => {
-    const { priceId, tier, collectCustomerInfo } = req.body;
+    const { planId, isAnnual, tier, collectCustomerInfo } = req.body;
 
     try {
+      // Get current user to check beta status (if authenticated)
+      let isBetaTester = false;
+      if (req.isAuthenticated() && req.user) {
+        isBetaTester = (req.user as any).isBetaTester || false;
+      }
+
+      // Server-side priceId computation (never trust client priceId)
+      const getPriceId = (planId: string, isAnnual: boolean, isBeta: boolean) => {
+        const priceMapping = {
+          basic: {
+            monthly: {
+              regular: "price_1S4EusByFL1L8uV24yWoGtnf",
+              beta: "price_1S4E4SByFL1L8uV2fwNtzcdE"
+            },
+            annual: {
+              regular: "price_1S4EqJByFL1L8uV2KtL96A1l",
+              beta: "price_1S4Ek6ByFL1L8uV2AYQdiGj4"
+            }
+          },
+          professional: {
+            monthly: {
+              regular: "price_1S4F7cByFL1L8uV2U5V4tOje",
+              beta: "price_1S4E9wByFL1L8uV2wOO4VM4D"
+            },
+            annual: {
+              regular: "price_1S4F4wByFL1L8uV2xK3ArjCj",
+              beta: "price_1S4EZSByFL1L8uV2cRdBL3bp"
+            }
+          },
+          master: {
+            monthly: {
+              regular: "price_1S4F1jByFL1L8uV2YfeGdK7U",
+              beta: "price_1S4ESMByFL1L8uV2SPXM5fs4"
+            },
+            annual: {
+              regular: "price_1S4EyGByFL1L8uV2c2IPcRGY",
+              beta: "price_1S4EflByFL1L8uV2hXo6sAmI"
+            }
+          }
+        };
+
+        const cycle = isAnnual ? 'annual' : 'monthly';
+        const type = isBeta ? 'beta' : 'regular';
+        return priceMapping[planId as keyof typeof priceMapping][cycle][type];
+      };
+
+      const securepriceId = getPriceId(planId, isAnnual, isBetaTester);
+
       const paymentIntent = await stripe.paymentIntents.create({
         amount: 1, // Temporary amount - will be updated by subscription
         currency: 'usd',
@@ -1305,7 +1368,7 @@ Start your journey at laplumbprep.com/courses
           enabled: true,
         },
         metadata: {
-          priceId,
+          priceId: securepriceId,
           tier,
           collectCustomerInfo: collectCustomerInfo || 'false'
         }
