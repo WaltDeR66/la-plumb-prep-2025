@@ -1686,6 +1686,23 @@ Start your journey at laplumbprep.com/courses
     }
   });
 
+  // Check if we're still accepting beta testers (for pricing display)
+  app.get('/api/beta-status', async (req, res) => {
+    try {
+      const userCount = await storage.getUserCount();
+      const isAcceptingBetaTesters = userCount < 100;
+      
+      res.json({ 
+        isAcceptingBetaTesters,
+        totalUsers: userCount,
+        remainingBetaSlots: Math.max(0, 100 - userCount)
+      });
+    } catch (error: any) {
+      console.error('Beta status error:', error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
   // Get subscription status
   app.get('/api/subscription-status', async (req, res) => {
     // Temporary admin bypass for testing

@@ -18,7 +18,13 @@ export default function Pricing() {
     retry: false,
   });
   
-  const isBetaTester = user?.isBetaTester || false;
+  // Check if we're still accepting beta testers (for anonymous users)
+  const { data: betaStatus } = useQuery<any>({
+    queryKey: ["/api/beta-status"],
+  });
+  
+  // Show beta pricing if user is a beta tester OR we're still accepting beta testers
+  const shouldShowBetaPricing = user?.isBetaTester || betaStatus?.isAcceptingBetaTesters || false;
 
   useEffect(() => {
     document.title = "Pricing - Louisiana Plumbing Certification Training Plans | LA Plumb Prep";
@@ -122,7 +128,7 @@ export default function Pricing() {
   return (
     <div className="min-h-screen bg-background">
       {/* Beta Banner */}
-      {isBetaTester && (
+      {shouldShowBetaPricing && (
         <section className="py-6 bg-background">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <BetaBanner showCTA={false} />
@@ -188,30 +194,30 @@ export default function Pricing() {
                     <div className="text-4xl font-bold text-primary mb-2" data-testid={`plan-price-${plan.id}`}>
                       {isAnnual ? (
                         <>
-                          ${calculatePrice(plan.basePrice, isAnnual, isBetaTester)}
+                          ${calculatePrice(plan.basePrice, isAnnual, shouldShowBetaPricing)}
                           <span className="text-xl font-normal text-muted-foreground">/year</span>
                         </>
                       ) : (
                         <>
-                          ${calculatePrice(plan.basePrice, isAnnual, isBetaTester)}
+                          ${calculatePrice(plan.basePrice, isAnnual, shouldShowBetaPricing)}
                           <span className="text-xl font-normal text-muted-foreground">/month</span>
                         </>
                       )}
-                      {(isAnnual || isBetaTester) && (
+                      {(isAnnual || shouldShowBetaPricing) && (
                         <div className="text-sm space-y-1">
-                          {plan.basePrice !== calculatePrice(plan.basePrice, isAnnual, isBetaTester) && (
+                          {plan.basePrice !== calculatePrice(plan.basePrice, isAnnual, shouldShowBetaPricing) && (
                             <div className="text-muted-foreground line-through">
                               {isAnnual ? `$${(plan.basePrice * 12).toFixed(2)}/year` : `$${plan.basePrice.toFixed(2)}/month`}
                             </div>
                           )}
-                          {isBetaTester && (
+                          {shouldShowBetaPricing && (
                             <div className="text-orange-600 font-semibold">
                               🎉 Beta: Extra 25% off + 50% off first month
                             </div>
                           )}
                           {isAnnual && (
                             <div className="text-green-600 font-normal">
-                              Save ${((plan.basePrice * 12) - calculatePrice(plan.basePrice, isAnnual, isBetaTester)).toFixed(2)} per year (20% off)
+                              Save ${((plan.basePrice * 12) - calculatePrice(plan.basePrice, isAnnual, shouldShowBetaPricing)).toFixed(2)} per year (20% off)
                             </div>
                           )}
                         </div>
@@ -231,7 +237,7 @@ export default function Pricing() {
                     ))}
                   </div>
                   
-                  <Link href={`/checkout?plan=${plan.tier}&planId=${plan.id}&isAnnual=${isAnnual}&planName=${plan.name}&price=$${calculatePrice(plan.basePrice, isAnnual, isBetaTester).toFixed(2)}`}>
+                  <Link href={`/checkout?plan=${plan.tier}&planId=${plan.id}&isAnnual=${isAnnual}&planName=${plan.name}&price=$${calculatePrice(plan.basePrice, isAnnual, shouldShowBetaPricing).toFixed(2)}`}>
                     <Button 
                       className={`w-full ${plan.popular ? 'bg-primary hover:bg-primary/90' : ''}`}
                       size="lg"
