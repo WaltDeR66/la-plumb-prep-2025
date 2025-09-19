@@ -1832,6 +1832,7 @@ Start your journey at laplumbprep.com/courses
 
     try {
       switch (event.type) {
+        case 'customer.subscription.created':
         case 'customer.subscription.updated':
           const subscription = event.data.object as any;
           const customerId = subscription.customer;
@@ -1845,15 +1846,40 @@ Start your journey at laplumbprep.com/courses
             const user = usersResult[0];
             const oldTier = user.subscriptionTier;
             
-            // Determine new tier from price ID
+            // Determine new tier from price ID using complete mapping
             const priceId = subscription.items.data[0].price.id;
-            let newTier = 'basic';
+            let newTier = 'basic'; // default
             
-            if (priceId === process.env.STRIPE_PROFESSIONAL_PRICE_ID) {
-              newTier = 'professional';
-            } else if (priceId === process.env.STRIPE_MASTER_PRICE_ID) {
-              newTier = 'master';
+            // Complete price ID to tier mapping (matches payment creation logic)
+            const priceToTierMapping: { [key: string]: string } = {
+              // Basic plans
+              "price_1S4EusByFL1L8uV24yWoGtnf": "basic", // Basic Monthly Regular
+              "price_1S4E4SByFL1L8uV2fwNtzcdE": "basic", // Basic Monthly Beta
+              "price_1S4EqJByFL1L8uV2KtL96A1l": "basic", // Basic Annual Regular
+              "price_1S4Ek6ByFL1L8uV2AYQdiGj4": "basic", // Basic Annual Beta
+              
+              // Professional plans
+              "price_1S4F7cByFL1L8uV2U5V4tOje": "professional", // Professional Monthly Regular
+              "price_1S4E9wByFL1L8uV2wOO4VM4D": "professional", // Professional Monthly Beta
+              "price_1S4F4wByFL1L8uV2xK3ArjCj": "professional", // Professional Annual Regular
+              "price_1S4EZSByFL1L8uV2cRdBL3bp": "professional", // Professional Annual Beta
+              
+              // Master plans
+              "price_1S4F1jByFL1L8uV2YfeGdK7U": "master", // Master Monthly Regular
+              "price_1S4ESMByFL1L8uV2SPXM5fs4": "master", // Master Monthly Beta
+              "price_1S4EyGByFL1L8uV2c2IPcRGY": "master", // Master Annual Regular
+              "price_1S4EflByFL1L8uV2hXo6sAmI": "master", // Master Annual Beta
+            };
+            
+            const mappedTier = priceToTierMapping[priceId];
+            if (!mappedTier) {
+              console.error(`Webhook: Unknown price ID ${priceId} - skipping tier update to prevent incorrect downgrade`);
+              // Don't change tier for unknown price IDs - this prevents accidental downgrades
+              break;
             }
+            
+            newTier = mappedTier;
+            console.log(`Webhook: Mapped price ID ${priceId} to tier ${newTier}`);
             
             // Only process if tier actually changed
             if (oldTier !== newTier) {
@@ -1869,6 +1895,22 @@ Start your journey at laplumbprep.com/courses
           if (invoice.subscription) {
             // This is a recurring payment, could trigger monthly commission payouts
             console.log('Monthly payment processed for subscription:', invoice.subscription);
+          }
+          break;
+          
+        case 'customer.subscription.deleted':
+          // Handle subscription cancellations
+          const cancelledSubscription = event.data.object as any;
+          const cancelledCustomerId = cancelledSubscription.customer;
+          
+          const cancelledUsersResult = await db.select()
+            .from(users)
+            .where(eq(users.stripeCustomerId, cancelledCustomerId));
+            
+          if (cancelledUsersResult.length > 0) {
+            const cancelledUser = cancelledUsersResult[0];
+            console.log(`Webhook: Subscription cancelled for user ${cancelledUser.id}, setting to basic tier`);
+            await storage.updateUser(cancelledUser.id, { subscriptionTier: 'basic' });
           }
           break;
           
