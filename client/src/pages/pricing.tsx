@@ -62,7 +62,7 @@ export default function Pricing() {
     {
       id: "basic",
       name: "Basic",
-      basePrice: 49.99,
+      basePrice: 19.99,
       tier: "basic",
       description: "Perfect for getting started",
       features: [
@@ -78,7 +78,7 @@ export default function Pricing() {
     {
       id: "professional",
       name: "Professional",
-      basePrice: 79.99,
+      basePrice: 29.99,
       tier: "professional",
       description: "For serious professionals",
       popular: true,
@@ -99,7 +99,7 @@ export default function Pricing() {
     {
       id: "master",
       name: "Master",
-      basePrice: 99.99,
+      basePrice: 49.99,
       tier: "master",
       description: "Complete mastery package",
       features: [
