@@ -21,6 +21,120 @@ const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 // In-flight audio generation cache to prevent duplicate generation
 const inFlightAudioGeneration = new Map<string, Promise<Buffer>>();
 
+// Rate limiting store for AI endpoints
+const rateLimitStore = new Map<string, { count: number; windowStart: number; resets: Date }>();
+
+// Rate limiting middleware with tiered limits
+const createRateLimit = (options: {
+  windowMs: number;
+  basicLimit: number;
+  professionalLimit: number;
+  masterLimit: number;
+  anonymousLimit?: number;
+  keyGenerator?: (req: any) => string;
+}) => {
+  const { windowMs, basicLimit, professionalLimit, masterLimit, anonymousLimit = 0, keyGenerator } = options;
+  
+  return (req: any, res: any, next: any) => {
+    const key = keyGenerator ? keyGenerator(req) : `${req.ip}:${req.originalUrl}`;
+    const now = Date.now();
+    const windowStart = Math.floor(now / windowMs) * windowMs;
+    
+    // Get or create rate limit entry
+    let entry = rateLimitStore.get(key);
+    if (!entry || entry.windowStart !== windowStart) {
+      entry = { count: 0, windowStart, resets: new Date(windowStart + windowMs) };
+      rateLimitStore.set(key, entry);
+    }
+    
+    // Determine limit based on user tier
+    let limit = anonymousLimit;
+    if (req.isAuthenticated && req.isAuthenticated()) {
+      const user = req.user as any;
+      const tier = user?.subscriptionTier || 'basic';
+      switch (tier) {
+        case 'master': limit = masterLimit; break;
+        case 'professional': limit = professionalLimit; break;
+        case 'basic': limit = basicLimit; break;
+        default: 
+          // For authenticated users with unknown tiers, default to basic limit not anonymous
+          limit = basicLimit;
+          console.warn(`Unknown subscription tier '${tier}' for authenticated user, defaulting to basic limit`);
+      }
+    }
+    
+    // Check if limit exceeded
+    if (entry.count >= limit) {
+      // Set rate limit headers on 429 responses too
+      res.set({
+        'X-RateLimit-Limit': limit.toString(),
+        'X-RateLimit-Remaining': '0',
+        'X-RateLimit-Reset': entry.resets.toISOString()
+      });
+      
+      return res.status(429).json({
+        message: `Rate limit exceeded. Try again after ${entry.resets.toISOString()}`,
+        rateLimitExceeded: true,
+        resets: entry.resets.toISOString(),
+        upgradeMessage: limit === basicLimit ? "Upgrade to Professional or Master for higher rate limits" : undefined
+      });
+    }
+    
+    // Increment count and continue
+    entry.count++;
+    rateLimitStore.set(key, entry);
+    
+    // Set headers
+    res.set({
+      'X-RateLimit-Limit': limit.toString(),
+      'X-RateLimit-Remaining': Math.max(0, limit - entry.count).toString(),
+      'X-RateLimit-Reset': entry.resets.toISOString()
+    });
+    
+    next();
+  };
+};
+
+// Rate limiters for different endpoint types
+const criticalAIRateLimit = createRateLimit({
+  windowMs: 60 * 1000, // 1 minute window
+  basicLimit: 2, // Basic: 2 requests per minute
+  professionalLimit: 5, // Professional: 5 requests per minute  
+  masterLimit: 10, // Master: 10 requests per minute
+  anonymousLimit: 0, // No anonymous access
+  keyGenerator: (req) => {
+    const isAuth = typeof req.isAuthenticated === 'function' && req.isAuthenticated();
+    const userId = isAuth && req.user?.id ? `user:${req.user.id}` : `ip:${req.ip}`;
+    return `${userId}:critical`;
+  }
+});
+
+const subscriptionAIRateLimit = createRateLimit({
+  windowMs: 60 * 1000, // 1 minute window
+  basicLimit: 5, // Basic: 5 requests per minute
+  professionalLimit: 15, // Professional: 15 requests per minute
+  masterLimit: 30, // Master: 30 requests per minute  
+  anonymousLimit: 0, // No anonymous access
+  keyGenerator: (req) => {
+    const isAuth = typeof req.isAuthenticated === 'function' && req.isAuthenticated();
+    const userId = isAuth && req.user?.id ? `user:${req.user.id}` : `ip:${req.ip}`;
+    return `${userId}:subscription`;
+  }
+});
+
+const paymentIntentRateLimit = createRateLimit({
+  windowMs: 60 * 1000, // 1 minute window
+  basicLimit: 10, // Basic: 10 payment intents per minute
+  professionalLimit: 20, // Professional: 20 payment intents per minute
+  masterLimit: 30, // Master: 30 payment intents per minute
+  anonymousLimit: 3, // Anonymous: 3 requests per minute
+  keyGenerator: (req) => {
+    const isAuth = typeof req.isAuthenticated === 'function' && req.isAuthenticated();
+    const userId = isAuth && req.user?.id ? `user:${req.user.id}` : `ip:${req.ip}`;
+    return `${userId}:payment`;
+  }
+});
+
 // Helper function to check if content has extracted data
 function hasExtractedContent(content: any): content is { extracted: { content?: string; description?: string } } {
   return content && typeof content === 'object' && 'extracted' in content;
@@ -1926,7 +2040,7 @@ Start your journey at laplumbprep.com/courses
   });
 
   // Pay-per-use AI tools endpoints
-  app.post('/api/pay-per-use/photo-analysis', async (req, res) => {
+  app.post('/api/pay-per-use/photo-analysis', paymentIntentRateLimit, async (req, res) => {
     try {
       const { imageData } = req.body;
       
@@ -1956,7 +2070,7 @@ Start your journey at laplumbprep.com/courses
     }
   });
 
-  app.post('/api/pay-per-use/plan-analysis', async (req, res) => {
+  app.post('/api/pay-per-use/plan-analysis', paymentIntentRateLimit, async (req, res) => {
     try {
       const { planData, fileSizeBytes } = req.body;
       
@@ -2018,7 +2132,7 @@ Start your journey at laplumbprep.com/courses
     }
   });
 
-  app.post('/api/pay-per-use/mentor-question', async (req, res) => {
+  app.post('/api/pay-per-use/mentor-question', paymentIntentRateLimit, async (req, res) => {
     try {
       const { question } = req.body;
       
@@ -2049,7 +2163,7 @@ Start your journey at laplumbprep.com/courses
   });
 
   // Process pay-per-use service after payment confirmation
-  app.post('/api/pay-per-use/process', async (req, res) => {
+  app.post('/api/pay-per-use/process', criticalAIRateLimit, async (req, res) => {
     try {
       const { paymentIntentId, service, data } = req.body;
       
@@ -2866,7 +2980,7 @@ Start your journey at laplumbprep.com/courses
   });
 
   // AI Mentor routes - Basic users get lesson-specific access, Professional/Master get full access
-  app.post("/api/mentor/chat", async (req, res) => {
+  app.post("/api/mentor/chat", subscriptionAIRateLimit, async (req, res) => {
     if (!req.isAuthenticated()) {
       return res.status(401).json({ message: "Not authenticated" });
     }
@@ -3040,7 +3154,7 @@ Start your journey at laplumbprep.com/courses
   });
 
   // Generate speech audio for podcast sentences
-  app.post("/api/openai/speech", requireActiveSubscription, async (req, res) => {
+  app.post("/api/openai/speech", subscriptionAIRateLimit, requireActiveSubscription, async (req, res) => {
     if (!req.isAuthenticated()) {
       return res.status(401).json({ message: "Not authenticated" });
     }
