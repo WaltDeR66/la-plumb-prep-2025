@@ -72,7 +72,10 @@ export default function AIMentorChat({ currentSection }: AIMentorChatProps = {})
       });
       
       if (!response.ok) {
-        throw new Error('Failed to send message');
+        // Attach response for detailed error handling
+        const error = new Error('Failed to send message');
+        (error as any).response = response;
+        throw error;
       }
       
       return response;
@@ -95,7 +98,43 @@ export default function AIMentorChat({ currentSection }: AIMentorChatProps = {})
         });
       }
     },
-    onError: (error: any) => {
+    onError: async (error: any) => {
+      // Handle subscription-related errors with upgrade prompts
+      if (error.response?.status === 403) {
+        try {
+          const errorData = await error.response.json();
+          if (errorData.subscriptionRequired) {
+            toast({
+              title: "Subscription Required",
+              description: "Professional tools access requires an active subscription. Upgrade to continue using AI mentor.",
+              variant: "destructive",
+              action: (
+                <Button asChild size="sm" className="bg-gradient-to-r from-orange-500 to-amber-600">
+                  <Link href="/pricing">Upgrade Now</Link>
+                </Button>
+              )
+            });
+            return;
+          }
+          if (errorData.requiresUpgrade) {
+            toast({
+              title: "Upgrade for Full Access",
+              description: "Basic users are limited to current lesson sections. Upgrade for complete codebook access.",
+              variant: "default",
+              action: (
+                <Button asChild size="sm" className="bg-gradient-to-r from-orange-500 to-amber-600">
+                  <Link href="/pricing">Upgrade Now</Link>
+                </Button>
+              )
+            });
+            return;
+          }
+        } catch (e) {
+          // Fall through to generic error handling
+        }
+      }
+
+      // Generic error handling
       toast({
         title: "Chat Error",
         description: error.message || "Failed to send message",

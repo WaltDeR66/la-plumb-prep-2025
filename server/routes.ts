@@ -2820,18 +2820,75 @@ Start your journey at laplumbprep.com/courses
     }
   });
 
-  // AI Mentor routes
-  app.post("/api/mentor/chat", requireActiveSubscription, async (req, res) => {
+  // AI Mentor routes - Basic users get lesson-specific access, Professional/Master get full access
+  app.post("/api/mentor/chat", async (req, res) => {
     if (!req.isAuthenticated()) {
       return res.status(401).json({ message: "Not authenticated" });
     }
 
+    const user = req.user as any;
+    const subscriptionTier = user?.subscriptionTier || 'basic';
+
+    // Check subscription access - Professional/Master require active Stripe subscription
+    if (subscriptionTier === 'professional' || subscriptionTier === 'master') {
+      // Allow admin bypass
+      const isAdmin = user.email === 'admin@latrainer.com' || user.email === 'admin@laplumbprep.com' || user.id === 'admin-test-user';
+      
+      if (!isAdmin) {
+        // Strict enforcement: require active Stripe subscription ID
+        if (!user.stripeSubscriptionId) {
+          return res.status(403).json({ 
+            message: "Professional tools access requires an active subscription",
+            subscriptionRequired: true,
+            reason: "no_subscription_id"
+          });
+        }
+
+        try {
+          const subscription = await stripe.subscriptions.retrieve(user.stripeSubscriptionId);
+          if (subscription.status !== 'active') {
+            return res.status(403).json({ 
+              message: "Professional tools access requires an active subscription",
+              subscriptionRequired: true,
+              reason: "subscription_inactive"
+            });
+          }
+        } catch (error) {
+          console.error('Stripe subscription check error:', error);
+          return res.status(403).json({ 
+            message: "Unable to verify subscription status",
+            subscriptionRequired: true,
+            reason: "verification_error"
+          });
+        }
+      }
+    }
+
+    // Basic users: enforce lesson-specific access
+    if (subscriptionTier === 'basic') {
+      const { currentSection } = req.body;
+      if (!currentSection) {
+        return res.status(400).json({ 
+          message: "Basic users require a specific lesson section",
+          requiresSection: true
+        });
+      }
+
+      // Validate section is within allowed range (Louisiana code sections 101-109)
+      const allowedSections = ['101', '103', '105', '107', '109'];
+      if (!allowedSections.includes(currentSection)) {
+        return res.status(403).json({ 
+          message: "Basic users are limited to specific Louisiana code sections",
+          allowedSections,
+          requiresUpgrade: true
+        });
+      }
+    }
+
     try {
       const { message, context, conversationId, currentSection } = req.body;
-      const userId = (req.user as any).id;
-      const user = req.user as any;
+      const userId = user.id;
       const section = currentSection || '101';
-      const subscriptionTier = user?.subscriptionTier || 'basic';
 
       // Tiered AI response - Basic: section-specific, Pro/Master: complete codebook
       let response = "";
