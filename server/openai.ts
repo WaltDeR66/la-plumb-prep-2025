@@ -241,6 +241,75 @@ async function validateSectionRelevance(message: string, currentSection: string)
   };
 }
 
+// AI Response Caching Functions
+function normalizeQuestion(question: string): string {
+  return question
+    .toLowerCase()
+    .replace(/[^\w\s]/g, '') // Remove punctuation
+    .replace(/\s+/g, ' ') // Normalize whitespace
+    .trim();
+}
+
+function generateQuestionHash(
+  normalizedQuestion: string, 
+  subscriptionTier: string, 
+  currentSection?: string
+): string {
+  const contextString = `${normalizedQuestion}|${subscriptionTier}|${currentSection || 'all'}`;
+  return crypto.createHash('sha256').update(contextString).digest('hex');
+}
+
+async function getCachedMentorResponse(
+  message: string,
+  subscriptionTier: string,
+  currentSection?: string
+): Promise<string | null> {
+  try {
+    const normalizedQuestion = normalizeQuestion(message);
+    const questionHash = generateQuestionHash(normalizedQuestion, subscriptionTier, currentSection);
+    
+    const cachedResponse = await storage.getCachedAiResponse(questionHash);
+    if (cachedResponse) {
+      console.log(`Using cached AI response for question hash: ${questionHash}`);
+      // Update access tracking
+      await storage.updateAiResponseAccess(questionHash);
+      return cachedResponse.response;
+    }
+    
+    return null;
+  } catch (error) {
+    console.error('Error checking cached response:', error);
+    return null;
+  }
+}
+
+async function cacheMentorResponse(
+  originalMessage: string,
+  response: string,
+  subscriptionTier: string,
+  currentSection?: string,
+  tokensUsed?: number
+): Promise<void> {
+  try {
+    const normalizedQuestion = normalizeQuestion(originalMessage);
+    const questionHash = generateQuestionHash(normalizedQuestion, subscriptionTier, currentSection);
+    
+    await storage.createCachedAiResponse({
+      questionHash,
+      originalQuestion: originalMessage,
+      response,
+      subscriptionTier: subscriptionTier as any,
+      currentSection,
+      modelUsed: 'gpt-4o',
+      tokensUsed
+    });
+    
+    console.log(`Cached AI response for question hash: ${questionHash}`);
+  } catch (error) {
+    console.error('Error caching AI response:', error);
+  }
+}
+
 export async function getMentorResponse(
   message: string, 
   context?: string, 
@@ -248,6 +317,12 @@ export async function getMentorResponse(
   subscriptionTier: string = 'basic'
 ): Promise<string> {
   try {
+    // Check for cached response first
+    const cachedResponse = await getCachedMentorResponse(message, subscriptionTier, currentSection);
+    if (cachedResponse) {
+      return cachedResponse;
+    }
+
     // Basic plan users are restricted to current section only
     if (subscriptionTier === 'basic') {
       const sectionValidation = await validateSectionRelevance(message, currentSection);
@@ -283,7 +358,12 @@ export async function getMentorResponse(
         temperature: 0.7,
       });
 
-      return response.choices[0].message.content || "I'm sorry, I couldn't provide a response at this time.";
+      const responseContent = response.choices[0].message.content || "I'm sorry, I couldn't provide a response at this time.";
+      
+      // Cache the response for future use
+      await cacheMentorResponse(message, responseContent, subscriptionTier, currentSection, response.usage?.total_tokens);
+      
+      return responseContent;
     }
 
     // Professional and Master users get complete codebook access
@@ -322,7 +402,12 @@ export async function getMentorResponse(
       temperature: 0.7,
     });
 
-    return response.choices[0].message.content || "I'm sorry, I couldn't provide a response at this time.";
+    const responseContent = response.choices[0].message.content || "I'm sorry, I couldn't provide a response at this time.";
+    
+    // Cache the response for future use (no currentSection for pro/master users)
+    await cacheMentorResponse(message, responseContent, subscriptionTier, undefined, response.usage?.total_tokens);
+    
+    return responseContent;
   } catch (error) {
     console.error("OpenAI API error:", error);
     // Provide a fallback response based on common Louisiana plumbing questions
