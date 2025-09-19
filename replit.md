@@ -60,12 +60,12 @@ Key architectural decisions:
 
 ## Recent Changes
 
-### September 19, 2025 - Competitive Pricing Update
-- **Pricing Restructure**: Updated subscription pricing to competitive Beta rates for market penetration
-  - Basic: $19.99/month (was $49.99) - 60% reduction
-  - Professional: $29.99/month (was $79.99) - 62% reduction  
-  - Master: $49.99/month (was $99.99) - 50% reduction
-- **Profitability Analysis**: Architect-confirmed pricing maintains >80% profit margins even under heavy usage due to implemented caching systems
+### September 19, 2025 - Beta Pricing Structure
+- **Beta Pricing Implementation**: Added special beta pricing for launch users
+  - Regular Pricing: Basic $49.99, Professional $79.99, Master $99.99
+  - Beta Pricing: Basic $19.99, Professional $29.99, Master $49.99 
+  - Beta users get 60-62% discount from regular pricing
+- **Profitability Analysis**: Architect-confirmed beta pricing maintains >80% profit margins even under heavy usage due to implemented caching systems
 - **Cost Optimization**: AI response caching and TTS audio caching provide ~70% reduction in OpenAI API costs
 
 ### January 30, 2025 - OpenAI Podcast Player Enhancement

@@ -36,25 +36,16 @@ export default function Pricing() {
     }
   }, []);
 
-  const calculatePrice = (basePrice: number, isAnnual: boolean, isBeta: boolean) => {
-    if (isAnnual && isBeta) {
-      // Beta annual: 50% off first month + 25% off remaining 11 months
-      const firstMonth = basePrice * 0.5;
-      const remainingMonths = basePrice * 0.75 * 11;
-      return parseFloat((firstMonth + remainingMonths).toFixed(2)); // Round to 2 decimals
-    }
-    
-    let price = basePrice;
+  const calculatePrice = (basePrice: number, betaPrice: number, isAnnual: boolean, isBeta: boolean) => {
+    // Use beta price if user is beta tester
+    let monthlyPrice = isBeta ? betaPrice : basePrice;
     
     if (isAnnual) {
-      price = price * 12 * 0.8; // 20% annual discount on 12 months
+      // Apply 20% annual discount
+      return parseFloat((monthlyPrice * 12 * 0.8).toFixed(2));
     }
     
-    if (isBeta && !isAnnual) {
-      price = price * 0.75; // 25% off for beta testers (monthly only)
-    }
-    
-    return parseFloat(price.toFixed(2)); // Round to 2 decimals
+    return parseFloat(monthlyPrice.toFixed(2));
   };
 
 
@@ -62,7 +53,8 @@ export default function Pricing() {
     {
       id: "basic",
       name: "Basic",
-      basePrice: 19.99,
+      basePrice: 49.99,
+      betaPrice: 19.99,
       tier: "basic",
       description: "Perfect for getting started",
       features: [
@@ -78,7 +70,8 @@ export default function Pricing() {
     {
       id: "professional",
       name: "Professional",
-      basePrice: 29.99,
+      basePrice: 79.99,
+      betaPrice: 29.99,
       tier: "professional",
       description: "For serious professionals",
       popular: true,
@@ -99,7 +92,8 @@ export default function Pricing() {
     {
       id: "master",
       name: "Master",
-      basePrice: 49.99,
+      basePrice: 99.99,
+      betaPrice: 49.99,
       tier: "master",
       description: "Complete mastery package",
       features: [
@@ -194,30 +188,30 @@ export default function Pricing() {
                     <div className="text-4xl font-bold text-primary mb-2" data-testid={`plan-price-${plan.id}`}>
                       {isAnnual ? (
                         <>
-                          ${calculatePrice(plan.basePrice, isAnnual, shouldShowBetaPricing)}
+                          ${calculatePrice(plan.basePrice, plan.betaPrice, isAnnual, shouldShowBetaPricing)}
                           <span className="text-xl font-normal text-muted-foreground">/year</span>
                         </>
                       ) : (
                         <>
-                          ${calculatePrice(plan.basePrice, isAnnual, shouldShowBetaPricing)}
+                          ${calculatePrice(plan.basePrice, plan.betaPrice, isAnnual, shouldShowBetaPricing)}
                           <span className="text-xl font-normal text-muted-foreground">/month</span>
                         </>
                       )}
                       {(isAnnual || shouldShowBetaPricing) && (
                         <div className="text-sm space-y-1">
-                          {plan.basePrice !== calculatePrice(plan.basePrice, isAnnual, shouldShowBetaPricing) && (
+                          {(shouldShowBetaPricing ? plan.betaPrice : plan.basePrice) !== calculatePrice(plan.basePrice, plan.betaPrice, isAnnual, shouldShowBetaPricing) && (
                             <div className="text-muted-foreground line-through">
                               {isAnnual ? `$${(plan.basePrice * 12).toFixed(2)}/year` : `$${plan.basePrice.toFixed(2)}/month`}
                             </div>
                           )}
                           {shouldShowBetaPricing && (
                             <div className="text-orange-600 font-semibold">
-                              🎉 Beta: Extra 25% off + 50% off first month
+                              🎉 Beta: Special Launch Pricing
                             </div>
                           )}
                           {isAnnual && (
                             <div className="text-green-600 font-normal">
-                              Save ${((plan.basePrice * 12) - calculatePrice(plan.basePrice, isAnnual, shouldShowBetaPricing)).toFixed(2)} per year (20% off)
+                              Save ${(((shouldShowBetaPricing ? plan.betaPrice : plan.basePrice) * 12) - calculatePrice(plan.basePrice, plan.betaPrice, isAnnual, shouldShowBetaPricing)).toFixed(2)} per year (20% off)
                             </div>
                           )}
                         </div>
@@ -237,7 +231,7 @@ export default function Pricing() {
                     ))}
                   </div>
                   
-                  <Link href={`/checkout?plan=${plan.tier}&planId=${plan.id}&isAnnual=${isAnnual}&planName=${plan.name}&price=$${calculatePrice(plan.basePrice, isAnnual, shouldShowBetaPricing).toFixed(2)}`}>
+                  <Link href={`/checkout?plan=${plan.tier}&planId=${plan.id}&isAnnual=${isAnnual}&planName=${plan.name}&price=$${calculatePrice(plan.basePrice, plan.betaPrice, isAnnual, shouldShowBetaPricing).toFixed(2)}`}>
                     <Button 
                       className={`w-full ${plan.popular ? 'bg-primary hover:bg-primary/90' : ''}`}
                       size="lg"
