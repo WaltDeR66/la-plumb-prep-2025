@@ -18,6 +18,9 @@ import OpenAI from "openai";
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
+// In-flight audio generation cache to prevent duplicate generation
+const inFlightAudioGeneration = new Map<string, Promise<Buffer>>();
+
 // Helper function to check if content has extracted data
 function hasExtractedContent(content: any): content is { extracted: { content?: string; description?: string } } {
   return content && typeof content === 'object' && 'extracted' in content;
@@ -3007,23 +3010,98 @@ Start your journey at laplumbprep.com/courses
         return res.status(400).json({ message: "Text input is required" });
       }
 
-      // Create OpenAI audio stream
-      const response = await openai.audio.speech.create({
-        model: model, // tts-1 for faster, tts-1-hd for higher quality
-        voice: voice, // alloy, echo, fable, onyx, nova, shimmer
-        input: input.substring(0, 4096), // Limit text length for safety
-        speed: 0.9 // Slightly slower for educational content
-      });
+      const sanitizedInput = input.substring(0, 4096).trim().replace(/\s+/g, ' '); // Normalize whitespace
+      
+      // Create cache key from content hash and parameters
+      const crypto = await import('crypto');
+      const cacheKey = crypto.createHash('sha256')
+        .update(`${sanitizedInput}-${voice}-${model}-0.9`)
+        .digest('hex');
+      
+      const fs = await import('fs/promises');
+      const path = await import('path');
+      const cacheDir = path.join(process.cwd(), 'audio-cache');
+      const cacheFilePath = path.join(cacheDir, `${cacheKey}.mp3`);
 
-      // Convert to buffer and send as audio stream
-      const buffer = Buffer.from(await response.arrayBuffer());
-      
-      res.set({
-        'Content-Type': 'audio/mpeg',
-        'Content-Length': buffer.length.toString(),
-      });
-      
-      res.send(buffer);
+      try {
+        // Ensure cache directory exists
+        await fs.mkdir(cacheDir, { recursive: true });
+        
+        // Try to serve from cache first
+        try {
+          const cachedBuffer = await fs.readFile(cacheFilePath);
+          console.log(`Audio cache HIT for key: ${cacheKey.substring(0, 8)}`);
+          
+          res.set({
+            'Content-Type': 'audio/mpeg',
+            'Content-Length': cachedBuffer.length.toString(),
+            'Cache-Control': 'public, max-age=86400', // 24 hours client cache
+            'X-Audio-Cache': 'HIT',
+            'ETag': `"${cacheKey.substring(0, 16)}"`,
+            'Last-Modified': new Date().toUTCString()
+          });
+          
+          return res.send(cachedBuffer);
+        } catch (cacheError) {
+          // Cache miss, continue to generate new audio
+          console.log(`Audio cache MISS for key: ${cacheKey.substring(0, 8)}, checking in-flight generation...`);
+        }
+
+        // Check for in-flight generation to prevent duplicate work
+        let existingGeneration = inFlightAudioGeneration.get(cacheKey);
+        
+        if (!existingGeneration) {
+          // Start new generation and add to in-flight cache
+          existingGeneration = (async (): Promise<Buffer> => {
+            try {
+              console.log(`Generating new TTS audio for ${sanitizedInput.substring(0, 50)}...`);
+              const response = await openai.audio.speech.create({
+                model: model, // tts-1 for faster, tts-1-hd for higher quality
+                voice: voice, // alloy, echo, fable, onyx, nova, shimmer
+                input: sanitizedInput,
+                speed: 0.9 // Slightly slower for educational content
+              });
+
+              const buffer = Buffer.from(await response.arrayBuffer());
+              
+              // Atomic cache write using temp file
+              const tempFilePath = cacheFilePath + '.tmp';
+              await fs.writeFile(tempFilePath, buffer);
+              await fs.rename(tempFilePath, cacheFilePath);
+              
+              console.log(`Audio generation complete, cached for key: ${cacheKey.substring(0, 8)}`);
+              return buffer;
+              
+            } finally {
+              // Always clean up in-flight cache entry
+              inFlightAudioGeneration.delete(cacheKey);
+            }
+          })();
+          
+          inFlightAudioGeneration.set(cacheKey, existingGeneration);
+        } else {
+          console.log(`Waiting for in-flight generation for key: ${cacheKey.substring(0, 8)}`);
+        }
+
+        // Wait for generation (either new or existing)
+        const buffer = await existingGeneration;
+        
+        res.set({
+          'Content-Type': 'audio/mpeg',
+          'Content-Length': buffer.length.toString(),
+          'Cache-Control': 'public, max-age=86400', // 24 hours client cache
+          'X-Audio-Cache': 'MISS',
+          'ETag': `"${cacheKey.substring(0, 16)}"`,
+          'Last-Modified': new Date().toUTCString()
+        });
+        
+        res.send(buffer);
+        
+      } catch (fsError) {
+        console.error('File system error in audio caching:', fsError);
+        // Fallback to generating without caching
+        throw new Error('Audio caching system error');
+      }
     } catch (error: any) {
       console.error("OpenAI TTS generation error:", error);
       res.status(500).json({ message: "Failed to generate speech audio" });
