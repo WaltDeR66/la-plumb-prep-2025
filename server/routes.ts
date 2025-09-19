@@ -3281,6 +3281,41 @@ Start your journey at laplumbprep.com/courses
     }
   });
 
+  // Serve cached audio from database
+  app.get("/api/audio/cached/:contentHash", async (req, res) => {
+    try {
+      const { contentHash } = req.params;
+      
+      // Get cached audio from database
+      const cachedAudio = await storage.getCachedAudio(contentHash);
+      if (!cachedAudio) {
+        return res.status(404).json({ error: "Audio not found" });
+      }
+      
+      // Update access tracking
+      await storage.updateAudioAccess(contentHash);
+      
+      // Convert base64 back to buffer
+      const audioBuffer = Buffer.from(cachedAudio.audioData, 'base64');
+      
+      // Set appropriate headers
+      res.set({
+        'Content-Type': cachedAudio.mimeType,
+        'Content-Length': audioBuffer.length.toString(),
+        'Cache-Control': 'public, max-age=31536000', // Cache for 1 year
+        'Access-Control-Allow-Origin': '*', // Allow cross-origin requests for audio
+        'Accept-Ranges': 'bytes',
+        'X-Audio-Source': 'database-cache'
+      });
+      
+      // Send the audio data
+      res.send(audioBuffer);
+    } catch (error: any) {
+      console.error("Error serving cached audio:", error);
+      res.status(500).json({ error: "Failed to serve audio" });
+    }
+  });
+
   app.get("/api/mentor/conversations", requireActiveSubscription, async (req, res) => {
     if (!req.isAuthenticated()) {
       return res.status(401).json({ message: "Not authenticated" });
