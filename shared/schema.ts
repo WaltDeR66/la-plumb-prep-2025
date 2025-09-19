@@ -232,6 +232,23 @@ export const audioCache = pgTable("audio_cache", {
   accessCount: integer("access_count").default(0), // Track usage for cleanup
 });
 
+// AI response cache for mentor chat responses
+export const aiResponseCache = pgTable("ai_response_cache", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  questionHash: text("question_hash").notNull().unique(), // Hash of normalized question
+  originalQuestion: text("original_question").notNull(), // Original question text
+  response: text("response").notNull(), // AI generated response
+  contextHash: text("context_hash"), // Hash of context (section, tier, etc.) for more specific caching
+  subscriptionTier: subscriptionTierEnum("subscription_tier"), // Tier-specific responses
+  currentSection: text("current_section"), // Course section context
+  modelUsed: text("model_used").default("gpt-5"), // Track which AI model generated the response
+  tokensUsed: integer("tokens_used"), // Track API usage for analytics
+  generatedAt: timestamp("generated_at").defaultNow(),
+  lastAccessedAt: timestamp("last_accessed_at").defaultNow(),
+  accessCount: integer("access_count").default(0), // Track usage for cache management
+  isValid: boolean("is_valid").default(true), // Flag for cache invalidation
+});
+
 // Referrals
 export const referrals = pgTable("referrals", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
@@ -1072,6 +1089,15 @@ export const insertAudioCacheSchema = createInsertSchema(audioCache).omit({
   accessCount: true
 });
 
+// AI response cache schema
+export const insertAiResponseCacheSchema = createInsertSchema(aiResponseCache).omit({
+  id: true,
+  generatedAt: true,
+  lastAccessedAt: true,
+  accessCount: true,
+  isValid: true
+});
+
 // Flashcard schema
 export const insertFlashcardSchema = createInsertSchema(flashcards).omit({
   id: true,
@@ -1150,3 +1176,5 @@ export type BetaFeedbackResponse = typeof betaFeedbackResponses.$inferSelect;
 export type InsertBetaFeedbackResponse = z.infer<typeof insertBetaFeedbackResponseSchema>;
 export type AudioCache = typeof audioCache.$inferSelect;
 export type InsertAudioCache = z.infer<typeof insertAudioCacheSchema>;
+export type AiResponseCache = typeof aiResponseCache.$inferSelect;
+export type InsertAiResponseCache = z.infer<typeof insertAiResponseCacheSchema>;
