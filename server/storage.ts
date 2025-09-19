@@ -292,14 +292,32 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createUser(insertUser: InsertUser): Promise<User> {
-    const [user] = await db
-      .insert(users)
-      .values({
-        ...insertUser,
-        referralCode: Math.random().toString(36).substring(2, 10).toUpperCase()
-      })
-      .returning();
-    return user;
+    // Atomic beta assignment with proper concurrency control
+    const result = await db.transaction(async (tx) => {
+      // Check current user count within the transaction
+      const [userCountResult] = await tx.select({ count: count() }).from(users);
+      const currentUserCount = userCountResult.count;
+      
+      // Determine if this user should be a beta tester (first 100 users)
+      const shouldBeBetaTester = currentUserCount < 100;
+      
+      // Create the user with beta status
+      const [newUser] = await tx
+        .insert(users)
+        .values({
+          ...insertUser,
+          referralCode: Math.random().toString(36).substring(2, 10).toUpperCase(),
+          isBetaTester: shouldBeBetaTester,
+          betaStartedAt: shouldBeBetaTester ? new Date() : null
+        })
+        .returning();
+        
+      console.log(`Created user ${newUser.id} (count: ${currentUserCount + 1}, beta: ${shouldBeBetaTester})`);
+      
+      return newUser;
+    });
+    
+    return result;
   }
 
   async updateUser(id: string, updates: Partial<User>): Promise<User> {
