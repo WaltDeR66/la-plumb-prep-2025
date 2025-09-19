@@ -24,6 +24,7 @@ import {
   cartItems,
   productReviews,
   competitionQuestions,
+  audioCache,
   type User, 
   type InsertUser,
   type Course,
@@ -70,6 +71,8 @@ import {
   type InsertAccountCreditTransaction,
   type MonthlyCommission,
   type InsertMonthlyCommission,
+  type AudioCache,
+  type InsertAudioCache,
   achievements,
   userAchievements,
   monthlyCompetitions,
@@ -268,6 +271,11 @@ export interface IStorage {
   submitCompetitionAttempt(competitionId: string, userId: string, answers: any[], timeSpent: number): Promise<any>;
   getUserCompetitionHistory(userId: string): Promise<any[]>;
   createMonthlyCompetition(competition: any): Promise<any>;
+  
+  // Audio cache methods
+  getCachedAudio(contentHash: string): Promise<AudioCache | undefined>;
+  createCachedAudio(audioData: InsertAudioCache): Promise<AudioCache>;
+  updateAudioAccess(contentHash: string): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -2422,6 +2430,27 @@ export class DatabaseStorage implements IStorage {
       bySection: sections.map(item => ({ codeReference: `Section ${item.section}`, count: item.count }))
       // No byDifficulty for podcasts - they're just educational content, not difficulty-based
     };
+  }
+
+  // Audio cache methods
+  async getCachedAudio(contentHash: string): Promise<AudioCache | undefined> {
+    const [audio] = await db.select().from(audioCache).where(eq(audioCache.contentHash, contentHash));
+    return audio || undefined;
+  }
+
+  async createCachedAudio(audioData: InsertAudioCache): Promise<AudioCache> {
+    const [audio] = await db.insert(audioCache).values(audioData).returning();
+    return audio;
+  }
+
+  async updateAudioAccess(contentHash: string): Promise<void> {
+    await db
+      .update(audioCache)
+      .set({ 
+        lastAccessedAt: new Date(),
+        accessCount: sql`${audioCache.accessCount} + 1`
+      })
+      .where(eq(audioCache.contentHash, contentHash));
   }
 }
 
