@@ -10,7 +10,8 @@ import {
   timestamp, 
   jsonb,
   pgEnum,
-  unique
+  unique,
+  bytea
 } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
@@ -216,6 +217,20 @@ export const planUploads = pgTable("plan_uploads", {
   materialList: jsonb("material_list"), // Generated material list
   analysis: jsonb("analysis"), // Plan analysis results
   createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Audio cache for generated TTS files
+export const audioCache = pgTable("audio_cache", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  contentHash: text("content_hash").notNull().unique(), // Hash of the text content
+  contentId: text("content_id").notNull(), // Content identifier for organization
+  audioData: bytea("audio_data").notNull(), // Binary audio data (MP3)
+  mimeType: text("mime_type").notNull().default("audio/mpeg"), // MIME type
+  fileSize: integer("file_size").notNull(), // File size in bytes
+  duration: integer("duration"), // Audio duration in seconds (optional)
+  generatedAt: timestamp("generated_at").defaultNow(),
+  lastAccessedAt: timestamp("last_accessed_at").defaultNow(),
+  accessCount: integer("access_count").default(0), // Track usage for cleanup
 });
 
 // Referrals
