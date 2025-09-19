@@ -197,6 +197,14 @@ export default function Pricing() {
                           <span className="text-xl font-normal text-muted-foreground">/month</span>
                         </>
                       )}
+                      
+                      {/* First Month Pricing Display */}
+                      {!isAnnual && (
+                        <div className="text-lg text-green-600 font-semibold mt-1">
+                          First month: ${((shouldShowBetaPricing ? plan.betaPrice : plan.basePrice) * 0.5).toFixed(2)} (50% off)
+                        </div>
+                      )}
+                      
                       {(isAnnual || shouldShowBetaPricing) && (
                         <div className="text-sm space-y-1">
                           {(shouldShowBetaPricing ? plan.betaPrice : plan.basePrice) !== calculatePrice(plan.basePrice, plan.betaPrice, isAnnual, shouldShowBetaPricing) && (
