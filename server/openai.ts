@@ -2,6 +2,8 @@ import OpenAI from "openai";
 import fs from "fs";
 import path from "path";
 import PDFDocument from "pdfkit";
+import crypto from "crypto";
+import { storage } from "./storage";
 
 if (!process.env.OPENAI_API_KEY) {
   throw new Error("OPENAI_API_KEY environment variable is required");
@@ -434,6 +436,52 @@ export async function generateAudio(text: string, contentId: string): Promise<st
     return `/audio/${fileName}`;
   } catch (error) {
     throw new Error("Failed to generate audio: " + (error as Error).message);
+  }
+}
+
+// New function for generating and caching audio in database
+export async function generateAndCacheAudio(text: string, contentId: string): Promise<string> {
+  try {
+    // Create a hash of the text content for caching
+    const contentHash = crypto.createHash('sha256').update(text).digest('hex');
+    
+    // Check if audio already exists in cache
+    const existingAudio = await storage.getCachedAudio(contentHash);
+    if (existingAudio) {
+      console.log(`Using cached audio for content hash: ${contentHash}`);
+      // Update access tracking
+      await storage.updateAudioAccess(contentHash);
+      return `/api/audio/cached/${contentHash}`;
+    }
+
+    console.log(`Generating new audio for content hash: ${contentHash}`);
+    
+    // Generate speech using OpenAI TTS
+    const mp3 = await openai.audio.speech.create({
+      model: "tts-1-hd", // High quality model
+      voice: "alloy", // Professional, clear voice
+      input: text,
+      speed: 0.9, // Slightly slower for educational content
+    });
+
+    const buffer = Buffer.from(await mp3.arrayBuffer());
+    const base64Audio = buffer.toString('base64');
+    
+    // Save to database cache
+    await storage.createCachedAudio({
+      contentHash,
+      contentId,
+      audioData: base64Audio,
+      mimeType: "audio/mpeg",
+      fileSize: buffer.length
+    });
+
+    console.log(`Audio cached successfully for content hash: ${contentHash}`);
+    
+    // Return URL to serve cached audio
+    return `/api/audio/cached/${contentHash}`;
+  } catch (error) {
+    throw new Error("Failed to generate and cache audio: " + (error as Error).message);
   }
 }
 

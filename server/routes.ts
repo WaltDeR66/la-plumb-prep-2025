@@ -7,7 +7,7 @@ import { insertUserSchema, insertJobSchema, insertJobApplicationSchema, insertCo
 import { competitionNotificationService } from "./competitionNotifications";
 import { eq, and, or, desc, sql, count } from "drizzle-orm";
 import { db } from "./db";
-import { analyzePhoto, analyzePlans, getMentorResponse, calculatePipeSize, reviewJobPosting, generateNumberedFittingPDF, generateStudyPlan, reviewWrongAnswers, generateAudio } from "./openai";
+import { analyzePhoto, analyzePlans, getMentorResponse, calculatePipeSize, reviewJobPosting, generateNumberedFittingPDF, generateStudyPlan, reviewWrongAnswers, generateAudio, generateAndCacheAudio } from "./openai";
 import { calculateReferralCommission, isValidSubscriptionTier } from "@shared/referral-utils";
 import { contentExtractor } from "./content-extractor";
 import { emailAutomation } from "./email-automation";
@@ -6952,13 +6952,18 @@ Start your journey at laplumbprep.com/courses
         return num || 101;
       };
       
-      // Build podcast content object with TTS audio integration
+      // Generate and cache audio during import (one-time cost)
+      console.log(`Generating cached audio for episode: ${title}`);
+      const cachedAudioUrl = await generateAndCacheAudio(transcript, contentId || `episode-${Date.now()}`);
+      console.log(`Audio cached successfully: ${cachedAudioUrl}`);
+
+      // Build podcast content object with cached TTS audio
       const podcastContent = {
         title: title,
         transcript: transcript,
         duration: duration || 180,
         type: 'podcast',
-        audioUrl: audioUrl || null,
+        audioUrl: cachedAudioUrl, // Use cached audio URL
         contentId: contentId || null,
         // Convert transcript to segments format for the podcast player
         segments: transcript.split('\n').map((line: string, index: number) => ({
