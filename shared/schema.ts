@@ -10,8 +10,7 @@ import {
   timestamp, 
   jsonb,
   pgEnum,
-  unique,
-  bytea
+  unique
 } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
@@ -224,7 +223,7 @@ export const audioCache = pgTable("audio_cache", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   contentHash: text("content_hash").notNull().unique(), // Hash of the text content
   contentId: text("content_id").notNull(), // Content identifier for organization
-  audioData: bytea("audio_data").notNull(), // Binary audio data (MP3)
+  audioData: text("audio_data").notNull(), // Base64 encoded audio data (MP3)
   mimeType: text("mime_type").notNull().default("audio/mpeg"), // MIME type
   fileSize: integer("file_size").notNull(), // File size in bytes
   duration: integer("duration"), // Audio duration in seconds (optional)
@@ -1065,6 +1064,14 @@ export const insertBetaFeedbackResponseSchema = createInsertSchema(betaFeedbackR
   completedAt: true
 });
 
+// Audio cache schema
+export const insertAudioCacheSchema = createInsertSchema(audioCache).omit({
+  id: true,
+  generatedAt: true,
+  lastAccessedAt: true,
+  accessCount: true
+});
+
 // Flashcard schema
 export const insertFlashcardSchema = createInsertSchema(flashcards).omit({
   id: true,
@@ -1141,3 +1148,5 @@ export type BetaFeedbackCampaign = typeof betaFeedbackCampaigns.$inferSelect;
 export type InsertBetaFeedbackCampaign = z.infer<typeof insertBetaFeedbackCampaignSchema>;
 export type BetaFeedbackResponse = typeof betaFeedbackResponses.$inferSelect;
 export type InsertBetaFeedbackResponse = z.infer<typeof insertBetaFeedbackResponseSchema>;
+export type AudioCache = typeof audioCache.$inferSelect;
+export type InsertAudioCache = z.infer<typeof insertAudioCacheSchema>;
