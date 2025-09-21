@@ -3,9 +3,9 @@ import express from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { emailService } from "./email";
-import { insertUserSchema, insertJobSchema, insertJobApplicationSchema, insertCourseContentSchema, insertPrivateCodeBookSchema, insertCourseSchema, insertProductSchema, insertCartItemSchema, insertProductReviewSchema, insertReferralSchema, leadMagnetDownloads, studentLeadMagnetDownloads, competitionNotifications, courses, users, jobs, products, jobApplications, lessonStepProgress, betaFeedbackResponses } from "@shared/schema";
+import { insertUserSchema, insertJobSchema, insertJobApplicationSchema, insertCourseContentSchema, insertPrivateCodeBookSchema, insertCourseSchema, insertProductSchema, insertCartItemSchema, insertProductReviewSchema, insertReferralSchema, leadMagnetDownloads, studentLeadMagnetDownloads, competitionNotifications, courses, users, jobs, products, jobApplications, lessonStepProgress, betaFeedbackResponses, sectionProgress, practiceExamResults, mentorConversations, studyCompanionMessages, cartItems, subscriptions } from "@shared/schema";
 import { competitionNotificationService } from "./competitionNotifications";
-import { eq, and, or, desc, sql, count, gte } from "drizzle-orm";
+import { eq, and, or, desc, sql, count, gte, ne, inArray } from "drizzle-orm";
 import { db } from "./db";
 import { analyzePhoto, analyzePlans, getMentorResponse, calculatePipeSize, reviewJobPosting, generateNumberedFittingPDF, generateStudyPlan, reviewWrongAnswers, generateAudio, generateAndCacheAudio } from "./openai";
 import { calculateReferralCommission, isValidSubscriptionTier } from "@shared/referral-utils";
@@ -5737,6 +5737,62 @@ Start your journey at laplumbprep.com/courses
     } catch (error: any) {
       console.error("Error fetching course analytics:", error);
       res.status(500).json({ error: "Failed to fetch course analytics" });
+    }
+  });
+
+  // Delete all non-admin users (cleanup operation)
+  app.delete("/api/admin/cleanup-users", async (req, res) => {
+    try {
+      // Safety check - only proceed if explicitly confirmed
+      const { confirmDelete } = req.body;
+      if (!confirmDelete) {
+        return res.status(400).json({ error: "Deletion must be explicitly confirmed" });
+      }
+
+      // Get admin user email to preserve
+      const adminEmail = "admin@latrainer.com";
+      
+      // Get all non-admin users
+      const usersToDelete = await db
+        .select({ id: users.id, email: users.email })
+        .from(users)
+        .where(ne(users.email, adminEmail));
+
+      if (usersToDelete.length === 0) {
+        return res.json({ message: "No non-admin users to delete", deletedCount: 0 });
+      }
+
+      const userIds = usersToDelete.map(u => u.id);
+
+      // Delete related data first (to avoid foreign key constraints)
+      // Delete user progress data
+      await db.delete(lessonStepProgress).where(inArray(lessonStepProgress.userId, userIds));
+      await db.delete(sectionProgress).where(inArray(sectionProgress.userId, userIds));
+      await db.delete(practiceExamResults).where(inArray(practiceExamResults.userId, userIds));
+      
+      // Delete user content
+      await db.delete(mentorConversations).where(inArray(mentorConversations.userId, userIds));
+      await db.delete(studyCompanionMessages).where(inArray(studyCompanionMessages.userId, userIds));
+      await db.delete(cartItems).where(inArray(cartItems.userId, userIds));
+      await db.delete(jobApplications).where(inArray(jobApplications.userId, userIds));
+      await db.delete(betaFeedbackResponses).where(inArray(betaFeedbackResponses.userId, userIds));
+      
+      // Delete subscriptions
+      await db.delete(subscriptions).where(inArray(subscriptions.userId, userIds));
+      
+      // Finally delete the users themselves
+      const deletedUsers = await db.delete(users).where(inArray(users.id, userIds)).returning();
+
+      console.log(`Deleted ${deletedUsers.length} non-admin users`);
+      
+      res.json({ 
+        message: `Successfully deleted ${deletedUsers.length} non-admin users`,
+        deletedCount: deletedUsers.length,
+        deletedUsers: usersToDelete.map(u => ({ id: u.id, email: u.email }))
+      });
+    } catch (error: any) {
+      console.error("Error during user cleanup:", error);
+      res.status(500).json({ error: "Failed to cleanup users" });
     }
   });
 
