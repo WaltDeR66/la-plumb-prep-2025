@@ -3,7 +3,7 @@ import express from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { emailService } from "./email";
-import { insertUserSchema, insertJobSchema, insertJobApplicationSchema, insertCourseContentSchema, insertPrivateCodeBookSchema, insertCourseSchema, insertProductSchema, insertCartItemSchema, insertProductReviewSchema, insertReferralSchema, leadMagnetDownloads, studentLeadMagnetDownloads, competitionNotifications, courses, users, jobs, products, jobApplications, lessonStepProgress, betaFeedbackResponses, sectionProgress, practiceExamResults, mentorConversations, studyCompanionMessages, cartItems, subscriptions } from "@shared/schema";
+import { insertUserSchema, insertJobSchema, insertJobApplicationSchema, insertCourseContentSchema, insertPrivateCodeBookSchema, insertCourseSchema, insertProductSchema, insertCartItemSchema, insertProductReviewSchema, insertReferralSchema, leadMagnetDownloads, studentLeadMagnetDownloads, competitionNotifications, courses, users, jobs, products, jobApplications, lessonStepProgress, betaFeedbackResponses, sectionProgress, mentorConversations, studyCompanionMessages, cartItems } from "@shared/schema";
 import { competitionNotificationService } from "./competitionNotifications";
 import { eq, and, or, desc, sql, count, gte, ne, inArray } from "drizzle-orm";
 import { db } from "./db";
@@ -5768,7 +5768,6 @@ Start your journey at laplumbprep.com/courses
       // Delete user progress data
       await db.delete(lessonStepProgress).where(inArray(lessonStepProgress.userId, userIds));
       await db.delete(sectionProgress).where(inArray(sectionProgress.userId, userIds));
-      await db.delete(practiceExamResults).where(inArray(practiceExamResults.userId, userIds));
       
       // Delete user content
       await db.delete(mentorConversations).where(inArray(mentorConversations.userId, userIds));
@@ -5776,9 +5775,6 @@ Start your journey at laplumbprep.com/courses
       await db.delete(cartItems).where(inArray(cartItems.userId, userIds));
       await db.delete(jobApplications).where(inArray(jobApplications.userId, userIds));
       await db.delete(betaFeedbackResponses).where(inArray(betaFeedbackResponses.userId, userIds));
-      
-      // Delete subscriptions
-      await db.delete(subscriptions).where(inArray(subscriptions.userId, userIds));
       
       // Finally delete the users themselves
       const deletedUsers = await db.delete(users).where(inArray(users.id, userIds)).returning();
