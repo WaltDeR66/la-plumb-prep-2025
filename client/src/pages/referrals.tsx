@@ -215,7 +215,9 @@ export default function Referrals() {
 
 I wanted to share something that's been really helpful for my plumbing career:
 
-${template.text}
+🔧 I've been using LA Plumb Prep for my Louisiana plumbing certification studies, and their practice tests and AI mentor have been game-changers.
+
+If you're studying for your Louisiana plumbing certification, check them out: ${referralUrl}
 
 LA Plumb Prep is Louisiana's premier plumbing certification platform with:
 • Complete Louisiana Plumbing Code preparation courses
@@ -224,7 +226,15 @@ LA Plumb Prep is Louisiana's premier plumbing certification platform with:
 • Professional tools and calculators
 • Job placement assistance
 
-They're offering special beta pricing right now, so it's a great time to check it out!
+🎯 BETA TESTER BENEFITS - Limited Time:
+As a beta tester, you'll get:
+• 60% OFF regular pricing (Basic $19.99 vs $49.99, Professional $29.99 vs $79.99, Master $49.99 vs $99.99)
+• Priority access to new features as they're released
+• Direct input on platform improvements and new course content
+• Lifetime grandfathered pricing - your beta rate stays locked in forever
+• Exclusive beta tester community and networking opportunities
+
+This beta pricing won't last long, so it's a great time to join!
 
 Best regards,
 [Your name]`;
@@ -521,7 +531,7 @@ Best regards,
                     </Button>
                     <Button onClick={() => {
                       shareToSocialMedia({
-                        text: `🔧 Just passed my Louisiana plumbing exam with LA Plumb Prep! Their practice tests and AI mentor were game-changers. \n\nIf you're studying for your Louisiana plumbing certification, check them out: ${referralUrl} \n\n#LouisianaPlumber #PlumbingCertification #StudySuccess`
+                        text: `🔧 I've been using LA Plumb Prep for my Louisiana plumbing certification studies, and their practice tests and AI mentor have been game-changers. \n\nIf you're studying for your Louisiana plumbing certification, check them out: ${referralUrl} \n\n#LouisianaPlumber #PlumbingCertification #StudySuccess`
                       }, 'email');
                     }} className="flex-1" data-testid="email-link">
                       <Mail className="h-4 w-4 mr-2" />
