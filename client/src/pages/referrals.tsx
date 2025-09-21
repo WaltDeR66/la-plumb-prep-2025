@@ -230,7 +230,29 @@ They're offering special beta pricing right now, so it's a great time to check i
 Best regards,
 [Your name]`;
         const mailtoUrl = `mailto:?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`;
-        window.location.href = mailtoUrl;
+        console.log('Generated mailto URL:', mailtoUrl);
+        
+        // Try multiple methods to open email
+        try {
+          // Method 1: Direct window.location
+          window.location.href = mailtoUrl;
+          console.log('Method 1: window.location.href attempted');
+        } catch (error) {
+          console.error('Method 1 failed:', error);
+          try {
+            // Method 2: window.open
+            window.open(mailtoUrl, '_blank');
+            console.log('Method 2: window.open attempted');
+          } catch (error2) {
+            console.error('Method 2 failed:', error2);
+            // Method 3: Copy to clipboard as fallback
+            navigator.clipboard.writeText(`Subject: ${emailSubject}\n\n${emailBody}`);
+            toast({
+              title: "Email Content Copied",
+              description: "Email couldn't open automatically. Content has been copied to your clipboard - paste it into your email app.",
+            });
+          }
+        }
         return;
       default:
         // Copy to clipboard as fallback
