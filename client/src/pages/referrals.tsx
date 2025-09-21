@@ -181,6 +181,8 @@ export default function Referrals() {
   ];
 
   const shareToSocialMedia = (template: any, platform: string) => {
+    console.log('shareToSocialMedia called with:', { template, platform, referralUrl });
+    
     const baseUrls = {
       facebook: 'https://www.facebook.com/sharer/sharer.php?u=',
       twitter: 'https://twitter.com/intent/tweet?text=',
@@ -207,6 +209,7 @@ export default function Referrals() {
         const emailSubject = `Check out LA Plumb Prep - Louisiana Plumbing Certification`;
         const emailBody = `Hi there!\n\nI wanted to share something that's been really helpful for my plumbing career:\n\n${template.text}\n\nLA Plumb Prep is Louisiana's premier plumbing certification platform with:\n• Complete Louisiana Plumbing Code preparation courses\n• AI-powered mentor and code checker\n• Practice exams that mirror the real tests\n• Professional tools and calculators\n• Job placement assistance\n\nThey're offering special beta pricing right now, so it's a great time to check it out!\n\nBest regards,\n[Your name]`;
         const mailtoUrl = `mailto:?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`;
+        console.log('Email details:', { emailSubject, emailBody, mailtoUrl });
         window.location.href = mailtoUrl;
         return;
       default:
