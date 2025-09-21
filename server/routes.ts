@@ -5748,7 +5748,7 @@ Start your journey at laplumbprep.com/courses
         : 0;
 
       // Calculate completion rate (unique students who completed any lessons vs total enrolled)
-      const [uniqueCompletedStudentsResult] = await db
+      const uniqueCompletedStudentsResult = await db
         .selectDistinct({ userId: lessonStepProgress.userId })
         .from(lessonStepProgress)
         .innerJoin(users, eq(lessonStepProgress.userId, users.id))
