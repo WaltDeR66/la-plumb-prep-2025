@@ -5740,6 +5740,72 @@ Start your journey at laplumbprep.com/courses
     }
   });
 
+  // Get list of enrolled students
+  app.get("/api/admin/students", async (req, res) => {
+    try {
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 50;
+      const offset = (page - 1) * limit;
+
+      // Get enrolled students (users with any subscription tier)
+      const students = await db
+        .select({
+          id: users.id,
+          email: users.email,
+          firstName: users.firstName,
+          lastName: users.lastName,
+          subscriptionTier: users.subscriptionTier,
+          isActive: users.isActive,
+          isBetaTester: users.isBetaTester,
+          createdAt: users.createdAt,
+          lastLoginDate: users.lastLoginDate
+        })
+        .from(users)
+        .where(and(
+          eq(users.isActive, true),
+          or(
+            eq(users.subscriptionTier, 'basic'),
+            eq(users.subscriptionTier, 'professional'),
+            eq(users.subscriptionTier, 'master')
+          )
+        ))
+        .orderBy(desc(users.createdAt))
+        .limit(limit)
+        .offset(offset);
+
+      // Get total count for pagination
+      const [totalResult] = await db
+        .select({ count: count() })
+        .from(users)
+        .where(and(
+          eq(users.isActive, true),
+          or(
+            eq(users.subscriptionTier, 'basic'),
+            eq(users.subscriptionTier, 'professional'),
+            eq(users.subscriptionTier, 'master')
+          )
+        ));
+
+      const total = totalResult.count;
+      const totalPages = Math.ceil(total / limit);
+
+      res.json({
+        students,
+        pagination: {
+          page,
+          limit,
+          total,
+          totalPages,
+          hasNext: page < totalPages,
+          hasPrev: page > 1
+        }
+      });
+    } catch (error: any) {
+      console.error("Error fetching students:", error);
+      res.status(500).json({ error: "Failed to fetch students" });
+    }
+  });
+
   // ===== GAMIFICATION API ROUTES =====
 
   // Get current monthly competition

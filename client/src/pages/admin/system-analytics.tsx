@@ -1,8 +1,10 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useQuery } from "@tanstack/react-query";
-import { Users, BookOpen, DollarSign, TrendingUp, Eye, UserPlus, CreditCard, GraduationCap } from "lucide-react";
+import { Users, BookOpen, DollarSign, TrendingUp, Eye, UserPlus, CreditCard, GraduationCap, UserCheck } from "lucide-react";
 import { useState } from "react";
 
 export default function SystemAnalytics() {
@@ -30,6 +32,11 @@ export default function SystemAnalytics() {
     queryKey: ["/api/admin/course-analytics"],
   });
 
+  // Fetch students list
+  const { data: studentsData } = useQuery({
+    queryKey: ["/api/admin/students"],
+  });
+
   // Type-safe course stats with defaults
   const coursesData = {
     journeymanEnrolled: (courseStats as any)?.journeymanEnrolled || 0,
@@ -37,6 +44,8 @@ export default function SystemAnalytics() {
     journeymanCompletion: (courseStats as any)?.journeymanCompletion || 0,
     backflowWaitlist: (courseStats as any)?.backflowWaitlist || 0
   };
+
+  const students = (studentsData as any)?.students || [];
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -188,7 +197,82 @@ export default function SystemAnalytics() {
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Enrolled Students</p>
-                  <p className="text-lg font-semibold">{coursesData.journeymanEnrolled}</p>
+                  <div className="flex items-center gap-2">
+                    <p className="text-lg font-semibold">{coursesData.journeymanEnrolled}</p>
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        <Button variant="outline" size="sm" className="text-xs" data-testid="button-view-students">
+                          <UserCheck className="w-3 h-3 mr-1" />
+                          View List
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+                        <DialogHeader>
+                          <DialogTitle>Enrolled Students ({students.length})</DialogTitle>
+                          <DialogDescription>
+                            List of all currently enrolled students with their subscription details
+                          </DialogDescription>
+                        </DialogHeader>
+                        <div className="space-y-4">
+                          {students.length > 0 ? (
+                            <div className="grid gap-3">
+                              {students.map((student: any, index: number) => (
+                                <Card key={student.id} className="p-4" data-testid={`student-card-${index}`}>
+                                  <div className="flex items-center justify-between">
+                                    <div className="flex items-center space-x-3">
+                                      <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center">
+                                        <span className="text-primary-foreground font-semibold text-sm">
+                                          {(student.firstName?.[0] || student.email[0]).toUpperCase()}
+                                        </span>
+                                      </div>
+                                      <div>
+                                        <h4 className="font-semibold text-sm" data-testid={`student-name-${index}`}>
+                                          {student.firstName && student.lastName 
+                                            ? `${student.firstName} ${student.lastName}`
+                                            : student.email
+                                          }
+                                        </h4>
+                                        <p className="text-xs text-muted-foreground" data-testid={`student-email-${index}`}>
+                                          {student.email}
+                                        </p>
+                                        <p className="text-xs text-muted-foreground">
+                                          Joined: {new Date(student.createdAt).toLocaleDateString()}
+                                        </p>
+                                      </div>
+                                    </div>
+                                    <div className="flex items-center space-x-2">
+                                      <Badge 
+                                        variant={student.subscriptionTier === 'master' ? 'default' : 
+                                               student.subscriptionTier === 'professional' ? 'secondary' : 'outline'}
+                                        className="text-xs"
+                                      >
+                                        {student.subscriptionTier}
+                                      </Badge>
+                                      {student.isBetaTester && (
+                                        <Badge variant="destructive" className="text-xs">
+                                          Beta
+                                        </Badge>
+                                      )}
+                                      <Badge 
+                                        variant={student.isActive ? 'default' : 'secondary'}
+                                        className="text-xs"
+                                      >
+                                        {student.isActive ? 'Active' : 'Inactive'}
+                                      </Badge>
+                                    </div>
+                                  </div>
+                                </Card>
+                              ))}
+                            </div>
+                          ) : (
+                            <div className="text-center py-8 text-muted-foreground">
+                              No enrolled students found
+                            </div>
+                          )}
+                        </div>
+                      </DialogContent>
+                    </Dialog>
+                  </div>
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Avg. Progress</p>
