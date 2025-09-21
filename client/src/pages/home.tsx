@@ -9,12 +9,12 @@ import BetaBanner from "@/components/beta-banner";
 
 export default function Home() {
   useEffect(() => {
-    document.title = "LA Plumb Prep - Louisiana Plumbing Certification Training & Exam Prep";
+    document.title = "Louisiana Plumbing License Exam Prep - Journeyman, Master & Backflow Certification Training";
     
     // Update meta description
     const metaDescription = document.querySelector('meta[name="description"]');
     if (metaDescription) {
-      metaDescription.setAttribute('content', 'Master Louisiana plumbing codes with professional certification training. Journeyman prep courses, AI-powered tools, practice exams, and expert mentoring for Louisiana plumbers.');
+      metaDescription.setAttribute('content', 'Pass your Louisiana plumbing license exam with our comprehensive prep courses. Journeyman, master plumber, backflow prevention, and natural gas certification training. 95% pass rate. State-approved materials.');
     }
   }, []);
 
@@ -417,6 +417,116 @@ export default function Home() {
                 </div>
               </Card>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Louisiana Licensing Requirements SEO Section */}
+      <section className="py-20 bg-muted/30" data-testid="licensing-requirements-section">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl lg:text-4xl font-bold text-foreground mb-4" data-testid="licensing-title">
+              Louisiana Plumbing License Requirements & Exam Information
+            </h2>
+            <p className="text-xl text-muted-foreground max-w-4xl mx-auto" data-testid="licensing-description">
+              Complete guide to getting your Louisiana plumbing license. Requirements, exam details, and certification processes for journeyman, master, and specialty licenses.
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+            <div>
+              <h3 className="text-2xl font-bold text-foreground mb-6">Louisiana Journeyman Plumber License</h3>
+              <div className="space-y-4 mb-8">
+                <div className="flex items-start space-x-3">
+                  <CheckCircle className="w-5 h-5 text-green-600 mt-1" />
+                  <div>
+                    <p className="font-semibold text-foreground">Education Requirements</p>
+                    <p className="text-muted-foreground text-sm">Complete 4-year apprenticeship program or 8,000 hours of documented experience</p>
+                  </div>
+                </div>
+                <div className="flex items-start space-x-3">
+                  <CheckCircle className="w-5 h-5 text-green-600 mt-1" />
+                  <div>
+                    <p className="font-semibold text-foreground">Exam Coverage</p>
+                    <p className="text-muted-foreground text-sm">Louisiana State Plumbing Code, residential & commercial systems, safety protocols</p>
+                  </div>
+                </div>
+                <div className="flex items-start space-x-3">
+                  <CheckCircle className="w-5 h-5 text-green-600 mt-1" />
+                  <div>
+                    <p className="font-semibold text-foreground">Application Process</p>
+                    <p className="text-muted-foreground text-sm">Submit application to Louisiana State Board of Examiners of Plumbers</p>
+                  </div>
+                </div>
+                <div className="flex items-start space-x-3">
+                  <CheckCircle className="w-5 h-5 text-green-600 mt-1" />
+                  <div>
+                    <p className="font-semibold text-foreground">Exam Fee</p>
+                    <p className="text-muted-foreground text-sm">$85 examination fee plus $25 application processing fee</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div>
+              <h3 className="text-2xl font-bold text-foreground mb-6">Specialty Certifications Available</h3>
+              <div className="space-y-6">
+                <Card className="p-4">
+                  <h4 className="font-semibold text-foreground mb-2">Backflow Prevention Assembly Tester</h4>
+                  <p className="text-muted-foreground text-sm mb-2">Test and maintain backflow prevention devices. Recertification required every 3 years.</p>
+                  <Badge variant="secondary">State Certified</Badge>
+                </Card>
+                
+                <Card className="p-4">
+                  <h4 className="font-semibold text-foreground mb-2">Natural Gas Piping Installer</h4>
+                  <p className="text-muted-foreground text-sm mb-2">Install natural gas piping systems in residential and commercial applications.</p>
+                  <Badge variant="secondary">Code Compliant</Badge>
+                </Card>
+                
+                <Card className="p-4">
+                  <h4 className="font-semibold text-foreground mb-2">Medical Gas Installer</h4>
+                  <p className="text-muted-foreground text-sm mb-2">Hospital and healthcare facility gas systems following NFPA 99 standards.</p>
+                  <Badge variant="secondary">NFPA Certified</Badge>
+                </Card>
+                
+                <Card className="p-4">
+                  <h4 className="font-semibold text-foreground mb-2">Master Plumber License</h4>
+                  <p className="text-muted-foreground text-sm mb-2">Business operations, advanced code interpretation, and supervisory responsibilities.</p>
+                  <Badge variant="secondary">Advanced Level</Badge>
+                </Card>
+              </div>
+            </div>
+          </div>
+          
+          <div className="mt-16 bg-white rounded-lg p-8">
+            <h3 className="text-2xl font-bold text-foreground mb-6 text-center">Louisiana State Plumbing Code Coverage</h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="text-center">
+                <Building2 className="w-12 h-12 text-primary mx-auto mb-4" />
+                <h4 className="font-semibold text-foreground mb-2">Residential Systems</h4>
+                <p className="text-muted-foreground text-sm">Water supply, drainage, fixtures, and venting systems for single and multi-family homes</p>
+              </div>
+              <div className="text-center">
+                <Calculator className="w-12 h-12 text-primary mx-auto mb-4" />
+                <h4 className="font-semibold text-foreground mb-2">Commercial Applications</h4>
+                <p className="text-muted-foreground text-sm">Large buildings, restaurants, hospitals, and industrial facility plumbing requirements</p>
+              </div>
+              <div className="text-center">
+                <Star className="w-12 h-12 text-primary mx-auto mb-4" />
+                <h4 className="font-semibold text-foreground mb-2">Code Compliance</h4>
+                <p className="text-muted-foreground text-sm">Safety protocols, inspection procedures, and Louisiana-specific regulations and requirements</p>
+              </div>
+            </div>
+          </div>
+          
+          <div className="text-center mt-12">
+            <h3 className="text-xl font-bold text-foreground mb-4">Ready to Start Your Louisiana Plumbing Career?</h3>
+            <p className="text-muted-foreground mb-6">Join thousands of Louisiana plumbers who have advanced their careers with our state-approved training courses</p>
+            <Link href="/pricing">
+              <Button size="lg" data-testid="button-start-training">
+                Start Your Certification Training Today
+              </Button>
+            </Link>
           </div>
         </div>
       </section>
