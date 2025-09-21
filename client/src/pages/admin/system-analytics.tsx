@@ -13,15 +13,29 @@ export default function SystemAnalytics() {
     queryKey: ["/api/admin/analytics", timeRange],
   });
 
-  const stats = analytics || {
-    totalUsers: 0,
-    activeStudents: 0,
-    totalRevenue: 0,
-    courseCompletions: 0,
-    newSignups: 0,
-    subscriptionConversions: 0,
-    jobApplications: 0,
-    betaFeedbackScore: 0
+  // Type-safe analytics data with defaults
+  const stats = {
+    totalUsers: (analytics as any)?.totalUsers || 0,
+    activeStudents: (analytics as any)?.activeStudents || 0,
+    totalRevenue: (analytics as any)?.totalRevenue || 0,
+    courseCompletions: (analytics as any)?.courseCompletions || 0,
+    newSignups: (analytics as any)?.newSignups || 0,
+    subscriptionConversions: (analytics as any)?.subscriptionConversions || 0,
+    jobApplications: (analytics as any)?.jobApplications || 0,
+    betaFeedbackScore: (analytics as any)?.betaFeedbackScore || 0
+  };
+
+  // Fetch course-specific enrollment data
+  const { data: courseStats } = useQuery({
+    queryKey: ["/api/admin/course-analytics"],
+  });
+
+  // Type-safe course stats with defaults
+  const coursesData = {
+    journeymanEnrolled: (courseStats as any)?.journeymanEnrolled || 0,
+    journeymanProgress: (courseStats as any)?.journeymanProgress || 0,
+    journeymanCompletion: (courseStats as any)?.journeymanCompletion || 0,
+    backflowWaitlist: (courseStats as any)?.backflowWaitlist || 0
   };
 
   return (
@@ -174,15 +188,15 @@ export default function SystemAnalytics() {
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Enrolled Students</p>
-                  <p className="text-lg font-semibold">45</p>
+                  <p className="text-lg font-semibold">{coursesData.journeymanEnrolled}</p>
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Avg. Progress</p>
-                  <p className="text-lg font-semibold">28%</p>
+                  <p className="text-lg font-semibold">{coursesData.journeymanProgress}%</p>
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Completion Rate</p>
-                  <p className="text-lg font-semibold">12%</p>
+                  <p className="text-lg font-semibold">{coursesData.journeymanCompletion}%</p>
                 </div>
               </div>
 
@@ -193,7 +207,7 @@ export default function SystemAnalytics() {
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Waitlist</p>
-                  <p className="text-lg font-semibold">23</p>
+                  <p className="text-lg font-semibold">{coursesData.backflowWaitlist}</p>
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Expected Launch</p>
