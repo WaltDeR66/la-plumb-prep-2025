@@ -5747,9 +5747,9 @@ Start your journey at laplumbprep.com/courses
         ? Math.round((completedStepsResult.count / totalStepsResult.count) * 100) 
         : 0;
 
-      // Calculate completion rate (students who completed any lessons vs total)
-      const [completedStudentsResult] = await db
-        .select({ count: count() })
+      // Calculate completion rate (unique students who completed any lessons vs total enrolled)
+      const [uniqueCompletedStudentsResult] = await db
+        .selectDistinct({ userId: lessonStepProgress.userId })
         .from(lessonStepProgress)
         .innerJoin(users, eq(lessonStepProgress.userId, users.id))
         .where(and(
@@ -5757,13 +5757,14 @@ Start your journey at laplumbprep.com/courses
           eq(users.isActive, true)
         ));
       
-      const completedStudents = completedStudentsResult.count;
+      const uniqueCompletedStudents = uniqueCompletedStudentsResult.length;
       const journeymanCompletion = journeymanEnrolled > 0 
-        ? Math.round((completedStudents / journeymanEnrolled) * 100) 
+        ? Math.round((uniqueCompletedStudents / journeymanEnrolled) * 100) 
         : 0;
 
-      // For backflow waitlist, count users interested (this is a placeholder)
-      const backflowWaitlist = 23; // This would be from a waitlist table in real implementation
+      // For backflow waitlist, count users interested
+      // Since we don't have a waitlist table yet, count inactive courses or use 0
+      const backflowWaitlist = 0; // No active waitlist system implemented yet
 
       const courseStats = {
         journeymanEnrolled,
