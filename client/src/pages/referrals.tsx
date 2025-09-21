@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery } from "@tanstack/react-query";
-import { DollarSign, Users, Copy, Share2, TrendingUp, Info, MessageSquare, Instagram, Facebook, Twitter, Settings, Mail } from "lucide-react";
+import { DollarSign, Users, Copy, TrendingUp, Info, MessageSquare, Instagram, Facebook, Twitter, Settings, Mail } from "lucide-react";
 import { SiLinkedin, SiWhatsapp } from "react-icons/si";
 import { Link } from "wouter";
 
@@ -229,7 +229,6 @@ They're offering special beta pricing right now, so it's a great time to check i
 Best regards,
 [Your name]`;
         const mailtoUrl = `mailto:?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`;
-        console.log('Opening email with custom template:', mailtoUrl);
         window.location.href = mailtoUrl;
         return;
       default:
@@ -509,9 +508,11 @@ Best regards,
                       <Copy className="h-4 w-4 mr-2" />
                       Copy Link
                     </Button>
-                    <Button onClick={shareReferralUrl} className="flex-1" data-testid="share-link">
-                      <Share2 className="h-4 w-4 mr-2" />
-                      Share
+                    <Button onClick={() => shareToSocialMedia({
+                      text: `🔧 Just passed my Louisiana plumbing exam with LA Plumb Prep! Their practice tests and AI mentor were game-changers. \n\nIf you're studying for your Louisiana plumbing certification, check them out: ${referralUrl} \n\n#LouisianaPlumber #PlumbingCertification #StudySuccess`
+                    }, 'email')} className="flex-1" data-testid="email-link">
+                      <Mail className="h-4 w-4 mr-2" />
+                      Email
                     </Button>
                     {!stats?.referralCode && (
                       <Button
@@ -531,7 +532,7 @@ Best regards,
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
-                    <Share2 className="h-5 w-5" />
+                    <MessageSquare className="h-5 w-5" />
                     Social Media Templates
                   </CardTitle>
                 </CardHeader>
