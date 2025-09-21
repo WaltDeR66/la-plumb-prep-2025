@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery } from "@tanstack/react-query";
-import { DollarSign, Users, Copy, Share2, TrendingUp, Info, MessageSquare, Instagram, Facebook, Twitter, Settings } from "lucide-react";
+import { DollarSign, Users, Copy, Share2, TrendingUp, Info, MessageSquare, Instagram, Facebook, Twitter, Settings, Mail } from "lucide-react";
 import { SiLinkedin, SiWhatsapp } from "react-icons/si";
 import { Link } from "wouter";
 
@@ -166,6 +166,12 @@ export default function Referrals() {
       case 'whatsapp':
         shareUrl = `${baseUrls.whatsapp}${encodeURIComponent(template.text)}`;
         break;
+      case 'email':
+        const emailSubject = `Check out LA Plumb Prep - Louisiana Plumbing Certification`;
+        const emailBody = `Hi there!\n\nI wanted to share something that's been really helpful for my plumbing career:\n\n${template.text}\n\nLA Plumb Prep is Louisiana's premier plumbing certification platform with:\n• Complete Louisiana Plumbing Code preparation courses\n• AI-powered mentor and code checker\n• Practice exams that mirror the real tests\n• Professional tools and calculators\n• Job placement assistance\n\nThey're offering special beta pricing right now, so it's a great time to check it out!\n\nBest regards,\n[Your name]`;
+        const mailtoUrl = `mailto:?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`;
+        window.location.href = mailtoUrl;
+        return;
       default:
         // Copy to clipboard as fallback
         navigator.clipboard.writeText(template.text);
@@ -492,6 +498,15 @@ export default function Referrals() {
                           </Button>
                           
                           <div className="flex gap-1">
+                            <Button 
+                              size="sm" 
+                              onClick={() => shareToSocialMedia(template, 'email')}
+                              className="px-2"
+                              data-testid={`share-email-${template.id}`}
+                              title="Share via Email"
+                            >
+                              <Mail className="h-3 w-3" />
+                            </Button>
                             <Button 
                               size="sm" 
                               onClick={() => shareToSocialMedia(template, 'facebook')}
