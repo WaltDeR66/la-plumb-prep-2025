@@ -24,7 +24,12 @@ export default function SystemAnalytics() {
     newSignups: (analytics as any)?.newSignups || 0,
     subscriptionConversions: (analytics as any)?.subscriptionConversions || 0,
     jobApplications: (analytics as any)?.jobApplications || 0,
-    betaFeedbackScore: (analytics as any)?.betaFeedbackScore || 0
+    betaFeedbackScore: (analytics as any)?.betaFeedbackScore || 0,
+    arpu: (analytics as any)?.arpu || 0,
+    referralCommissionsPaid: (analytics as any)?.referralCommissionsPaid || 0,
+    aiToolUsage: (analytics as any)?.aiToolUsage || 0,
+    avgSessionDuration: (analytics as any)?.avgSessionDuration || 0,
+    courseProgressRate: (analytics as any)?.courseProgressRate || 0
   };
 
   // Fetch course-specific enrollment data
@@ -140,15 +145,15 @@ export default function SystemAnalytics() {
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-sm font-medium">Avg. Session Duration</span>
-                  <span className="text-sm">24 minutes</span>
+                  <span className="text-sm" data-testid="text-session-duration">{stats.avgSessionDuration} minutes</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-sm font-medium">Course Progress Rate</span>
-                  <span className="text-sm">73%</span>
+                  <span className="text-sm" data-testid="text-progress-rate">{stats.courseProgressRate}%</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-sm font-medium">AI Tool Usage</span>
-                  <span className="text-sm">156 queries this month</span>
+                  <span className="text-sm" data-testid="text-ai-usage">{stats.aiToolUsage} queries this month</span>
                 </div>
               </div>
             </CardContent>
@@ -167,11 +172,11 @@ export default function SystemAnalytics() {
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-sm font-medium">Avg. Revenue per User</span>
-                  <span className="text-sm">$89</span>
+                  <span className="text-sm" data-testid="text-arpu">${stats.arpu}</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-sm font-medium">Referral Commission Paid</span>
-                  <span className="text-sm">$2,340</span>
+                  <span className="text-sm" data-testid="text-commission">${stats.referralCommissionsPaid.toLocaleString()}</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-sm font-medium">Job Placements</span>

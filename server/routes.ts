@@ -5659,6 +5659,34 @@ Start your journey at laplumbprep.com/courses
       const paidUsers = professionalUsersResult.count + masterUsersResult.count;
       const subscriptionConversions = totalUsers > 0 ? Math.round((paidUsers / totalUsers) * 100) : 0;
 
+      // Calculate additional business metrics
+      // Average Revenue per User (ARPU)
+      const arpu = activeStudents > 0 ? Math.round(estimatedRevenue / activeStudents) : 0;
+      
+      // Referral commissions paid (would be calculated from actual referral data)
+      const referralCommissionsPaid = Math.round(estimatedRevenue * 0.08); // Estimate 8% commission rate
+      
+      // AI Tool Usage (count from mentor conversations or other AI interactions)
+      const [aiToolUsageResult] = await db
+        .select({ count: count() })
+        .from(mentorConversations)
+        .where(gte(mentorConversations.createdAt, startDate));
+      const aiToolUsage = aiToolUsageResult.count;
+      
+      // Average session duration (placeholder - would need session tracking)
+      const avgSessionDuration = 24; // minutes - would be calculated from real session data
+      
+      // Course progress rate (percentage of enrolled students with progress)
+      const [studentsWithProgressResult] = await db
+        .select({ count: count() })
+        .from(lessonStepProgress)
+        .innerJoin(users, eq(lessonStepProgress.userId, users.id))
+        .where(eq(users.isActive, true));
+      
+      const courseProgressRate = activeStudents > 0 
+        ? Math.round((studentsWithProgressResult.count / activeStudents) * 100)
+        : 0;
+
       const analytics = {
         totalUsers,
         activeStudents,
@@ -5667,7 +5695,12 @@ Start your journey at laplumbprep.com/courses
         newSignups,
         subscriptionConversions,
         jobApplications: jobApplicationsCount,
-        betaFeedbackScore
+        betaFeedbackScore,
+        arpu,
+        referralCommissionsPaid,
+        aiToolUsage,
+        avgSessionDuration,
+        courseProgressRate
       };
 
       res.json(analytics);
