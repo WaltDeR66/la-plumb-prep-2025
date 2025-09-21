@@ -112,6 +112,11 @@ export default function Referrals() {
   };
 
   const shareReferralUrl = async () => {
+    // Force use of the custom email template instead of Web Share API for email
+    const template = {
+      text: `🔧 Just passed my Louisiana plumbing exam with LA Plumb Prep! Their practice tests and AI mentor were game-changers. \n\nIf you're studying for your Louisiana plumbing certification, check them out: ${referralUrl} \n\n#LouisianaPlumber #PlumbingCertification #StudySuccess`
+    };
+    
     if (navigator.share) {
       try {
         await navigator.share({
@@ -120,7 +125,8 @@ export default function Referrals() {
           url: referralUrl,
         });
       } catch (error) {
-        // User cancelled or error occurred
+        // User cancelled or error occurred, fallback to copy
+        copyReferralUrl();
       }
     } else {
       copyReferralUrl();
@@ -205,8 +211,25 @@ export default function Referrals() {
         break;
       case 'email':
         const emailSubject = `Check out LA Plumb Prep - Louisiana Plumbing Certification`;
-        const emailBody = `Hi there!\n\nI wanted to share something that's been really helpful for my plumbing career:\n\n${template.text}\n\nLA Plumb Prep is Louisiana's premier plumbing certification platform with:\n• Complete Louisiana Plumbing Code preparation courses\n• AI-powered mentor and code checker\n• Practice exams that mirror the real tests\n• Professional tools and calculators\n• Job placement assistance\n\nThey're offering special beta pricing right now, so it's a great time to check it out!\n\nBest regards,\n[Your name]`;
+        const emailBody = `Hi there!
+
+I wanted to share something that's been really helpful for my plumbing career:
+
+${template.text}
+
+LA Plumb Prep is Louisiana's premier plumbing certification platform with:
+• Complete Louisiana Plumbing Code preparation courses
+• AI-powered mentor and code checker  
+• Practice exams that mirror the real tests
+• Professional tools and calculators
+• Job placement assistance
+
+They're offering special beta pricing right now, so it's a great time to check it out!
+
+Best regards,
+[Your name]`;
         const mailtoUrl = `mailto:?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`;
+        console.log('Opening email with custom template:', mailtoUrl);
         window.location.href = mailtoUrl;
         return;
       default:
