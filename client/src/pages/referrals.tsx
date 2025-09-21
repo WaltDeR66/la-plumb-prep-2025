@@ -187,6 +187,7 @@ export default function Referrals() {
   ];
 
   const shareToSocialMedia = (template: any, platform: string) => {
+    console.log('shareToSocialMedia called with:', { template, platform, referralUrl });
     const baseUrls = {
       facebook: 'https://www.facebook.com/sharer/sharer.php?u=',
       twitter: 'https://twitter.com/intent/tweet?text=',
@@ -508,9 +509,12 @@ Best regards,
                       <Copy className="h-4 w-4 mr-2" />
                       Copy Link
                     </Button>
-                    <Button onClick={() => shareToSocialMedia({
-                      text: `🔧 Just passed my Louisiana plumbing exam with LA Plumb Prep! Their practice tests and AI mentor were game-changers. \n\nIf you're studying for your Louisiana plumbing certification, check them out: ${referralUrl} \n\n#LouisianaPlumber #PlumbingCertification #StudySuccess`
-                    }, 'email')} className="flex-1" data-testid="email-link">
+                    <Button onClick={() => {
+                      console.log('Email button clicked, referralUrl:', referralUrl);
+                      shareToSocialMedia({
+                        text: `🔧 Just passed my Louisiana plumbing exam with LA Plumb Prep! Their practice tests and AI mentor were game-changers. \n\nIf you're studying for your Louisiana plumbing certification, check them out: ${referralUrl} \n\n#LouisianaPlumber #PlumbingCertification #StudySuccess`
+                      }, 'email');
+                    }} className="flex-1" data-testid="email-link">
                       <Mail className="h-4 w-4 mr-2" />
                       Email
                     </Button>
