@@ -187,7 +187,6 @@ export default function Referrals() {
   ];
 
   const shareToSocialMedia = (template: any, platform: string) => {
-    console.log('shareToSocialMedia called with:', { template, platform, referralUrl });
     const baseUrls = {
       facebook: 'https://www.facebook.com/sharer/sharer.php?u=',
       twitter: 'https://twitter.com/intent/tweet?text=',
@@ -230,29 +229,18 @@ They're offering special beta pricing right now, so it's a great time to check i
 Best regards,
 [Your name]`;
         const mailtoUrl = `mailto:?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`;
-        console.log('Generated mailto URL:', mailtoUrl);
         
-        // Try multiple methods to open email
-        try {
-          // Method 1: Direct window.location
-          window.location.href = mailtoUrl;
-          console.log('Method 1: window.location.href attempted');
-        } catch (error) {
-          console.error('Method 1 failed:', error);
-          try {
-            // Method 2: window.open
-            window.open(mailtoUrl, '_blank');
-            console.log('Method 2: window.open attempted');
-          } catch (error2) {
-            console.error('Method 2 failed:', error2);
-            // Method 3: Copy to clipboard as fallback
-            navigator.clipboard.writeText(`Subject: ${emailSubject}\n\n${emailBody}`);
-            toast({
-              title: "Email Content Copied",
-              description: "Email couldn't open automatically. Content has been copied to your clipboard - paste it into your email app.",
-            });
-          }
-        }
+        // Try to open email client
+        window.location.href = mailtoUrl;
+        
+        // Show success message and copy as backup
+        setTimeout(() => {
+          navigator.clipboard.writeText(`Subject: ${emailSubject}\n\n${emailBody}`);
+          toast({
+            title: "Email Template Ready",
+            description: "If your email client didn't open automatically, the content has been copied to your clipboard.",
+          });
+        }, 1000);
         return;
       default:
         // Copy to clipboard as fallback
@@ -532,7 +520,6 @@ Best regards,
                       Copy Link
                     </Button>
                     <Button onClick={() => {
-                      console.log('Email button clicked, referralUrl:', referralUrl);
                       shareToSocialMedia({
                         text: `🔧 Just passed my Louisiana plumbing exam with LA Plumb Prep! Their practice tests and AI mentor were game-changers. \n\nIf you're studying for your Louisiana plumbing certification, check them out: ${referralUrl} \n\n#LouisianaPlumber #PlumbingCertification #StudySuccess`
                       }, 'email');
