@@ -27,12 +27,12 @@ export default function Pricing() {
   const shouldShowBetaPricing = user?.isBetaTester || betaStatus?.isAcceptingBetaTesters || false;
 
   useEffect(() => {
-    document.title = "Pricing - Louisiana Plumbing Certification Training Plans | LA Plumb Prep";
+    document.title = "Louisiana Plumbing Certification Training Pricing - Journeyman, Master & Backflow Courses";
     
     // Update meta description
     const metaDescription = document.querySelector('meta[name="description"]');
     if (metaDescription) {
-      metaDescription.setAttribute('content', 'Choose your Louisiana plumbing certification training plan. Basic, Professional, and Master tiers with AI tools, practice exams, and expert mentoring. 50% off first month.');
+      metaDescription.setAttribute('content', 'Affordable Louisiana plumbing certification training from $19.99/month. Journeyman prep, master plumber courses, backflow prevention, and natural gas certification. AI tools included. Beta pricing available.');
     }
   }, []);
 

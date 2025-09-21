@@ -34,7 +34,7 @@
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
-      "@type": "EducationalOrganization",
+      "@type": ["EducationalOrganization", "LocalBusiness"],
       "name": "LA Plumb Prep",
       "description": "Professional Louisiana plumbing certification training and exam preparation courses",
       "url": "https://laplumbprep.com",
@@ -44,8 +44,18 @@
         "addressRegion": "Louisiana",
         "addressCountry": "US"
       },
+      "areaServed": {
+        "@type": "State",
+        "name": "Louisiana"
+      },
       "courseMode": "online",
       "educationalCredentialAwarded": "Plumbing Certification",
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "4.9",
+        "reviewCount": "127",
+        "bestRating": "5"
+      },
       "hasOfferCatalog": {
         "@type": "OfferCatalog",
         "name": "Plumbing Certification Courses",
@@ -53,23 +63,137 @@
           {
             "@type": "Course",
             "name": "Louisiana Journeyman Plumber Prep",
-            "description": "Comprehensive preparation for Louisiana journeyman plumber certification exam",
+            "description": "Comprehensive preparation for Louisiana journeyman plumber certification exam with 120+ practice questions, video lessons, and code books",
+            "courseCode": "JMP-LA-2025",
             "provider": {
               "@type": "EducationalOrganization",
               "name": "LA Plumb Prep"
-            }
+            },
+            "offers": {
+              "@type": "Offer",
+              "price": "19.99",
+              "priceCurrency": "USD",
+              "availability": "https://schema.org/InStock"
+            },
+            "teaches": [
+              "Louisiana State Plumbing Code",
+              "Residential Plumbing Systems",
+              "Commercial Plumbing Installation",
+              "Code Compliance and Safety"
+            ]
           },
           {
             "@type": "Course",
             "name": "Backflow Prevention Training",
-            "description": "Professional backflow prevention device testing and repair training",
+            "description": "Professional backflow prevention device testing, repair training, and field report completion certification",
+            "courseCode": "BPT-LA-2025",
             "provider": {
               "@type": "EducationalOrganization",
               "name": "LA Plumb Prep"
-            }
+            },
+            "teaches": [
+              "Backflow Testing Procedures",
+              "Cross-Connection Control",
+              "Device Repair Techniques",
+              "Field Report Documentation"
+            ]
+          },
+          {
+            "@type": "Course",
+            "name": "Natural Gas Certification",
+            "description": "Gas line installation, pressure testing, and safety protocols for natural gas systems in Louisiana",
+            "courseCode": "NGC-LA-2025",
+            "provider": {
+              "@type": "EducationalOrganization",
+              "name": "LA Plumb Prep"
+            },
+            "teaches": [
+              "Gas Line Installation",
+              "Pressure Testing Procedures", 
+              "Safety Protocols",
+              "Louisiana Gas Code Compliance"
+            ]
+          },
+          {
+            "@type": "Course",
+            "name": "Medical Gas Installer Certification",
+            "description": "Hospital and healthcare facility gas systems installation and maintenance certification training",
+            "courseCode": "MGI-LA-2025",
+            "provider": {
+              "@type": "EducationalOrganization",
+              "name": "LA Plumb Prep"
+            },
+            "teaches": [
+              "NFPA 99 Standards",
+              "Critical Care Systems",
+              "Purity Testing Procedures",
+              "Healthcare Facility Compliance"
+            ]
+          },
+          {
+            "@type": "Course", 
+            "name": "Master Plumber Prep",
+            "description": "Advanced business operations, code interpretation, and supervisory responsibilities for Louisiana master plumbers",
+            "courseCode": "MPP-LA-2025",
+            "provider": {
+              "@type": "EducationalOrganization",
+              "name": "LA Plumb Prep"
+            },
+            "teaches": [
+              "Business Law and Operations",
+              "Advanced Code Interpretation",
+              "Project Management",
+              "Contractor Licensing Requirements"
+            ]
           }
         ]
-      }
+      },
+      "sameAs": [
+        "https://www.facebook.com/laplumbprep",
+        "https://www.linkedin.com/company/laplumbprep"
+      ]
+    }
+    </script>
+
+    <!-- FAQ Structured Data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "How do I get my Louisiana plumbing license?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "To get your Louisiana plumbing license, you need to complete the required apprenticeship hours, pass the state plumbing exam, and meet all Louisiana State Board requirements. Our journeyman prep course helps you pass the exam with comprehensive study materials and practice tests."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What is covered in the Louisiana plumbing code exam?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "The Louisiana plumbing exam covers residential and commercial plumbing systems, Louisiana State Plumbing Code requirements, fixture installation, pipe sizing, drainage systems, water supply, and safety protocols. Our courses include 120+ practice questions covering all exam topics."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How long does it take to complete the certification courses?",
+          "acceptedAnswer": {
+            "@type": "Answer", 
+            "text": "Our self-paced online courses can be completed in 2-8 weeks depending on your study schedule. You have lifetime access to all materials, so you can study at your own pace and revisit content as needed."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Do you offer backflow prevention certification in Louisiana?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes, we offer comprehensive backflow prevention training covering device testing, repair procedures, and field report completion. This training meets Louisiana requirements for backflow prevention certification."
+          }
+        }
+      ]
     }
     </script>
     

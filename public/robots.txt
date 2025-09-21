@@ -1,0 +1,32 @@
+User-agent: *
+Allow: /
+
+# Important pages for SEO
+Allow: /pricing
+Allow: /louisiana-journeyman-prep-pricing
+Allow: /backflow-prevention-pricing  
+Allow: /natural-gas-certification-pricing
+Allow: /medical-gas-installer-pricing
+Allow: /master-plumber-prep-pricing
+Allow: /courses
+Allow: /tools
+Allow: /jobs
+Allow: /about
+Allow: /contact
+
+# Block private areas
+Disallow: /admin/
+Disallow: /dashboard/
+Disallow: /auth/
+Disallow: /api/
+Disallow: /checkout/
+Disallow: /cart
+Disallow: /study-companion
+Disallow: /achievements
+Disallow: /leaderboard
+
+# Sitemap
+Sitemap: https://laplumbprep.com/sitemap.xml
+
+# Crawl delay
+Crawl-delay: 1

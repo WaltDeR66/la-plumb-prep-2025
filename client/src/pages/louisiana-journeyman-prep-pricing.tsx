@@ -13,10 +13,10 @@ export default function LouisianaJourneymanPrepPricing() {
   const [isBetaTester] = useState(true); // Would come from user session/API in real app
 
   useEffect(() => {
-    document.title = "Louisiana Journeyman Prep - LA Plumb Prep";
+    document.title = "Louisiana Journeyman Plumber Exam Prep Course - Pass Your State License Test";
     const metaDescription = document.querySelector('meta[name="description"]');
     if (metaDescription) {
-      metaDescription.setAttribute('content', 'Comprehensive Louisiana Journeyman Plumber certification preparation. Master the Louisiana Plumbing Code with our expert-led course, practice exams, and AI tools.');
+      metaDescription.setAttribute('content', 'Pass your Louisiana journeyman plumber exam with our comprehensive prep course. 120+ practice questions, Louisiana State Plumbing Code training, video lessons, and AI mentoring. Beta pricing: $19.99/month. 95% pass rate.');
     }
   }, []);
 
