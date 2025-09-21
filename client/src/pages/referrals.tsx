@@ -38,18 +38,42 @@ export default function Referrals() {
   const [referralUrl, setReferralUrl] = useState("");
 
   // Fetch referral stats
-  const { data: stats, isLoading: statsLoading } = useQuery<ReferralStats>({
+  const { data: stats, isLoading: statsLoading, refetch: refetchStats } = useQuery<ReferralStats>({
     queryKey: ["/api/referrals/stats"],
+    retry: (failureCount, error: any) => {
+      // Retry 401 errors up to 3 times in case user just logged in
+      if (error?.message?.includes('401') && failureCount < 3) {
+        return true;
+      }
+      return false;
+    },
+    retryDelay: 1000, // Wait 1 second between retries
   });
 
   // Fetch commission preview
-  const { data: preview, isLoading: previewLoading } = useQuery<CommissionPreview>({
+  const { data: preview, isLoading: previewLoading, refetch: refetchPreview } = useQuery<CommissionPreview>({
     queryKey: ["/api/referrals/commission-preview"],
+    retry: (failureCount, error: any) => {
+      // Retry 401 errors up to 3 times in case user just logged in
+      if (error?.message?.includes('401') && failureCount < 3) {
+        return true;
+      }
+      return false;
+    },
+    retryDelay: 1000,
   });
 
   // Fetch monthly earnings summary
-  const { data: monthlyEarnings, isLoading: monthlyLoading } = useQuery({
+  const { data: monthlyEarnings, isLoading: monthlyLoading, refetch: refetchMonthly } = useQuery({
     queryKey: ["/api/referrals/monthly-earnings-summary"],
+    retry: (failureCount, error: any) => {
+      // Retry 401 errors up to 3 times in case user just logged in
+      if (error?.message?.includes('401') && failureCount < 3) {
+        return true;
+      }
+      return false;
+    },
+    retryDelay: 1000,
   });
 
   useEffect(() => {
@@ -57,6 +81,13 @@ export default function Referrals() {
       setReferralUrl(`${window.location.origin}?ref=${stats.referralCode}`);
     }
   }, [stats]);
+
+  // Add a manual refresh function for when data is missing
+  const refreshAllData = () => {
+    refetchStats();
+    refetchPreview();
+    refetchMonthly();
+  };
 
   const copyReferralUrl = async () => {
     try {
@@ -453,6 +484,16 @@ export default function Referrals() {
                       <Share2 className="h-4 w-4 mr-2" />
                       Share
                     </Button>
+                    {!stats?.referralCode && (
+                      <Button
+                        variant="secondary"
+                        onClick={refreshAllData}
+                        data-testid="refresh-data"
+                      >
+                        <TrendingUp className="w-4 h-4 mr-2" />
+                        Load Data
+                      </Button>
+                    )}
                   </div>
                 </CardContent>
               </Card>
