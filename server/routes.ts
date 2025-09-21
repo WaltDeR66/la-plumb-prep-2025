@@ -5594,13 +5594,14 @@ Start your journey at laplumbprep.com/courses
         .where(gte(users.createdAt, startDate));
       const newSignups = newSignupsResult.count;
 
-      // Active Students (users with paid subscriptions - not basic tier)
+      // Active Students (users with any subscription tier - enrolled users)
       const [activeStudentsResult] = await db
         .select({ count: count() })
         .from(users)
         .where(and(
           eq(users.isActive, true),
           or(
+            eq(users.subscriptionTier, 'basic'),
             eq(users.subscriptionTier, 'professional'),
             eq(users.subscriptionTier, 'master')
           )
@@ -5617,20 +5618,25 @@ Start your journey at laplumbprep.com/courses
         ));
       const courseCompletions = courseCompletionsResult.count;
 
-      // Basic revenue calculation (this would need actual payment tracking)
-      // For now, estimate based on active subscriptions
-      const professionalUsers = await db
+      // Revenue calculation based on active paid subscriptions
+      const [professionalUsersResult] = await db
         .select({ count: count() })
         .from(users)
-        .where(eq(users.subscriptionTier, 'professional'));
+        .where(and(
+          eq(users.subscriptionTier, 'professional'),
+          eq(users.isActive, true)
+        ));
       
-      const masterUsers = await db
+      const [masterUsersResult] = await db
         .select({ count: count() })
         .from(users)
-        .where(eq(users.subscriptionTier, 'master'));
+        .where(and(
+          eq(users.subscriptionTier, 'master'),
+          eq(users.isActive, true)
+        ));
 
       // Estimate revenue (professional: $29.99, master: $49.99 - using beta pricing)
-      const estimatedRevenue = (professionalUsers[0].count * 29.99) + (masterUsers[0].count * 49.99);
+      const estimatedRevenue = (professionalUsersResult.count * 29.99) + (masterUsersResult.count * 49.99);
 
       // Job Applications count
       const [jobApplicationsCountResult] = await db
@@ -5649,8 +5655,8 @@ Start your journey at laplumbprep.com/courses
       const betaFeedbackScore = feedbackCountResult.count > 0 ? 4.2 : 0;
       
 
-      // Subscription conversion rate (rough estimate)
-      const paidUsers = professionalUsers[0].count + masterUsers[0].count;
+      // Subscription conversion rate (paid vs total)
+      const paidUsers = professionalUsersResult.count + masterUsersResult.count;
       const subscriptionConversions = totalUsers > 0 ? Math.round((paidUsers / totalUsers) * 100) : 0;
 
       const analytics = {
