@@ -41,39 +41,45 @@ export default function Referrals() {
   const { data: stats, isLoading: statsLoading, refetch: refetchStats } = useQuery<ReferralStats>({
     queryKey: ["/api/referrals/stats"],
     retry: (failureCount, error: any) => {
-      // Retry 401 errors up to 3 times in case user just logged in
-      if (error?.message?.includes('401') && failureCount < 3) {
+      // Retry 401 errors up to 5 times in case user just logged in
+      if (error?.message?.includes('401') && failureCount < 5) {
         return true;
       }
       return false;
     },
-    retryDelay: 1000, // Wait 1 second between retries
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 3000),
+    staleTime: 0, // Always consider data stale to force refresh
+    gcTime: 0, // Don't cache failed responses
   });
 
   // Fetch commission preview
   const { data: preview, isLoading: previewLoading, refetch: refetchPreview } = useQuery<CommissionPreview>({
     queryKey: ["/api/referrals/commission-preview"],
     retry: (failureCount, error: any) => {
-      // Retry 401 errors up to 3 times in case user just logged in
-      if (error?.message?.includes('401') && failureCount < 3) {
+      // Retry 401 errors up to 5 times in case user just logged in
+      if (error?.message?.includes('401') && failureCount < 5) {
         return true;
       }
       return false;
     },
-    retryDelay: 1000,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 3000),
+    staleTime: 0, // Always consider data stale to force refresh
+    gcTime: 0, // Don't cache failed responses
   });
 
   // Fetch monthly earnings summary
   const { data: monthlyEarnings, isLoading: monthlyLoading, refetch: refetchMonthly } = useQuery({
     queryKey: ["/api/referrals/monthly-earnings-summary"],
     retry: (failureCount, error: any) => {
-      // Retry 401 errors up to 3 times in case user just logged in
-      if (error?.message?.includes('401') && failureCount < 3) {
+      // Retry 401 errors up to 5 times in case user just logged in
+      if (error?.message?.includes('401') && failureCount < 5) {
         return true;
       }
       return false;
     },
-    retryDelay: 1000,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 3000),
+    staleTime: 0, // Always consider data stale to force refresh
+    gcTime: 0, // Don't cache failed responses
   });
 
   useEffect(() => {
@@ -356,21 +362,21 @@ export default function Referrals() {
                       <div className="p-4 bg-green-50 rounded-lg">
                         <div className="text-sm text-muted-foreground">Total Monthly</div>
                         <div className="text-2xl font-bold text-green-600">
-                          ${monthlyEarnings?.totalMonthlyEarnings?.toFixed(2) || "0.00"}
+                          ${(monthlyEarnings as any)?.totalMonthlyEarnings?.toFixed(2) || "0.00"}
                         </div>
                       </div>
                       <div className="p-4 bg-orange-50 rounded-lg">
                         <div className="text-sm text-muted-foreground">Unpaid Monthly</div>
                         <div className="text-2xl font-bold text-orange-600">
-                          ${monthlyEarnings?.unpaidMonthlyEarnings?.toFixed(2) || "0.00"}
+                          ${(monthlyEarnings as any)?.unpaidMonthlyEarnings?.toFixed(2) || "0.00"}
                         </div>
                       </div>
                     </div>
                     
-                    {monthlyEarnings?.monthlyBreakdown && monthlyEarnings.monthlyBreakdown.length > 0 ? (
+                    {(monthlyEarnings as any)?.monthlyBreakdown && (monthlyEarnings as any).monthlyBreakdown.length > 0 ? (
                       <div className="space-y-3">
                         <div className="text-sm font-medium text-muted-foreground">Monthly Breakdown:</div>
-                        {monthlyEarnings.monthlyBreakdown.slice(0, 6).map((month: any) => (
+                        {(monthlyEarnings as any).monthlyBreakdown.slice(0, 6).map((month: any) => (
                           <div key={month.month} className="flex justify-between items-center p-3 border rounded-lg">
                             <div>
                               <div className="font-medium">

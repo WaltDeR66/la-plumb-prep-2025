@@ -4918,6 +4918,7 @@ Start your journey at laplumbprep.com/courses
   // Get user's referral statistics and earnings
   app.get("/api/referrals/stats", async (req, res) => {
     if (!req.isAuthenticated()) {
+      console.log('Referrals stats: User not authenticated, session:', req.session, 'user:', req.user);
       return res.status(401).json({ message: "Not authenticated" });
     }
 
