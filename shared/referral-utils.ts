@@ -1,10 +1,10 @@
 import { subscriptionTierEnum } from "./schema";
 
-// Plan tier pricing (monthly) - Used for commission calculation based on regular pricing
+// Plan tier pricing (monthly) - Used for commission calculation based on current beta pricing
 export const PLAN_PRICING = {
-  basic: 49.99,
-  professional: 79.99,
-  master: 99.99,
+  basic: 19.99,
+  professional: 29.99,
+  master: 49.99,
 } as const;
 
 // Plan tier hierarchy (higher number = higher tier)
@@ -63,22 +63,22 @@ export function calculateReferralCommission(
 }
 
 /**
- * Examples of commission calculations:
+ * Examples of commission calculations (based on current beta pricing):
  * 
  * Basic referrer (tier 1):
- * - Refers Basic user → Gets $5.00 (10% of $49.99)
- * - Refers Professional user → Gets $5.00 (10% of $49.99, capped at Basic)
- * - Refers Master user → Gets $5.00 (10% of $49.99, capped at Basic)
+ * - Refers Basic user → Gets $2.00 (10% of $19.99)
+ * - Refers Professional user → Gets $2.00 (10% of $19.99, capped at Basic)
+ * - Refers Master user → Gets $2.00 (10% of $19.99, capped at Basic)
  * 
  * Professional referrer (tier 2):
- * - Refers Basic user → Gets $5.00 (10% of $49.99)
- * - Refers Professional user → Gets $8.00 (10% of $79.99)
- * - Refers Master user → Gets $8.00 (10% of $79.99, capped at Professional)
+ * - Refers Basic user → Gets $2.00 (10% of $19.99)
+ * - Refers Professional user → Gets $3.00 (10% of $29.99)
+ * - Refers Master user → Gets $3.00 (10% of $29.99, capped at Professional)
  * 
  * Master referrer (tier 3):
- * - Refers Basic user → Gets $5.00 (10% of $49.99)
- * - Refers Professional user → Gets $8.00 (10% of $79.99)
- * - Refers Master user → Gets $10.00 (10% of $99.99)
+ * - Refers Basic user → Gets $2.00 (10% of $19.99)
+ * - Refers Professional user → Gets $3.00 (10% of $29.99)
+ * - Refers Master user → Gets $5.00 (10% of $49.99)
  */
 
 /**
