@@ -5014,10 +5014,11 @@ Start your journey at laplumbprep.com/courses
       const user = (req.user as any);
       const referrerTier = user.subscriptionTier;
 
+      // Show actual commission rates for each tier (not capped by referrer tier)
       const previews = {
-        basic: calculateReferralCommission(referrerTier, "basic"),
-        professional: calculateReferralCommission(referrerTier, "professional"),
-        master: calculateReferralCommission(referrerTier, "master")
+        basic: calculateReferralCommission("basic", "basic"),
+        professional: calculateReferralCommission("professional", "professional"),
+        master: calculateReferralCommission("master", "master")
       };
 
       res.json({
