@@ -1,0 +1,35 @@
+# Robots.txt for LA Plumb Prep
+# https://laplumbprep.com/robots.txt
+
+User-agent: *
+Allow: /
+
+# Sitemap location
+Sitemap: https://laplumbprep.com/sitemap.xml
+
+# Disallow admin pages for security
+Disallow: /admin/
+Disallow: /api/
+
+# Disallow checkout pages to prevent indexing of transactional pages
+Disallow: /checkout/
+Disallow: /payment-settings
+
+# Allow important SEO pages
+Allow: /
+Allow: /louisiana-journeyman-prep-pricing
+Allow: /master-plumber-prep-pricing  
+Allow: /backflow-prevention-pricing
+Allow: /natural-gas-certification-pricing
+Allow: /medical-gas-installer-pricing
+Allow: /tools
+Allow: /ai-tools-pricing
+Allow: /jobs
+Allow: /store
+Allow: /pricing
+Allow: /louisiana-board
+Allow: /lead-magnet
+Allow: /student-lead-magnet
+
+# Crawl-delay for polite crawling
+Crawl-delay: 1

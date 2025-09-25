@@ -58,6 +58,58 @@ Key architectural decisions:
 - **AI Mentor**: Conversational support for plumbing questions
 - **Response Format**: Structured JSON responses for consistent data handling
 
+## SEO Strategy & Google Visibility
+
+### Current SEO Status (September 2025)
+**Problem**: App doesn't appear in Google searches for "louisiana plumber test" despite excellent technical SEO implementation.
+
+**Analysis**: Strong competition from established test prep companies:
+- RocketCert (rocketcert.com) - Louisiana journeyman/master plumbing prep
+- Tests.com - Louisiana plumbing license exams with 400+ practice questions
+- PSI Online Store - 850+ sample questions with AI-enhanced materials
+- @HomePrep (athomeprep.com) - 400+ practice questions
+- ContractorTestLA - In-person training in Baton Rouge
+
+**Technical SEO Status**: ✅ EXCELLENT
+- Comprehensive meta tags with Louisiana plumber keywords
+- Structured data (Schema.org) for educational organization and courses
+- Open Graph and Twitter Card tags for social media
+- Mobile-optimized responsive design
+- Proper H1 tags and semantic HTML on all pages
+- Dynamic page titles for all routes
+- XML sitemap created and robots.txt configured
+
+### Required Next Steps for Google Visibility
+
+**Immediate (Week 1)**:
+1. **Google Search Console Setup**: Verify domain and submit sitemap at search.google.com/search-console
+2. **Google Analytics 4**: Install tracking code for user behavior analysis
+3. **Bing Webmaster Tools**: Additional search traffic from 100M+ daily users
+4. **Submit Sitemap**: Upload sitemap.xml to Google Search Console
+
+**Short-term (Weeks 2-4)**:
+5. **Content Marketing**: Create blog posts targeting "Louisiana plumbing exam prep", "journeyman plumber study guide Louisiana"
+6. **Local SEO**: Target "Louisiana plumbing certification", "Baton Rouge plumber training"
+7. **Backlink Strategy**: Reach out to Louisiana plumbing associations, trade schools
+8. **Google My Business**: Create business listing for local search visibility
+
+**Long-term (Months 2-6)**:
+9. **Domain Authority Building**: Guest posts on plumbing industry sites
+10. **User-Generated Content**: Student testimonials and success stories
+11. **Video Content**: YouTube channel for "Louisiana plumbing code explained"
+12. **Social Proof**: Reviews and ratings to compete with established players
+
+### Competitive Advantage Strategy
+- **Beta Pricing**: 60% discount vs competitors (Basic $19.99 vs their $49-79)
+- **AI-Powered Tools**: Photo analysis, plan review, AI mentor (unique differentiator)
+- **Comprehensive Platform**: Jobs, tools, training in one place vs single-purpose competitors
+- **Louisiana-Specific**: Focused solely on Louisiana vs national generic content
+
+### Expected Timeline
+- **Month 1-2**: Indexing and initial visibility
+- **Month 3-6**: Competing for long-tail keywords
+- **Month 6+**: Competing for primary keywords like "louisiana plumber test"
+
 ## Recent Changes
 
 ### September 19, 2025 - Beta Pricing Structure
