@@ -123,7 +123,7 @@ export class ContentExtractor {
             question: questionText,
             options: options.slice(0, 4), // Limit to 4 options
             type: 'multiple-choice',
-            explanation: $(element).find('.explanation, .info, .details').text().trim() || `Explanation for: ${questionText}`,
+            explanation: $(element).find('.explanation, .info, .details').text().trim() || `This question relates to the Louisiana State Plumbing Code. Understanding these regulations is essential for proper installation, maintenance, and compliance with Louisiana plumbing standards.`,
             reference: url
           });
         }

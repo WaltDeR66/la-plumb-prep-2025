@@ -200,7 +200,7 @@ export default function BulkQuestionImport() {
           section: selectedSection,
           category: selectedChapter,
           codeReference: `${selectedChapter} - ${selectedSection}`,
-          explanation: `Explanation for question ${index + 1}`
+          explanation: `This question relates to ${selectedChapter} - Section ${selectedSection} of the Louisiana State Plumbing Code. Understanding these regulations is essential for proper installation, maintenance, and compliance with Louisiana plumbing standards.`
         });
       }
     });
