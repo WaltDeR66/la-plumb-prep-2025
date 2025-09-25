@@ -52,6 +52,8 @@ export default function InteractiveQuiz({ section, contentId, title, onComplete 
   const [answers, setAnswers] = useState<{ [key: number]: number }>({});
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [showReview, setShowReview] = useState(false);
+  const [quizScore, setQuizScore] = useState<number | null>(null);
+  const [incorrectQuizAnswers, setIncorrectQuizAnswers] = useState<QuizQuestion[]>([]);
   const [startTime] = useState(Date.now());
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -90,6 +92,7 @@ export default function InteractiveQuiz({ section, contentId, title, onComplete 
     },
     onSuccess: (result: any) => {
       setIsSubmitted(true);
+      setQuizScore(result.score);
       queryClient.invalidateQueries({ queryKey: [`/api/quiz/${section}`] });
       
       if (result.passed) {
@@ -99,13 +102,18 @@ export default function InteractiveQuiz({ section, contentId, title, onComplete 
         });
         setTimeout(() => onComplete?.(), 2000);
       } else {
+        // Calculate incorrect questions for review
+        const incorrectQuestions = questions.filter((_, index) => 
+          answers[index] !== undefined && answers[index] !== questions[index].correctAnswer
+        );
+        setIncorrectQuizAnswers(incorrectQuestions);
+        setShowReview(true);
+        
         toast({
-          title: "Keep studying!",
-          description: `You scored ${result.score}%. Let's review your mistakes with AI help.`,
+          title: "Review Required",
+          description: `You scored ${result.score}%. Let's review the questions you missed.`,
           variant: "destructive",
         });
-        // Automatically redirect to AI chat instead of showing review
-        handleGetAIHelp();
       }
     },
     onError: (error: any) => {
@@ -254,6 +262,134 @@ export default function InteractiveQuiz({ section, contentId, title, onComplete 
           </Button>
         </CardContent>
       </Card>
+    );
+  }
+
+  // Show review for failed quiz
+  if (isSubmitted && showReview && !passed && quizScore !== null) {
+    return (
+      <div className="space-y-6">
+        {/* Failed Quiz Header */}
+        <Card>
+          <CardContent className="p-6 text-center space-y-4">
+            <XCircle className="w-16 h-16 text-red-500 mx-auto" />
+            <div className="space-y-2">
+              <h2 className="text-2xl font-bold text-red-700">Review Required</h2>
+              <p className="text-lg">You scored {quizScore}%</p>
+              <p className="text-muted-foreground">
+                You need {isChapterReview ? '80%' : '70%'} to pass. Let's review the questions you missed.
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Incorrect Questions Review */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <BookOpen className="w-5 h-5" />
+              Questions to Review ({incorrectQuizAnswers.length} incorrect)
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            {incorrectQuizAnswers.map((question, reviewIndex) => {
+              const originalIndex = questions.findIndex(q => q.id === question.id);
+              const userAnswer = answers[originalIndex];
+              const correctAnswer = question.correctAnswer;
+              
+              return (
+                <div key={question.id} className="border rounded-lg p-4 space-y-4">
+                  <div className="flex items-start justify-between">
+                    <h3 className="font-semibold text-lg">
+                      Question {originalIndex + 1}
+                    </h3>
+                    <Badge variant="destructive">Incorrect</Badge>
+                  </div>
+                  
+                  <p className="text-gray-700">{question.question}</p>
+                  
+                  <div className="grid gap-3">
+                    {question.options.map((option, optionIndex) => {
+                      const isUserAnswer = optionIndex === userAnswer;
+                      const isCorrectAnswer = optionIndex === correctAnswer;
+                      
+                      let bgClass = "";
+                      let textClass = "";
+                      let icon = null;
+                      
+                      if (isCorrectAnswer) {
+                        bgClass = "bg-green-50 border-green-200";
+                        textClass = "text-green-800";
+                        icon = <CheckCircle className="w-4 h-4 text-green-600" />;
+                      } else if (isUserAnswer) {
+                        bgClass = "bg-red-50 border-red-200";
+                        textClass = "text-red-800";
+                        icon = <XCircle className="w-4 h-4 text-red-600" />;
+                      } else {
+                        bgClass = "bg-gray-50 border-gray-200";
+                        textClass = "text-gray-600";
+                      }
+                      
+                      return (
+                        <div key={optionIndex} className={`flex items-center gap-3 p-3 border rounded ${bgClass}`}>
+                          <span className={`font-medium ${textClass}`}>
+                            {String.fromCharCode(65 + optionIndex)}.
+                          </span>
+                          <span className={`flex-1 ${textClass}`}>{option}</span>
+                          {icon}
+                          {isUserAnswer && !isCorrectAnswer && (
+                            <span className="text-sm font-medium text-red-600">Your Answer</span>
+                          )}
+                          {isCorrectAnswer && (
+                            <span className="text-sm font-medium text-green-600">Correct Answer</span>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                  
+                  {question.explanation && (
+                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                      <h4 className="font-semibold text-blue-800 mb-2">Explanation:</h4>
+                      <p className="text-blue-700">{question.explanation}</p>
+                    </div>
+                  )}
+                  
+                  {question.codeReference && (
+                    <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+                      <h4 className="font-semibold text-yellow-800 mb-1">Code Reference:</h4>
+                      <p className="text-yellow-700">{question.codeReference}</p>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </CardContent>
+        </Card>
+
+        {/* Action Buttons */}
+        <Card>
+          <CardContent className="p-6 flex flex-col sm:flex-row gap-4">
+            <Button
+              onClick={handleRetry}
+              variant="outline"
+              className="flex-1"
+              data-testid="button-retry-quiz"
+            >
+              <RotateCcw className="w-4 h-4 mr-2" />
+              Retry Quiz
+            </Button>
+            <Button
+              onClick={handleGetAIHelp}
+              className="flex-1"
+              data-testid="button-get-ai-help"
+            >
+              <MessageCircle className="w-4 h-4 mr-2" />
+              Get AI Help
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
     );
   }
 
