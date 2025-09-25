@@ -313,7 +313,7 @@ export default function InteractiveQuiz({ section, contentId, title, onComplete 
           <p className="text-lg font-medium">{currentQ.question}</p>
           
           <RadioGroup
-            value={answers[currentQuestion]?.toString()}
+            value={answers[currentQuestion]?.toString() || ""}
             onValueChange={(value) => handleAnswerChange(parseInt(value))}
           >
             {currentQ.options.map((option, index) => (
