@@ -167,14 +167,14 @@ export class ContentExtractor {
     
     questionBlocks.forEach((block, index) => {
       // Extract question text (until first A.)
-      const questionMatch = block.match(/^([^A]*?)(?=[A-D]\.)/s);
+      const questionMatch = block.match(/^([^A]*?)(?=[A-D]\.)/m);
       if (!questionMatch) return;
       
       const questionText = questionMatch[1].replace(/\*\*/g, '').trim();
       if (questionText.length < 10) return;
       
       // Extract options (A., B., C., D.)
-      const optionMatches = block.match(/([A-D])\.([^A-D]*?)(?=[A-D]\.|$)/gs);
+      const optionMatches = block.match(/([A-D])\.([^A-D]*?)(?=[A-D]\.|$)/gm);
       if (!optionMatches || optionMatches.length < 2) return;
       
       const options: any[] = [];
