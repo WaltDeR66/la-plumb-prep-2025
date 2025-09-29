@@ -124,23 +124,18 @@ export default function CourseContent() {
 
   // Group content by section
   const contentBySection = content.reduce((acc, item) => {
-    // Handle null/undefined sections by defaulting to section number
-    const sectionKey = item.section?.toString() || '101';
+    // Only group items that have a valid section number
+    const sectionKey = typeof item.section === 'number' ? String(item.section) : 'misc';
     if (!acc[sectionKey]) acc[sectionKey] = [];
     acc[sectionKey].push(item);
     return acc;
   }, {} as Record<string, CourseContent[]>);
   
-  // Get unique sections sorted and filter out placeholder sections
+  // Get unique sections sorted - show ALL imported sections
   const allSections = Object.keys(contentBySection).sort((a, b) => Number(a) - Number(b));
   
-  // Only show the specific Louisiana State Plumbing Code sections the user wants
-  const sections = allSections.filter(section => {
-    const sectionNum = Number(section);
-    
-    // Only keep sections 101, 103, 105, 107, 109 and 999 (chapter review)
-    return [101, 103, 105, 107, 109, 999].includes(sectionNum);
-  });
+  // Show ALL your imported sections - no filtering
+  const sections = allSections;
 
   const getTypeIcon = (type: string) => {
     switch (type) {
