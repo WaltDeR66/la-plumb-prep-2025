@@ -134,12 +134,12 @@ export default function CourseContent() {
   // Get unique sections sorted and filter out placeholder sections
   const allSections = Object.keys(contentBySection).sort((a, b) => Number(a) - Number(b));
   
-  // Only show the actual Louisiana State Plumbing Code sections (101-109)
+  // Show all valid sections with content (exclude section 1 which is just intro)
   const sections = allSections.filter(section => {
     const sectionNum = Number(section);
     
-    // Only keep sections 101, 103, 105, 107, 109 (the real LSPC sections)
-    return sectionNum >= 101 && sectionNum <= 109;
+    // Show all sections except section 1 (course intro)
+    return sectionNum > 1;
   });
 
   const getTypeIcon = (type: string) => {
