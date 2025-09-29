@@ -138,8 +138,8 @@ export default function CourseContent() {
   const sections = allSections.filter(section => {
     const sectionNum = Number(section);
     
-    // Only keep sections 101, 103, 105, 107, 109 (the specific LSPC sections wanted)
-    return [101, 103, 105, 107, 109].includes(sectionNum);
+    // Only keep sections 101, 103, 105, 107, 109 and 999 (chapter review)
+    return [101, 103, 105, 107, 109, 999].includes(sectionNum);
   });
 
   const getTypeIcon = (type: string) => {
