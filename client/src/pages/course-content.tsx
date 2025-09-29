@@ -122,19 +122,20 @@ export default function CourseContent() {
     );
   }
 
-  // Group content by section
-  const contentBySection = content.reduce((acc, item) => {
-    // Only group items that have a valid section number
-    const sectionKey = typeof item.section === 'number' ? String(item.section) : 'misc';
-    if (!acc[sectionKey]) acc[sectionKey] = [];
-    acc[sectionKey].push(item);
-    return acc;
-  }, {} as Record<string, CourseContent[]>);
+  // Group content by section - only Chapter 1 content
+  const contentBySection = content
+    .filter(item => item.chapter === 1) // Only show Chapter 1 content
+    .reduce((acc, item) => {
+      const sectionKey = typeof item.section === 'number' ? String(item.section) : 'misc';
+      if (!acc[sectionKey]) acc[sectionKey] = [];
+      acc[sectionKey].push(item);
+      return acc;
+    }, {} as Record<string, CourseContent[]>);
   
-  // Get unique sections sorted - show ALL imported sections
+  // Get unique sections sorted - only Chapter 1 sections
   const allSections = Object.keys(contentBySection).sort((a, b) => Number(a) - Number(b));
   
-  // Show ALL your imported sections - no filtering
+  // Show all Chapter 1 sections you imported
   const sections = allSections;
 
   const getTypeIcon = (type: string) => {
